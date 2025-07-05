@@ -1,0 +1,48 @@
+
+import { ArrowRight, Play } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+const HeroSection = () => {
+  return (
+    <section className="relative h-[600px] bg-gradient-to-r from-uw-purple to-uw-dark overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+        style={{
+          backgroundImage: `url(https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80)`
+        }}
+      />
+      
+      {/* Content */}
+      <div className="relative h-full flex items-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
+              Where Innovation
+              <span className="block text-uw-gold">Meets Excellence</span>
+            </h1>
+            <p className="text-xl text-gray-200 mb-8 animate-fade-in">
+              Join a community of scholars, researchers, and innovators who are shaping the future. 
+              Discover your potential at one of the world's leading public research universities.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in">
+              <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark font-semibold">
+                Apply Now
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-uw-purple">
+                <Play className="mr-2 h-5 w-5" />
+                Take a Virtual Tour
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Decorative Elements */}
+      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent" />
+    </section>
+  );
+};
+
+export default HeroSection;
