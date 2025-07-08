@@ -2,22 +2,188 @@
 import PageLayout from '@/components/PageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, Award, Microscope, Calculator, Atom, FlaskConical, Dna, TreePine, Brain } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { BookOpen, Users, Award, Microscope, Calculator, Atom, FlaskConical, Dna, TreePine, Brain, Clock, Target, Star, Beaker } from 'lucide-react';
 
 const SchoolScience = () => {
   const departments = [
-    { name: "Biology", students: 850, majors: 8, research: "$4.2M", faculty: 45 },
-    { name: "Chemistry", students: 420, majors: 5, research: "$3.8M", faculty: 32 },
-    { name: "Physics", students: 280, majors: 4, research: "$5.1M", faculty: 28 },
-    { name: "Mathematics", students: 380, majors: 6, research: "$2.1M", faculty: 35 },
-    { name: "Computer Science", students: 640, majors: 5, research: "$6.2M", faculty: 35 },
-    { name: "Environmental Science", students: 320, majors: 3, research: "$2.9M", faculty: 22 },
-    { name: "Psychology", students: 920, majors: 4, research: "$2.8M", faculty: 38 },
-    { name: "Statistics", students: 195, majors: 3, research: "$1.4M", faculty: 18 },
-    { name: "Geology", students: 165, majors: 2, research: "$1.8M", faculty: 16 },
-    { name: "Astronomy", students: 125, majors: 2, research: "$2.2M", faculty: 12 },
-    { name: "Biochemistry", students: 240, majors: 3, research: "$2.6M", faculty: 20 },
-    { name: "Neuroscience", students: 185, majors: 2, research: "$3.1M", faculty: 16 }
+    { 
+      name: "Biology", 
+      students: 850, 
+      majors: 8, 
+      research: "$4.2M", 
+      faculty: 45,
+      programs: ["Molecular Biology", "Ecology", "Marine Biology", "Biotechnology", "Pre-Medicine", "Bioinformatics", "Conservation Biology", "Physiology"],
+      topCourses: ["Cell Biology", "Genetics", "Organic Chemistry", "Evolution", "Ecology"],
+      careerPaths: ["Research Scientist", "Medical Doctor", "Biotechnologist", "Environmental Consultant", "Academic Professor"],
+      avgSalary: "$65,000"
+    },
+    { 
+      name: "Chemistry", 
+      students: 420, 
+      majors: 5, 
+      research: "$3.8M", 
+      faculty: 32,
+      programs: ["Analytical Chemistry", "Organic Chemistry", "Physical Chemistry", "Biochemistry", "Materials Chemistry"],
+      topCourses: ["General Chemistry", "Organic Chemistry", "Physical Chemistry", "Analytical Chemistry", "Quantum Chemistry"],
+      careerPaths: ["Chemical Engineer", "Pharmaceutical Scientist", "Quality Control Analyst", "Research Chemist", "Patent Attorney"],
+      avgSalary: "$70,000"
+    },
+    { 
+      name: "Physics", 
+      students: 280, 
+      majors: 4, 
+      research: "$5.1M", 
+      faculty: 28,
+      programs: ["Theoretical Physics", "Applied Physics", "Astrophysics", "Quantum Physics"],
+      topCourses: ["Classical Mechanics", "Electromagnetism", "Quantum Mechanics", "Thermodynamics", "Mathematical Physics"],
+      careerPaths: ["Research Physicist", "Data Scientist", "Engineering Physicist", "Science Teacher", "Patent Examiner"],
+      avgSalary: "$85,000"
+    },
+    { 
+      name: "Mathematics", 
+      students: 380, 
+      majors: 6, 
+      research: "$2.1M", 
+      faculty: 35,
+      programs: ["Pure Mathematics", "Applied Mathematics", "Statistics", "Actuarial Science", "Mathematics Education", "Financial Mathematics"],
+      topCourses: ["Calculus", "Linear Algebra", "Differential Equations", "Real Analysis", "Probability Theory"],
+      careerPaths: ["Data Analyst", "Actuary", "Software Developer", "Math Teacher", "Quantitative Analyst"],
+      avgSalary: "$75,000"
+    },
+    { 
+      name: "Computer Science", 
+      students: 640, 
+      majors: 5, 
+      research: "$6.2M", 
+      faculty: 35,
+      programs: ["Software Engineering", "Artificial Intelligence", "Cybersecurity", "Data Science", "Human-Computer Interaction"],
+      topCourses: ["Programming Fundamentals", "Data Structures", "Algorithms", "Software Engineering", "Machine Learning"],
+      careerPaths: ["Software Engineer", "Data Scientist", "Cybersecurity Analyst", "Product Manager", "Research Scientist"],
+      avgSalary: "$95,000"
+    },
+    { 
+      name: "Environmental Science", 
+      students: 320, 
+      majors: 3, 
+      research: "$2.9M", 
+      faculty: 22,
+      programs: ["Environmental Chemistry", "Climate Science", "Conservation Biology"],
+      topCourses: ["Environmental Chemistry", "Ecology", "Climate Science", "Environmental Policy", "GIS Applications"],
+      careerPaths: ["Environmental Consultant", "Climate Researcher", "Conservation Scientist", "Environmental Policy Analyst", "Sustainability Coordinator"],
+      avgSalary: "$60,000"
+    },
+    { 
+      name: "Psychology", 
+      students: 920, 
+      majors: 4, 
+      research: "$2.8M", 
+      faculty: 38,
+      programs: ["Clinical Psychology", "Cognitive Psychology", "Developmental Psychology", "Social Psychology"],
+      topCourses: ["General Psychology", "Research Methods", "Statistics", "Cognitive Psychology", "Abnormal Psychology"],
+      careerPaths: ["Clinical Psychologist", "Counselor", "Research Psychologist", "Human Resources Specialist", "Market Research Analyst"],
+      avgSalary: "$58,000"
+    },
+    { 
+      name: "Statistics", 
+      students: 195, 
+      majors: 3, 
+      research: "$1.4M", 
+      faculty: 18,
+      programs: ["Applied Statistics", "Biostatistics", "Mathematical Statistics"],
+      topCourses: ["Statistical Methods", "Probability Theory", "Regression Analysis", "Experimental Design", "Data Mining"],
+      careerPaths: ["Statistician", "Data Analyst", "Biostatistician", "Market Research Analyst", "Operations Research Analyst"],
+      avgSalary: "$80,000"
+    },
+    { 
+      name: "Geology", 
+      students: 165, 
+      majors: 2, 
+      research: "$1.8M", 
+      faculty: 16,
+      programs: ["Geological Sciences", "Environmental Geology"],
+      topCourses: ["Physical Geology", "Mineralogy", "Petrology", "Structural Geology", "Hydrogeology"],
+      careerPaths: ["Geologist", "Environmental Consultant", "Mining Engineer", "Petroleum Geologist", "Science Teacher"],
+      avgSalary: "$72,000"
+    },
+    { 
+      name: "Astronomy", 
+      students: 125, 
+      majors: 2, 
+      research: "$2.2M", 
+      faculty: 12,
+      programs: ["Astrophysics", "Planetary Science"],
+      topCourses: ["Introduction to Astronomy", "Astrophysics", "Planetary Science", "Stellar Astronomy", "Cosmology"],
+      careerPaths: ["Astronomer", "Data Scientist", "Planetarium Director", "Science Educator", "Aerospace Engineer"],
+      avgSalary: "$90,000"
+    },
+    { 
+      name: "Biochemistry", 
+      students: 240, 
+      majors: 3, 
+      research: "$2.6M", 
+      faculty: 20,
+      programs: ["Molecular Biochemistry", "Medical Biochemistry", "Structural Biology"],
+      topCourses: ["General Biochemistry", "Molecular Biology", "Enzymology", "Protein Chemistry", "Metabolic Pathways"],
+      careerPaths: ["Biochemist", "Medical Scientist", "Pharmaceutical Researcher", "Biotechnologist", "Clinical Laboratory Scientist"],
+      avgSalary: "$78,000"
+    },
+    { 
+      name: "Neuroscience", 
+      students: 185, 
+      majors: 2, 
+      research: "$3.1M", 
+      faculty: 16,
+      programs: ["Cellular Neuroscience", "Cognitive Neuroscience"],
+      topCourses: ["Introduction to Neuroscience", "Neuroanatomy", "Neurophysiology", "Cognitive Neuroscience", "Behavioral Neuroscience"],
+      careerPaths: ["Neuroscientist", "Medical Researcher", "Neuropsychologist", "Pharmaceutical Researcher", "Academic Professor"],
+      avgSalary: "$82,000"
+    }
+  ];
+
+  const sampleCourseDetails = {
+    course: "Advanced Organic Chemistry (CHEM 485)",
+    credits: 4,
+    prerequisites: "CHEM 231, CHEM 232, CHEM 241",
+    description: "Advanced study of organic reaction mechanisms, stereochemistry, and synthetic methodology with emphasis on modern organic synthesis.",
+    learningOutcomes: [
+      "Apply advanced mechanistic principles to predict reaction outcomes",
+      "Design multi-step synthetic routes to complex organic molecules",
+      "Analyze stereochemical relationships in organic transformations",
+      "Evaluate literature synthetic methods and propose improvements"
+    ],
+    topics: [
+      "Advanced Reaction Mechanisms and Kinetics",
+      "Stereochemistry and Conformational Analysis",
+      "Organometallic Chemistry and Catalysis",
+      "Modern Synthetic Methods and Strategy",
+      "Natural Product Synthesis",
+      "Protecting Group Chemistry",
+      "Asymmetric Synthesis",
+      "Spectroscopic Analysis and Structure Determination"
+    ],
+    assessment: "35% Midterm Exams, 25% Final Exam, 25% Research Project, 15% Problem Sets",
+    textbooks: [
+      "Clayden et al. - Organic Chemistry (2nd Edition)",
+      "March - Advanced Organic Chemistry (7th Edition)",
+      "Warren & Wyatt - Organic Synthesis: The Disconnection Approach"
+    ],
+    labComponent: {
+      credits: 1,
+      hours: "3 hours/week",
+      experiments: ["Multi-step Synthesis", "Catalytic Reactions", "Spectroscopic Analysis", "Literature Synthesis"]
+    }
+  };
+
+  const facultyHighlights = [
+    { name: "Dr. Elena Petrov", specialty: "Quantum Computing", credentials: "MIT PhD, Google Research Alumni", research: "Quantum Algorithm Development", awards: "NSF CAREER Award 2023", publications: 85 },
+    { name: "Dr. Marcus Johnson", specialty: "Cancer Biology", credentials: "Stanford MD/PhD", research: "Tumor Immunotherapy", awards: "NIH New Innovator Award", publications: 120 },
+    { name: "Dr. Sarah Chen", specialty: "Climate Modeling", credentials: "Caltech PhD, NOAA Fellow", research: "Arctic Climate Change", awards: "AGU Early Career Award", publications: 75 },
+    { name: "Dr. David Rodriguez", specialty: "Machine Learning", credentials: "Carnegie Mellon PhD, Apple Research", research: "Computer Vision", awards: "IEEE Outstanding Paper", publications: 95 },
+    { name: "Dr. Lisa Wang", specialty: "Neuroscience", credentials: "Harvard PhD, Broad Institute", research: "Brain-Computer Interfaces", awards: "Sloan Research Fellowship", publications: 110 },
+    { name: "Dr. Ahmed Hassan", specialty: "Materials Chemistry", credentials: "UC Berkeley PhD, LBNL Postdoc", research: "Solar Cell Technology", awards: "DOE Early Career Award", publications: 90 }
   ];
 
   const researchCenters = [
@@ -145,35 +311,219 @@ const SchoolScience = () => {
         {/* Departments */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold mb-6">Academic Departments</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {departments.map((dept, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">{dept.name}</CardTitle>
+          <Tabs defaultValue="overview" className="mb-8">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Department Overview</TabsTrigger>
+              <TabsTrigger value="programs">Degree Programs</TabsTrigger>
+              <TabsTrigger value="curriculum">Sample Curriculum</TabsTrigger>
+              <TabsTrigger value="faculty">Faculty Excellence</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="overview">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {departments.map((dept, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg text-uw-purple">{dept.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600">Students:</span>
+                            <div className="font-semibold">{dept.students}</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Programs:</span>
+                            <div className="font-semibold">{dept.majors}</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Research:</span>
+                            <div className="font-semibold">{dept.research}</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Faculty:</span>
+                            <div className="font-semibold">{dept.faculty}</div>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-sm text-gray-600">Avg Starting Salary:</span>
+                          <div className="font-semibold text-green-600">{dept.avgSalary}</div>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">Top Career Paths:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {dept.careerPaths.slice(0, 3).map((career, i) => (
+                              <Badge key={i} variant="outline" className="text-xs">{career}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="programs">
+              <div className="space-y-4">
+                {departments.map((dept, index) => (
+                  <Card key={index}>
+                    <CardHeader>
+                      <CardTitle className="text-lg">{dept.name} Department</CardTitle>
+                      <CardDescription>{dept.students} students • {dept.majors} degree programs</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="font-semibold mb-3">Degree Programs</h4>
+                          <div className="space-y-2">
+                            {dept.programs.map((program, i) => (
+                              <div key={i} className="flex items-center">
+                                <Target className="h-3 w-3 mr-2 text-uw-purple" />
+                                <span className="text-sm">{program}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-3">Core Courses</h4>
+                          <div className="space-y-2">
+                            {dept.topCourses.map((course, i) => (
+                              <div key={i} className="flex items-center">
+                                <BookOpen className="h-3 w-3 mr-2 text-uw-purple" />
+                                <span className="text-sm">{course}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="curriculum">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sample Course: Advanced Organic Chemistry</CardTitle>
+                  <CardDescription>Example of rigorous science curriculum standards across all departments</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Students:</span>
-                      <span className="font-semibold">{dept.students}</span>
+                  <div className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold mb-3">Course Information</h4>
+                        <div className="space-y-2 text-sm">
+                          <div><span className="font-medium">Course:</span> {sampleCourseDetails.course}</div>
+                          <div><span className="font-medium">Credits:</span> {sampleCourseDetails.credits}</div>
+                          <div><span className="font-medium">Prerequisites:</span> {sampleCourseDetails.prerequisites}</div>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-3">{sampleCourseDetails.description}</p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-3">Learning Outcomes</h4>
+                        <ul className="text-sm space-y-1">
+                          {sampleCourseDetails.learningOutcomes.map((outcome, i) => (
+                            <li key={i} className="flex items-start">
+                              <span className="text-uw-purple mr-2">•</span>
+                              {outcome}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Programs:</span>
-                      <span className="font-semibold">{dept.majors}</span>
+                    
+                    <div>
+                      <h4 className="font-semibold mb-3">Course Topics</h4>
+                      <div className="grid md:grid-cols-2 gap-2">
+                        {sampleCourseDetails.topics.map((topic, i) => (
+                          <div key={i} className="flex items-center text-sm">
+                            <Beaker className="h-3 w-3 mr-2 text-uw-purple" />
+                            {topic}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Research:</span>
-                      <span className="font-semibold">{dept.research}</span>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold mb-3">Assessment Methods</h4>
+                        <p className="text-sm text-gray-600">{sampleCourseDetails.assessment}</p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-3">Required Textbooks</h4>
+                        <ul className="text-sm space-y-1">
+                          {sampleCourseDetails.textbooks.map((book, i) => (
+                            <li key={i} className="text-gray-600">• {book}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Faculty:</span>
-                      <span className="font-semibold">{dept.faculty}</span>
+
+                    <div>
+                      <h4 className="font-semibold mb-3">Laboratory Component</h4>
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="grid md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="font-medium">Credits:</span> {sampleCourseDetails.labComponent.credits}
+                          </div>
+                          <div>
+                            <span className="font-medium">Hours:</span> {sampleCourseDetails.labComponent.hours}
+                          </div>
+                          <div>
+                            <span className="font-medium">Experiments:</span> {sampleCourseDetails.labComponent.experiments.length}
+                          </div>
+                        </div>
+                        <div className="mt-3">
+                          <span className="font-medium text-sm">Lab Experiments:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {sampleCourseDetails.labComponent.experiments.map((exp, i) => (
+                              <Badge key={i} variant="secondary" className="text-xs">{exp}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            </TabsContent>
+
+            <TabsContent value="faculty">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {facultyHighlights.map((faculty, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="text-lg">{faculty.name}</CardTitle>
+                      <CardDescription>{faculty.specialty}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex items-start">
+                          <BookOpen className="h-4 w-4 mr-2 text-uw-purple mt-0.5" />
+                          <span className="text-sm">{faculty.credentials}</span>
+                        </div>
+                        <div className="flex items-start">
+                          <Microscope className="h-4 w-4 mr-2 text-uw-purple mt-0.5" />
+                          <span className="text-sm">{faculty.research}</span>
+                        </div>
+                        <div className="flex items-start">
+                          <Award className="h-4 w-4 mr-2 text-uw-gold mt-0.5" />
+                          <span className="text-sm font-medium">{faculty.awards}</span>
+                        </div>
+                        <div className="flex items-start">
+                          <Star className="h-4 w-4 mr-2 text-uw-purple mt-0.5" />
+                          <span className="text-sm">{faculty.publications} Publications</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Research Centers */}
