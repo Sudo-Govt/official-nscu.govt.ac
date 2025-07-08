@@ -72,6 +72,11 @@ import AlumniBenefits from "./pages/alumni/AlumniBenefits";
 import AlumniEvents from "./pages/alumni/AlumniEvents";
 import GiveBack from "./pages/alumni/GiveBack";
 
+// Colleges pages
+import FullFledgedColleges from "./pages/colleges/FullFledgedColleges";
+import OffshoreColleges from "./pages/colleges/OffshoreColleges";
+import StudyCenters from "./pages/colleges/StudyCenters";
+
 // Program pages
 import BachelorArtsEnglish from "./pages/programs/BachelorArtsEnglish";
 import MasterArtsHistory from "./pages/programs/MasterArtsHistory";
@@ -172,6 +177,11 @@ const App = () => (
           <Route path="/alumni/benefits" element={<AlumniBenefits />} />
           <Route path="/alumni/events" element={<AlumniEvents />} />
           <Route path="/alumni/give-back" element={<GiveBack />} />
+          
+          {/* Colleges Routes */}
+          <Route path="/colleges/full-fledged" element={<FullFledgedColleges />} />
+          <Route path="/colleges/offshore" element={<OffshoreColleges />} />
+          <Route path="/colleges/study-centers" element={<StudyCenters />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

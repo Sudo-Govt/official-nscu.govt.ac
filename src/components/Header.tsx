@@ -97,6 +97,14 @@ const Header = () => {
       ]
     },
     {
+      title: "Colleges",
+      items: [
+        {title: "Full-Fledged Colleges", href: "/colleges/full-fledged"},
+        {title: "Offshore Colleges", href: "/colleges/offshore"},
+        {title: "Study Centers", href: "/colleges/study-centers"}
+      ]
+    },
+    {
       title: "Alumni",
       items: [
         {title: "Alumni Association", href: "/alumni/association"},
