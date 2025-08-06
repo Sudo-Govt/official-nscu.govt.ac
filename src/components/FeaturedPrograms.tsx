@@ -5,46 +5,46 @@ import { Button } from '@/components/ui/button';
 
 const programs = [
   {
+    icon: Briefcase,
+    title: "Online MBA Program Global",
+    description: "GCHEA-accredited MBA designed for working professionals seeking career advancement.",
+    students: "1,200+",
+    ranking: "GCHEA Accredited"
+  },
+  {
     icon: Code,
-    title: "Computer Science & Engineering",
-    description: "Leading-edge research in AI, machine learning, and software systems.",
-    students: "2,400+",
-    ranking: "#6 Nationally"
+    title: "Accredited IT Degrees Online",
+    description: "Distance learning technology programs in cybersecurity, data science, and software engineering.",
+    students: "2,100+",
+    ranking: "Industry Recognized"
   },
   {
     icon: Heart,
-    title: "School of Medicine",
-    description: "Training the next generation of healthcare leaders and researchers.",
+    title: "International Psychology Degree Online",
+    description: "Flexible online psychology programs with global perspective and practical applications.",
     students: "950+",
-    ranking: "#1 in Primary Care"
-  },
-  {
-    icon: Briefcase,
-    title: "Business School",
-    description: "Innovative business education with global perspective.",
-    students: "1,800+",
-    ranking: "#22 Nationally"
-  },
-  {
-    icon: Microscope,
-    title: "College of Engineering",
-    description: "Solving complex challenges through engineering excellence.",
-    students: "4,200+",
-    ranking: "#26 Nationally"
+    ranking: "WEQSC Recognized"
   },
   {
     icon: BookOpen,
-    title: "College of Arts & Sciences",
-    description: "Comprehensive liberal arts education fostering critical thinking.",
-    students: "12,000+",
-    ranking: "Top 10 Public"
+    title: "Distance Learning Law Degree Belize",
+    description: "Comprehensive legal education with international law focus, study while working.",
+    students: "650+",
+    ranking: "Internationally Valid"
+  },
+  {
+    icon: Microscope,
+    title: "Online Engineering Degree Programs",
+    description: "Fast-track engineering degrees for working professionals with credit transfer options.",
+    students: "1,800+",
+    ranking: "Global Recognition"
   },
   {
     icon: GraduationCap,
-    title: "Graduate School",
-    description: "Advanced research and professional development opportunities.",
-    students: "16,000+",
-    ranking: "#15 Nationally"
+    title: "NSCU Online PhD Programs",
+    description: "Doctoral programs in business, education, and technology with flexible scheduling.",
+    students: "400+",
+    ranking: "Research Excellence"
   }
 ];
 
@@ -54,11 +54,11 @@ const FeaturedPrograms = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-uw-purple mb-4">
-            World-Class Programs
+            Accredited Online Degree Programs
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choose from over 180 undergraduate and 370 graduate degree programs 
-            across 18 schools and colleges, all designed to prepare you for success.
+            Study from anywhere with NSCU's flexible online degree programs. 
+            GCHEA-accredited courses designed for working professionals seeking career advancement.
           </p>
         </div>
 

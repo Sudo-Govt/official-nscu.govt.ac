@@ -18,12 +18,12 @@ const HeroSection = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
-              Where Innovation
-              <span className="block text-uw-gold">Meets Excellence</span>
+              NSCU Belize - Your Global
+              <span className="block text-uw-gold">Online University</span>
             </h1>
             <p className="text-xl text-gray-200 mb-8 animate-fade-in">
-              Join a community of scholars, researchers, and innovators who are shaping the future. 
-              Discover your potential at one of the world's leading public research universities.
+              Study at a GCHEA-accredited international university from anywhere in the world. 
+              Earn globally recognized degrees with flexible online programs designed for working professionals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-in">
               <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark font-semibold">
