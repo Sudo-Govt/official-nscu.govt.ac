@@ -4,27 +4,27 @@ import { Users, GraduationCap, BookOpen, Award } from 'lucide-react';
 const stats = [
   {
     icon: Users,
-    number: "47,400+",
-    label: "Total Students",
-    description: "Diverse community of learners"
+    number: "18,500+",
+    label: "Global Students",
+    description: "International students studying online from 85+ countries"
   },
   {
     icon: GraduationCap,
-    number: "16,000+",
-    label: "Graduate Students",
-    description: "Pursuing advanced degrees"
+    number: "95%",
+    label: "Career Advancement",
+    description: "Working professionals earning degrees while advancing careers"
   },
   {
     icon: BookOpen,
-    number: "370+",
-    label: "Graduate Programs",
-    description: "Across all disciplines"
+    number: "50+",
+    label: "Online Programs",
+    description: "GCHEA accredited degrees in business, IT, psychology, and law"
   },
   {
     icon: Award,
-    number: "#10",
-    label: "Public University",
-    description: "US News World Report"
+    number: "GCHEA",
+    label: "Accredited University",
+    description: "Recognized by Global Commission for Higher Education Accreditation"
   }
 ];
 
@@ -34,10 +34,11 @@ const StatsSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4">
-            University by the Numbers
+            NSCU Belize - Global Online University Success Stories
           </h2>
           <p className="text-xl text-gray-200 max-w-3xl mx-auto">
-            Our commitment to excellence is reflected in our achievements and the success of our community.
+            As a GCHEA accredited international university, NSCU serves working professionals worldwide 
+            with affordable, flexible online degrees that advance careers without relocation.
           </p>
         </div>
 

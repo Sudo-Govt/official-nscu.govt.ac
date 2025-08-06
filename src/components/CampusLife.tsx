@@ -47,11 +47,11 @@ const CampusLife = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-uw-purple mb-4">
-            Vibrant Campus Life
+            Global Student Community - Study from Anywhere
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Experience a dynamic community where learning extends far beyond the classroom. 
-            Our campus offers endless opportunities for growth, connection, and discovery.
+            Join NSCU's vibrant international online community. Connect with fellow students from India, 
+            Africa, Asia and beyond through virtual events, study groups, and collaborative projects while earning your degree.
           </p>
         </div>
 

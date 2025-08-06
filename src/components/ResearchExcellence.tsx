@@ -54,11 +54,11 @@ const ResearchExcellence = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4">
-            Research Excellence
+            NSCU Research Excellence - Global Innovation from Belize
           </h2>
           <p className="text-xl text-gray-200 max-w-3xl mx-auto">
-            Our world-renowned faculty and researchers are pushing the boundaries of knowledge 
-            across disciplines, creating solutions for tomorrow's challenges.
+            As a WEQSC recognized institution, NSCU Belize conducts cutting-edge research 
+            that benefits our online students worldwide, enhancing the quality of distance education and global learning.
           </p>
         </div>
 

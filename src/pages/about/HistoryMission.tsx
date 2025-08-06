@@ -38,8 +38,8 @@ const milestones = [
 const HistoryMission = () => {
   return (
     <PageLayout 
-      title="History & Mission" 
-      description="Our rich heritage and commitment to excellence in education, research, and service"
+      title="NSCU History & Mission - GCHEA Accredited Global University" 
+      description="Learn about NSCU Belize's mission as a GCHEA accredited international university serving students worldwide with quality distance education."
     >
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -48,9 +48,9 @@ const HistoryMission = () => {
             <h2 className="text-3xl font-bold text-uw-purple mb-6 text-center">Our Mission</h2>
             <div className="max-w-4xl mx-auto text-center">
               <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                To advance learning through teaching, research, and service, preparing students to be 
-                engaged citizens and leaders in a global society while contributing to the economic, 
-                cultural, and social vitality of Delaware and beyond.
+                To provide globally accessible, GCHEA accredited higher education that empowers working professionals 
+                worldwide to advance their careers through flexible online learning. NSCU Belize bridges 
+                educational gaps for international students seeking legitimate, affordable degrees without relocation.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 <div className="text-center">

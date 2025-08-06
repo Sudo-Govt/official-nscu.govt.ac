@@ -7,8 +7,8 @@ import { Calendar, FileText, DollarSign, Users } from 'lucide-react';
 const UndergraduateAdmissions = () => {
   return (
     <PageLayout 
-      title="Undergraduate Admissions" 
-      description="Start your journey at NSCU - where innovation meets education"
+      title="NSCU Belize Online Bachelor Degree Programs - GCHEA Accredited" 
+      description="Apply to NSCU's affordable online bachelor degree programs. Study from anywhere with GCHEA accredited distance learning designed for working professionals."
     >
       <div className="container mx-auto px-4 py-12">
         {/* Quick Stats */}
@@ -16,37 +16,41 @@ const UndergraduateAdmissions = () => {
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <Users className="h-4 w-4 mr-2" />
-              <CardTitle className="text-sm font-medium">Acceptance Rate</CardTitle>
+              <CardTitle className="text-sm font-medium">Global Students</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">68%</div>
+              <div className="text-2xl font-bold">85+</div>
+              <p className="text-xs text-muted-foreground">Countries Represented</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <FileText className="h-4 w-4 mr-2" />
-              <CardTitle className="text-sm font-medium">Average SAT</CardTitle>
+              <CardTitle className="text-sm font-medium">GCHEA Accredited</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1285</div>
+              <div className="text-2xl font-bold">100%</div>
+              <p className="text-xs text-muted-foreground">Online Programs</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <DollarSign className="h-4 w-4 mr-2" />
-              <CardTitle className="text-sm font-medium">Tuition (In-State)</CardTitle>
+              <CardTitle className="text-sm font-medium">Affordable Tuition</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$12,400</div>
+              <div className="text-2xl font-bold">$1,800</div>
+              <p className="text-xs text-muted-foreground">Per semester</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center space-y-0 pb-2">
               <Calendar className="h-4 w-4 mr-2" />
-              <CardTitle className="text-sm font-medium">Application Deadline</CardTitle>
+              <CardTitle className="text-sm font-medium">Flexible Start</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold">January 15</div>
+              <div className="text-sm font-bold">Rolling</div>
+              <p className="text-xs text-muted-foreground">Admissions</p>
             </CardContent>
           </Card>
         </div>
@@ -54,34 +58,34 @@ const UndergraduateAdmissions = () => {
         {/* Application Process */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           <div>
-            <h2 className="text-3xl font-bold mb-6">How to Apply</h2>
+            <h2 className="text-3xl font-bold mb-6">How to Apply to NSCU Online</h2>
             <div className="space-y-4">
               <div className="flex items-start">
                 <div className="bg-uw-purple text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1">1</div>
                 <div>
-                  <h3 className="font-semibold">Complete Application</h3>
-                  <p className="text-gray-600">Submit your application through our online portal</p>
+                  <h3 className="font-semibold">Complete Online Application</h3>
+                  <p className="text-gray-600">Apply from anywhere - no campus visit required</p>
                 </div>
               </div>
               <div className="flex items-start">
                 <div className="bg-uw-purple text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1">2</div>
                 <div>
-                  <h3 className="font-semibold">Submit Transcripts</h3>
-                  <p className="text-gray-600">Official high school transcripts required</p>
+                  <h3 className="font-semibold">Submit Academic Documents</h3>
+                  <p className="text-gray-600">High school or equivalent transcripts (international accepted)</p>
                 </div>
               </div>
               <div className="flex items-start">
                 <div className="bg-uw-purple text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1">3</div>
                 <div>
-                  <h3 className="font-semibold">Test Scores</h3>
-                  <p className="text-gray-600">SAT or ACT scores (optional for 2024-2025)</p>
+                  <h3 className="font-semibold">English Proficiency</h3>
+                  <p className="text-gray-600">TOEFL/IELTS for international students (if applicable)</p>
                 </div>
               </div>
               <div className="flex items-start">
                 <div className="bg-uw-purple text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1">4</div>
                 <div>
-                  <h3 className="font-semibold">Letters of Recommendation</h3>
-                  <p className="text-gray-600">Two letters from teachers or counselors</p>
+                  <h3 className="font-semibold">Start Classes Online</h3>
+                  <p className="text-gray-600">Begin your GCHEA accredited degree from home</p>
                 </div>
               </div>
             </div>

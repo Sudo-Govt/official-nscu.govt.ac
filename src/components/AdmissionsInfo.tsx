@@ -33,27 +33,27 @@ const admissionSteps = [
 const quickFacts = [
   {
     icon: GraduationCap,
-    label: "Acceptance Rate",
-    value: "49%",
-    description: "Selective admission process"
+    label: "Global Recognition",
+    value: "GCHEA",
+    description: "Internationally accredited degrees"
   },
   {
     icon: FileText,
-    label: "Average GPA",
-    value: "3.8",
-    description: "Of admitted students"
+    label: "Flexible Study",
+    value: "100%",
+    description: "Online programs for working adults"
   },
   {
     icon: DollarSign,
-    label: "Average Aid",
-    value: "$18,500",
-    description: "Financial aid per student"
+    label: "Affordable Tuition",
+    value: "$2,500",
+    description: "Per semester for international students"
   },
   {
     icon: Clock,
-    label: "Application Time",
-    value: "45 min",
-    description: "To complete application"
+    label: "Fast Track",
+    value: "12-18 months",
+    description: "Complete your degree while working"
   }
 ];
 
@@ -63,11 +63,11 @@ const AdmissionsInfo = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-uw-purple mb-4">
-            Start Your Journey at NSCU
+            Apply to NSCU Belize - GCHEA Accredited Global University
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join our community of scholars and innovators. Our admissions process is designed 
-            to find students who will thrive in our collaborative environment.
+            Join thousands of working professionals earning accredited degrees online. 
+            Study from anywhere with flexible programs designed for international students seeking career advancement.
           </p>
         </div>
 
@@ -121,9 +121,10 @@ const AdmissionsInfo = () => {
 
         {/* Call to Action */}
         <div className="bg-uw-purple rounded-lg p-8 text-white text-center">
-          <h3 className="text-2xl font-bold mb-4">Ready to Apply?</h3>
+          <h3 className="text-2xl font-bold mb-4">Ready to Earn Your Global Degree?</h3>
           <p className="text-lg mb-6 text-gray-200">
-            Take the first step toward your future at New States Continental University - Delaware
+            Join NSCU Belize - the trusted GCHEA accredited university for working professionals worldwide. 
+            Study from India, Africa, Asia, or anywhere with our globally recognized distance learning programs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark">

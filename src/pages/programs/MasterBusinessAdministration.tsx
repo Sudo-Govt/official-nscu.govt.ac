@@ -56,8 +56,8 @@ const MasterBusinessAdministration = () => {
 
   return (
     <PageLayout 
-      title="Master of Business Administration (MBA)" 
-      description="Comprehensive 2-year MBA program designed for aspiring business leaders"
+      title="Online MBA Belize - GCHEA Accredited Global Business Degree" 
+      description="Earn your MBA online from NSCU Belize. GCHEA accredited MBA program for working professionals worldwide. Study from India, Africa, Asia or anywhere."
     >
       <div className="container mx-auto px-4 py-8">
         {/* Program Overview */}
@@ -90,7 +90,7 @@ const MasterBusinessAdministration = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">MBA</div>
-                <p className="text-xs text-muted-foreground">AACSB Accredited</p>
+                <p className="text-xs text-muted-foreground">GCHEA Accredited</p>
               </CardContent>
             </Card>
           </div>
@@ -293,29 +293,32 @@ const MasterBusinessAdministration = () => {
                 <CardTitle>Fee Structure</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Tuition Fee (per semester)</span>
-                    <span className="font-bold">$25,000</span>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span>Tuition Fee (per semester)</span>
+                      <span className="font-bold">$2,800</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Digital Resources & Materials</span>
+                      <span className="font-bold">$300</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Technology Platform Access</span>
+                      <span className="font-bold">$200</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Registration Fee (one-time)</span>
+                      <span className="font-bold">$150</span>
+                    </div>
+                    <hr />
+                    <div className="flex justify-between text-lg font-bold">
+                      <span>Total Program Cost (2 Years)</span>
+                      <span>$11,850</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Affordable MBA for international students - Study while working from anywhere
+                    </p>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Case Study Materials</span>
-                    <span className="font-bold">$1,500</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Technology Fee</span>
-                    <span className="font-bold">$800</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Registration Fee (one-time)</span>
-                    <span className="font-bold">$1,000</span>
-                  </div>
-                  <hr />
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>Total Program Cost</span>
-                    <span>$105,600</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
