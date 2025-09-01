@@ -19,11 +19,11 @@ const HeroSection = () => {
           <div className="max-w-3xl">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
               NSCU Belize - Your Global
-              <span className="block text-uw-gold">Online University</span>
+              <span className="block text-uw-gold">University</span>
             </h1>
             <p className="text-xl text-gray-200 mb-8 animate-fade-in">
-              Study at a GCHEA-accredited international university from anywhere in the world. 
-              Earn globally recognized degrees with flexible online programs designed for working professionals.
+              Study at a GCHEA-accredited international university with globally recognized programs. 
+              Earn prestigious degrees with flexible study options designed for working professionals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-in">
               <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark font-semibold">

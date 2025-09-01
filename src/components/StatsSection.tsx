@@ -6,7 +6,7 @@ const stats = [
     icon: Users,
     number: "18,500+",
     label: "Global Students",
-    description: "International students studying online from 85+ countries"
+    description: "International students from 85+ countries"
   },
   {
     icon: GraduationCap,
@@ -17,7 +17,7 @@ const stats = [
   {
     icon: BookOpen,
     number: "50+",
-    label: "Online Programs",
+    label: "Academic Programs",
     description: "GCHEA accredited degrees in business, IT, psychology, and law"
   },
   {
@@ -34,11 +34,11 @@ const StatsSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4">
-            NSCU Belize - Global Online University Success Stories
+            NSCU Belize - Global University Success Stories
           </h2>
           <p className="text-xl text-gray-200 max-w-3xl mx-auto">
             As a GCHEA accredited international university, NSCU serves working professionals worldwide 
-            with affordable, flexible online degrees that advance careers without relocation.
+            with affordable, flexible degree programs that advance careers.
           </p>
         </div>
 

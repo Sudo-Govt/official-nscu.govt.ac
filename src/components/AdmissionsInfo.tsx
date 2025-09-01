@@ -41,7 +41,7 @@ const quickFacts = [
     icon: FileText,
     label: "Flexible Study",
     value: "100%",
-    description: "Online programs for working adults"
+    description: "Flexible programs for working adults"
   },
   {
     icon: DollarSign,
@@ -66,8 +66,8 @@ const AdmissionsInfo = () => {
             Apply to NSCU Belize - GCHEA Accredited Global University
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join thousands of working professionals earning accredited degrees online. 
-            Study from anywhere with flexible programs designed for international students seeking career advancement.
+            Join thousands of working professionals earning accredited degrees. 
+            Flexible programs designed for international students seeking career advancement.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ const AdmissionsInfo = () => {
           <h3 className="text-2xl font-bold mb-4">Ready to Earn Your Global Degree?</h3>
           <p className="text-lg mb-6 text-gray-200">
             Join NSCU Belize - the trusted GCHEA accredited university for working professionals worldwide. 
-            Study from India, Africa, Asia, or anywhere with our globally recognized distance learning programs.
+            Study with our globally recognized programs designed for international students.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark">
