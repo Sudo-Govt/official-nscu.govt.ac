@@ -1,6 +1,7 @@
 
 import { ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import DynamicAdmissionsBanner from '@/components/DynamicAdmissionsBanner';
 
 const HeroSection = () => {
   return (
@@ -16,24 +17,32 @@ const HeroSection = () => {
       {/* Content */}
       <div className="relative h-full flex items-center">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl">
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
-              NSCU Belize - Your Global
-              <span className="block text-uw-gold">University</span>
-            </h1>
-            <p className="text-xl text-gray-200 mb-8 animate-fade-in">
-              Study at a GCHEA-accredited international university with globally recognized programs. 
-              Earn prestigious degrees with flexible study options designed for working professionals.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in">
-              <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark font-semibold">
-                Apply Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-uw-purple">
-                <Play className="mr-2 h-5 w-5" />
-                Take a Virtual Tour
-              </Button>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Main Hero Content */}
+            <div className="max-w-3xl">
+              <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
+                NSCU Belize - Your Global
+                <span className="block text-uw-gold">University</span>
+              </h1>
+              <p className="text-xl text-gray-200 mb-8 animate-fade-in">
+                Study at a GCHEA-accredited international university with globally recognized programs. 
+                Earn prestigious degrees with flexible study options designed for working professionals.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 animate-fade-in">
+                <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark font-semibold">
+                  Apply Now
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-uw-purple">
+                  <Play className="mr-2 h-5 w-5" />
+                  Take a Virtual Tour
+                </Button>
+              </div>
+            </div>
+            
+            {/* Dynamic Admissions Banner */}
+            <div className="animate-fade-in">
+              <DynamicAdmissionsBanner variant="compact" showCTA={false} />
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import DynamicAdmissionsBanner from '@/components/DynamicAdmissionsBanner';
 
 const newsItems = [
   {
@@ -58,9 +59,19 @@ const NewsEvents = () => {
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
+        {/* Dynamic Admissions Banner */}
+        <div className="mb-12">
+          <DynamicAdmissionsBanner variant="hero" />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* News Section */}
           <div className="lg:col-span-2">
+            {/* Admissions News Banner */}
+            <div className="mb-8">
+              <DynamicAdmissionsBanner variant="news" />
+            </div>
+
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-bold text-uw-purple">Latest News</h2>
               <Button variant="outline" className="border-uw-purple text-uw-purple hover:bg-uw-purple hover:text-white">
