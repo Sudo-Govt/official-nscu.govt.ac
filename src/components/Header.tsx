@@ -123,7 +123,7 @@ const Header = () => {
           <div className="flex justify-between items-center text-sm">
             <div className="flex space-x-6">
               <Link to="#" className="hover:text-uw-gold transition-colors">Students</Link>
-              <Link to="#" className="hover:text-uw-gold transition-colors">Faculty & Staff</Link>
+              <Link to="#" className="hover:text-uw-gold transition-colors">Faculty</Link>
               <Link to="#" className="hover:text-uw-gold transition-colors">Alumni</Link>
             </div>
             <div className="flex space-x-4">
