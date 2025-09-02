@@ -63,12 +63,9 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				uw: {
-					purple: '#4b2e83',
-					gold: '#b7a57a',
-					light: '#e8e3d3',
-					dark: '#2f1b5c'
-				}
+				'uw-purple': 'hsl(var(--uw-purple))',
+				'uw-gold': 'hsl(var(--uw-gold))',
+				'uw-dark': 'hsl(var(--uw-dark))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

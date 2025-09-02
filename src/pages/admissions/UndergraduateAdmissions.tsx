@@ -7,8 +7,8 @@ import { Calendar, FileText, DollarSign, Users } from 'lucide-react';
 const UndergraduateAdmissions = () => {
   return (
     <PageLayout 
-      title="NSCU Belize Online Bachelor Degree Programs - GCHEA Accredited" 
-      description="Apply to NSCU's affordable online bachelor degree programs. Study from anywhere with GCHEA accredited distance learning designed for working professionals."
+      title="NSCU Belize Bachelor Degree Programs - GCHEA Accredited" 
+      description="Apply to NSCU's affordable bachelor degree programs. GCHEA accredited programs designed for working professionals."
     >
       <div className="container mx-auto px-4 py-12">
         {/* Quick Stats */}
@@ -30,7 +30,7 @@ const UndergraduateAdmissions = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">100%</div>
-              <p className="text-xs text-muted-foreground">Online Programs</p>
+              <p className="text-xs text-muted-foreground">All Programs</p>
             </CardContent>
           </Card>
           <Card>
@@ -58,12 +58,12 @@ const UndergraduateAdmissions = () => {
         {/* Application Process */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           <div>
-            <h2 className="text-3xl font-bold mb-6">How to Apply to NSCU Online</h2>
+            <h2 className="text-3xl font-bold mb-6">How to Apply to NSCU</h2>
             <div className="space-y-4">
               <div className="flex items-start">
                 <div className="bg-uw-purple text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1">1</div>
                 <div>
-                  <h3 className="font-semibold">Complete Online Application</h3>
+                  <h3 className="font-semibold">Complete Application</h3>
                   <p className="text-gray-600">Apply from anywhere - no campus visit required</p>
                 </div>
               </div>
@@ -84,8 +84,8 @@ const UndergraduateAdmissions = () => {
               <div className="flex items-start">
                 <div className="bg-uw-purple text-white rounded-full w-8 h-8 flex items-center justify-center mr-4 mt-1">4</div>
                 <div>
-                  <h3 className="font-semibold">Start Classes Online</h3>
-                  <p className="text-gray-600">Begin your GCHEA accredited degree from home</p>
+                  <h3 className="font-semibold">Start Classes</h3>
+                  <p className="text-gray-600">Begin your GCHEA accredited degree program</p>
                 </div>
               </div>
             </div>

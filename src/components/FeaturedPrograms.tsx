@@ -6,42 +6,42 @@ import { Button } from '@/components/ui/button';
 const programs = [
   {
     icon: Briefcase,
-    title: "Online MBA Program Global",
+    title: "MBA Program Global",
     description: "GCHEA-accredited MBA designed for working professionals seeking career advancement.",
     students: "1,200+",
     ranking: "GCHEA Accredited"
   },
   {
     icon: Code,
-    title: "Accredited IT Degrees Online",
-    description: "Distance learning technology programs in cybersecurity, data science, and software engineering.",
+    title: "Accredited IT Degrees",
+    description: "Technology programs in cybersecurity, data science, and software engineering.",
     students: "2,100+",
     ranking: "Industry Recognized"
   },
   {
     icon: Heart,
-    title: "International Psychology Degree Online",
-    description: "Flexible online psychology programs with global perspective and practical applications.",
+    title: "International Psychology Degree",
+    description: "Flexible psychology programs with global perspective and practical applications.",
     students: "950+",
     ranking: "WEQSC Recognized"
   },
   {
     icon: BookOpen,
-    title: "Distance Learning Law Degree Belize",
-    description: "Comprehensive legal education with international law focus, study while working.",
+    title: "Law Degree Belize",
+    description: "Comprehensive legal education with international law focus for working professionals.",
     students: "650+",
     ranking: "Internationally Valid"
   },
   {
     icon: Microscope,
-    title: "Online Engineering Degree Programs",
+    title: "Engineering Degree Programs",
     description: "Fast-track engineering degrees for working professionals with credit transfer options.",
     students: "1,800+",
     ranking: "Global Recognition"
   },
   {
     icon: GraduationCap,
-    title: "NSCU Online PhD Programs",
+    title: "NSCU PhD Programs",
     description: "Doctoral programs in business, education, and technology with flexible scheduling.",
     students: "400+",
     ranking: "Research Excellence"
@@ -54,11 +54,10 @@ const FeaturedPrograms = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-uw-purple mb-4">
-            Accredited Online Degree Programs
+            Accredited Degree Programs
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Study from anywhere with NSCU's flexible online degree programs. 
-            GCHEA-accredited courses designed for working professionals seeking career advancement.
+            NSCU's flexible degree programs with GCHEA-accredited courses designed for working professionals seeking career advancement.
           </p>
         </div>
 
