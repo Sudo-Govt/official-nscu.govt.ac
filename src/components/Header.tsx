@@ -128,7 +128,6 @@ const Header = () => {
             </div>
             <div className="flex space-x-4">
               <Link to="/login" className="hover:text-uw-gold transition-colors">MyNSCU</Link>
-              <Link to="#" className="hover:text-uw-gold transition-colors">Libraries</Link>
               <Link to="#" className="hover:text-uw-gold transition-colors">Calendar</Link>
             </div>
           </div>
