@@ -66,7 +66,7 @@ const NewsTicker = () => {
               <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Featured news"
+                  alt="NSCU University Campus News - Students Learning in Modern Academic Environment"
                   className="w-full h-64 object-cover"
                 />
                 <div className="p-6">

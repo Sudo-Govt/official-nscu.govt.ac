@@ -143,7 +143,7 @@ const Header = () => {
             <Link to="/" className="flex items-center">
               <img 
                 src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
-                alt="The New States Continental University Logo" 
+                alt="NSCU Belize Logo - Accredited International University GCHEA Approved" 
                 className="h-12 w-auto"
               />
             </Link>

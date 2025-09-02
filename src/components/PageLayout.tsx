@@ -18,7 +18,7 @@ const PageLayout = ({ children, title, description }: PageLayoutProps) => {
           <div className="absolute inset-0 opacity-10">
             <img 
               src="/lovable-uploads/fccf3adc-c3cf-43b7-92ab-abc4bd0d5b79.png" 
-              alt="NSCU Logo Background"
+              alt="NSCU University Campus Background - International Higher Education Institution"
               className="w-full h-full object-contain"
             />
           </div>

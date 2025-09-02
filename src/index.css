@@ -53,9 +53,9 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* University Brand Colors */
-    --uw-purple: 280 70% 45%;
+    --uw-purple: 280 70% 25%;
     --uw-gold: 43 96% 56%;
-    --uw-dark: 280 70% 25%;
+    --uw-dark: 280 70% 15%;
   }
 
   .dark {
@@ -96,7 +96,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* University Brand Colors */
-    --uw-purple: 280 70% 45%;
+    --uw-purple: 280 70% 27%;
     --uw-gold: 43 96% 56%;
     --uw-dark: 280 70% 25%;
   }

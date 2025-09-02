@@ -7,7 +7,39 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { TrendingUp, Building, Users, Globe, Calculator, Briefcase, PieChart, DollarSign, BarChart3, Target, Award, BookOpen } from 'lucide-react';
 
+import { useSEO } from '@/hooks/useSEO';
+
 const SchoolBusiness = () => {
+  useSEO({
+    title: "School of Business - GCHEA Accredited Business Programs | NSCU Belize",
+    description: "NSCU School of Business offers GCHEA-accredited MBA, BBA, and specialized business degrees. Finance, Marketing, Operations programs with 96% job placement rate.",
+    keywords: "School of Business NSCU Belize, accredited business programs GCHEA, MBA BBA programs Belize, business school Central America, finance marketing operations degrees, NSCU business education",
+    canonical: "https://newstatesuniversity.lovable.app/academics/school-business",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "CollegeOrUniversity",
+      "name": "NSCU School of Business",
+      "description": "Leading business school offering comprehensive business education programs",
+      "parentOrganization": {
+        "@type": "University",
+        "name": "New States Continental University"
+      },
+      "hasCredential": ["MBA", "BBA", "Bachelor of Science in Finance", "Bachelor of Science in Marketing"],
+      "department": [
+        {
+          "@type": "EducationalOrganization",
+          "name": "Department of Finance",
+          "description": "Comprehensive finance education with CFA preparation"
+        },
+        {
+          "@type": "EducationalOrganization", 
+          "name": "Department of Marketing",
+          "description": "Strategic marketing and digital marketing programs"
+        }
+      ]
+    }
+  });
+
   const programs = [
     { 
       name: "Master of Business Administration (MBA)", 

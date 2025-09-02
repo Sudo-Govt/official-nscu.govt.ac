@@ -4,7 +4,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar, FileText, DollarSign, Users } from 'lucide-react';
 
+import { useSEO } from '@/hooks/useSEO';
+
 const UndergraduateAdmissions = () => {
+  useSEO({
+    title: "Undergraduate Admissions - GCHEA Accredited Bachelor Degrees | NSCU Belize",
+    description: "Apply for NSCU's undergraduate programs. GCHEA-accredited bachelor degrees in business, engineering, arts & sciences. Flexible admission for working professionals worldwide.",
+    keywords: "undergraduate admissions NSCU Belize, bachelor degree programs GCHEA accredited, university admission requirements international students, affordable bachelor degrees Belize, flexible university admission working professionals, NSCU undergraduate application process, accredited university programs Central America",
+    canonical: "https://newstatesuniversity.lovable.app/admissions/undergraduate",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Undergraduate Programs at NSCU Belize",
+      "description": "GCHEA-accredited undergraduate degree programs designed for working professionals",
+      "provider": {
+        "@type": "University",
+        "name": "New States Continental University",
+        "url": "https://newstatesuniversity.lovable.app"
+      },
+      "educationalCredentialAwarded": "Bachelor's Degree",
+      "teaches": ["Business Administration", "Engineering", "Liberal Arts", "Sciences"],
+      "totalTime": "P4Y",
+      "courseMode": "flexible",
+      "isAccessibleForFree": false,
+      "offers": {
+        "@type": "Offer",
+        "price": "1800",
+        "priceCurrency": "USD",
+        "description": "Per semester tuition fee"
+      }
+    }
+  });
+
   return (
     <PageLayout 
       title="NSCU Belize Bachelor Degree Programs - GCHEA Accredited" 

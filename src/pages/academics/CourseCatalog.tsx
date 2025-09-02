@@ -6,7 +6,43 @@ import { BookOpen, Search, Filter, Calendar } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
+import { useSEO } from '@/hooks/useSEO';
+
 const CourseCatalog = () => {
+  useSEO({
+    title: "Course Catalog - NSCU Belize Academic Courses & Programs",
+    description: "Browse NSCU Belize comprehensive course catalog. Find undergraduate and graduate courses across all departments with detailed descriptions, prerequisites, and schedules.",
+    keywords: "NSCU course catalog, university course listings Belize, academic courses NSCU, course descriptions schedules, undergraduate graduate courses, NSCU curriculum guide",
+    canonical: "https://newstatesuniversity.lovable.app/academics/course-catalog",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "NSCU Course Catalog",
+      "description": "Complete catalog of academic courses offered at New States Continental University",
+      "numberOfItems": "507",
+      "itemListElement": [
+        {
+          "@type": "Course",
+          "name": "Computer Science Courses",
+          "description": "Comprehensive computer science curriculum",
+          "provider": {
+            "@type": "University",
+            "name": "New States Continental University"
+          }
+        },
+        {
+          "@type": "Course", 
+          "name": "Business Administration Courses",
+          "description": "Business and management course offerings",
+          "provider": {
+            "@type": "University",
+            "name": "New States Continental University"
+          }
+        }
+      ]
+    }
+  });
+
   const departments = [
     { code: "ACCT", name: "Accounting", courses: 45 },
     { code: "BIOL", name: "Biology", courses: 68 },

@@ -20,11 +20,11 @@ const AdminDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
-                alt="NSCU Logo" 
-                className="h-8 w-auto mr-3"
-              />
+                <img 
+                  src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
+                  alt="NSCU Belize University Logo - GCHEA Accredited Higher Education" 
+                  className="h-8 w-auto mr-3"
+                />
               <div>
                 <h1 className="text-xl font-semibold text-foreground">Admin Dashboard</h1>
                 <p className="text-sm text-muted-foreground">System Administration Portal</p>

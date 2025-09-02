@@ -4,7 +4,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Home, Users, Wifi, Car } from 'lucide-react';
 
+import { useSEO } from '@/hooks/useSEO';
+
 const Housing = () => {
+  useSEO({
+    title: "Campus Housing - Student Residence Halls & Apartments | NSCU Belize",
+    description: "NSCU campus housing offers modern residence halls and apartments. Safe, comfortable student living with 1,430 housing capacity and diverse community options.",
+    keywords: "NSCU campus housing Belize, university residence halls, student apartments, campus living facilities, international student housing, university accommodation Belize",
+    canonical: "https://newstatesuniversity.lovable.app/student-life/housing",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Accommodation",
+      "name": "NSCU Campus Housing",
+      "description": "University student housing facilities and residence halls",
+      "provider": {
+        "@type": "University",
+        "name": "New States Continental University"
+      },
+      "numberOfRooms": "1430",
+      "amenityFeature": [
+        "Residence Halls",
+        "Apartment-Style Living", 
+        "Dining Halls",
+        "Recreation Facilities"
+      ]
+    }
+  });
+
   const residenceHalls = [
     { name: "Heritage Hall", type: "Traditional", capacity: 450, year: "Freshmen" },
     { name: "Innovation Tower", type: "Suite-Style", capacity: 380, year: "All Years" },

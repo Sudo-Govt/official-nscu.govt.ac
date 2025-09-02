@@ -41,7 +41,37 @@ const leaders = [
   }
 ];
 
+import { useSEO } from '@/hooks/useSEO';
+
 const Leadership = () => {
+  useSEO({
+    title: "University Leadership - NSCU Belize Administration & Faculty Leaders",
+    description: "Meet NSCU Belize leadership team. Experienced university administration and academic leaders committed to excellence in higher education and student success.",
+    keywords: "NSCU Belize university leadership, university administration team, academic leaders Belize, university president provost, NSCU leadership experience, higher education administration",
+    canonical: "https://newstatesuniversity.lovable.app/about/leadership",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "CollegeOrUniversity",
+      "name": "New States Continental University - Leadership",
+      "description": "University leadership and administration at NSCU Belize",
+      "parentOrganization": {
+        "@type": "University",
+        "name": "New States Continental University"
+      },
+      "employee": [
+        {
+          "@type": "Person",
+          "name": "Dr. Sarah Mitchell",
+          "jobTitle": "President",
+          "worksFor": {
+            "@type": "University",
+            "name": "New States Continental University"
+          }
+        }
+      ]
+    }
+  });
+
   return (
     <PageLayout 
       title="University Leadership" 
@@ -54,7 +84,7 @@ const Leadership = () => {
             <div className="text-center mb-8">
               <img 
                 src={leaders[0].image} 
-                alt={leaders[0].name}
+                alt={`${leaders[0].name} - ${leaders[0].title} at NSCU Belize Leadership Team`}
                 className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
               />
               <h2 className="text-3xl font-bold text-uw-purple mb-2">{leaders[0].name}</h2>
@@ -87,7 +117,7 @@ const Leadership = () => {
                     <div className="flex items-start mb-4">
                       <img 
                         src={leader.image} 
-                        alt={leader.name}
+                        alt={`${leader.name} - NSCU ${leader.title} University Leadership`}
                         className="w-20 h-20 rounded-full mr-4 object-cover"
                       />
                       <div className="flex-1">

@@ -4,7 +4,29 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Users, BookOpen, Award, Calendar } from 'lucide-react';
 
+import { useSEO } from '@/hooks/useSEO';
+
 const TransferAdmissions = () => {
+  useSEO({
+    title: "Transfer Admissions - Credit Transfer Program | NSCU Belize",
+    description: "Transfer to NSCU with credit recognition. GCHEA-accredited programs accepting transfer credits from accredited institutions worldwide. Flexible transfer options for working professionals.",
+    keywords: "university transfer admissions Belize, credit transfer program NSCU, transfer student requirements international, accelerated degree completion transfer credits, flexible transfer options working professionals, GCHEA accredited transfer programs",
+    canonical: "https://newstatesuniversity.lovable.app/admissions/transfer",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "EducationalOccupationalProgram",
+      "name": "Transfer Student Program - NSCU Belize",
+      "description": "Credit transfer program for students seeking to complete their degree at NSCU",
+      "provider": {
+        "@type": "University",
+        "name": "New States Continental University"
+      },
+      "programType": "Transfer Program",
+      "timeToComplete": "P2Y",
+      "applicationDeadline": "Rolling admissions"
+    }
+  });
+
   return (
     <PageLayout 
       title="Transfer Admissions" 

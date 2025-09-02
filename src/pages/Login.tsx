@@ -43,7 +43,7 @@ const Login = () => {
         <div className="text-center mb-8">
           <img 
             src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
-            alt="NSCU Logo" 
+            alt="NSCU Belize University Logo - Student Portal Access" 
             className="h-16 w-auto mx-auto mb-4"
           />
           <h1 className="text-3xl font-bold text-foreground">MyNSCU Portal</h1>

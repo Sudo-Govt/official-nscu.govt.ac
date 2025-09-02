@@ -4,7 +4,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, Users, Award, Calendar } from 'lucide-react';
 
+import { useSEO } from '@/hooks/useSEO';
+
 const FinancialAid = () => {
+  useSEO({
+    title: "Financial Aid - Scholarships & Student Financial Assistance | NSCU Belize",
+    description: "NSCU financial aid programs make education affordable. Scholarships, grants, work-study opportunities for international students. 78% of students receive financial assistance.",
+    keywords: "NSCU financial aid Belize, university scholarships international students, student financial assistance programs, affordable university tuition Belize, education grants scholarships",
+    canonical: "https://newstatesuniversity.lovable.app/admissions/financial-aid",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "FinancialProduct",
+      "name": "NSCU Financial Aid Programs",
+      "description": "Comprehensive financial assistance programs for university students",
+      "provider": {
+        "@type": "University",
+        "name": "New States Continental University"
+      },
+      "category": "Educational Financial Aid",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "2400"
+      }
+    }
+  });
+
   return (
     <PageLayout 
       title="Financial Aid" 

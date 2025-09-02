@@ -5,7 +5,40 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Clock, BookOpen, GraduationCap } from 'lucide-react';
 
+import { useSEO } from '@/hooks/useSEO';
+
 const MasterBusinessAdministration = () => {
+  useSEO({
+    title: "MBA Program - GCHEA Accredited Master in Business Administration | NSCU Belize",
+    description: "Earn your MBA from NSCU Belize. GCHEA-accredited Master of Business Administration program with specializations in Finance, Marketing, Operations. Flexible schedule for working professionals.",
+    keywords: "MBA program NSCU Belize, Master Business Administration GCHEA accredited, MBA degree Belize international students, flexible MBA program working professionals, accredited MBA Central America, MBA specializations finance marketing operations",
+    canonical: "https://newstatesuniversity.lovable.app/programs/mba",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Master of Business Administration (MBA)",
+      "description": "GCHEA-accredited MBA program with multiple specializations",
+      "provider": {
+        "@type": "University",
+        "name": "New States Continental University",
+        "url": "https://newstatesuniversity.lovable.app"
+      },
+      "educationalCredentialAwarded": "Master of Business Administration",
+      "teaches": ["Strategic Management", "Finance", "Marketing", "Operations", "Leadership"],
+      "totalTime": "P2Y",
+      "courseMode": "flexible",
+      "isAccessibleForFree": false,
+      "hasCredential": "MBA Degree",
+      "occupationalCategory": "Business Administration",
+      "offers": {
+        "@type": "Offer",
+        "price": "25000",
+        "priceCurrency": "USD",
+        "description": "Total program fee"
+      }
+    }
+  });
+
   const courseStructure = {
     semester1: [
       { code: "MBA 501", title: "Managerial Economics", credits: 3, contact: "3-0-0", description: "Microeconomic theory, market structures, pricing strategies, demand analysis" },
@@ -56,8 +89,8 @@ const MasterBusinessAdministration = () => {
 
   return (
     <PageLayout 
-      title="Online MBA Belize - GCHEA Accredited Global Business Degree" 
-      description="Earn your MBA online from NSCU Belize. GCHEA accredited MBA program for working professionals worldwide. Study from India, Africa, Asia or anywhere."
+      title="MBA Program - GCHEA Accredited Global Business Degree | NSCU Belize" 
+      description="Earn your MBA from NSCU Belize. GCHEA-accredited Master of Business Administration program with specializations designed for working professionals worldwide."
     >
       <div className="container mx-auto px-4 py-8">
         {/* Program Overview */}
