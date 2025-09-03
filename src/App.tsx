@@ -77,6 +77,31 @@ import FullFledgedColleges from "./pages/colleges/FullFledgedColleges";
 import OffshoreColleges from "./pages/colleges/OffshoreColleges";
 import StudyCenters from "./pages/colleges/StudyCenters";
 
+// Services pages  
+import Libraries from "./pages/services/Libraries";
+import WritingCenter from "./pages/services/WritingCenter";
+import ITHelpDesk from "./pages/services/ITHelpDesk";
+import ParkingTransportation from "./pages/services/ParkingTransportation";
+import DisabilityServices from "./pages/services/DisabilityServices";
+
+// Resources pages
+import StudentHandbook from "./pages/resources/StudentHandbook";
+import AcademicPolicies from "./pages/resources/AcademicPolicies";
+
+// Legal pages
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
+import TermsOfUse from "./pages/legal/TermsOfUse";
+
+// Campus Life pages
+import GreekLife from "./pages/campus-life/GreekLife";
+import IntramuralsSpecial from "./pages/campus-life/Intramurals";
+
+// News pages
+import UniversityNews from "./pages/news/UniversityNews";
+
+// Additional Departments
+import ComputerScience from "./pages/departments/ComputerScience";
+
 // Program pages
 import BachelorArtsEnglish from "./pages/programs/BachelorArtsEnglish";
 import MasterArtsHistory from "./pages/programs/MasterArtsHistory";
@@ -182,6 +207,31 @@ const App = () => (
           <Route path="/colleges/full-fledged" element={<FullFledgedColleges />} />
           <Route path="/colleges/offshore" element={<OffshoreColleges />} />
           <Route path="/colleges/study-centers" element={<StudyCenters />} />
+          
+          {/* Services Routes */}
+          <Route path="/services/libraries" element={<Libraries />} />
+          <Route path="/services/writing-center" element={<WritingCenter />} />
+          <Route path="/services/it-help-desk" element={<ITHelpDesk />} />
+          <Route path="/services/parking-transportation" element={<ParkingTransportation />} />
+          <Route path="/services/disability-services" element={<DisabilityServices />} />
+          
+          {/* Resources Routes */}
+          <Route path="/resources/student-handbook" element={<StudentHandbook />} />
+          <Route path="/resources/academic-policies" element={<AcademicPolicies />} />
+          
+          {/* Legal Routes */}
+          <Route path="/legal/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/legal/terms-of-use" element={<TermsOfUse />} />
+          
+          {/* Campus Life Routes */}
+          <Route path="/campus-life/greek-life" element={<GreekLife />} />
+          <Route path="/campus-life/intramurals" element={<IntramuralsSpecial />} />
+          
+          {/* News Routes */}
+          <Route path="/news/university-news" element={<UniversityNews />} />
+          
+          {/* Additional Department Routes */}
+          <Route path="/departments/computer-science" element={<ComputerScience />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

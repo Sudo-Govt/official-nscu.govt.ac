@@ -122,13 +122,13 @@ const Header = () => {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center text-sm">
             <div className="flex space-x-6">
-              <Link to="#" className="hover:text-uw-gold transition-colors">Students</Link>
-              <Link to="#" className="hover:text-uw-gold transition-colors">Faculty</Link>
-              <Link to="#" className="hover:text-uw-gold transition-colors">Alumni</Link>
+              <Link to="/student-life/organizations" className="hover:text-uw-gold transition-colors">Students</Link>
+              <Link to="/about/leadership" className="hover:text-uw-gold transition-colors">Faculty</Link>
+              <Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni</Link>
             </div>
             <div className="flex space-x-4">
               <Link to="/login" className="hover:text-uw-gold transition-colors">MyNSCU</Link>
-              <Link to="#" className="hover:text-uw-gold transition-colors">Calendar</Link>
+              <Link to="/academics/academic-calendar" className="hover:text-uw-gold transition-colors">Calendar</Link>
             </div>
           </div>
         </div>
