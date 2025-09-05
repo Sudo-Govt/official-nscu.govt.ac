@@ -14,14 +14,14 @@ const Footer = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-sm mb-2">Colleges & Schools</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">College of Arts & Sciences</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">College of Engineering</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">School of Business</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">College of Health Sciences</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">School of Medicine</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">School of Law</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">College of Education</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Graduate School</a></li>
+                <li><a href="/academics/college-arts-sciences" className="hover:text-uw-gold transition-colors">College of Arts & Sciences</a></li>
+                <li><a href="/academics/college-engineering" className="hover:text-uw-gold transition-colors">College of Engineering</a></li>
+                <li><a href="/academics/school-business" className="hover:text-uw-gold transition-colors">School of Business</a></li>
+                <li><a href="/academics/college-health-sciences" className="hover:text-uw-gold transition-colors">College of Health Sciences</a></li>
+                <li><a href="/academics/school-medicine" className="hover:text-uw-gold transition-colors">School of Medicine</a></li>
+                <li><a href="/academics/school-law" className="hover:text-uw-gold transition-colors">School of Law</a></li>
+                <li><a href="/academics/college-education" className="hover:text-uw-gold transition-colors">College of Education</a></li>
+                <li><a href="/academics/school-arts" className="hover:text-uw-gold transition-colors">Graduate School</a></li>
               </ul>
               <h4 className="font-semibold text-sm mb-2 mt-4">Academic Resources</h4>
               <ul className="space-y-1 text-sm text-gray-300">
