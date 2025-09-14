@@ -10,31 +10,13 @@ interface AdmissionsInfo {
 
 export const useAdmissionsInfo = (): AdmissionsInfo => {
   return useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
-    const currentYear = now.getFullYear();
-    
-    // September (9) to December (12) = Spring next year
-    // January (1) to August (8) = Fall current year
-    if (currentMonth >= 9 && currentMonth <= 12) {
-      // Show Spring admissions for next year
-      const admissionYear = currentYear + 1;
-      return {
-        semester: 'Spring',
-        year: admissionYear,
-        title: `Spring ${admissionYear} Admissions Open`,
-        newsText: `Applications are now open for Spring ${admissionYear} Intake. Join NSCU Belize for globally recognized degrees.`,
-        deadlineText: `Application deadlines close in October ${currentYear}.`
-      };
-    } else {
-      // Show Fall admissions for current year
-      return {
-        semester: 'Fall',
-        year: currentYear,
-        title: `Fall ${currentYear} Admissions Open`,
-        newsText: `Applications are now open for Fall ${currentYear} Intake. Secure your spot at NSCU Belize.`,
-        deadlineText: `Application deadlines close in March ${currentYear}.`
-      };
-    }
+    // Always show Fall 2026 admission information
+    return {
+      semester: 'Fall',
+      year: 2026,
+      title: 'Fall 2026 Admissions Open',
+      newsText: 'Applications are now open for Fall 2026 Intake. Join NSCU Belize for globally recognized degrees starting January 2026.',
+      deadlineText: 'Application deadline: January 5th, 2026. Course starting date: January 15th, 2026.'
+    };
   }, []);
 };

@@ -6,52 +6,52 @@ import DynamicAdmissionsBanner from '@/components/DynamicAdmissionsBanner';
 
 const newsItems = [
   {
-    title: "NSCU Researchers Develop Breakthrough in Quantum Computing",
-    excerpt: "Scientists at New States Continental University have made significant advances in quantum error correction, bringing us closer to practical quantum computers.",
-    date: "December 10, 2024",
-    category: "Research",
+    title: "Fall 2026 Admissions Now Open - Apply by January 5th",
+    excerpt: "NSCU Belize is accepting applications for Fall 2026 programs. Early admission available with enhanced scholarship opportunities for qualified candidates.",
+    date: "December 15, 2025",
+    category: "Admissions",
+    image: "photo-1523050854058-8df90110c9f1"
+  },
+  {
+    title: "New AI and Data Science Program Launches January 2026",
+    excerpt: "Cutting-edge curriculum designed with industry partners to prepare students for tomorrow's digital economy and emerging technologies.",
+    date: "December 12, 2025",
+    category: "Academic Programs",
     image: "photo-1518770660439-4636190af475"
   },
   {
-    title: "New Medical Research Center Opens",
-    excerpt: "The state-of-the-art facility will focus on precision medicine and personalized treatments for cancer patients.",
-    date: "December 8, 2024",
-    category: "Healthcare",
+    title: "Campus Expansion Project Completes Phase One",
+    excerpt: "State-of-the-art learning facilities and research labs now open, featuring advanced technology and collaborative spaces for student success.",
+    date: "December 8, 2025",
+    category: "Campus News",
     image: "photo-1581090464777-f3220bbe1b8b"
-  },
-  {
-    title: "Students Win National Engineering Competition",
-    excerpt: "NSCU engineering team takes first place in sustainable design challenge with innovative water purification system.",
-    date: "December 5, 2024",
-    category: "Students",
-    image: "photo-1461749280684-dccba630e2f6"
   }
 ];
 
 const events = [
   {
-    title: "Spring Admission Information Session",
-    date: "December 20, 2024",
+    title: "Fall 2026 Admission Information Session",
+    date: "December 20, 2025",
     time: "6:00 PM - 7:30 PM",
-    location: "Kane Hall"
+    location: "Main Campus Auditorium"
   },
   {
-    title: "Research Symposium: AI and Society",
-    date: "January 15, 2025",
-    time: "9:00 AM - 5:00 PM",
-    location: "HUB Ballroom"
+    title: "Application Deadline Reminder - Fall 2026",
+    date: "January 5, 2026",
+    time: "11:59 PM",
+    location: "Online Application Portal"
   },
   {
-    title: "Career Fair - Winter Quarter",
-    date: "January 22, 2025",
-    time: "10:00 AM - 4:00 PM",
-    location: "HEC Pavilion"
+    title: "Fall 2026 Semester Begins",
+    date: "January 15, 2026",
+    time: "8:00 AM",
+    location: "All Campus Locations"
   },
   {
-    title: "Alumni Networking Night",
-    date: "February 5, 2025",
-    time: "7:00 PM - 9:00 PM",
-    location: "Foster School"
+    title: "New Student Orientation - Fall 2026",
+    date: "January 13, 2026",
+    time: "9:00 AM - 4:00 PM",
+    location: "Student Center"
   }
 ];
 
