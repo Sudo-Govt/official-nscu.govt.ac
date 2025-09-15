@@ -25,32 +25,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (profile) {
+        const { data: authUser } = await supabase.auth.getUser();
+        if (authUser.user) {
+          setUser({
+            id: authUser.user.id,
+            user_id: authUser.user.id,
+            email: authUser.user.email!,
+            full_name: profile.full_name,
+            role: profile.role || 'student'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         if (session?.user) {
-          // Get user profile from profiles table
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (profile) {
-            setUser({
-              id: session.user.id,
-              user_id: session.user.id,
-              email: session.user.email!,
-              full_name: profile.full_name,
-              role: profile.role || 'student'
-            });
-          }
+          // Defer profile fetch to avoid deadlock
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
         } else {
           setUser(null);
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
@@ -58,6 +72,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSession(session);
+        // Fetch profile for existing session
+        setTimeout(() => {
+          fetchUserProfile(session.user.id);
+        }, 0);
       } else {
         setIsLoading(false);
       }
