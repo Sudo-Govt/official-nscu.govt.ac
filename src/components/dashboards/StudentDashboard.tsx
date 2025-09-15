@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload } from 'lucide-react';
+import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload, TrendingUp, Bell, Star, Target, Zap, Trophy } from 'lucide-react';
 import mockDb from '@/database/mockDb';
 
 const StudentDashboard = () => {
@@ -43,33 +43,42 @@ const StudentDashboard = () => {
   const feePercentage = feeData ? (feeData.paidFees / feeData.totalFees) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Modern Header with Glass Effect */}
+      <header className="bg-card/80 backdrop-blur-xl border-b border-border/50 shadow-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
-                alt="NSCU Logo" 
-                className="h-8 w-auto mr-3"
-              />
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-primary/10 rounded-xl">
+                <img 
+                  src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
+                  alt="NSCU Logo" 
+                  className="h-10 w-auto"
+                />
+              </div>
               <div>
-                <h1 className="text-xl font-semibold text-foreground">Student Portal</h1>
-                <p className="text-sm text-muted-foreground">
-                  {studentData?.student_id} - {studentData?.program}
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  Student Portal
+                </h1>
+                <p className="text-muted-foreground font-medium">
+                  {studentData?.student_id} • {studentData?.program}
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">{user?.full_name}</p>
-                <Badge variant="secondary" className="text-xs">
+                <p className="font-semibold text-foreground text-lg">{user?.full_name}</p>
+                <Badge variant="default" className="bg-gradient-to-r from-primary to-primary/80">
                   Year {studentData?.year_of_study}
                 </Badge>
               </div>
-              <Button variant="outline" size="sm" onClick={logout}>
-                <LogOut className="h-4 w-4 mr-2" />
+              <Button 
+                variant="outline" 
+                size="lg" 
+                onClick={logout}
+                className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20"
+              >
+                <LogOut className="h-5 w-5 mr-2" />
                 Logout
               </Button>
             </div>
@@ -77,110 +86,167 @@ const StudentDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="courses">Courses</TabsTrigger>
-            <TabsTrigger value="academics">Academics</TabsTrigger>
-            <TabsTrigger value="library">Library</TabsTrigger>
-            <TabsTrigger value="career">Career</TabsTrigger>
-            <TabsTrigger value="campus">Campus Life</TabsTrigger>
-            <TabsTrigger value="fees">Fees</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+      {/* Main Content with Enhanced Spacing */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-8 h-14 bg-muted/50 backdrop-blur-sm p-1">
+            <TabsTrigger value="overview" className="text-sm font-medium">Overview</TabsTrigger>
+            <TabsTrigger value="courses" className="text-sm font-medium">Courses</TabsTrigger>
+            <TabsTrigger value="academics" className="text-sm font-medium">Academics</TabsTrigger>
+            <TabsTrigger value="library" className="text-sm font-medium">Library</TabsTrigger>
+            <TabsTrigger value="career" className="text-sm font-medium">Career</TabsTrigger>
+            <TabsTrigger value="campus" className="text-sm font-medium">Campus Life</TabsTrigger>
+            <TabsTrigger value="fees" className="text-sm font-medium">Fees</TabsTrigger>
+            <TabsTrigger value="profile" className="text-sm font-medium">Profile</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-8">
+            {/* Enhanced Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Enrolled Courses</CardTitle>
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
+              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-base font-semibold">Enrolled Courses</CardTitle>
+                  <div className="p-3 bg-primary/10 rounded-xl">
+                    <BookOpen className="h-6 w-6 text-primary" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{courses.length}</div>
-                  <p className="text-xs text-muted-foreground">Current semester</p>
+                  <div className="text-4xl font-bold text-foreground mb-2">{courses.length}</div>
+                  <p className="text-muted-foreground font-medium">Current semester</p>
+                  <div className="mt-4 flex items-center text-sm text-muted-foreground">
+                    <TrendingUp className="h-4 w-4 mr-1" />
+                    +2 from last semester
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">CGPA</CardTitle>
-                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent"></div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-base font-semibold">CGPA</CardTitle>
+                  <div className="p-3 bg-emerald-500/10 rounded-xl">
+                    <GraduationCap className="h-6 w-6 text-emerald-600" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">8.7</div>
-                  <p className="text-xs text-muted-foreground">Overall grade</p>
+                  <div className="text-4xl font-bold text-foreground mb-2">8.7</div>
+                  <p className="text-muted-foreground font-medium">Overall grade</p>
+                  <div className="mt-4 flex items-center text-sm text-emerald-600">
+                    <Star className="h-4 w-4 mr-1" />
+                    Excellent performance
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Fee Status</CardTitle>
-                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent"></div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-base font-semibold">Fee Status</CardTitle>
+                  <div className="p-3 bg-amber-500/10 rounded-xl">
+                    <CreditCard className="h-6 w-6 text-amber-600" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{feePercentage.toFixed(0)}%</div>
-                  <p className="text-xs text-muted-foreground">Fees paid</p>
+                  <div className="text-4xl font-bold text-foreground mb-2">{feePercentage.toFixed(0)}%</div>
+                  <p className="text-muted-foreground font-medium">Fees paid</p>
+                  <div className="mt-4">
+                    <Progress value={feePercentage} className="h-2" />
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Credits Earned</CardTitle>
-                  <Award className="h-4 w-4 text-muted-foreground" />
+              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent"></div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-base font-semibold">Credits Earned</CardTitle>
+                  <div className="p-3 bg-violet-500/10 rounded-xl">
+                    <Award className="h-6 w-6 text-violet-600" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">142</div>
-                  <p className="text-xs text-muted-foreground">Out of 180 required</p>
+                  <div className="text-4xl font-bold text-foreground mb-2">142</div>
+                  <p className="text-muted-foreground font-medium">Out of 180 required</p>
+                  <div className="mt-4 flex items-center text-sm text-violet-600">
+                    <Target className="h-4 w-4 mr-1" />
+                    79% complete
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>Frequently used services and tools</CardDescription>
+            {/* Enhanced Quick Actions */}
+            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-r from-card via-card to-muted/20">
+              <CardHeader className="pb-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl font-bold">Quick Actions</CardTitle>
+                    <CardDescription className="text-lg mt-2">Frequently used services and tools</CardDescription>
+                  </div>
+                  <div className="p-3 bg-primary/10 rounded-xl">
+                    <Zap className="h-8 w-8 text-primary" />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-16 flex flex-col gap-2">
-                    <Download className="h-5 w-5" />
-                    <span className="text-xs">Download Transcript</span>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  >
+                    <Download className="h-8 w-8 text-primary" />
+                    <span className="font-medium">Download Transcript</span>
                   </Button>
-                  <Button variant="outline" className="h-16 flex flex-col gap-2">
-                    <Upload className="h-5 w-5" />
-                    <span className="text-xs">Submit Assignment</span>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  >
+                    <Upload className="h-8 w-8 text-emerald-600" />
+                    <span className="font-medium">Submit Assignment</span>
                   </Button>
-                  <Button variant="outline" className="h-16 flex flex-col gap-2">
-                    <Library className="h-5 w-5" />
-                    <span className="text-xs">Library Services</span>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  >
+                    <Library className="h-8 w-8 text-amber-600" />
+                    <span className="font-medium">Library Services</span>
                   </Button>
-                  <Button variant="outline" className="h-16 flex flex-col gap-2">
-                    <MessageSquare className="h-5 w-5" />
-                    <span className="text-xs">Contact Advisor</span>
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  >
+                    <MessageSquare className="h-8 w-8 text-violet-600" />
+                    <span className="font-medium">Contact Advisor</span>
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Grades</CardTitle>
-                  <CardDescription>Your latest course grades</CardDescription>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card to-card/50">
+                <CardHeader className="pb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl font-bold">Recent Grades</CardTitle>
+                      <CardDescription className="text-base mt-1">Your latest course grades</CardDescription>
+                    </div>
+                    <div className="p-3 bg-emerald-500/10 rounded-xl">
+                      <Trophy className="h-6 w-6 text-emerald-600" />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {courses.slice(0, 5).map((course, index) => (
-                      <div key={index} className="flex items-center justify-between">
+                      <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-200">
                         <div>
-                          <p className="text-sm font-medium">{course.course_name}</p>
-                          <p className="text-xs text-muted-foreground">{course.course_code}</p>
+                          <p className="font-semibold text-foreground">{course.course_name}</p>
+                          <p className="text-sm text-muted-foreground font-medium">{course.course_code}</p>
                         </div>
-                        <Badge variant={course.grade ? "default" : "secondary"}>
+                        <Badge 
+                          variant={course.grade ? "default" : "secondary"} 
+                          className="text-sm px-3 py-1"
+                        >
                           {course.grade || "In Progress"}
                         </Badge>
                       </div>
@@ -189,28 +255,38 @@ const StudentDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Fee Payment Status</CardTitle>
-                  <CardDescription>Current semester fee details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Total Fees</span>
-                      <span>₹{feeData?.totalFees.toLocaleString()}</span>
+              <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card to-card/50">
+                <CardHeader className="pb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-xl font-bold">Fee Payment Status</CardTitle>
+                      <CardDescription className="text-base mt-1">Current semester fee details</CardDescription>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Paid</span>
-                      <span className="text-green-600">₹{feeData?.paidFees.toLocaleString()}</span>
+                    <div className="p-3 bg-amber-500/10 rounded-xl">
+                      <CreditCard className="h-6 w-6 text-amber-600" />
                     </div>
-                    <div className="flex justify-between text-sm font-medium">
-                      <span>Pending</span>
-                      <span className="text-red-600">₹{feeData?.pendingFees.toLocaleString()}</span>
-                    </div>
-                    <Progress value={feePercentage} className="h-2" />
                   </div>
-                  <Button className="w-full" variant="outline">
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-muted/20">
+                      <span className="font-medium">Total Fees</span>
+                      <span className="font-bold text-lg">₹{feeData?.totalFees.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20">
+                      <span className="font-medium">Paid</span>
+                      <span className="font-bold text-lg text-emerald-600">₹{feeData?.paidFees.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-red-50 dark:bg-red-950/20">
+                      <span className="font-medium">Pending</span>
+                      <span className="font-bold text-lg text-red-600">₹{feeData?.pendingFees.toLocaleString()}</span>
+                    </div>
+                    <div className="space-y-2">
+                      <Progress value={feePercentage} className="h-3" />
+                      <p className="text-sm text-muted-foreground text-center">{feePercentage.toFixed(1)}% completed</p>
+                    </div>
+                  </div>
+                  <Button className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
                     Make Payment
                   </Button>
                 </CardContent>
@@ -219,29 +295,50 @@ const StudentDashboard = () => {
           </TabsContent>
 
           <TabsContent value="courses">
-            <Card>
-              <CardHeader>
-                <CardTitle>Enrolled Courses</CardTitle>
-                <CardDescription>Your current semester courses</CardDescription>
+            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
+              <CardHeader className="pb-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl font-bold">Enrolled Courses</CardTitle>
+                    <CardDescription className="text-lg mt-2">Your current semester courses</CardDescription>
+                  </div>
+                  <div className="p-3 bg-primary/10 rounded-xl">
+                    <BookOpen className="h-8 w-8 text-primary" />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="grid gap-6">
                   {courses.map((course, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h3 className="font-medium">{course.course_name}</h3>
-                        <p className="text-sm text-muted-foreground">{course.course_code}</p>
-                        <div className="flex items-center gap-4 mt-2">
-                          <Badge variant="outline">{course.credits} Credits</Badge>
-                          <span className="text-xs text-muted-foreground">
-                            Semester {course.semester} • Year {course.year}
-                          </span>
+                    <div key={index} className="group relative overflow-hidden rounded-2xl border-2 border-border/50 hover:border-primary/30 bg-gradient-to-r from-card to-muted/20 p-6 hover:shadow-xl transition-all duration-300">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+                      <div className="relative">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-xl font-bold text-foreground mb-2">{course.course_name}</h3>
+                            <p className="text-muted-foreground font-medium text-lg">{course.course_code}</p>
+                          </div>
+                          <Badge 
+                            variant={course.grade ? "default" : "secondary"} 
+                            className="text-base px-4 py-2 font-semibold"
+                          >
+                            {course.grade || "In Progress"}
+                          </Badge>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant={course.grade ? "default" : "secondary"}>
-                          {course.grade || "In Progress"}
-                        </Badge>
+                        <div className="flex items-center gap-6 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-primary/10 rounded-lg">
+                              <Award className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="font-medium">{course.credits} Credits</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 bg-amber-500/10 rounded-lg">
+                              <Calendar className="h-4 w-4 text-amber-600" />
+                            </div>
+                            <span className="font-medium">Semester {course.semester} • Year {course.year}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -251,37 +348,51 @@ const StudentDashboard = () => {
           </TabsContent>
 
           <TabsContent value="fees">
-            <Card>
-              <CardHeader>
-                <CardTitle>Fee Management</CardTitle>
-                <CardDescription>View and manage your fee payments</CardDescription>
+            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
+              <CardHeader className="pb-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-2xl font-bold">Fee Management</CardTitle>
+                    <CardDescription className="text-lg mt-2">View and manage your fee payments</CardDescription>
+                  </div>
+                  <div className="p-3 bg-amber-500/10 rounded-xl">
+                    <CreditCard className="h-8 w-8 text-amber-600" />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center p-4 border rounded-lg">
-                      <h3 className="font-medium text-lg">₹{feeData?.totalFees.toLocaleString()}</h3>
-                      <p className="text-sm text-muted-foreground">Total Fees</p>
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="relative overflow-hidden text-center p-8 border-2 border-border/50 rounded-2xl bg-gradient-to-br from-muted/30 to-background hover:shadow-xl transition-all duration-300">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+                      <h3 className="font-bold text-3xl text-foreground mb-2">₹{feeData?.totalFees.toLocaleString()}</h3>
+                      <p className="text-muted-foreground font-medium text-lg">Total Fees</p>
                     </div>
-                    <div className="text-center p-4 border rounded-lg bg-green-50">
-                      <h3 className="font-medium text-lg text-green-600">₹{feeData?.paidFees.toLocaleString()}</h3>
-                      <p className="text-sm text-muted-foreground">Paid</p>
+                    <div className="relative overflow-hidden text-center p-8 border-2 border-emerald-200/50 rounded-2xl bg-gradient-to-br from-emerald-50 to-background dark:from-emerald-950/20 hover:shadow-xl transition-all duration-300">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+                      <h3 className="font-bold text-3xl text-emerald-600 mb-2">₹{feeData?.paidFees.toLocaleString()}</h3>
+                      <p className="text-muted-foreground font-medium text-lg">Paid</p>
                     </div>
-                    <div className="text-center p-4 border rounded-lg bg-red-50">
-                      <h3 className="font-medium text-lg text-red-600">₹{feeData?.pendingFees.toLocaleString()}</h3>
-                      <p className="text-sm text-muted-foreground">Pending</p>
+                    <div className="relative overflow-hidden text-center p-8 border-2 border-red-200/50 rounded-2xl bg-gradient-to-br from-red-50 to-background dark:from-red-950/20 hover:shadow-xl transition-all duration-300">
+                      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-500/10 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+                      <h3 className="font-bold text-3xl text-red-600 mb-2">₹{feeData?.pendingFees.toLocaleString()}</h3>
+                      <p className="text-muted-foreground font-medium text-lg">Pending</p>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <h4 className="font-medium">Payment Progress</h4>
-                    <Progress value={feePercentage} className="h-3" />
-                    <p className="text-sm text-muted-foreground">{feePercentage.toFixed(1)}% completed</p>
+                  <div className="p-6 rounded-2xl bg-muted/30 space-y-4">
+                    <h4 className="font-bold text-xl">Payment Progress</h4>
+                    <Progress value={feePercentage} className="h-4" />
+                    <p className="text-muted-foreground font-medium text-center">{feePercentage.toFixed(1)}% completed</p>
                   </div>
 
-                  <div className="flex gap-4">
-                    <Button className="flex-1">Make Payment</Button>
-                    <Button variant="outline">Download Receipt</Button>
+                  <div className="flex gap-6">
+                    <Button className="flex-1 h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+                      Make Payment
+                    </Button>
+                    <Button variant="outline" className="flex-1 h-14 text-lg font-semibold border-2">
+                      Download Receipt
+                    </Button>
                   </div>
                 </div>
               </CardContent>
