@@ -2,16 +2,19 @@
 import PageLayout from '@/components/PageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Cog, Cpu, Zap, Wrench } from 'lucide-react';
+import { Cog, Cpu, Zap, Wrench, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CollegeEngineering = () => {
+  const navigate = useNavigate();
+  
   const departments = [
-    { name: "Mechanical Engineering", students: 680, accreditation: "ABET" },
-    { name: "Electrical Engineering", students: 720, accreditation: "ABET" },
-    { name: "Computer Engineering", students: 890, accreditation: "ABET" },
-    { name: "Civil Engineering", students: 540, accreditation: "ABET" },
-    { name: "Chemical Engineering", students: 420, accreditation: "ABET" },
-    { name: "Aerospace Engineering", students: 380, accreditation: "ABET" }
+    { name: "Mechanical Engineering", students: 680, accreditation: "ABET", route: "/programs/bachelor-engineering" },
+    { name: "Electrical Engineering", students: 720, accreditation: "ABET", route: "/programs/bachelor-engineering" },
+    { name: "Computer Engineering", students: 890, accreditation: "ABET", route: "/programs/bachelor-engineering" },
+    { name: "Civil Engineering", students: 540, accreditation: "ABET", route: "/programs/bachelor-engineering" },
+    { name: "Chemical Engineering", students: 420, accreditation: "ABET", route: "/programs/bachelor-engineering" },
+    { name: "Aerospace Engineering", students: 380, accreditation: "ABET", route: "/programs/bachelor-engineering" }
   ];
 
   const researchCenters = [
@@ -84,11 +87,19 @@ const CollegeEngineering = () => {
         {/* Departments Section */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold mb-6">Engineering Departments</h2>
+          <p className="text-gray-600 mb-6">Click on any department to explore detailed program information and curriculum.</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {departments.map((dept, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
+              <Card 
+                key={index} 
+                className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-105 border-2 hover:border-primary"
+                onClick={() => navigate(dept.route)}
+              >
                 <CardHeader>
-                  <CardTitle className="text-lg">{dept.name}</CardTitle>
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    {dept.name}
+                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </CardTitle>
                   <CardDescription>ABET Accredited Program</CardDescription>
                 </CardHeader>
                 <CardContent>
