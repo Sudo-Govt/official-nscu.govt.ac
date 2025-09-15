@@ -202,7 +202,7 @@ const BachelorNursing = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">BSN</div>
-                <p className="text-xs text-muted-foreground">CCNE Accredited</p>
+                <p className="text-xs text-muted-foreground">CCNE & GCHEA Accredited</p>
               </CardContent>
             </Card>
           </div>

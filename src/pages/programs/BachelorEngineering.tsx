@@ -558,7 +558,7 @@ const BachelorEngineering = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">B.E.T</div>
-                <p className="text-xs text-muted-foreground">ABET Accredited</p>
+                <p className="text-xs text-muted-foreground">ABET & GCHEA Accredited</p>
               </CardContent>
             </Card>
           </div>

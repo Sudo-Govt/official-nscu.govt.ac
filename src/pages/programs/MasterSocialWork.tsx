@@ -91,7 +91,7 @@ const MasterSocialWork = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">MSW</div>
-              <p className="text-xs text-muted-foreground">CSWE Accredited</p>
+              <p className="text-xs text-muted-foreground">CSWE & GCHEA Accredited</p>
             </CardContent>
           </Card>
         </div>

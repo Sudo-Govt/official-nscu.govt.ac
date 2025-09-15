@@ -11,9 +11,9 @@ import { useSEO } from '@/hooks/useSEO';
 
 const BachelorFineArts = () => {
   useSEO({
-    title: "Bachelor of Fine Arts (BFA) Program - NASAD Accredited | NSCU Belize",
-    description: "Earn your BFA from NSCU Belize. NASAD-accredited Bachelor of Fine Arts program with studio concentrations in painting, sculpture, digital art. Apply by January 5th, 2026.",
-    keywords: "Bachelor Fine Arts NSCU Belize, BFA degree program Belize, NASAD accredited art program, studio art painting sculpture digital, art admissions 2026",
+    title: "Bachelor of Fine Arts (BFA) Program - NASAD & GCHEA Accredited | NSCU Belize",
+    description: "Earn your BFA from NSCU Belize. NASAD & GCHEA-accredited Bachelor of Fine Arts program with studio concentrations in painting, sculpture, digital art. Apply by January 5th, 2026.",
+    keywords: "Bachelor Fine Arts NSCU Belize, BFA degree program Belize, NASAD GCHEA accredited art program, studio art painting sculpture digital, art admissions 2026",
     canonical: "https://newstatesuniversity.lovable.app/programs/bachelor-fine-arts",
     structuredData: {
       "@context": "https://schema.org",
@@ -163,7 +163,7 @@ const BachelorFineArts = () => {
 
   return (
     <PageLayout 
-      title="Bachelor of Fine Arts (BFA) - NASAD Accredited Art Program | NSCU Belize" 
+      title="Bachelor of Fine Arts (BFA) - NASAD & GCHEA Accredited Art Program | NSCU Belize" 
       description="Comprehensive 4-year BFA program developing technical skills and creative expression through studio practice, art history, and professional preparation."
     >
       <div className="container mx-auto px-4 py-12">

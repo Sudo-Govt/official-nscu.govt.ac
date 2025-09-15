@@ -103,7 +103,7 @@ const DoctorMedicine = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">MD</div>
-                <p className="text-xs text-muted-foreground">LCME Accredited</p>
+                <p className="text-xs text-muted-foreground">LCME & GCHEA Accredited</p>
               </CardContent>
             </Card>
           </div>
