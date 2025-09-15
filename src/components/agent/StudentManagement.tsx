@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar } from 'lucide-react';
+import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface StudentApplication {
@@ -104,6 +104,35 @@ const StudentManagement = () => {
       setCourses(data || []);
     } catch (error) {
       console.error('Error fetching courses:', error);
+    }
+  };
+
+  const handleDeleteApplication = async (applicationId: string) => {
+    if (!confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('student_applications')
+        .delete()
+        .eq('id', applicationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Application deleted successfully"
+      });
+
+      fetchApplications();
+    } catch (error) {
+      console.error('Error deleting application:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete application",
+        variant: "destructive"
+      });
     }
   };
 
@@ -264,19 +293,29 @@ const StudentManagement = () => {
                       <TableCell>
                         {format(new Date(app.created_at), 'MMM dd, yyyy')}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <FileText className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+                       <TableCell>
+                         <div className="flex items-center gap-2">
+                           <Button size="sm" variant="outline">
+                             <Eye className="h-4 w-4" />
+                           </Button>
+                           <Button size="sm" variant="outline">
+                             <Edit className="h-4 w-4" />
+                           </Button>
+                           <Button size="sm" variant="outline">
+                             <FileText className="h-4 w-4" />
+                           </Button>
+                           {(app.status !== 'accepted' && app.status !== 'enrolled') && (
+                             <Button 
+                               size="sm" 
+                               variant="outline" 
+                               onClick={() => handleDeleteApplication(app.id)}
+                               className="text-destructive hover:text-destructive"
+                             >
+                               <Trash2 className="h-4 w-4" />
+                             </Button>
+                           )}
+                         </div>
+                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

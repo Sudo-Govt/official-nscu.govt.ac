@@ -32,6 +32,7 @@ import {
   LogOut
 } from 'lucide-react';
 import ChangePassword from '@/components/ChangePassword';
+import ApplicationManagement from '@/components/admin/ApplicationManagement';
 
 interface Student {
   id: string;
@@ -641,8 +642,9 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-8 h-14 bg-muted/50 backdrop-blur-sm p-1">
+          <TabsList className="grid w-full grid-cols-9 h-14 bg-muted/50 backdrop-blur-sm p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
@@ -969,7 +971,11 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="students" className="space-y-6">
+        <TabsContent value="applications" className="space-y-6">
+          <ApplicationManagement />
+        </TabsContent>
+
+        <TabsContent value="students" className="space-y-6">
             <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
               <CardHeader className="pb-8">
                 <div className="flex items-center justify-between">
