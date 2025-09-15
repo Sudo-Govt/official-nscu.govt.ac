@@ -342,11 +342,54 @@ const AdminDashboard = () => {
           description: "Student updated successfully"
         });
       } else {
-        // Create new student - this would require Supabase auth signup
+        // Create new student by signing them up
+        const temporaryPassword = 'TempPassword123!'; // Students should change this on first login
+        
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: studentEmail,
+          password: temporaryPassword,
+          options: {
+            data: {
+              full_name: studentName,
+              role: 'student'
+            }
+          }
+        });
+
+        if (authError) {
+          if (authError.message.includes('User already registered')) {
+            toast({
+              title: "Error",
+              description: "A user with this email already exists",
+              variant: "destructive"
+            });
+          } else {
+            throw authError;
+          }
+          return;
+        }
+
+        // Update the profile with additional info
+        if (authData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .update({
+              full_name: studentName,
+              department: studentDepartment,
+              phone: studentPhone,
+              role: 'student'
+            })
+            .eq('user_id', authData.user.id);
+
+          if (profileError) {
+            console.error('Profile update error:', profileError);
+          }
+        }
+
         toast({
-          title: "Info",
-          description: "New student creation requires authentication setup",
-          variant: "default"
+          title: "Success",
+          description: `Student created successfully. Temporary password: ${temporaryPassword}`,
+          duration: 10000
         });
       }
 
