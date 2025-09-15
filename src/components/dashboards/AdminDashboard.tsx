@@ -103,6 +103,7 @@ interface AlumniSupportTicket {
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  const [currentTab, setCurrentTab] = useState('overview');
   const [students, setStudents] = useState<Student[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -638,7 +639,7 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Tabs defaultValue="overview" className="space-y-8">
+        <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-8">
           <TabsList className="grid w-full grid-cols-7 h-14 bg-muted/50 backdrop-blur-sm p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
@@ -652,7 +653,10 @@ const AdminDashboard = () => {
           <TabsContent value="overview" className="space-y-8">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
-              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+              <Card 
+                className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
+                onClick={() => setCurrentTab('students')}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                   <CardTitle className="text-base font-semibold">Total Students</CardTitle>
@@ -666,7 +670,10 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+              <Card 
+                className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
+                onClick={() => setCurrentTab('students')}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                   <CardTitle className="text-base font-semibold">Faculty Members</CardTitle>
@@ -680,7 +687,10 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+              <Card 
+                className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
+                onClick={() => setCurrentTab('documents')}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                   <CardTitle className="text-base font-semibold">Documents</CardTitle>
@@ -694,7 +704,10 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+              <Card 
+                className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
+                onClick={() => setCurrentTab('announcements')}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                   <CardTitle className="text-base font-semibold">Active Announcements</CardTitle>
@@ -708,7 +721,10 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+              <Card 
+                className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
+                onClick={() => setCurrentTab('alumni-requests')}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                   <CardTitle className="text-base font-semibold">Pending Alumni Requests</CardTitle>
@@ -722,7 +738,10 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+              <Card 
+                className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
+                onClick={() => setCurrentTab('alumni-requests')}
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                   <CardTitle className="text-base font-semibold">Open Support Tickets</CardTitle>
