@@ -1,0 +1,58 @@
+-- First, drop the existing check constraint and add new degree types
+ALTER TABLE courses DROP CONSTRAINT IF EXISTS courses_degree_type_check;
+
+-- Add new check constraint with expanded degree types
+ALTER TABLE courses ADD CONSTRAINT courses_degree_type_check 
+CHECK (degree_type IN ('bachelor', 'master', 'doctorate', 'diploma', 'certificate', 'phd'));
+
+-- Insert comprehensive course catalog
+INSERT INTO courses (course_name, course_code, college, department, degree_type, duration_years, fee_structure, intake_months, eligibility_criteria, seat_capacity, available_seats) VALUES
+
+-- K10 Curriculum
+('K10 Curriculum - Science Stream', 'K10-SCI', 'School of Science', 'Science', 'certificate', 1, '{"tuition": 15000, "registration": 500, "examination": 1000}', '{1,4,7,9}', 'Completion of grade 9', 100, 100),
+('K10 Curriculum - Commerce Stream', 'K10-COM', 'School of Business Studies', 'Commerce', 'certificate', 1, '{"tuition": 12000, "registration": 500, "examination": 1000}', '{1,4,7,9}', 'Completion of grade 9', 100, 100),
+('K10 Curriculum - Arts & Humanities Stream', 'K10-ART', 'School of Humanities', 'Arts', 'certificate', 1, '{"tuition": 10000, "registration": 500, "examination": 1000}', '{1,4,7,9}', 'Completion of grade 9', 100, 100),
+('K10 Curriculum - Vocational Studies', 'K10-VOC', 'School of Education', 'Vocational', 'certificate', 1, '{"tuition": 14000, "registration": 500, "examination": 1000}', '{1,4,7,9}', 'Completion of grade 9', 100, 100),
+('K10 Curriculum - Technical Training Stream', 'K10-TEC', 'School of Engineering', 'Technical', 'certificate', 1, '{"tuition": 16000, "registration": 500, "examination": 1000}', '{1,4,7,9}', 'Completion of grade 9', 100, 100),
+
+-- K12 Curriculum
+('K12 Curriculum - Science (Physics, Chemistry, Mathematics, Biology)', 'K12-SCI', 'School of Science', 'Science', 'certificate', 2, '{"tuition": 25000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 120, 120),
+('K12 Curriculum - Commerce (Accounting, Business Studies, Economics)', 'K12-COM', 'School of Business Studies', 'Commerce', 'certificate', 2, '{"tuition": 22000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 120, 120),
+('K12 Curriculum - Arts (History, Political Science, Sociology, Literature)', 'K12-ART', 'School of Humanities', 'Arts', 'certificate', 2, '{"tuition": 20000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 120, 120),
+('K12 Curriculum - Computer Science Stream', 'K12-CS', 'School of Computer Science', 'Computer Science', 'certificate', 2, '{"tuition": 28000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 80, 80),
+('K12 Curriculum - Fine Arts Stream', 'K12-FA', 'School of Fine Arts', 'Fine Arts', 'certificate', 2, '{"tuition": 24000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 60, 60),
+('K12 Curriculum - Agriculture Stream', 'K12-AGR', 'School of Agriculture', 'Agriculture', 'certificate', 2, '{"tuition": 26000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 80, 80),
+('K12 Curriculum - Hospitality & Tourism Stream', 'K12-HT', 'School of Hospitality & Tourism', 'Hospitality', 'certificate', 2, '{"tuition": 27000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 70, 70),
+('K12 Curriculum - Sports & Physical Education Stream', 'K12-SPE', 'School of Education', 'Sports', 'certificate', 2, '{"tuition": 23000, "registration": 500, "examination": 1500}', '{1,4,7}', 'Completion of K10 or equivalent', 90, 90),
+
+-- Diploma Programs
+('Diploma in Business Administration', 'DBA', 'School of Business Studies', 'Business Administration', 'diploma', 2, '{"tuition": 45000, "registration": 2000, "examination": 3000}', '{1,7}', 'K12 completion or equivalent', 60, 60),
+('Diploma in Computer Applications', 'DCA', 'School of Computer Science', 'Computer Applications', 'diploma', 1, '{"tuition": 35000, "registration": 2000, "examination": 2500}', '{1,4,7,10}', 'K12 completion or equivalent', 80, 80),
+('Diploma in Information Technology', 'DIT', 'School of Computer Science', 'Information Technology', 'diploma', 2, '{"tuition": 55000, "registration": 2000, "examination": 3000}', '{1,7}', 'K12 completion or equivalent', 70, 70),
+('Diploma in Mechanical Engineering', 'DME', 'School of Engineering', 'Mechanical Engineering', 'diploma', 3, '{"tuition": 75000, "registration": 3000, "examination": 4000}', '{1,7}', 'K12 with Physics, Chemistry, Mathematics', 50, 50),
+('Diploma in Civil Engineering', 'DCE', 'School of Engineering', 'Civil Engineering', 'diploma', 3, '{"tuition": 70000, "registration": 3000, "examination": 4000}', '{1,7}', 'K12 with Physics, Chemistry, Mathematics', 50, 50),
+('Diploma in Electrical Engineering', 'DEE', 'School of Engineering', 'Electrical Engineering', 'diploma', 3, '{"tuition": 72000, "registration": 3000, "examination": 4000}', '{1,7}', 'K12 with Physics, Chemistry, Mathematics', 45, 45),
+('Diploma in Electronics', 'DE', 'School of Engineering', 'Electronics', 'diploma', 3, '{"tuition": 68000, "registration": 3000, "examination": 4000}', '{1,7}', 'K12 with Physics, Chemistry, Mathematics', 45, 45),
+('Diploma in Architecture', 'DARCH', 'School of Architecture', 'Architecture', 'diploma', 3, '{"tuition": 85000, "registration": 3000, "examination": 4000}', '{1,7}', 'K12 completion with portfolio', 40, 40),
+('Diploma in Interior Design', 'DID', 'School of Architecture', 'Interior Design', 'diploma', 2, '{"tuition": 60000, "registration": 2500, "examination": 3000}', '{1,7}', 'K12 completion with portfolio', 35, 35),
+('Diploma in Hotel Management', 'DHM', 'School of Hospitality & Tourism', 'Hotel Management', 'diploma', 3, '{"tuition": 65000, "registration": 2500, "examination": 3500}', '{1,7}', 'K12 completion', 50, 50),
+('Diploma in Culinary Arts', 'DCA-CULI', 'School of Hospitality & Tourism', 'Culinary Arts', 'diploma', 2, '{"tuition": 55000, "registration": 2500, "examination": 3000}', '{1,4,7,10}', 'K12 completion', 40, 40),
+('Diploma in Fashion Design', 'DFD', 'School of Fine Arts', 'Fashion Design', 'diploma', 2, '{"tuition": 50000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion with portfolio', 30, 30),
+('Diploma in Journalism & Mass Communication', 'DJMC', 'School of Humanities', 'Journalism', 'diploma', 2, '{"tuition": 40000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion', 60, 60),
+('Diploma in Fine Arts', 'DFA', 'School of Fine Arts', 'Fine Arts', 'diploma', 2, '{"tuition": 45000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion with portfolio', 40, 40),
+('Diploma in Education', 'DED', 'School of Education', 'Education', 'diploma', 2, '{"tuition": 35000, "registration": 1500, "examination": 2000}', '{1,7}', 'K12 completion', 80, 80),
+('Diploma in Early Childhood Care & Education', 'DECCE', 'School of Education', 'Early Childhood Education', 'diploma', 2, '{"tuition": 38000, "registration": 1500, "examination": 2000}', '{1,7}', 'K12 completion', 60, 60),
+('Diploma in Pharmacy', 'DPHARM', 'School of Medical Sciences', 'Pharmacy', 'diploma', 2, '{"tuition": 80000, "registration": 3000, "examination": 4000}', '{1,7}', 'K12 with Physics, Chemistry, Biology', 40, 40),
+('Diploma in Nursing', 'DN', 'School of Medical Sciences', 'Nursing', 'diploma', 3, '{"tuition": 75000, "registration": 3000, "examination": 4000}', '{1,7}', 'K12 with Biology', 50, 50),
+('Diploma in Physiotherapy', 'DPT-DIP', 'School of Medical Sciences', 'Physiotherapy', 'diploma', 2, '{"tuition": 70000, "registration": 2500, "examination": 3500}', '{1,7}', 'K12 with Biology', 30, 30),
+('Diploma in Agriculture', 'DAGRI', 'School of Agriculture', 'Agriculture', 'diploma', 2, '{"tuition": 45000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion', 60, 60),
+('Diploma in Horticulture', 'DHORT', 'School of Agriculture', 'Horticulture', 'diploma', 2, '{"tuition": 42000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion', 50, 50),
+('Diploma in Forestry', 'DFOR', 'School of Agriculture', 'Forestry', 'diploma', 2, '{"tuition": 40000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion', 40, 40),
+('Diploma in Fisheries Science', 'DFS', 'School of Agriculture', 'Fisheries Science', 'diploma', 2, '{"tuition": 38000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion', 35, 35),
+('Diploma in Social Work', 'DSW', 'School of Social Work', 'Social Work', 'diploma', 2, '{"tuition": 35000, "registration": 1500, "examination": 2000}', '{1,7}', 'K12 completion', 70, 70),
+('Diploma in Tourism Management', 'DTM', 'School of Hospitality & Tourism', 'Tourism Management', 'diploma', 2, '{"tuition": 48000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion', 50, 50),
+('Diploma in Criminology', 'DCRIM', 'School of Law', 'Criminology', 'diploma', 2, '{"tuition": 42000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion', 40, 40),
+('Diploma in Environmental Science', 'DES', 'School of Science', 'Environmental Science', 'diploma', 2, '{"tuition": 45000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 with Science subjects', 45, 45),
+('Diploma in Music', 'DMUS', 'School of Fine Arts', 'Music', 'diploma', 2, '{"tuition": 40000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion with audition', 25, 25),
+('Diploma in Dance', 'DDANCE', 'School of Fine Arts', 'Dance', 'diploma', 2, '{"tuition": 38000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion with audition', 20, 20),
+('Diploma in Theatre Arts', 'DTA', 'School of Fine Arts', 'Theatre Arts', 'diploma', 2, '{"tuition": 42000, "registration": 2000, "examination": 2500}', '{1,7}', 'K12 completion with audition', 30, 30);
