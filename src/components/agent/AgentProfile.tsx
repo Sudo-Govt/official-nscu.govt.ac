@@ -15,7 +15,7 @@ import { User, Shield, Download, DollarSign, Globe, Upload } from 'lucide-react'
 interface AgentProfile {
   id: string;
   agent_id: string;
-  kyc_status: 'pending' | 'verified' | 'rejected';
+  kyc_status: string;
   accreditation_certificate_url?: string;
   commission_rate: number;
   total_earnings: number;
