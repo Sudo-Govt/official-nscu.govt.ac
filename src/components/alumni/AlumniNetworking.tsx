@@ -12,7 +12,7 @@ const AlumniNetworking = () => {
   const [alumniProfiles, setAlumniProfiles] = useState([]);
   const [chapters, setChapters] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [yearFilter, setYearFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('all');
   const [locationFilter, setLocationFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +72,7 @@ const AlumniNetworking = () => {
       profile.program?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       profile.current_company?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesYear = !yearFilter || profile.graduation_year.toString() === yearFilter;
+    const matchesYear = !yearFilter || yearFilter === 'all' || profile.graduation_year.toString() === yearFilter;
     const matchesLocation = !locationFilter || profile.location?.toLowerCase().includes(locationFilter.toLowerCase());
     
     return matchesSearch && matchesYear && matchesLocation;
@@ -113,7 +113,7 @@ const AlumniNetworking = () => {
                 <SelectValue placeholder="Graduation Year" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Years</SelectItem>
+                <SelectItem value="all">All Years</SelectItem>
                 {uniqueYears.map(year => (
                   <SelectItem key={year} value={year.toString()}>
                     Class of {year}
