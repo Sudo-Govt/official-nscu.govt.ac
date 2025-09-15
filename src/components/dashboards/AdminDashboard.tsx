@@ -343,7 +343,15 @@ const AdminDashboard = () => {
         });
       } else {
         // Create new student by signing them up
-        const temporaryPassword = 'TempPassword123!'; // Students should change this on first login
+        const generateSecurePassword = () => {
+          const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+          let password = '';
+          for (let i = 0; i < 16; i++) {
+            password += charset.charAt(Math.floor(Math.random() * charset.length));
+          }
+          return password;
+        };
+        const temporaryPassword = generateSecurePassword(); // Students should change this on first login
         
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: studentEmail,
