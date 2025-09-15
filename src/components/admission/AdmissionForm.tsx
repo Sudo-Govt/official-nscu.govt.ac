@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +9,21 @@ import { useToast } from '@/hooks/use-toast';
 import mockDb from '@/database/mockDb';
 import bcrypt from 'bcryptjs';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Course {
+  id: string;
+  course_name: string;
+  course_code: string;
+  college: string;
+  degree_type: string;
+}
 
 const AdmissionForm = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     // Personal Information
     full_name: '',
@@ -34,6 +45,33 @@ const AdmissionForm = () => {
     user_id: '',
     password: ''
   });
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('id, course_name, course_code, college, degree_type')
+        .eq('is_active', true)
+        .order('college', { ascending: true })
+        .order('course_name', { ascending: true });
+
+      if (error) throw error;
+      setCourses(data || []);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load courses",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -186,14 +224,15 @@ const AdmissionForm = () => {
                     <SelectValue placeholder="Select program" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Bachelor of Science in Computer Science">BSc Computer Science</SelectItem>
-                    <SelectItem value="Bachelor of Engineering">Bachelor of Engineering</SelectItem>
-                    <SelectItem value="Bachelor of Arts in English">BA English</SelectItem>
-                    <SelectItem value="Bachelor of Science in Biology">BSc Biology</SelectItem>
-                    <SelectItem value="Master of Business Administration">MBA</SelectItem>
-                    <SelectItem value="Master of Science in History">MSc History</SelectItem>
-                    <SelectItem value="Bachelor of Nursing">BSN</SelectItem>
-                    <SelectItem value="Doctor of Medicine">MD</SelectItem>
+                    {loading ? (
+                      <SelectItem value="" disabled>Loading courses...</SelectItem>
+                    ) : (
+                      courses.map((course) => (
+                        <SelectItem key={course.id} value={course.course_name}>
+                          {course.course_name} ({course.college})
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
