@@ -90,8 +90,17 @@ const AdminDashboard = () => {
   const [uploadAudience, setUploadAudience] = useState('all');
   const [uploading, setUploading] = useState(false);
 
+  // Student management state
+  const [studentDialogOpen, setStudentDialogOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [studentName, setStudentName] = useState('');
+  const [studentEmail, setStudentEmail] = useState('');
+  const [studentDepartment, setStudentDepartment] = useState('');
+  const [studentPhone, setStudentPhone] = useState('');
+
   // Announcement state
   const [announcementDialogOpen, setAnnouncementDialogOpen] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [announcementTitle, setAnnouncementTitle] = useState('');
   const [announcementContent, setAnnouncementContent] = useState('');
   const [announcementPriority, setAnnouncementPriority] = useState('normal');
@@ -230,38 +239,213 @@ const AdminDashboard = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('announcements')
-        .insert({
-          title: announcementTitle,
-          content: announcementContent,
-          priority: announcementPriority,
-          target_audience: announcementAudience,
-          created_by: user?.id
+      if (editingAnnouncement) {
+        // Update existing announcement
+        const { error } = await supabase
+          .from('announcements')
+          .update({
+            title: announcementTitle,
+            content: announcementContent,
+            priority: announcementPriority,
+            target_audience: announcementAudience
+          })
+          .eq('id', editingAnnouncement.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Announcement updated successfully"
         });
+      } else {
+        // Create new announcement
+        const { error } = await supabase
+          .from('announcements')
+          .insert({
+            title: announcementTitle,
+            content: announcementContent,
+            priority: announcementPriority,
+            target_audience: announcementAudience,
+            created_by: user?.id
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Announcement created successfully"
-      });
+        toast({
+          title: "Success",
+          description: "Announcement created successfully"
+        });
+      }
 
       // Reset form and refresh data
       setAnnouncementDialogOpen(false);
+      setEditingAnnouncement(null);
       setAnnouncementTitle('');
       setAnnouncementContent('');
       setAnnouncementPriority('normal');
       setAnnouncementAudience('all');
       fetchData();
     } catch (error) {
-      console.error('Error creating announcement:', error);
+      console.error('Error with announcement:', error);
       toast({
         title: "Error",
-        description: "Failed to create announcement",
+        description: `Failed to ${editingAnnouncement ? 'update' : 'create'} announcement`,
         variant: "destructive"
       });
     }
+  };
+
+  const handleAddStudent = () => {
+    setEditingStudent(null);
+    setStudentName('');
+    setStudentEmail('');
+    setStudentDepartment('');
+    setStudentPhone('');
+    setStudentDialogOpen(true);
+  };
+
+  const handleEditStudent = (student: Student) => {
+    setEditingStudent(student);
+    setStudentName(student.full_name);
+    setStudentEmail(''); // Email from auth table, we'll handle separately
+    setStudentDepartment(student.department || '');
+    setStudentPhone(student.phone || '');
+    setStudentDialogOpen(true);
+  };
+
+  const handleSaveStudent = async () => {
+    if (!studentName || !studentEmail) {
+      toast({
+        title: "Error",
+        description: "Please fill in required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      if (editingStudent) {
+        // Update existing student
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            full_name: studentName,
+            department: studentDepartment,
+            phone: studentPhone
+          })
+          .eq('id', editingStudent.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Student updated successfully"
+        });
+      } else {
+        // Create new student - this would require Supabase auth signup
+        toast({
+          title: "Info",
+          description: "New student creation requires authentication setup",
+          variant: "default"
+        });
+      }
+
+      setStudentDialogOpen(false);
+      fetchData();
+    } catch (error) {
+      console.error('Error saving student:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save student",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDownloadDocument = async (doc: Document) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('student-documents')
+        .download(doc.file_path);
+
+      if (error) throw error;
+
+      // Create download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Document downloaded successfully"
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download document",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteDocument = async (docId: string) => {
+    if (!confirm('Are you sure you want to delete this document?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('documents')
+        .delete()
+        .eq('id', docId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Document deleted successfully"
+      });
+
+      fetchData();
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete document",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditAnnouncement = (announcement: Announcement) => {
+    setEditingAnnouncement(announcement);
+    setAnnouncementTitle(announcement.title);
+    setAnnouncementContent(announcement.content);
+    setAnnouncementPriority(announcement.priority);
+    setAnnouncementAudience(announcement.target_audience);
+    setAnnouncementDialogOpen(true);
+  };
+
+  const handleViewReports = () => {
+    toast({
+      title: "Reports",
+      description: "Advanced reporting dashboard coming soon!",
+      variant: "default"
+    });
+  };
+
+  const handleViewStudent = (student: Student) => {
+    toast({
+      title: "Student Details",
+      description: `Viewing profile for ${student.full_name}`,
+      variant: "default"
+    });
   };
 
   const toggleAnnouncementStatus = async (id: string, currentStatus: boolean) => {
@@ -522,12 +706,14 @@ const AdminDashboard = () => {
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[600px]">
-                      <DialogHeader>
-                        <DialogTitle className="text-2xl font-bold">Create Announcement</DialogTitle>
-                        <DialogDescription className="text-base">
-                          Create a new announcement to communicate with students and faculty.
-                        </DialogDescription>
-                      </DialogHeader>
+                       <DialogHeader>
+                         <DialogTitle className="text-2xl font-bold">
+                           {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
+                         </DialogTitle>
+                         <DialogDescription className="text-base">
+                           {editingAnnouncement ? 'Update the announcement details.' : 'Create a new announcement to communicate with students and faculty.'}
+                         </DialogDescription>
+                       </DialogHeader>
                       <div className="space-y-6 py-4">
                         <div className="space-y-2">
                           <Label htmlFor="ann-title" className="text-base font-medium">Title *</Label>
@@ -583,9 +769,9 @@ const AdminDashboard = () => {
                         <Button variant="outline" onClick={() => setAnnouncementDialogOpen(false)}>
                           Cancel
                         </Button>
-                        <Button onClick={handleCreateAnnouncement}>
-                          Create Announcement
-                        </Button>
+                         <Button onClick={handleCreateAnnouncement}>
+                           {editingAnnouncement ? 'Update Announcement' : 'Create Announcement'}
+                         </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
@@ -593,6 +779,7 @@ const AdminDashboard = () => {
                   <Button 
                     variant="outline" 
                     className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                    onClick={handleAddStudent}
                   >
                     <UserPlus className="h-8 w-8 text-amber-600" />
                     <span className="font-medium">Add Student</span>
@@ -601,6 +788,7 @@ const AdminDashboard = () => {
                   <Button 
                     variant="outline" 
                     className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                    onClick={handleViewReports}
                   >
                     <BarChart3 className="h-8 w-8 text-violet-600" />
                     <span className="font-medium">View Reports</span>
@@ -618,7 +806,7 @@ const AdminDashboard = () => {
                     <CardTitle className="text-2xl font-bold">Student Management</CardTitle>
                     <CardDescription className="text-lg mt-2">View and manage student records</CardDescription>
                   </div>
-                  <Button className="bg-gradient-to-r from-primary to-primary/80">
+                  <Button className="bg-gradient-to-r from-primary to-primary/80" onClick={handleAddStudent}>
                     <UserPlus className="h-5 w-5 mr-2" />
                     Add Student
                   </Button>
@@ -645,11 +833,11 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleViewStudent(student)}>
                             <Eye className="h-4 w-4 mr-1" />
                             View
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleEditStudent(student)}>
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </Button>
@@ -702,11 +890,11 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleDownloadDocument(doc)}>
                             <Download className="h-4 w-4 mr-1" />
                             Download
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleDeleteDocument(doc.id)}>
                             <Trash2 className="h-4 w-4 mr-1" />
                             Delete
                           </Button>
@@ -783,7 +971,7 @@ const AdminDashboard = () => {
                           >
                             {announcement.is_active ? 'Deactivate' : 'Activate'}
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleEditAnnouncement(announcement)}>
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </Button>
@@ -826,6 +1014,74 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Student Management Dialog */}
+        <Dialog open={studentDialogOpen} onOpenChange={setStudentDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">
+                {editingStudent ? 'Edit Student' : 'Add Student'}
+              </DialogTitle>
+              <DialogDescription className="text-base">
+                {editingStudent ? 'Update student information.' : 'Add a new student to the system.'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="student-name" className="text-base font-medium">Full Name *</Label>
+                <Input
+                  id="student-name"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  placeholder="Enter student full name"
+                  className="h-12"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="student-email" className="text-base font-medium">Email *</Label>
+                <Input
+                  id="student-email"
+                  type="email"
+                  value={studentEmail}
+                  onChange={(e) => setStudentEmail(e.target.value)}
+                  placeholder="Enter student email"
+                  className="h-12"
+                  disabled={!!editingStudent}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="student-dept" className="text-base font-medium">Department</Label>
+                  <Input
+                    id="student-dept"
+                    value={studentDepartment}
+                    onChange={(e) => setStudentDepartment(e.target.value)}
+                    placeholder="Enter department"
+                    className="h-12"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="student-phone" className="text-base font-medium">Phone</Label>
+                  <Input
+                    id="student-phone"
+                    value={studentPhone}
+                    onChange={(e) => setStudentPhone(e.target.value)}
+                    placeholder="Enter phone number"
+                    className="h-12"
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setStudentDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveStudent}>
+                {editingStudent ? 'Update Student' : 'Add Student'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
