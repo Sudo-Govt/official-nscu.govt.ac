@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 
 const Login = () => {
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -24,11 +24,11 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(userId, password);
+      const success = await login(email, password);
       if (success) {
         navigate('/dashboard');
       } else {
-        setError('Invalid credentials. Please check your User ID and password.');
+        setError('Invalid credentials. Please check your email and password.');
       }
     } catch (err) {
       setError('An error occurred during login. Please try again.');
@@ -60,18 +60,18 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="userId">User ID</Label>
+                <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Input
-                    id="userId"
-                    type="text"
-                    placeholder="Enter your User ID"
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                     className="pl-10"
                   />
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 </div>
               </div>
 
