@@ -53,6 +53,186 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_commissions: {
+        Row: {
+          agent_id: string | null
+          amount: number
+          application_id: string | null
+          commission_type: string
+          created_at: string
+          currency: string | null
+          id: string
+          paid_at: string | null
+          payment_reference: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          amount: number
+          application_id?: string | null
+          commission_type: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_reference?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          amount?: number
+          application_id?: string | null
+          commission_type?: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_reference?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_commissions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_commissions_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "student_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_communications: {
+        Row: {
+          agent_id: string | null
+          application_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          message_type: string
+          priority: string | null
+          read_at: string | null
+          sender_id: string | null
+          sender_type: string
+          subject: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          message_type: string
+          priority?: string | null
+          read_at?: string | null
+          sender_id?: string | null
+          sender_type: string
+          subject?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          message_type?: string
+          priority?: string | null
+          read_at?: string | null
+          sender_id?: string | null
+          sender_type?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_communications_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_communications_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "student_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_communications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      agent_profiles: {
+        Row: {
+          accreditation_certificate_url: string | null
+          agent_id: string
+          commission_rate: number | null
+          contact_info: Json | null
+          created_at: string
+          id: string
+          kyc_status: string | null
+          languages: string[] | null
+          region: string | null
+          total_earnings: number | null
+          updated_at: string
+          user_id: string | null
+          verification_documents: Json | null
+        }
+        Insert: {
+          accreditation_certificate_url?: string | null
+          agent_id: string
+          commission_rate?: number | null
+          contact_info?: Json | null
+          created_at?: string
+          id?: string
+          kyc_status?: string | null
+          languages?: string[] | null
+          region?: string | null
+          total_earnings?: number | null
+          updated_at?: string
+          user_id?: string | null
+          verification_documents?: Json | null
+        }
+        Update: {
+          accreditation_certificate_url?: string | null
+          agent_id?: string
+          commission_rate?: number | null
+          contact_info?: Json | null
+          created_at?: string
+          id?: string
+          kyc_status?: string | null
+          languages?: string[] | null
+          region?: string | null
+          total_earnings?: number | null
+          updated_at?: string
+          user_id?: string | null
+          verification_documents?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       alumni_chapter_members: {
         Row: {
           chapter_id: string | null
@@ -894,6 +1074,63 @@ export type Database = {
           },
         ]
       }
+      courses: {
+        Row: {
+          available_seats: number | null
+          college: string
+          course_code: string
+          course_name: string
+          created_at: string
+          credit_hours: number | null
+          degree_type: string
+          department: string | null
+          duration_years: number
+          eligibility_criteria: string | null
+          fee_structure: Json | null
+          id: string
+          intake_months: number[] | null
+          is_active: boolean | null
+          seat_capacity: number | null
+          updated_at: string
+        }
+        Insert: {
+          available_seats?: number | null
+          college: string
+          course_code: string
+          course_name: string
+          created_at?: string
+          credit_hours?: number | null
+          degree_type: string
+          department?: string | null
+          duration_years: number
+          eligibility_criteria?: string | null
+          fee_structure?: Json | null
+          id?: string
+          intake_months?: number[] | null
+          is_active?: boolean | null
+          seat_capacity?: number | null
+          updated_at?: string
+        }
+        Update: {
+          available_seats?: number | null
+          college?: string
+          course_code?: string
+          course_name?: string
+          created_at?: string
+          credit_hours?: number | null
+          degree_type?: string
+          department?: string | null
+          duration_years?: number
+          eligibility_criteria?: string | null
+          fee_structure?: Json | null
+          id?: string
+          intake_months?: number[] | null
+          is_active?: boolean | null
+          seat_capacity?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           category: string
@@ -1133,6 +1370,202 @@ export type Database = {
         }
         Relationships: []
       }
+      student_applications: {
+        Row: {
+          academic_documents: Json | null
+          address: string
+          admission_letter_url: string | null
+          admission_month: number
+          admission_year: number
+          agent_id: string | null
+          application_fee_amount: number | null
+          application_fee_paid: boolean | null
+          application_number: string
+          course_id: string | null
+          created_at: string
+          date_of_birth: string
+          email: string
+          emergency_contact: Json | null
+          enrollment_date: string | null
+          first_name: string
+          id: string
+          last_name: string
+          nationality: string
+          passport_number: string | null
+          payment_reference: string | null
+          phone: string
+          previous_education: Json | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scholarship_applied: boolean | null
+          status: string | null
+          student_id: string | null
+          tuition_fee_paid: boolean | null
+          university_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          academic_documents?: Json | null
+          address: string
+          admission_letter_url?: string | null
+          admission_month?: number
+          admission_year: number
+          agent_id?: string | null
+          application_fee_amount?: number | null
+          application_fee_paid?: boolean | null
+          application_number?: string
+          course_id?: string | null
+          created_at?: string
+          date_of_birth: string
+          email: string
+          emergency_contact?: Json | null
+          enrollment_date?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          nationality: string
+          passport_number?: string | null
+          payment_reference?: string | null
+          phone: string
+          previous_education?: Json | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scholarship_applied?: boolean | null
+          status?: string | null
+          student_id?: string | null
+          tuition_fee_paid?: boolean | null
+          university_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          academic_documents?: Json | null
+          address?: string
+          admission_letter_url?: string | null
+          admission_month?: number
+          admission_year?: number
+          agent_id?: string | null
+          application_fee_amount?: number | null
+          application_fee_paid?: boolean | null
+          application_number?: string
+          course_id?: string | null
+          created_at?: string
+          date_of_birth?: string
+          email?: string
+          emergency_contact?: Json | null
+          enrollment_date?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          nationality?: string
+          passport_number?: string | null
+          payment_reference?: string | null
+          phone?: string
+          previous_education?: Json | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scholarship_applied?: boolean | null
+          status?: string | null
+          student_id?: string | null
+          tuition_fee_paid?: boolean | null
+          university_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_applications_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_applications_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      student_documents: {
+        Row: {
+          ai_fraud_score: number | null
+          application_id: string | null
+          blockchain_hash: string | null
+          created_at: string
+          document_name: string
+          document_type: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_verified: boolean | null
+          mime_type: string | null
+          updated_at: string
+          verification_notes: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          ai_fraud_score?: number | null
+          application_id?: string | null
+          blockchain_hash?: string | null
+          created_at?: string
+          document_name: string
+          document_type: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_verified?: boolean | null
+          mime_type?: string | null
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          ai_fraud_score?: number | null
+          application_id?: string | null
+          blockchain_hash?: string | null
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_verified?: boolean | null
+          mime_type?: string | null
+          updated_at?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "student_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_permissions: {
         Row: {
           access_level: Database["public"]["Enums"]["access_level"]
@@ -1177,6 +1610,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_application_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_permission: {
         Args: {
           module_key: string
