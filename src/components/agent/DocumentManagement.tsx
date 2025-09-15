@@ -503,8 +503,8 @@ const DocumentUploadForm = ({ applications, onSuccess }: {
 
     setLoading(true);
     try {
-      // Upload file to storage
-      const fileName = `${Date.now()}-${file.name}`;
+      // Upload file to storage with application ID as folder
+      const fileName = `${selectedApplication}/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('student-documents')
         .upload(fileName, file);
