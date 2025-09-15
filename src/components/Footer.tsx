@@ -1,5 +1,6 @@
 
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -14,21 +15,21 @@ const Footer = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-sm mb-2">Colleges & Schools</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="/academics/college-arts-sciences" className="hover:text-uw-gold transition-colors">College of Arts & Sciences</a></li>
-                <li><a href="/academics/college-engineering" className="hover:text-uw-gold transition-colors">College of Engineering</a></li>
-                <li><a href="/academics/school-business" className="hover:text-uw-gold transition-colors">School of Business</a></li>
-                <li><a href="/academics/college-health-sciences" className="hover:text-uw-gold transition-colors">College of Health Sciences</a></li>
-                <li><a href="/academics/school-medicine" className="hover:text-uw-gold transition-colors">School of Medicine</a></li>
-                <li><a href="/academics/school-law" className="hover:text-uw-gold transition-colors">School of Law</a></li>
-                <li><a href="/academics/college-education" className="hover:text-uw-gold transition-colors">College of Education</a></li>
-                <li><a href="/academics/school-arts" className="hover:text-uw-gold transition-colors">Graduate School</a></li>
+                <li><Link to="/academics/college-engineering" className="hover:text-uw-gold transition-colors">College of Arts & Sciences</Link></li>
+                <li><Link to="/academics/college-engineering" className="hover:text-uw-gold transition-colors">College of Engineering</Link></li>
+                <li><Link to="/academics/school-business" className="hover:text-uw-gold transition-colors">School of Business</Link></li>
+                <li><Link to="/academics/college-health-sciences" className="hover:text-uw-gold transition-colors">College of Health Sciences</Link></li>
+                <li><Link to="/academics/school-medicine" className="hover:text-uw-gold transition-colors">School of Medicine</Link></li>
+                <li><Link to="/academics/school-law" className="hover:text-uw-gold transition-colors">School of Law</Link></li>
+                <li><Link to="/academics/college-education" className="hover:text-uw-gold transition-colors">College of Education</Link></li>
+                <li><Link to="/academics/school-arts" className="hover:text-uw-gold transition-colors">Graduate School</Link></li>
               </ul>
               <h4 className="font-semibold text-sm mb-2 mt-4">Academic Resources</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Course Catalog</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Academic Calendar</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Libraries</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Writing Center</a></li>
+                <li><Link to="/academics/course-catalog" className="hover:text-uw-gold transition-colors">Course Catalog</Link></li>
+                <li><Link to="/academics/academic-calendar" className="hover:text-uw-gold transition-colors">Academic Calendar</Link></li>
+                <li><Link to="/services/libraries" className="hover:text-uw-gold transition-colors">Libraries</Link></li>
+                <li><Link to="/services/writing-center" className="hover:text-uw-gold transition-colors">Writing Center</Link></li>
               </ul>
             </div>
           </div>
@@ -38,22 +39,22 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4 text-uw-gold">Student Life</h3>
             <div className="space-y-2">
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Housing & Dining</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Health & Wellness</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Career Services</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Student Organizations</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Campus Recreation</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Arts & Culture</a></li>
+                <li><Link to="/student-life/housing" className="hover:text-uw-gold transition-colors">Housing & Dining</Link></li>
+                <li><Link to="/student-life/health-wellness" className="hover:text-uw-gold transition-colors">Health & Wellness</Link></li>
+                <li><Link to="/student-life/career-services" className="hover:text-uw-gold transition-colors">Career Services</Link></li>
+                <li><Link to="/student-life/organizations" className="hover:text-uw-gold transition-colors">Student Organizations</Link></li>
+                <li><Link to="/student-life/recreation" className="hover:text-uw-gold transition-colors">Campus Recreation</Link></li>
+                <li><Link to="/student-life/dining" className="hover:text-uw-gold transition-colors">Arts & Culture</Link></li>
               </ul>
               
               <h4 className="font-semibold text-sm mb-2 mt-4">Admissions</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Undergraduate Admissions</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Graduate Admissions</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">International Admissions</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Transfer Admissions</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Financial Aid</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Campus Tours</a></li>
+                <li><Link to="/admissions/undergraduate" className="hover:text-uw-gold transition-colors">Undergraduate Admissions</Link></li>
+                <li><Link to="/admissions/graduate" className="hover:text-uw-gold transition-colors">Graduate Admissions</Link></li>
+                <li><Link to="/admissions/international" className="hover:text-uw-gold transition-colors">International Admissions</Link></li>
+                <li><Link to="/admissions/transfer" className="hover:text-uw-gold transition-colors">Transfer Admissions</Link></li>
+                <li><Link to="/admissions/financial-aid" className="hover:text-uw-gold transition-colors">Financial Aid</Link></li>
+                <li><Link to="/home/virtual-tour" className="hover:text-uw-gold transition-colors">Campus Tours</Link></li>
               </ul>
             </div>
           </div>
@@ -64,21 +65,21 @@ const Footer = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-sm mb-2">Research</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Research Office</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Funding Opportunities</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Core Facilities</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Technology Transfer</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Undergraduate Research</a></li>
+                <li><Link to="/research/office" className="hover:text-uw-gold transition-colors">Research Office</Link></li>
+                <li><Link to="/research/funding" className="hover:text-uw-gold transition-colors">Funding Opportunities</Link></li>
+                <li><Link to="/research/core-facilities" className="hover:text-uw-gold transition-colors">Core Facilities</Link></li>
+                <li><Link to="/research/technology-transfer" className="hover:text-uw-gold transition-colors">Technology Transfer</Link></li>
+                <li><Link to="/research/funding" className="hover:text-uw-gold transition-colors">Undergraduate Research</Link></li>
               </ul>
               
               <h4 className="font-semibold text-sm mb-2 mt-4">Alumni</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Alumni Association</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Alumni Benefits</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Career Networking</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Alumni Events</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Give Back</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Alumni Directory</a></li>
+                <li><Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni Association</Link></li>
+                <li><Link to="/alumni/benefits" className="hover:text-uw-gold transition-colors">Alumni Benefits</Link></li>
+                <li><Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Career Networking</Link></li>
+                <li><Link to="/alumni/events" className="hover:text-uw-gold transition-colors">Alumni Events</Link></li>
+                <li><Link to="/alumni/give-back" className="hover:text-uw-gold transition-colors">Give Back</Link></li>
+                <li><Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni Directory</Link></li>
               </ul>
             </div>
           </div>
@@ -89,12 +90,12 @@ const Footer = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-sm mb-2">About NSCU</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">History & Mission</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Leadership</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Accreditation</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Campus Map</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Sustainability</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Diversity & Inclusion</a></li>
+                <li><Link to="/about/history-mission" className="hover:text-uw-gold transition-colors">History & Mission</Link></li>
+                <li><Link to="/about/leadership" className="hover:text-uw-gold transition-colors">Leadership</Link></li>
+                <li><Link to="/about/accreditation" className="hover:text-uw-gold transition-colors">Accreditation</Link></li>
+                <li><Link to="/about/campus-map" className="hover:text-uw-gold transition-colors">Campus Map</Link></li>
+                <li><Link to="/about/sustainability" className="hover:text-uw-gold transition-colors">Sustainability</Link></li>
+                <li><Link to="/about/diversity-inclusion" className="hover:text-uw-gold transition-colors">Diversity & Inclusion</Link></li>
               </ul>
 
               <div className="mt-6">
@@ -124,66 +125,66 @@ const Footer = () => {
             <div>
               <h4 className="font-semibold text-sm mb-3 text-uw-gold">Quick Links</h4>
               <ul className="space-y-1 text-xs text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">MyNSCU Portal</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Canvas LMS</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Student Email</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Faculty Email</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">IT Help Desk</a></li>
+                <li><Link to="/login" className="hover:text-uw-gold transition-colors">MyNSCU Portal</Link></li>
+                <li><Link to="/login" className="hover:text-uw-gold transition-colors">Canvas LMS</Link></li>
+                <li><Link to="/login" className="hover:text-uw-gold transition-colors">Student Email</Link></li>
+                <li><Link to="/login" className="hover:text-uw-gold transition-colors">Faculty Email</Link></li>
+                <li><Link to="/services/it-help-desk" className="hover:text-uw-gold transition-colors">IT Help Desk</Link></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold text-sm mb-3 text-uw-gold">Resources</h4>
               <ul className="space-y-1 text-xs text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Student Handbook</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Academic Policies</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Campus Safety</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Emergency Info</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Title IX</a></li>
+                <li><Link to="/resources/student-handbook" className="hover:text-uw-gold transition-colors">Student Handbook</Link></li>
+                <li><Link to="/resources/academic-policies" className="hover:text-uw-gold transition-colors">Academic Policies</Link></li>
+                <li><Link to="/home/emergency" className="hover:text-uw-gold transition-colors">Campus Safety</Link></li>
+                <li><Link to="/home/emergency" className="hover:text-uw-gold transition-colors">Emergency Info</Link></li>
+                <li><Link to="/resources/academic-policies" className="hover:text-uw-gold transition-colors">Title IX</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-sm mb-3 text-uw-gold">Services</h4>
               <ul className="space-y-1 text-xs text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Parking & Transportation</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Disability Services</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Veterans Services</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">International Services</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Multicultural Affairs</a></li>
+                <li><Link to="/services/parking-transportation" className="hover:text-uw-gold transition-colors">Parking & Transportation</Link></li>
+                <li><Link to="/services/disability-services" className="hover:text-uw-gold transition-colors">Disability Services</Link></li>
+                <li><Link to="/student-life/organizations" className="hover:text-uw-gold transition-colors">Veterans Services</Link></li>
+                <li><Link to="/admissions/international" className="hover:text-uw-gold transition-colors">International Services</Link></li>
+                <li><Link to="/student-life/organizations" className="hover:text-uw-gold transition-colors">Multicultural Affairs</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-sm mb-3 text-uw-gold">Departments</h4>
               <ul className="space-y-1 text-xs text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Computer Science</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Business Administration</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Engineering</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Health Sciences</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Liberal Arts</a></li>
+                <li><Link to="/departments/computer-science" className="hover:text-uw-gold transition-colors">Computer Science</Link></li>
+                <li><Link to="/academics/school-business" className="hover:text-uw-gold transition-colors">Business Administration</Link></li>
+                <li><Link to="/academics/college-engineering" className="hover:text-uw-gold transition-colors">Engineering</Link></li>
+                <li><Link to="/academics/college-health-sciences" className="hover:text-uw-gold transition-colors">Health Sciences</Link></li>
+                <li><Link to="/academics/school-arts" className="hover:text-uw-gold transition-colors">Liberal Arts</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-sm mb-3 text-uw-gold">Campus Life</h4>
               <ul className="space-y-1 text-xs text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Student Organizations</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Greek Life</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Intramural Sports</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Fitness Centers</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Dining Options</a></li>
+                <li><Link to="/student-life/organizations" className="hover:text-uw-gold transition-colors">Student Organizations</Link></li>
+                <li><Link to="/campus-life/greek-life" className="hover:text-uw-gold transition-colors">Greek Life</Link></li>
+                <li><Link to="/campus-life/intramurals" className="hover:text-uw-gold transition-colors">Intramural Sports</Link></li>
+                <li><Link to="/student-life/recreation" className="hover:text-uw-gold transition-colors">Fitness Centers</Link></li>
+                <li><Link to="/student-life/dining" className="hover:text-uw-gold transition-colors">Dining Options</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-sm mb-3 text-uw-gold">News & Events</h4>
               <ul className="space-y-1 text-xs text-gray-300">
-                <li><a href="#" className="hover:text-uw-gold transition-colors">University News</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Events Calendar</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Press Releases</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Lecture Series</a></li>
-                <li><a href="#" className="hover:text-uw-gold transition-colors">Commencement</a></li>
+                <li><Link to="/news/university-news" className="hover:text-uw-gold transition-colors">University News</Link></li>
+                <li><Link to="/academics/academic-calendar" className="hover:text-uw-gold transition-colors">Events Calendar</Link></li>
+                <li><Link to="/news/university-news" className="hover:text-uw-gold transition-colors">Press Releases</Link></li>
+                <li><Link to="/news/university-news" className="hover:text-uw-gold transition-colors">Lecture Series</Link></li>
+                <li><Link to="/news/university-news" className="hover:text-uw-gold transition-colors">Commencement</Link></li>
               </ul>
             </div>
           </div>
@@ -233,12 +234,12 @@ const Footer = () => {
             © 2024 New States Continental University - Delaware. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center md:justify-end space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Privacy Policy</a>
-            <a href="#" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Terms of Use</a>
-            <a href="#" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Accessibility</a>
-            <a href="#" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Non-Discrimination</a>
-            <a href="#" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">FERPA</a>
-            <a href="#" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Site Map</a>
+            <Link to="/legal/privacy-policy" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Privacy Policy</Link>
+            <Link to="/legal/terms-of-use" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Terms of Use</Link>
+            <Link to="/about/diversity-inclusion" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Accessibility</Link>
+            <Link to="/about/diversity-inclusion" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Non-Discrimination</Link>
+            <Link to="/resources/academic-policies" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">FERPA</Link>
+            <Link to="/" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Site Map</Link>
           </div>
         </div>
       </div>
