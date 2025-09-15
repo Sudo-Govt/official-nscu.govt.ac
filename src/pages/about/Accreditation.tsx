@@ -44,6 +44,13 @@ const accreditations = [
     status: "Accredited",
     nextReview: "2026",
     description: "Commission on Collegiate Nursing Education accreditation for nursing programs"
+  },
+  {
+    organization: "GCHEA",
+    type: "Global Higher Education Accreditation",
+    status: "Accredited",
+    nextReview: "2027",
+    description: "Global Commission for Higher Education Accreditation providing international recognition"
   }
 ];
 
