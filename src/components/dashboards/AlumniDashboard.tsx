@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Users, Calendar, LogOut, Network, GraduationCap, Briefcase, Award, Globe, Coffee, BookOpen, Mail } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Heart, Users, Calendar, LogOut, Network, GraduationCap, Briefcase, Award, Globe, Coffee, BookOpen, Mail, User, FileText, DollarSign } from 'lucide-react';
+import AlumniProfile from '@/components/alumni/AlumniProfile';
+import AlumniNetworking from '@/components/alumni/AlumniNetworking';
+import AlumniCareer from '@/components/alumni/AlumniCareer';
+import AlumniDocuments from '@/components/alumni/AlumniDocuments';
 
 const AlumniDashboard = () => {
   const { user, logout } = useAuth();
