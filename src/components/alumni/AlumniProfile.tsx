@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { QrCode, Shield, Download, ExternalLink, Edit2, Save, X } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ChangePassword from '@/components/ChangePassword';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -212,7 +214,15 @@ const AlumniProfile = () => {
         </CardHeader>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="profile">Profile Information</TabsTrigger>
+          <TabsTrigger value="credentials">Digital Credentials</TabsTrigger>
+          <TabsTrigger value="password">Change Password</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Personal Information */}
         <Card>
           <CardHeader>
@@ -406,8 +416,9 @@ const AlumniProfile = () => {
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
 
-      {/* Credentials Vault */}
+        <TabsContent value="credentials" className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -454,6 +465,12 @@ const AlumniProfile = () => {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="password" className="space-y-6">
+          <ChangePassword />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

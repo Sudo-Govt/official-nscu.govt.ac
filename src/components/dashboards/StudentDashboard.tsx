@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload, TrendingUp, Bell, Star, Target, Zap, Trophy } from 'lucide-react';
 import mockDb from '@/database/mockDb';
+import ChangePassword from '@/components/ChangePassword';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -98,6 +99,7 @@ const StudentDashboard = () => {
             <TabsTrigger value="campus" className="text-sm font-medium">Campus Life</TabsTrigger>
             <TabsTrigger value="fees" className="text-sm font-medium">Fees</TabsTrigger>
             <TabsTrigger value="profile" className="text-sm font-medium">Profile</TabsTrigger>
+            <TabsTrigger value="password" className="text-sm font-medium">Password</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
@@ -437,6 +439,10 @@ const StudentDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="password">
+            <ChangePassword />
           </TabsContent>
 
           <TabsContent value="academics" className="space-y-6">

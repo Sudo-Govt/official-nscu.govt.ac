@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Shield, Download, DollarSign, Globe, Upload } from 'lucide-react';
+import ChangePassword from '@/components/ChangePassword';
 
 interface AgentProfile {
   id: string;
@@ -151,11 +152,12 @@ const AgentProfile = () => {
       </div>
 
       <Tabs defaultValue="credentials" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="credentials">Credentials</TabsTrigger>
           <TabsTrigger value="contact">Contact Info</TabsTrigger>
           <TabsTrigger value="commission">Commission</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="password">Password</TabsTrigger>
         </TabsList>
 
         <TabsContent value="credentials" className="space-y-6">
@@ -392,6 +394,10 @@ const AgentProfile = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="password" className="space-y-6">
+          <ChangePassword />
         </TabsContent>
       </Tabs>
     </div>

@@ -31,6 +31,7 @@ import {
   BarChart3,
   LogOut
 } from 'lucide-react';
+import ChangePassword from '@/components/ChangePassword';
 
 interface Student {
   id: string;
@@ -640,13 +641,14 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-7 h-14 bg-muted/50 backdrop-blur-sm p-1">
+          <TabsList className="grid w-full grid-cols-8 h-14 bg-muted/50 backdrop-blur-sm p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
             <TabsTrigger value="alumni-requests">Alumni Requests</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -1288,6 +1290,38 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="profile" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Profile</CardTitle>
+                <CardDescription>Manage your administrator information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium">Full Name</Label>
+                    <p className="text-sm text-muted-foreground mt-1">{user?.full_name}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Role</Label>
+                    <p className="text-sm text-muted-foreground mt-1">{user?.role?.toUpperCase()}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Email</Label>
+                    <p className="text-sm text-muted-foreground mt-1">{user?.email}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium">Admin ID</Label>
+                    <p className="text-sm text-muted-foreground mt-1">ADM001</p>
+                  </div>
+                </div>
+                <Button>Edit Profile</Button>
+              </CardContent>
+            </Card>
+            
+            <ChangePassword />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
