@@ -271,15 +271,15 @@ const StudentDashboard = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center p-3 rounded-lg bg-muted/20">
                       <span className="font-medium">Total Fees</span>
-                      <span className="font-bold text-lg">₹{feeData?.totalFees.toLocaleString()}</span>
+                      <span className="font-bold text-lg">${feeData?.totalFees.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20">
                       <span className="font-medium">Paid</span>
-                      <span className="font-bold text-lg text-emerald-600">₹{feeData?.paidFees.toLocaleString()}</span>
+                      <span className="font-bold text-lg text-emerald-600">${feeData?.paidFees.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center p-3 rounded-lg bg-red-50 dark:bg-red-950/20">
                       <span className="font-medium">Pending</span>
-                      <span className="font-bold text-lg text-red-600">₹{feeData?.pendingFees.toLocaleString()}</span>
+                      <span className="font-bold text-lg text-red-600">${feeData?.pendingFees.toLocaleString()}</span>
                     </div>
                     <div className="space-y-2">
                       <Progress value={feePercentage} className="h-3" />
@@ -365,17 +365,17 @@ const StudentDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="relative overflow-hidden text-center p-8 border-2 border-border/50 rounded-2xl bg-gradient-to-br from-muted/30 to-background hover:shadow-xl transition-all duration-300">
                       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/10 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
-                      <h3 className="font-bold text-3xl text-foreground mb-2">₹{feeData?.totalFees.toLocaleString()}</h3>
+                      <h3 className="font-bold text-3xl text-foreground mb-2">${feeData?.totalFees.toLocaleString()}</h3>
                       <p className="text-muted-foreground font-medium text-lg">Total Fees</p>
                     </div>
                     <div className="relative overflow-hidden text-center p-8 border-2 border-emerald-200/50 rounded-2xl bg-gradient-to-br from-emerald-50 to-background dark:from-emerald-950/20 hover:shadow-xl transition-all duration-300">
                       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
-                      <h3 className="font-bold text-3xl text-emerald-600 mb-2">₹{feeData?.paidFees.toLocaleString()}</h3>
+                      <h3 className="font-bold text-3xl text-emerald-600 mb-2">${feeData?.paidFees.toLocaleString()}</h3>
                       <p className="text-muted-foreground font-medium text-lg">Paid</p>
                     </div>
                     <div className="relative overflow-hidden text-center p-8 border-2 border-red-200/50 rounded-2xl bg-gradient-to-br from-red-50 to-background dark:from-red-950/20 hover:shadow-xl transition-all duration-300">
                       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-500/10 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
-                      <h3 className="font-bold text-3xl text-red-600 mb-2">₹{feeData?.pendingFees.toLocaleString()}</h3>
+                      <h3 className="font-bold text-3xl text-red-600 mb-2">${feeData?.pendingFees.toLocaleString()}</h3>
                       <p className="text-muted-foreground font-medium text-lg">Pending</p>
                     </div>
                   </div>

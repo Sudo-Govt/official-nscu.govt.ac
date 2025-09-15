@@ -72,7 +72,7 @@ const FinanceDashboard = () => {
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">₹{(financialData.totalRevenue / 100000).toFixed(1)}L</div>
+                  <div className="text-2xl font-bold">${(financialData.totalRevenue / 100000).toFixed(1)}L</div>
                   <p className="text-xs text-muted-foreground">Expected this year</p>
                 </CardContent>
               </Card>
@@ -83,7 +83,7 @@ const FinanceDashboard = () => {
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">₹{(financialData.collectedFees / 100000).toFixed(1)}L</div>
+                  <div className="text-2xl font-bold text-green-600">${(financialData.collectedFees / 100000).toFixed(1)}L</div>
                   <p className="text-xs text-muted-foreground">{collectionRate.toFixed(1)}% collected</p>
                 </CardContent>
               </Card>
@@ -94,7 +94,7 @@ const FinanceDashboard = () => {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-red-600">₹{(financialData.pendingFees / 100000).toFixed(1)}L</div>
+                  <div className="text-2xl font-bold text-red-600">${(financialData.pendingFees / 100000).toFixed(1)}L</div>
                   <p className="text-xs text-muted-foreground">Yet to be collected</p>
                 </CardContent>
               </Card>
@@ -121,12 +121,12 @@ const FinanceDashboard = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Collected</span>
-                      <span>₹{financialData.collectedFees.toLocaleString()}</span>
+                      <span>${financialData.collectedFees.toLocaleString()}</span>
                     </div>
                     <Progress value={collectionRate} className="h-3" />
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>{collectionRate.toFixed(1)}% Complete</span>
-                      <span>₹{financialData.pendingFees.toLocaleString()} Pending</span>
+                      <span>${financialData.pendingFees.toLocaleString()} Pending</span>
                     </div>
                   </div>
 
@@ -162,7 +162,7 @@ const FinanceDashboard = () => {
                           <p className="text-sm text-muted-foreground">{transaction.type} • {transaction.receipt}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium text-green-600">₹{transaction.amount.toLocaleString()}</p>
+                          <p className="font-medium text-green-600">${transaction.amount.toLocaleString()}</p>
                           <p className="text-xs text-muted-foreground">{transaction.time}</p>
                         </div>
                       </div>

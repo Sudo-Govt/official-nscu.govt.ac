@@ -233,7 +233,7 @@ const AdmissionForm = () => {
             <h3 className="text-lg font-medium border-b pb-2">Fee Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="total_fees">Total Fees (₹) *</Label>
+                <Label htmlFor="total_fees">Total Fees ($) *</Label>
                 <Input
                   id="total_fees"
                   type="number"
