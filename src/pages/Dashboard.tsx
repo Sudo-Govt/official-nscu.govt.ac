@@ -5,6 +5,7 @@ import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import FacultyDashboard from '@/components/dashboards/FacultyDashboard';
 import AdmissionAgentDashboard from '@/components/dashboards/AdmissionAgentDashboard';
 import FinanceDashboard from '@/components/dashboards/FinanceDashboard';
+import AlumniDashboard from '@/components/dashboards/AlumniDashboard';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -26,6 +27,8 @@ const Dashboard = () => {
         return <AdmissionAgentDashboard />;
       case 'finance':
         return <FinanceDashboard />;
+      case 'alumni':
+        return <AlumniDashboard />;
       default:
         return <div>Invalid user role</div>;
     }
