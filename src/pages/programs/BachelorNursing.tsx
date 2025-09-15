@@ -1,11 +1,112 @@
 
 import PageLayout from '@/components/PageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Heart, Clock, BookOpen, GraduationCap } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Heart, Clock, BookOpen, GraduationCap, Download, FileText, Award } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 const BachelorNursing = () => {
+  useSEO({
+    title: "Bachelor of Science in Nursing (BSN) - CCNE Accredited | NSCU Belize",
+    description: "Earn your BSN from NSCU Belize. CCNE-accredited Bachelor of Science in Nursing program with 900+ clinical hours. 94% NCLEX pass rate. Apply by January 5th, 2026.",
+    keywords: "BSN nursing degree NSCU Belize, CCNE accredited nursing program, Bachelor Science Nursing Belize, nursing admissions 2026, NCLEX preparation",
+    canonical: "https://newstatesuniversity.lovable.app/programs/bachelor-nursing",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Bachelor of Science in Nursing",
+      "description": "Comprehensive 4-year nursing program with extensive clinical training",
+      "provider": {
+        "@type": "University", 
+        "name": "New States Continental University",
+        "url": "https://newstatesuniversity.lovable.app"
+      },
+      "educationalCredentialAwarded": "Bachelor of Science in Nursing",
+      "teaches": ["Nursing Fundamentals", "Medical-Surgical Nursing", "Pediatric Nursing", "Mental Health Nursing", "Community Health"],
+      "totalTime": "P4Y",
+      "courseMode": "on-campus",
+      "applicationDeadline": "2026-01-05",
+      "startDate": "2026-01-15"
+    }
+  });
+
+  const programOverview = {
+    name: "Bachelor of Science in Nursing",
+    duration: "4 Years, 8 Semesters",
+    totalCredits: 120,
+    structure: ["Foundation Sciences", "Nursing Fundamentals", "Clinical Rotations", "Senior Practicum"],
+    assessment: "60% Clinical Competency, 30% Theory Exams, 10% Continuous Assessment"
+  };
+
+  const semesters = [
+    {
+      id: "sem1",
+      title: "Semester I - Foundation Sciences",
+      totalCredits: 15,
+      contactHours: 400,
+      courses: [
+        {
+          name: "Anatomy & Physiology I",
+          code: "NURS101",
+          credits: 4,
+          contactHours: 120,
+          breakdown: ["60 Lectures", "60 Laboratory"],
+          topics: ["Cell Structure", "Tissue Organization", "Skeletal System", "Muscular System", "Nervous System"],
+          referenceBooks: ["Human Anatomy & Physiology by Marieb", "Netter's Atlas of Human Anatomy"],
+          learningOutcomes: ["Understand human body structure", "Analyze physiological processes", "Apply anatomical knowledge to nursing"],
+          assessment: "60% Exams, 30% Lab Practicals, 10% Assignments"
+        },
+        {
+          name: "Chemistry for Health Sciences",
+          code: "CHEM105",
+          credits: 3,
+          contactHours: 90,
+          breakdown: ["45 Lectures", "45 Laboratory"],
+          topics: ["Biochemistry", "Pharmacology Foundations", "Acid-Base Balance", "Electrolytes", "Drug Metabolism"],
+          referenceBooks: ["General Chemistry by Petrucci", "Biochemistry for Nurses by Kee"],
+          learningOutcomes: ["Apply chemistry to healthcare", "Understand drug interactions", "Analyze laboratory values"],
+          assessment: "65% Exams, 25% Lab Reports, 10% Quizzes"
+        },
+        {
+          name: "Foundations of Nursing",
+          code: "NURS102",
+          credits: 4,
+          contactHours: 120,
+          breakdown: ["60 Lectures", "60 Skills Lab"],
+          topics: ["Nursing History", "Professional Standards", "Communication", "Basic Skills", "Safety Principles"],
+          referenceBooks: ["Fundamentals of Nursing by Potter & Perry", "Nursing: Scope and Standards of Practice"],
+          learningOutcomes: ["Demonstrate basic nursing skills", "Apply safety principles", "Communicate therapeutically"],
+          assessment: "50% Skills Competency, 35% Theory Exam, 15% Participation"
+        },
+        {
+          name: "Psychology for Healthcare",
+          code: "PSYC101",
+          credits: 3,
+          contactHours: 90,
+          breakdown: ["90 Lectures"],
+          topics: ["Human Development", "Learning Theories", "Stress & Coping", "Mental Health", "Healthcare Relationships"],
+          referenceBooks: ["Psychology Applied to Healthcare by Davis", "Developmental Psychology by Berk"],
+          learningOutcomes: ["Understand human behavior", "Apply psychological principles", "Assess mental health"],
+          assessment: "70% Exams, 20% Case Studies, 10% Participation"
+        },
+        {
+          name: "Medical Terminology",
+          code: "NURS103",
+          credits: 1,
+          contactHours: 30,
+          breakdown: ["30 Online Modules"],
+          topics: ["Medical Prefixes", "Root Words", "Suffixes", "Body Systems", "Diagnostic Terms"],
+          referenceBooks: ["Medical Terminology by Ehrlich", "Medical Language by Turley"],
+          learningOutcomes: ["Master medical vocabulary", "Interpret healthcare documentation", "Communicate effectively"],
+          assessment: "80% Online Assessments, 20% Final Exam"
+        }
+      ]
+    }
+  ];
   const courseStructure = {
     year1: [
       { code: "NURS 101", title: "Foundations of Nursing", credits: 4, contact: "3-0-3", description: "Introduction to nursing profession, healthcare systems, patient safety" },

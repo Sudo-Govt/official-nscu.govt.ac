@@ -1,11 +1,198 @@
 
 import PageLayout from '@/components/PageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Cog, Clock, BookOpen, GraduationCap } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { BookOpen, Clock, DollarSign, Users, GraduationCap, Download, ChevronDown, FileText, Award, Cog } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 const BachelorEngineering = () => {
+  useSEO({
+    title: "Bachelor of Engineering Program - GCHEA Accredited | NSCU Belize",
+    description: "Earn your Bachelor of Engineering degree from NSCU Belize. GCHEA-accredited 4-year program with specializations in Mechanical, Electrical, Computer, Civil, Chemical Engineering. Apply by January 5th, 2026.",
+    keywords: "Bachelor Engineering NSCU Belize, accredited engineering degree Belize, mechanical electrical computer engineering program, engineering admissions 2026, GCHEA engineering degree",
+    canonical: "https://newstatesuniversity.lovable.app/programs/bachelor-engineering",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Bachelor of Engineering",
+      "description": "Comprehensive 4-year engineering program with multiple specializations",
+      "provider": {
+        "@type": "University",
+        "name": "New States Continental University",
+        "url": "https://newstatesuniversity.lovable.app"
+      },
+      "educationalCredentialAwarded": "Bachelor of Engineering",
+      "teaches": ["Engineering Mathematics", "Thermodynamics", "Circuit Analysis", "Materials Science", "Engineering Design"],
+      "totalTime": "P4Y",
+      "courseMode": "on-campus",
+      "applicationDeadline": "2026-01-05",
+      "startDate": "2026-01-15"
+    }
+  });
+  const programOverview = {
+    name: "Bachelor of Engineering",
+    duration: "4 Years, 8 Semesters", 
+    totalCredits: 120,
+    structure: ["Foundation Mathematics & Sciences", "Core Engineering Courses", "Specialization Tracks", "Capstone Project"],
+    assessment: "65% External Exam, 25% Laboratory Assessment, 10% Continuous Evaluation"
+  };
+
+  const semesters = [
+    {
+      id: "sem1",
+      title: "Semester I",
+      totalCredits: 15,
+      contactHours: 375,
+      courses: [
+        {
+          name: "Engineering Mathematics I",
+          code: "MATH101",
+          credits: 4,
+          contactHours: 120,
+          breakdown: ["90 Lectures", "30 Tutorials"],
+          topics: ["Calculus", "Differential Equations", "Linear Algebra", "Complex Numbers", "Vector Analysis"],
+          referenceBooks: ["Advanced Engineering Mathematics by Kreyszig", "Calculus by James Stewart", "Linear Algebra by Gilbert Strang"],
+          learningOutcomes: ["Apply calculus to engineering problems", "Solve differential equations", "Use linear algebra in engineering contexts"],
+          assessment: "70% Final Exam, 20% Mid-term, 10% Assignments"
+        },
+        {
+          name: "Engineering Physics I",
+          code: "PHYS101",
+          credits: 4,
+          contactHours: 120,
+          breakdown: ["60 Lectures", "60 Laboratory"],
+          topics: ["Mechanics", "Thermodynamics", "Wave Motion", "Optics", "Modern Physics"],
+          referenceBooks: ["University Physics by Young & Freedman", "Physics for Scientists and Engineers by Serway"],
+          learningOutcomes: ["Understand fundamental physics principles", "Apply physics to engineering systems", "Conduct laboratory experiments"],
+          assessment: "60% Final Exam, 25% Lab Reports, 15% Quizzes"
+        },
+        {
+          name: "Chemistry for Engineers",
+          code: "CHEM101",
+          credits: 3,
+          contactHours: 90,
+          breakdown: ["45 Lectures", "45 Laboratory"],
+          topics: ["Atomic Structure", "Chemical Bonding", "Thermodynamics", "Kinetics", "Materials Chemistry"],
+          referenceBooks: ["General Chemistry by Petrucci", "Chemistry: The Central Science by Brown"],
+          learningOutcomes: ["Apply chemistry principles to materials", "Understand chemical processes", "Analyze material properties"],
+          assessment: "65% Exams, 25% Lab Work, 10% Assignments"
+        },
+        {
+          name: "Engineering Graphics & CAD",
+          code: "ENG101",
+          credits: 3,
+          contactHours: 90,
+          breakdown: ["30 Lectures", "60 CAD Lab"],
+          topics: ["Technical Drawing", "Orthographic Projection", "AutoCAD", "SolidWorks", "3D Modeling"],
+          referenceBooks: ["Engineering Graphics by Giesecke", "AutoCAD Manual", "SolidWorks Tutorial"],
+          learningOutcomes: ["Create technical drawings", "Use CAD software proficiently", "Design 3D models"],
+          assessment: "40% Project Work, 35% Lab Assignments, 25% Final Exam"
+        },
+        {
+          name: "Introduction to Engineering",
+          code: "ENG102", 
+          credits: 1,
+          contactHours: 30,
+          breakdown: ["30 Seminars"],
+          topics: ["Engineering Disciplines", "Problem Solving", "Ethics", "Communication", "Teamwork"],
+          referenceBooks: ["Introduction to Engineering by Wickert", "Engineering Ethics by Martin"],
+          learningOutcomes: ["Understand engineering profession", "Apply problem-solving methods", "Work effectively in teams"],
+          assessment: "50% Project, 30% Presentations, 20% Participation"
+        }
+      ]
+    },
+    {
+      id: "sem2", 
+      title: "Semester II",
+      totalCredits: 15,
+      contactHours: 375,
+      courses: [
+        {
+          name: "Engineering Mathematics II",
+          code: "MATH102",
+          credits: 4,
+          contactHours: 120,
+          breakdown: ["90 Lectures", "30 Tutorials"],
+          topics: ["Multivariable Calculus", "Vector Calculus", "Fourier Series", "Laplace Transforms", "Numerical Methods"],
+          referenceBooks: ["Advanced Engineering Mathematics by Kreyszig", "Numerical Methods by Chapra"],
+          learningOutcomes: ["Solve multivariable problems", "Apply transforms to engineering", "Use numerical methods"],
+          assessment: "70% Final Exam, 20% Mid-term, 10% Assignments"
+        },
+        {
+          name: "Engineering Physics II", 
+          code: "PHYS102",
+          credits: 4,
+          contactHours: 120,
+          breakdown: ["60 Lectures", "60 Laboratory"],
+          topics: ["Electricity & Magnetism", "Electromagnetic Waves", "AC/DC Circuits", "Electronic Devices", "Quantum Physics"],
+          referenceBooks: ["University Physics by Young & Freedman", "Introduction to Electrodynamics by Griffiths"],
+          learningOutcomes: ["Understand electromagnetic principles", "Analyze electrical circuits", "Apply quantum concepts"],
+          assessment: "60% Final Exam, 25% Lab Reports, 15% Quizzes"
+        },
+        {
+          name: "Engineering Mechanics - Statics",
+          code: "ENG201",
+          credits: 3,
+          contactHours: 90,
+          breakdown: ["60 Lectures", "30 Problem Sessions"],
+          topics: ["Force Systems", "Equilibrium", "Trusses", "Friction", "Centroids", "Moments of Inertia"],
+          referenceBooks: ["Engineering Mechanics: Statics by Hibbeler", "Statics by Meriam & Kraige"],
+          learningOutcomes: ["Analyze static structures", "Apply equilibrium principles", "Solve truss problems"],
+          assessment: "65% Exams, 25% Assignments, 10% Quizzes"
+        },
+        {
+          name: "Materials Science",
+          code: "MATL201",
+          credits: 3,
+          contactHours: 90,
+          breakdown: ["60 Lectures", "30 Laboratory"],
+          topics: ["Crystal Structure", "Phase Diagrams", "Mechanical Properties", "Metals", "Ceramics", "Polymers"],
+          referenceBooks: ["Materials Science and Engineering by Callister", "Introduction to Materials Science by Shackelford"],
+          learningOutcomes: ["Understand material properties", "Select appropriate materials", "Analyze material behavior"],
+          assessment: "60% Final Exam, 30% Lab Reports, 10% Assignments"
+        },
+        {
+          name: "Programming for Engineers",
+          code: "CS101",
+          credits: 1,
+          contactHours: 45,
+          breakdown: ["15 Lectures", "30 Programming Lab"],
+          topics: ["C Programming", "MATLAB", "Data Structures", "Algorithms", "Engineering Applications"],
+          referenceBooks: ["C Programming by Kernighan & Ritchie", "MATLAB Guide by Higham"],
+          learningOutcomes: ["Program in C and MATLAB", "Solve engineering problems computationally", "Apply algorithms"],
+          assessment: "50% Programming Projects, 30% Lab Work, 20% Final Exam"
+        }
+      ]
+    }
+  ];
+
+  const specializationTracks = [
+    {
+      name: "Mechanical Engineering",
+      courses: ["Thermodynamics", "Fluid Mechanics", "Heat Transfer", "Machine Design", "Manufacturing Processes"]
+    },
+    {
+      name: "Electrical Engineering", 
+      courses: ["Circuit Analysis", "Electronics", "Power Systems", "Control Systems", "Telecommunications"]
+    },
+    {
+      name: "Computer Engineering",
+      courses: ["Digital Logic", "Computer Architecture", "Software Engineering", "Embedded Systems", "Networks"]
+    },
+    {
+      name: "Civil Engineering",
+      courses: ["Structural Analysis", "Geotechnical Engineering", "Transportation", "Water Resources", "Construction Management"]
+    },
+    {
+      name: "Chemical Engineering",
+      courses: ["Process Design", "Mass Transfer", "Chemical Reactors", "Process Control", "Environmental Engineering"]
+    }
+  ];
+
   const courseStructure = {
     semester1: [
       { code: "MATH 101", title: "Calculus I", credits: 4, contact: "4-0-0", description: "Limits, derivatives, applications of derivatives, basic integration" },

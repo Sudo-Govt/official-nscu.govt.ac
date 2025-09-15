@@ -1,11 +1,112 @@
 
 import PageLayout from '@/components/PageLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Palette, Clock, BookOpen, GraduationCap } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Palette, Clock, BookOpen, GraduationCap, Download, FileText, Award } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 const BachelorFineArts = () => {
+  useSEO({
+    title: "Bachelor of Fine Arts (BFA) Program - NASAD Accredited | NSCU Belize",
+    description: "Earn your BFA from NSCU Belize. NASAD-accredited Bachelor of Fine Arts program with studio concentrations in painting, sculpture, digital art. Apply by January 5th, 2026.",
+    keywords: "Bachelor Fine Arts NSCU Belize, BFA degree program Belize, NASAD accredited art program, studio art painting sculpture digital, art admissions 2026",
+    canonical: "https://newstatesuniversity.lovable.app/programs/bachelor-fine-arts",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Bachelor of Fine Arts",
+      "description": "Comprehensive 4-year studio art program with multiple concentrations",
+      "provider": {
+        "@type": "University",
+        "name": "New States Continental University",
+        "url": "https://newstatesuniversity.lovable.app"
+      },
+      "educationalCredentialAwarded": "Bachelor of Fine Arts",
+      "teaches": ["Drawing", "Painting", "Sculpture", "Digital Art", "Art History"],
+      "totalTime": "P4Y",
+      "courseMode": "on-campus",
+      "applicationDeadline": "2026-01-05",
+      "startDate": "2026-01-15"
+    }
+  });
+
+  const programOverview = {
+    name: "Bachelor of Fine Arts",
+    duration: "4 Years, 8 Semesters",
+    totalCredits: 120,
+    structure: ["Foundation Art Courses", "Studio Concentrations", "Art History", "Senior Exhibition"],
+    assessment: "75% Portfolio Assessment, 15% Art History Exams, 10% Studio Participation"
+  };
+  const semesters = [
+    {
+      id: "sem1",
+      title: "Semester I - Foundation",
+      totalCredits: 15,
+      contactHours: 400,
+      courses: [
+        {
+          name: "Drawing Fundamentals",
+          code: "ART101",
+          credits: 3,
+          contactHours: 120,
+          breakdown: ["30 Lectures", "90 Studio"],
+          topics: ["Basic Drawing Techniques", "Line and Form", "Perspective", "Composition", "Observational Drawing"],
+          referenceBooks: ["Drawing on the Right Side of the Brain by Betty Edwards", "Ways of Seeing by John Berger"],
+          learningOutcomes: ["Master basic drawing skills", "Understand spatial relationships", "Develop observational abilities"],
+          assessment: "80% Portfolio, 15% Critiques, 5% Sketchbook"
+        },
+        {
+          name: "Design Principles",
+          code: "ART102", 
+          credits: 3,
+          contactHours: 120,
+          breakdown: ["30 Lectures", "90 Studio"],
+          topics: ["Elements of Design", "Principles of Composition", "Color Theory", "Visual Communication", "Typography Basics"],
+          referenceBooks: ["Interaction of Color by Josef Albers", "Design Elements by Timothy Samara"],
+          learningOutcomes: ["Apply design principles", "Use color effectively", "Create visual compositions"],
+          assessment: "75% Projects, 20% Process Documentation, 5% Participation"
+        },
+        {
+          name: "Art History Survey I",
+          code: "ART103",
+          credits: 3,
+          contactHours: 90,
+          breakdown: ["90 Lectures"],
+          topics: ["Ancient Art", "Medieval Art", "Renaissance", "Baroque", "Art Historical Methods"],
+          referenceBooks: ["Gardner's Art Through the Ages by Kleiner", "Ways of Seeing by John Berger"],
+          learningOutcomes: ["Understand art historical contexts", "Analyze artworks critically", "Apply art historical methods"],
+          assessment: "60% Exams, 30% Research Papers, 10% Participation"
+        },
+        {
+          name: "Sculpture Basics",
+          code: "ART104",
+          credits: 3,
+          contactHours: 120,
+          breakdown: ["30 Lectures", "90 Studio"],
+          topics: ["3D Design Principles", "Clay Modeling", "Additive/Subtractive Methods", "Basic Casting", "Installation Concepts"],
+          referenceBooks: ["The Art of Sculpture by Herbert Read", "A Sculptor's Handbook by Jack Rich"],
+          learningOutcomes: ["Create three-dimensional works", "Understand sculptural processes", "Explore spatial concepts"],
+          assessment: "85% Portfolio, 10% Process Documentation, 5% Critiques"
+        },
+        {
+          name: "Digital Art Foundations",
+          code: "ART105",
+          credits: 3,
+          contactHours: 120,
+          breakdown: ["45 Lectures", "75 Computer Lab"],
+          topics: ["Adobe Creative Suite", "Digital Image Manipulation", "Vector Graphics", "Digital Photography", "Web Design Basics"],
+          referenceBooks: ["Adobe Photoshop Classroom in a Book", "The Non-Designer's Design Book by Robin Williams"],
+          learningOutcomes: ["Use digital art tools", "Create digital compositions", "Understand digital workflows"],
+          assessment: "70% Digital Portfolio, 25% Technical Skills Tests, 5% Participation"
+        }
+      ]
+    }
+  ];
+
   const courseStructure = {
     year1: {
       fall: [
@@ -62,197 +163,271 @@ const BachelorFineArts = () => {
 
   return (
     <PageLayout 
-      title="Bachelor of Fine Arts (BFA)" 
-      description="Comprehensive 4-year studio art program developing technical skills and creative expression"
+      title="Bachelor of Fine Arts (BFA) - NASAD Accredited Art Program | NSCU Belize" 
+      description="Comprehensive 4-year BFA program developing technical skills and creative expression through studio practice, art history, and professional preparation."
     >
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+      <div className="container mx-auto px-4 py-12">
+        {/* Program Overview Section */}
+        <div className="mb-12">
           <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <Clock className="h-4 w-4 mr-2" />
-              <CardTitle className="text-sm font-medium">Duration</CardTitle>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>BFA Program Overview</span>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Download BFA Handbook (PDF)
+                </Button>
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">4 Years</div>
-              <p className="text-xs text-muted-foreground">8 Semesters</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <BookOpen className="h-4 w-4 mr-2" />
-              <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">120</div>
-              <p className="text-xs text-muted-foreground">Credit Hours</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <GraduationCap className="h-4 w-4 mr-2" />
-              <CardTitle className="text-sm font-medium">Degree</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">BFA</div>
-              <p className="text-xs text-muted-foreground">NASAD Accredited</p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-3">Program Details</h3>
+                  <div className="space-y-2">
+                    <div><strong>Program Name:</strong> {programOverview.name}</div>
+                    <div><strong>Duration:</strong> {programOverview.duration}</div>
+                    <div><strong>Total Credits:</strong> {programOverview.totalCredits}</div>
+                    <div><strong>Assessment:</strong> {programOverview.assessment}</div>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-3">Program Structure</h3>
+                  <ul className="space-y-1">
+                    {programOverview.structure.map((item, index) => (
+                      <li key={index} className="flex items-center">
+                        <Palette className="w-4 h-4 text-uw-purple mr-2" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="curriculum" className="mb-8">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
-            <TabsTrigger value="admission">Admission</TabsTrigger>
-            <TabsTrigger value="career">Career</TabsTrigger>
-            <TabsTrigger value="fees">Fees</TabsTrigger>
-          </TabsList>
+        {/* Semester Navigation */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold mb-6">Semester-wise Curriculum</h2>
+          <Tabs defaultValue="sem1" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+              {semesters.map((semester, index) => (
+                <TabsTrigger key={semester.id} value={semester.id}>
+                  Sem {index + 1}
+                </TabsTrigger>
+              ))}
+              <TabsTrigger value="sem2">Sem II</TabsTrigger>
+              <TabsTrigger value="sem3">Sem III</TabsTrigger>
+              <TabsTrigger value="sem4">Sem IV</TabsTrigger>
+              <TabsTrigger value="sem5">Sem V</TabsTrigger>
+              <TabsTrigger value="sem6">Sem VI</TabsTrigger>
+              <TabsTrigger value="sem7">Sem VII</TabsTrigger>
+              <TabsTrigger value="sem8">Sem VIII</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="curriculum">
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold">BFA Curriculum Structure</h3>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Palette className="h-5 w-5" />
-                    Year 1 - Foundation Studies - Fall Semester
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4">
-                    {courseStructure.year1.fall.map((course, index) => (
-                      <div key={index} className="flex justify-between items-start p-4 bg-gray-50 rounded-lg">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline">{course.code}</Badge>
-                            <span className="font-semibold">{course.title}</span>
-                          </div>
-                          <p className="text-sm text-gray-600">{course.description}</p>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Contact Hours: {course.contact} (L-T-P)
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-uw-purple">{course.credits}</div>
-                          <div className="text-xs text-gray-500">Credits</div>
-                        </div>
+            {semesters.map((semester) => (
+              <TabsContent key={semester.id} value={semester.id} className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Palette className="h-5 w-5 mr-2" />
+                      {semester.title}
+                    </CardTitle>
+                    <CardDescription>
+                      Total Credits: {semester.totalCredits} | Contact Hours: {semester.contactHours}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Accordion type="single" collapsible className="w-full">
+                      {semester.courses.map((course, courseIndex) => (
+                        <AccordionItem key={courseIndex} value={`course-${courseIndex}`}>
+                          <AccordionTrigger className="text-left">
+                            <div className="flex justify-between items-center w-full pr-4">
+                              <span>{course.name} ({course.code})</span>
+                              <Badge variant="outline">{course.credits} Credits</Badge>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="grid md:grid-cols-2 gap-6 pt-4">
+                              <div>
+                                <h4 className="font-semibold mb-2">Course Details</h4>
+                                <div className="space-y-1 text-sm">
+                                  <div><strong>Course Code:</strong> {course.code}</div>
+                                  <div><strong>Credits:</strong> {course.credits}</div>
+                                  <div><strong>Contact Hours:</strong> {course.contactHours}</div>
+                                  <div><strong>Breakdown:</strong> {course.breakdown.join(", ")}</div>
+                                  <div><strong>Assessment:</strong> {course.assessment}</div>
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold mb-2">Topics Covered</h4>
+                                <ul className="text-sm space-y-1">
+                                  {course.topics.map((topic, topicIndex) => (
+                                    <li key={topicIndex} className="flex items-start">
+                                      <span className="w-1.5 h-1.5 bg-uw-purple rounded-full mr-2 mt-2"></span>
+                                      {topic}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold mb-2">Reference Books</h4>
+                                <ul className="text-sm space-y-1">
+                                  {course.referenceBooks.map((book, bookIndex) => (
+                                    <li key={bookIndex} className="flex items-start">
+                                      <FileText className="w-3 h-3 mr-2 mt-1 text-uw-purple" />
+                                      {book}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold mb-2">Learning Outcomes</h4>
+                                <ul className="text-sm space-y-1">
+                                  {course.learningOutcomes.map((outcome, outcomeIndex) => (
+                                    <li key={outcomeIndex} className="flex items-start">
+                                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 mt-2"></span>
+                                      {outcome}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+
+            {/* Placeholder content for other semesters */}
+            {["sem2", "sem3", "sem4", "sem5", "sem6", "sem7", "sem8"].map((semId, index) => (
+              <TabsContent key={semId} value={semId} className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Semester {index + 2}</CardTitle>
+                    <CardDescription>Advanced studio courses and specialized concentrations</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 mb-4">
+                      Semester {index + 2} focuses on {index < 2 ? 'intermediate' : index < 4 ? 'advanced' : 'senior-level'} studio work 
+                      with increasing emphasis on personal artistic development and professional preparation.
+                    </p>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold mb-2">Studio Concentrations</h4>
+                        <ul className="space-y-1 text-sm">
+                          <li>• Advanced Painting Techniques</li>
+                          <li>• Sculpture & Installation</li>
+                          <li>• Digital Media & Photography</li>
+                          <li>• Printmaking & Mixed Media</li>
+                        </ul>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Year 1 - Foundation Studies - Spring Semester</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4">
-                    {courseStructure.year1.spring.map((course, index) => (
-                      <div key={index} className="flex justify-between items-start p-4 bg-gray-50 rounded-lg">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline">{course.code}</Badge>
-                            <span className="font-semibold">{course.title}</span>
-                          </div>
-                          <p className="text-sm text-gray-600">{course.description}</p>
-                          <div className="text-xs text-gray-500 mt-1">
-                            Contact Hours: {course.contact} (L-T-P)
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-uw-purple">{course.credits}</div>
-                          <div className="text-xs text-gray-500">Credits</div>
-                        </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Supporting Courses</h4>
+                        <ul className="space-y-1 text-sm">
+                          <li>• Art History Electives</li>
+                          <li>• Professional Practices</li>
+                          <li>• Gallery & Museum Studies</li>
+                          <li>• Critique & Analysis Methods</li>
+                        </ul>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Years 2-4 - Advanced Studio & Specialization</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Advanced studio courses in chosen medium, art history electives, 
-                    senior portfolio development, thesis exhibition, and professional 
-                    preparation including internships and gallery experience.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="admission">
-            <Card>
-              <CardHeader>
-                <CardTitle>BFA Admission Requirements</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {admissionRequirements.map((req, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-uw-purple rounded-full mt-2"></div>
-                      <span>{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="career">
-            <Card>
-              <CardHeader>
-                <CardTitle>Fine Arts Career Opportunities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {careerOpportunities.map((career, index) => (
-                    <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                      {career}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
 
-          <TabsContent value="fees">
-            <Card>
-              <CardHeader>
-                <CardTitle>BFA Program Fee Structure</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Tuition Fee (per semester)</span>
-                    <span className="font-bold">$12,000</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Studio/Materials Fee</span>
-                    <span className="font-bold">$2,500</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Portfolio Review Fee</span>
-                    <span className="font-bold">$200</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Registration Fee (one-time)</span>
-                    <span className="font-bold">$500</span>
-                  </div>
-                  <hr />
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>Total per Year</span>
-                    <span>$29,200</span>
+        {/* Studio Concentrations */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold mb-6">Studio Concentrations</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { name: "Painting", description: "Traditional and contemporary painting techniques, color theory, composition" },
+              { name: "Sculpture", description: "Three-dimensional art, installation, public art, mixed media" },
+              { name: "Digital Media", description: "Digital photography, video art, interactive media, web design" },
+              { name: "Printmaking", description: "Lithography, etching, screen printing, relief printing" },
+              { name: "Drawing", description: "Advanced drawing techniques, illustration, concept art" },
+              { name: "Mixed Media", description: "Experimental techniques, collage, assemblage, new materials" }
+            ].map((concentration, index) => (
+              <Card key={index}>
+                <CardHeader>
+                  <CardTitle className="text-lg">{concentration.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">{concentration.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Career Prospects */}
+        <div className="mb-12">
+          <Card>
+            <CardHeader>
+              <CardTitle>Career Prospects & Alumni Success</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3">Career Paths</h4>
+                  <ul className="space-y-2">
+                    {[
+                      "Professional Artist", "Gallery Curator", "Art Director", "Art Teacher",
+                      "Museum Educator", "Graphic Designer", "Illustrator", "Art Therapist"
+                    ].map((career, index) => (
+                      <li key={index} className="flex items-center">
+                        <Palette className="w-4 h-4 text-uw-purple mr-2" />
+                        {career}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3">Program Statistics</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Employment Rate:</span>
+                      <span className="font-bold">92%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Graduate School Acceptance:</span>
+                      <span className="font-bold">85%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Average Starting Salary:</span>
+                      <span className="font-bold">$42,000</span>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Apply Now Section */}
+        <div className="bg-uw-purple text-white rounded-lg p-8 text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to Create Your Future?</h2>
+          <p className="text-lg mb-6 opacity-90">
+            Join our community of artists and begin your creative journey with our comprehensive BFA program.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-white text-uw-purple hover:bg-gray-100">
+              Apply Now - Fall 2026
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-uw-purple">
+              Schedule Portfolio Review
+            </Button>
+          </div>
+          <p className="text-sm mt-4 opacity-75">
+            Application deadline: January 5th, 2026 | Classes start: January 15th, 2026
+          </p>
+        </div>
       </div>
     </PageLayout>
   );
