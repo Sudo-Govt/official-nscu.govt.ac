@@ -68,17 +68,53 @@ interface Announcement {
   created_at: string;
 }
 
+interface AlumniDocumentRequest {
+  id: string;
+  requester_id: string;
+  document_type: string;
+  purpose: string;
+  delivery_method: string;
+  quantity: number;
+  urgent: boolean;
+  status: string;
+  fee: number;
+  payment_status: string;
+  created_at: string;
+  profiles?: {
+    full_name: string;
+    email?: string;
+  };
+}
+
+interface AlumniSupportTicket {
+  id: string;
+  user_id: string;
+  subject: string;
+  description: string;
+  category: string;
+  priority: string;
+  status: string;
+  created_at: string;
+  profiles?: {
+    full_name?: string;
+  } | null;
+}
+
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [students, setStudents] = useState<Student[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [alumniDocumentRequests, setAlumniDocumentRequests] = useState<AlumniDocumentRequest[]>([]);
+  const [alumniSupportTickets, setAlumniSupportTickets] = useState<AlumniSupportTicket[]>([]);
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalDocuments: 0,
     activeAnnouncements: 0,
-    totalFaculty: 0
+    totalFaculty: 0,
+    pendingAlumniRequests: 0,
+    openSupportTickets: 0
   });
 
   // Document upload state
@@ -139,6 +175,32 @@ const AdminDashboard = () => {
 
       if (announcementsData) setAnnouncements(announcementsData);
 
+      // Fetch alumni document requests
+      const { data: alumniDocRequestsData } = await supabase
+        .from('alumni_document_requests')
+        .select(`
+          *,
+          profiles:requester_id (
+            full_name
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (alumniDocRequestsData) setAlumniDocumentRequests(alumniDocRequestsData);
+
+      // Fetch alumni support tickets  
+      const { data: supportTicketsData } = await supabase
+        .from('alumni_support_tickets')
+        .select(`
+          *,
+          requester:user_id (
+            full_name
+          )
+        `)
+        .order('created_at', { ascending: false});
+
+      if (supportTicketsData) setAlumniSupportTickets(supportTicketsData as AlumniSupportTicket[]);
+
       // Calculate stats
       const { data: allProfiles } = await supabase
         .from('profiles')
@@ -149,7 +211,9 @@ const AdminDashboard = () => {
           totalStudents: allProfiles.filter(p => p.role === 'student').length,
           totalFaculty: allProfiles.filter(p => p.role === 'faculty').length,
           totalDocuments: documentsData?.length || 0,
-          activeAnnouncements: announcementsData?.filter(a => a.is_active).length || 0
+          activeAnnouncements: announcementsData?.filter(a => a.is_active).length || 0,
+          pendingAlumniRequests: alumniDocRequestsData?.filter(r => r.status === 'pending').length || 0,
+          openSupportTickets: supportTicketsData?.filter(t => t.status === 'open').length || 0
         });
       }
     } catch (error) {
@@ -575,18 +639,19 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-6 h-14 bg-muted/50 backdrop-blur-sm p-1">
+          <TabsList className="grid w-full grid-cols-7 h-14 bg-muted/50 backdrop-blur-sm p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
+            <TabsTrigger value="alumni-requests">Alumni Requests</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
               <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent"></div>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -640,6 +705,34 @@ const AdminDashboard = () => {
                 <CardContent>
                   <div className="text-4xl font-bold text-foreground mb-2">{stats.activeAnnouncements}</div>
                   <p className="text-muted-foreground font-medium">Currently active</p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent"></div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-base font-semibold">Pending Alumni Requests</CardTitle>
+                  <div className="p-3 bg-orange-500/10 rounded-xl">
+                    <FileText className="h-6 w-6 text-orange-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-foreground mb-2">{stats.pendingAlumniRequests}</div>
+                  <p className="text-muted-foreground font-medium">Awaiting review</p>
+                </CardContent>
+              </Card>
+
+              <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent"></div>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-base font-semibold">Open Support Tickets</CardTitle>
+                  <div className="p-3 bg-red-500/10 rounded-xl">
+                    <Shield className="h-6 w-6 text-red-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-foreground mb-2">{stats.openSupportTickets}</div>
+                  <p className="text-muted-foreground font-medium">Need attention</p>
                 </CardContent>
               </Card>
             </div>
@@ -1039,6 +1132,128 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="alumni-requests" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Alumni Document Requests */}
+              <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-xl font-bold">Document Requests</CardTitle>
+                  <CardDescription>Alumni requesting transcripts, certificates, and other documents</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {alumniDocumentRequests.length > 0 ? (
+                      alumniDocumentRequests.map((request) => (
+                        <div key={request.id} className="p-4 border rounded-lg space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-semibold capitalize">
+                                {request.document_type.replace('_', ' ')}
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                {request.profiles?.full_name || 'Unknown User'}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <Badge variant={
+                                request.status === 'pending' ? 'secondary' :
+                                request.status === 'processing' ? 'default' :
+                                request.status === 'ready' ? 'outline' : 'default'
+                              }>
+                                {request.status}
+                              </Badge>
+                              {request.urgent && (
+                                <Badge variant="destructive" className="ml-2">
+                                  Urgent
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            <p><strong>Purpose:</strong> {request.purpose}</p>
+                            <p><strong>Delivery:</strong> {request.delivery_method}</p>
+                            <p><strong>Requested:</strong> {new Date(request.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <div className="flex space-x-2 pt-2">
+                            <Button size="sm" variant="outline">
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </Button>
+                            <Button size="sm" variant="default">
+                              Process Request
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">No document requests found</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Alumni Support Tickets */}
+              <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-xl font-bold">Support Tickets</CardTitle>
+                  <CardDescription>Alumni support requests and inquiries</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {alumniSupportTickets.length > 0 ? (
+                      alumniSupportTickets.map((ticket) => (
+                        <div key={ticket.id} className="p-4 border rounded-lg space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="font-semibold">{ticket.subject}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {ticket.profiles?.full_name || 'Unknown User'}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <Badge variant={
+                                ticket.status === 'open' ? 'destructive' :
+                                ticket.status === 'in_progress' ? 'default' :
+                                ticket.status === 'resolved' ? 'outline' : 'secondary'
+                              }>
+                                {ticket.status.replace('_', ' ')}
+                              </Badge>
+                              <Badge variant="outline" className="ml-2">
+                                {ticket.priority}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            <p><strong>Category:</strong> {ticket.category}</p>
+                            <p><strong>Description:</strong> {ticket.description.substring(0, 100)}...</p>
+                            <p><strong>Created:</strong> {new Date(ticket.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <div className="flex space-x-2 pt-2">
+                            <Button size="sm" variant="outline">
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </Button>
+                            <Button size="sm" variant="default">
+                              Respond
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">No support tickets found</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-6">
