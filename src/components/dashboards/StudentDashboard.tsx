@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar } from 'lucide-react';
+import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload } from 'lucide-react';
 import mockDb from '@/database/mockDb';
 
 const StudentDashboard = () => {
@@ -80,12 +80,15 @@ const StudentDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="courses">My Courses</TabsTrigger>
-            <TabsTrigger value="fees">Fee Status</TabsTrigger>
+            <TabsTrigger value="courses">Courses</TabsTrigger>
+            <TabsTrigger value="academics">Academics</TabsTrigger>
+            <TabsTrigger value="library">Library</TabsTrigger>
+            <TabsTrigger value="career">Career</TabsTrigger>
+            <TabsTrigger value="campus">Campus Life</TabsTrigger>
+            <TabsTrigger value="fees">Fees</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="alumni">Alumni</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -103,6 +106,17 @@ const StudentDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">CGPA</CardTitle>
+                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">8.7</div>
+                  <p className="text-xs text-muted-foreground">Overall grade</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Fee Status</CardTitle>
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -114,26 +128,43 @@ const StudentDashboard = () => {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Year of Study</CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium">Credits Earned</CardTitle>
+                  <Award className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{studentData?.year_of_study}</div>
-                  <p className="text-xs text-muted-foreground">{studentData?.program}</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Documents</CardTitle>
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">5</div>
-                  <p className="text-xs text-muted-foreground">Uploaded documents</p>
+                  <div className="text-2xl font-bold">142</div>
+                  <p className="text-xs text-muted-foreground">Out of 180 required</p>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Frequently used services and tools</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Button variant="outline" className="h-16 flex flex-col gap-2">
+                    <Download className="h-5 w-5" />
+                    <span className="text-xs">Download Transcript</span>
+                  </Button>
+                  <Button variant="outline" className="h-16 flex flex-col gap-2">
+                    <Upload className="h-5 w-5" />
+                    <span className="text-xs">Submit Assignment</span>
+                  </Button>
+                  <Button variant="outline" className="h-16 flex flex-col gap-2">
+                    <Library className="h-5 w-5" />
+                    <span className="text-xs">Library Services</span>
+                  </Button>
+                  <Button variant="outline" className="h-16 flex flex-col gap-2">
+                    <MessageSquare className="h-5 w-5" />
+                    <span className="text-xs">Contact Advisor</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
@@ -297,20 +328,234 @@ const StudentDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="alumni">
+          <TabsContent value="academics" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Academic Calendar</CardTitle>
+                  <CardDescription>Important dates and events</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                      <div>
+                        <p className="font-medium">Mid-term Examinations</p>
+                        <p className="text-sm text-muted-foreground">March 15-22, 2024</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                      <div>
+                        <p className="font-medium">Spring Break</p>
+                        <p className="text-sm text-muted-foreground">March 25-31, 2024</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                      <div>
+                        <p className="font-medium">Final Examinations</p>
+                        <p className="text-sm text-muted-foreground">May 1-15, 2024</p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button variant="outline" className="w-full mt-4">View Full Calendar</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Research Opportunities</CardTitle>
+                  <CardDescription>Available research projects</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="border rounded-lg p-3">
+                      <h4 className="font-medium">AI in Healthcare</h4>
+                      <p className="text-sm text-muted-foreground">Dr. Smith • Computer Science</p>
+                      <Badge variant="secondary" className="mt-2">Apply</Badge>
+                    </div>
+                    <div className="border rounded-lg p-3">
+                      <h4 className="font-medium">Renewable Energy Systems</h4>
+                      <p className="text-sm text-muted-foreground">Dr. Johnson • Engineering</p>
+                      <Badge variant="secondary" className="mt-2">Apply</Badge>
+                    </div>
+                  </div>
+                  <Button variant="outline" className="w-full mt-4">Browse All Projects</Button>
+                </CardContent>
+              </Card>
+            </div>
+
             <Card>
               <CardHeader>
-                <CardTitle>Alumni Network</CardTitle>
-                <CardDescription>Connect with fellow alumni and current students</CardDescription>
+                <CardTitle>Digital Transcript</CardTitle>
+                <CardDescription>Download your official academic records</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Alumni Network</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Connect with thousands of NSCU alumni worldwide
-                  </p>
-                  <Button>Browse Alumni Directory</Button>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Official Transcript</p>
+                    <p className="text-sm text-muted-foreground">Last updated: March 1, 2024</p>
+                  </div>
+                  <Button>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="library" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Library Services</CardTitle>
+                  <CardDescription>Access digital and physical resources</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button variant="outline">Book Search</Button>
+                    <Button variant="outline">Renew Books</Button>
+                    <Button variant="outline">Study Rooms</Button>
+                    <Button variant="outline">Digital Archives</Button>
+                  </div>
+                  <div className="border rounded-lg p-3">
+                    <h4 className="font-medium">Current Borrowings</h4>
+                    <p className="text-sm text-muted-foreground">3 books due by March 20</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Research Databases</CardTitle>
+                  <CardDescription>Access academic journals and papers</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button variant="outline" className="w-full justify-start">IEEE Xplore</Button>
+                  <Button variant="outline" className="w-full justify-start">ACM Digital Library</Button>
+                  <Button variant="outline" className="w-full justify-start">SpringerLink</Button>
+                  <Button variant="outline" className="w-full justify-start">PubMed</Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="career" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Career Services</CardTitle>
+                  <CardDescription>Professional development and job placement</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Button className="w-full justify-start">
+                    <Briefcase className="h-4 w-4 mr-2" />
+                    Job Portal
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">Resume Builder</Button>
+                  <Button variant="outline" className="w-full justify-start">Interview Prep</Button>
+                  <Button variant="outline" className="w-full justify-start">Career Counseling</Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Internship Opportunities</CardTitle>
+                  <CardDescription>Current openings for students</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="border rounded-lg p-3">
+                    <h4 className="font-medium">Software Engineering Intern</h4>
+                    <p className="text-sm text-muted-foreground">TechCorp • Summer 2024</p>
+                    <Badge variant="secondary" className="mt-2">Apply</Badge>
+                  </div>
+                  <div className="border rounded-lg p-3">
+                    <h4 className="font-medium">Research Assistant</h4>
+                    <p className="text-sm text-muted-foreground">NSCU Labs • Part-time</p>
+                    <Badge variant="secondary" className="mt-2">Apply</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Scholarships & Financial Aid</CardTitle>
+                <CardDescription>Available funding opportunities</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between border rounded-lg p-3">
+                    <div>
+                      <h4 className="font-medium">Merit Scholarship</h4>
+                      <p className="text-sm text-muted-foreground">Deadline: April 15, 2024</p>
+                    </div>
+                    <Badge>Eligible</Badge>
+                  </div>
+                  <div className="flex items-center justify-between border rounded-lg p-3">
+                    <div>
+                      <h4 className="font-medium">Research Grant</h4>
+                      <p className="text-sm text-muted-foreground">Deadline: May 1, 2024</p>
+                    </div>
+                    <Badge variant="secondary">Apply</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="campus" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Campus Life</CardTitle>
+                  <CardDescription>Activities and events on campus</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button variant="outline">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Campus Map
+                    </Button>
+                    <Button variant="outline">Event Calendar</Button>
+                    <Button variant="outline">Dining Services</Button>
+                    <Button variant="outline">Transportation</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Student Organizations</CardTitle>
+                  <CardDescription>Join clubs and societies</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="border rounded-lg p-3">
+                    <h4 className="font-medium">Computer Science Society</h4>
+                    <p className="text-sm text-muted-foreground">150 members</p>
+                  </div>
+                  <div className="border rounded-lg p-3">
+                    <h4 className="font-medium">Debate Club</h4>
+                    <p className="text-sm text-muted-foreground">85 members</p>
+                  </div>
+                  <Button variant="outline" className="w-full mt-3">Browse All Organizations</Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Wellness & Health</CardTitle>
+                <CardDescription>Support services for student wellbeing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Button variant="outline" size="sm">Health Center</Button>
+                  <Button variant="outline" size="sm">Counseling</Button>
+                  <Button variant="outline" size="sm">Fitness Center</Button>
+                  <Button variant="outline" size="sm">Mental Health</Button>
                 </div>
               </CardContent>
             </Card>
