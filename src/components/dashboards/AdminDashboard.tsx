@@ -369,20 +369,26 @@ const AdminDashboard = () => {
           return;
         }
 
-        // Update the profile with additional info
+        // Update the profile with additional info (profile is created by trigger)
         if (authData.user) {
+          // Wait a bit for the trigger to complete
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
           const { error: profileError } = await supabase
             .from('profiles')
             .update({
-              full_name: studentName,
               department: studentDepartment,
               phone: studentPhone,
-              role: 'student'
             })
             .eq('user_id', authData.user.id);
 
           if (profileError) {
             console.error('Profile update error:', profileError);
+            toast({
+              title: "Warning", 
+              description: "Student created but profile update failed",
+              variant: "destructive"
+            });
           }
         }
 
