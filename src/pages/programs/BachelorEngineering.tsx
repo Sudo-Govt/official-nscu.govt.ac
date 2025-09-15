@@ -11,22 +11,22 @@ import { useSEO } from '@/hooks/useSEO';
 
 const BachelorEngineering = () => {
   useSEO({
-    title: "Bachelor of Engineering Program - GCHEA Accredited | NSCU Belize",
-    description: "Earn your Bachelor of Engineering degree from NSCU Belize. GCHEA-accredited 4-year program with specializations in Mechanical, Electrical, Computer, Civil, Chemical Engineering. Apply by January 5th, 2026.",
-    keywords: "Bachelor Engineering NSCU Belize, accredited engineering degree Belize, mechanical electrical computer engineering program, engineering admissions 2026, GCHEA engineering degree",
+    title: "Bachelor of Engineering & Technology Program - GCHEA Accredited | NSCU Belize",
+    description: "Earn your Bachelor of Engineering & Technology degree from NSCU Belize. GCHEA-accredited 4-year program with specializations in Mechanical, Electrical, Computer, Civil, Chemical Engineering & Technology. Apply by January 5th, 2026.",
+    keywords: "Bachelor Engineering Technology NSCU Belize, accredited engineering technology degree Belize, mechanical electrical computer engineering technology program, engineering technology admissions 2026, GCHEA engineering technology degree",
     canonical: "https://newstatesuniversity.lovable.app/programs/bachelor-engineering",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "Course",
-      "name": "Bachelor of Engineering",
-      "description": "Comprehensive 4-year engineering program with multiple specializations",
+      "name": "Bachelor of Engineering & Technology",
+      "description": "Comprehensive 4-year engineering & technology program with multiple specializations",
       "provider": {
         "@type": "University",
         "name": "New States Continental University",
         "url": "https://newstatesuniversity.lovable.app"
       },
-      "educationalCredentialAwarded": "Bachelor of Engineering",
-      "teaches": ["Engineering Mathematics", "Thermodynamics", "Circuit Analysis", "Materials Science", "Engineering Design"],
+      "educationalCredentialAwarded": "Bachelor of Engineering & Technology",
+      "teaches": ["Engineering Mathematics", "Thermodynamics", "Circuit Analysis", "Materials Science", "Engineering Design", "Technology Integration"],
       "totalTime": "P4Y",
       "courseMode": "on-campus",
       "applicationDeadline": "2026-01-05",
@@ -34,10 +34,10 @@ const BachelorEngineering = () => {
     }
   });
   const programOverview = {
-    name: "Bachelor of Engineering",
+    name: "Bachelor of Engineering & Technology",
     duration: "4 Years, 8 Semesters", 
     totalCredits: 120,
-    structure: ["Foundation Mathematics & Sciences", "Core Engineering Courses", "Specialization Tracks", "Capstone Project"],
+    structure: ["Foundation Mathematics & Sciences", "Core Engineering Courses", "Technology Integration", "Specialization Tracks", "Capstone Project"],
     assessment: "65% External Exam, 25% Laboratory Assessment, 10% Continuous Evaluation"
   };
 
@@ -524,8 +524,8 @@ const BachelorEngineering = () => {
 
   return (
     <PageLayout 
-      title="Bachelor of Engineering" 
-      description="Comprehensive 4-year engineering program preparing students for diverse engineering careers"
+      title="Bachelor of Engineering & Technology" 
+      description="Comprehensive 4-year engineering & technology program preparing students for diverse engineering careers"
     >
       <div className="container mx-auto px-4 py-8">
         {/* Program Overview */}
@@ -557,7 +557,7 @@ const BachelorEngineering = () => {
                 <CardTitle className="text-sm font-medium">Degree</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">B.Eng</div>
+                <div className="text-2xl font-bold">B.E.T</div>
                 <p className="text-xs text-muted-foreground">ABET Accredited</p>
               </CardContent>
             </Card>
