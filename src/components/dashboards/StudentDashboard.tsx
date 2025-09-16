@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload, TrendingUp, Bell, Star, Target, Zap, Trophy } from 'lucide-react';
 import mockDb from '@/database/mockDb';
 import ChangePassword from '@/components/ChangePassword';
+import MessagesPanel from '@/components/student/MessagesPanel';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -90,13 +91,14 @@ const StudentDashboard = () => {
       {/* Main Content with Enhanced Spacing */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-8 h-14 bg-muted/50 backdrop-blur-sm p-1">
+          <TabsList className="grid w-full grid-cols-9 h-14 bg-muted/50 backdrop-blur-sm p-1">
             <TabsTrigger value="overview" className="text-sm font-medium">Overview</TabsTrigger>
             <TabsTrigger value="courses" className="text-sm font-medium">Courses</TabsTrigger>
             <TabsTrigger value="academics" className="text-sm font-medium">Academics</TabsTrigger>
             <TabsTrigger value="library" className="text-sm font-medium">Library</TabsTrigger>
             <TabsTrigger value="career" className="text-sm font-medium">Career</TabsTrigger>
             <TabsTrigger value="campus" className="text-sm font-medium">Campus Life</TabsTrigger>
+            <TabsTrigger value="messages" className="text-sm font-medium">Messages</TabsTrigger>
             <TabsTrigger value="fees" className="text-sm font-medium">Fees</TabsTrigger>
             <TabsTrigger value="profile" className="text-sm font-medium">Profile</TabsTrigger>
             <TabsTrigger value="password" className="text-sm font-medium">Password</TabsTrigger>
@@ -347,6 +349,10 @@ const StudentDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="messages">
+            <MessagesPanel />
           </TabsContent>
 
           <TabsContent value="fees">

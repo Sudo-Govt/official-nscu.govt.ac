@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar, Trash2 } from 'lucide-react';
+import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar, Trash2, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
+import MessageDialog from './MessageDialog';
 
 interface StudentApplication {
   id: string;
@@ -51,6 +52,8 @@ const StudentManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showAddStudent, setShowAddStudent] = useState(false);
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<StudentApplication | null>(null);
 
   useEffect(() => {
     fetchApplications();
@@ -134,6 +137,11 @@ const StudentManagement = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleSendMessage = (application: StudentApplication) => {
+    setSelectedApplication(application);
+    setShowMessageDialog(true);
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -293,29 +301,36 @@ const StudentManagement = () => {
                       <TableCell>
                         {format(new Date(app.created_at), 'MMM dd, yyyy')}
                       </TableCell>
-                       <TableCell>
-                         <div className="flex items-center gap-2">
-                           <Button size="sm" variant="outline">
-                             <Eye className="h-4 w-4" />
-                           </Button>
-                           <Button size="sm" variant="outline">
-                             <Edit className="h-4 w-4" />
-                           </Button>
-                           <Button size="sm" variant="outline">
-                             <FileText className="h-4 w-4" />
-                           </Button>
-                           {(app.status !== 'accepted' && app.status !== 'enrolled') && (
-                             <Button 
-                               size="sm" 
-                               variant="outline" 
-                               onClick={() => handleDeleteApplication(app.id)}
-                               className="text-destructive hover:text-destructive"
-                             >
-                               <Trash2 className="h-4 w-4" />
-                             </Button>
-                           )}
-                         </div>
-                       </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="outline">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleSendMessage(app)}
+                            >
+                              <MessageSquare className="h-4 w-4" />
+                            </Button>
+                            {(app.status !== 'accepted' && app.status !== 'enrolled') && (
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => handleDeleteApplication(app.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -427,6 +442,21 @@ const StudentManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {selectedApplication && (
+        <MessageDialog
+          open={showMessageDialog}
+          onOpenChange={setShowMessageDialog}
+          application={selectedApplication}
+          onMessageSent={() => {
+            // Optionally refresh data or show success
+            toast({
+              title: "Success",
+              description: "Message sent successfully"
+            });
+          }}
+        />
+      )}
     </div>
   );
 };

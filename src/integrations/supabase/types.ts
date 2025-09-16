@@ -177,6 +177,57 @@ export type Database = {
           },
         ]
       }
+      agent_messages: {
+        Row: {
+          application_id: string | null
+          attachment_name: string | null
+          attachment_url: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          sender_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          attachment_name?: string | null
+          attachment_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          sender_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          attachment_name?: string | null
+          attachment_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          sender_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "student_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       agent_profiles: {
         Row: {
           accreditation_certificate_url: string | null
