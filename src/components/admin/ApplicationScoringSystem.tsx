@@ -133,17 +133,17 @@ const ApplicationScoringSystem = () => {
     try {
       const totalScore = calculateTotalScore();
       
-      const { error } = await supabase
-        .from('student_applications')
-        .update({
-          application_score: totalScore,
-          scoring_breakdown: scoring,
-          review_notes: reviewNotes,
-          status: finalDecision,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .eq('id', selectedApplication.id);
+        const { error } = await supabase
+          .from('student_applications')
+          .update({
+            application_score: totalScore,
+            scoring_breakdown: scoring as any,
+            review_notes: reviewNotes,
+            status: finalDecision,
+            reviewed_at: new Date().toISOString(),
+            reviewed_by: (await supabase.auth.getUser()).data.user?.id
+          })
+          .eq('id', selectedApplication.id);
 
       if (error) throw error;
 

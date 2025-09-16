@@ -1432,6 +1432,7 @@ export type Database = {
           application_fee_amount: number | null
           application_fee_paid: boolean | null
           application_number: string
+          application_score: number | null
           course_id: string | null
           created_at: string
           date_of_birth: string
@@ -1450,6 +1451,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           scholarship_applied: boolean | null
+          scoring_breakdown: Json | null
           status: string | null
           student_id: string | null
           tuition_fee_paid: boolean | null
@@ -1466,6 +1468,7 @@ export type Database = {
           application_fee_amount?: number | null
           application_fee_paid?: boolean | null
           application_number?: string
+          application_score?: number | null
           course_id?: string | null
           created_at?: string
           date_of_birth: string
@@ -1484,6 +1487,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           scholarship_applied?: boolean | null
+          scoring_breakdown?: Json | null
           status?: string | null
           student_id?: string | null
           tuition_fee_paid?: boolean | null
@@ -1500,6 +1504,7 @@ export type Database = {
           application_fee_amount?: number | null
           application_fee_paid?: boolean | null
           application_number?: string
+          application_score?: number | null
           course_id?: string | null
           created_at?: string
           date_of_birth?: string
@@ -1518,6 +1523,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           scholarship_applied?: boolean | null
+          scoring_breakdown?: Json | null
           status?: string | null
           student_id?: string | null
           tuition_fee_paid?: boolean | null

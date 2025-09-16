@@ -333,11 +333,11 @@ const SuperAdminUserManagement = () => {
                       <SelectContent>
                         <SelectItem value="student">Student</SelectItem>
                         <SelectItem value="faculty">Faculty</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="superadmin">Superadmin</SelectItem>
                         <SelectItem value="admission_agent">Admission Agent</SelectItem>
-                        <SelectItem value="finance">Finance</SelectItem>
                         <SelectItem value="alumni">Alumni</SelectItem>
                         <SelectItem value="staff">Staff</SelectItem>
+                        <SelectItem value="accounts">Accounts</SelectItem>
                         <SelectItem value="registrar">Registrar</SelectItem>
                         <SelectItem value="auditor">Auditor</SelectItem>
                       </SelectContent>
