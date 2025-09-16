@@ -33,6 +33,9 @@ import {
 } from 'lucide-react';
 import ChangePassword from '@/components/ChangePassword';
 import ApplicationManagement from '@/components/admin/ApplicationManagement';
+import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
+import ApplicationScoringSystem from '@/components/admin/ApplicationScoringSystem';
+import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
 
 interface Student {
   id: string;
@@ -642,13 +645,16 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-8">
-          <TabsList className="grid w-full grid-cols-9 h-14 bg-muted/50 backdrop-blur-sm p-1">
+          <TabsList className="grid w-full grid-cols-12 h-14 bg-muted/50 backdrop-blur-sm p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="applications">Applications</TabsTrigger>
+            <TabsTrigger value="scoring">Scoring</TabsTrigger>
+            <TabsTrigger value="messaging">Messaging</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="user-management">User Mgmt</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
-            <TabsTrigger value="alumni-requests">Alumni Requests</TabsTrigger>
+            <TabsTrigger value="alumni-requests">Alumni</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -971,9 +977,21 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
-        <TabsContent value="applications" className="space-y-6">
-          <ApplicationManagement />
-        </TabsContent>
+          <TabsContent value="applications" className="space-y-6">
+            <ApplicationManagement />
+          </TabsContent>
+
+          <TabsContent value="scoring" className="space-y-6">
+            <ApplicationScoringSystem />
+          </TabsContent>
+
+          <TabsContent value="messaging" className="space-y-6">
+            <AdminMessagingSystem />
+          </TabsContent>
+
+          <TabsContent value="user-management" className="space-y-6">
+            <SuperAdminUserManagement />
+          </TabsContent>
 
         <TabsContent value="students" className="space-y-6">
             <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
