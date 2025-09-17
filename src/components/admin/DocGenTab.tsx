@@ -135,37 +135,47 @@ export const DocGenTab = () => {
       tempDiv.innerHTML = doc.html_content;
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '-9999px';
-      tempDiv.style.fontFamily = 'Arial, sans-serif';
-      tempDiv.style.fontSize = '12px';
-      tempDiv.style.lineHeight = '1.5';
-      tempDiv.style.width = '210mm'; // A4 width
+      tempDiv.style.fontFamily = 'Times, serif';
+      tempDiv.style.fontSize = '14px';
+      tempDiv.style.lineHeight = '1.4';
+      tempDiv.style.width = '800px';
+      tempDiv.style.padding = '20px';
       document.body.appendChild(tempDiv);
 
       // Initialize jsPDF
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageHeight = pdf.internal.pageSize.height;
-      const margin = 20;
+      const pageWidth = pdf.internal.pageSize.width;
+      const margin = 15;
       let yPosition = margin;
 
-      // Extract text content and add to PDF
-      const textContent = tempDiv.innerText || tempDiv.textContent || '';
-      const lines = pdf.splitTextToSize(textContent, 170); // 210mm - 40mm margins
+      // Set font for PDF
+      pdf.setFont('Times', 'normal');
+      pdf.setFontSize(12);
 
+      // Extract and format text content
+      const textContent = tempDiv.innerText || tempDiv.textContent || '';
+      const lines = pdf.splitTextToSize(textContent, pageWidth - (margin * 2));
+
+      // Add content to PDF with proper formatting
       lines.forEach((line: string) => {
-        if (yPosition > pageHeight - margin) {
+        if (yPosition > pageHeight - margin - 10) {
           pdf.addPage();
           yPosition = margin;
         }
         pdf.text(line, margin, yPosition);
-        yPosition += 7;
+        yPosition += 6;
       });
 
       // Clean up
       document.body.removeChild(tempDiv);
 
-      // Download the PDF
+      // Generate filename
       const student = students.find(s => s.id === doc.student_id);
-      const fileName = `${student?.name || 'Student'}_${doc.doc_type}_Document.pdf`;
+      const cleanDocType = doc.doc_type.replace(/[^a-zA-Z0-9]/g, '_');
+      const cleanStudentName = student?.name.replace(/[^a-zA-Z0-9]/g, '_') || 'Student';
+      const fileName = `${cleanStudentName}_${cleanDocType}.pdf`;
+      
       pdf.save(fileName);
 
       toast({
@@ -176,7 +186,7 @@ export const DocGenTab = () => {
       console.error('Error downloading document:', error);
       toast({
         title: "Error",
-        description: "Failed to download document",
+        description: "Failed to download document. Please try again.",
         variant: "destructive"
       });
     }
@@ -343,17 +353,35 @@ export const DocGenTab = () => {
 
       {/* Preview Dialog */}
       <Dialog open={!!previewDoc} onOpenChange={() => setPreviewDoc(null)}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+          <DialogHeader className="flex flex-row items-center justify-between">
             <DialogTitle>
               Document Preview - {previewDoc?.doc_type}
             </DialogTitle>
+            {previewDoc && (
+              <Button
+                onClick={() => downloadDocument(previewDoc)}
+                className="ml-4"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
+              </Button>
+            )}
           </DialogHeader>
           {previewDoc && (
-            <div 
-              className="mt-4 p-6 bg-white text-black border rounded-lg"
-              dangerouslySetInnerHTML={{ __html: previewDoc.html_content }}
-            />
+            <div className="mt-4">
+              <div 
+                className="p-8 bg-white text-black border rounded-lg shadow-lg min-h-[600px]"
+                style={{
+                  fontFamily: 'Times, serif',
+                  fontSize: '14px',
+                  lineHeight: '1.5',
+                  maxWidth: '210mm',
+                  margin: '0 auto'
+                }}
+                dangerouslySetInnerHTML={{ __html: previewDoc.html_content }}
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>
