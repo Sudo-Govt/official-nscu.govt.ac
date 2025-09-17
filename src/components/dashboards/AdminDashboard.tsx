@@ -36,6 +36,8 @@ import ApplicationManagement from '@/components/admin/ApplicationManagement';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import ApplicationScoringSystem from '@/components/admin/ApplicationScoringSystem';
 import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
+import { StudentsTab } from '@/components/admin/StudentsTab';
+import { DocGenTab } from '@/components/admin/DocGenTab';
 
 interface Student {
   id: string;
@@ -679,12 +681,12 @@ const AdminDashboard = () => {
             <TabsTrigger value="scoring">Scoring</TabsTrigger>
             <TabsTrigger value="messaging">Messaging</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="docgen">DocGen</TabsTrigger>
             <TabsTrigger value="user-management">User Mgmt</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
             <TabsTrigger value="alumni-requests">Alumni</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -1022,56 +1024,12 @@ const AdminDashboard = () => {
           </TabsContent>
 
         <TabsContent value="students" className="space-y-6">
-            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
-              <CardHeader className="pb-8">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl font-bold">Student Management</CardTitle>
-                    <CardDescription className="text-lg mt-2">View and manage student records</CardDescription>
-                  </div>
-                  <Button className="bg-gradient-to-r from-primary to-primary/80" onClick={handleAddStudent}>
-                    <UserPlus className="h-5 w-5 mr-2" />
-                    Add Student
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {students.map((student) => (
-                    <div key={student.id} className="group relative overflow-hidden rounded-2xl border-2 border-border/50 hover:border-primary/30 bg-gradient-to-r from-card to-muted/20 p-6 hover:shadow-xl transition-all duration-300">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="p-3 bg-blue-500/10 rounded-xl">
-                            <Users className="h-6 w-6 text-blue-600" />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold text-foreground">{student.full_name}</h3>
-                            <p className="text-muted-foreground font-medium">ID: {student.user_id}</p>
-                            <div className="flex items-center gap-4 mt-2">
-                              <Badge variant="outline">{student.department || 'No Department'}</Badge>
-                              <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
-                                {student.status || 'Active'}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleViewStudent(student)}>
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleEditStudent(student)}>
-                            <Edit className="h-4 w-4 mr-1" />
-                            Edit
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          <StudentsTab />
+        </TabsContent>
+
+        <TabsContent value="docgen" className="space-y-6">
+          <DocGenTab />
+        </TabsContent>
 
           <TabsContent value="documents" className="space-y-6">
             <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
