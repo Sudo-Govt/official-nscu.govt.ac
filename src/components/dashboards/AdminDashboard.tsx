@@ -567,6 +567,34 @@ const AdminDashboard = () => {
     });
   };
 
+  const handleProcessRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('alumni_document_requests')
+        .update({ 
+          status: 'processing',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Request marked as processing"
+      });
+
+      fetchData(); // Refresh the data
+    } catch (error) {
+      console.error('Error processing request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process request",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleViewStudent = (student: Student) => {
     toast({
       title: "Student Details",
@@ -1226,7 +1254,11 @@ const AdminDashboard = () => {
                               <Eye className="h-4 w-4 mr-2" />
                               View Details
                             </Button>
-                            <Button size="sm" variant="default">
+                            <Button 
+                              size="sm" 
+                              variant="default"
+                              onClick={() => handleProcessRequest(request.id)}
+                            >
                               Process Request
                             </Button>
                           </div>
