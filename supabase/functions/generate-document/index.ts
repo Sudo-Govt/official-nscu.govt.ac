@@ -19,18 +19,25 @@ CRITICAL RULES:
 DOCUMENT RULES:
 1. Do not include the institution's name/logo/address (these will be added via letterhead when printing).
 2. Use student data exactly as given (do not invent names, dates, addresses).
-3. Randomly generate marks/grades and paper codes, but keep them realistic.
-4. Use the exact final CGPA provided.
+3. Randomly generate marks/grades and paper codes, but keep them realistic and consistent with the final CGPA.
+4. Ensure all dates are logical and consistent (no future dates, align with admission → graduation).
 5. Vary the writing style so each document feels unique.
 6. Use <h1>, <h2>, <p>, <table> for formatting.
 7. No inline CSS needed (keep structure clean).
 8. Always wrap output in <html><body> … </body></html>.
+9. Each document must end with a logical issuing authority (Registrar, Principal, Controller of Exams, Dean, etc., depending on type).
 
-Generate realistic academic documents based on the document type:
-- University: Official transcripts with detailed course records
-- College: Degree certificates and academic records
-- School: Mark sheets and certificates
-- Board: Board examination results and certificates`;
+DOCUMENT CATEGORIES:
+Higher Education (College + University): Use for degree-level documents, transcripts, certificates
+Secondary Education (School + Board): Use for school-level certificates, mark sheets, examination records
+
+Available document types for each category:
+
+HIGHER EDUCATION DOCUMENTS:
+Admission Offer Letter, Admission Confirmation Receipt, Course Registration Acknowledgment, Fee Payment Receipt, ID Card, Enrollment Certificate, Semester Admit Card, Internal Assessment Report, Semester Marksheet, Consolidated Marksheet, Attendance Certificate, Internship/Training Certificate, Industrial Visit Certificate, Character Certificate, Conduct Certificate, Bonafide Certificate, Migration Certificate, Transfer Certificate, Provisional Degree Certificate, Degree Award Recommendation Letter, No-Dues Certificate, Library Clearance Certificate, Hostel Clearance Certificate, Practical/Project Submission Certificate, Viva/Oral Examination Certificate, Course Completion Certificate, Recommendation Letter for Higher Studies, Placement Record/Certificate, Training & Development Certificate, Student Achievement Certificate, Registration Card, Course Registration Slip, Examination Admit Card, Consolidated Transcript, Degree Certificate, Duplicate Degree Certificate, Duplicate Transcript, Medium of Instruction Certificate, Equivalence Certificate, Transfer of Credit Certificate, Enrollment Verification Letter, Student Status Certificate, Research Scholar Enrollment Certificate, Synopsis Approval Certificate, Viva-Voce Certificate, PhD Thesis Submission Acknowledgment, PhD Thesis Acceptance Letter, PhD Award Notification, Convocation Invitation/Notification, Convocation Certificate, Recommendation Letter Faculty to Student, Examination Result Notification, International Student NOC/Eligibility Certificate, Accreditation Confirmation Letter, Degree Award Notification, Alumni Registration Acknowledgment, Thesis Evaluation Report, Research Approval/Ethics Clearance Certificate
+
+SECONDARY EDUCATION DOCUMENTS:
+Admission Confirmation Letter, Fee Receipt/Payment Acknowledgment, Student ID Card, Attendance Certificate, Conduct Certificate, Transfer Certificate (TC), Character Certificate, Bonafide Certificate, School Leaving Certificate, Examination Admit Card, Internal Assessment Report, Progress Report, Yearly Report Card, Co-curricular Participation Certificate, Sports Participation Certificate, Merit Certificate, Detention/Promotion Letter, Parent-Teacher Meeting Record, Library Clearance Certificate, No-Dues Certificate, Provisional Certificate for Board Exam Eligibility, Subject-wise Grade Sheet, Medical Fitness Certificate, Fee Concession/Scholarship Certificate, Duplicate Report Card Issuance Letter, Migration Certificate, Enrollment Confirmation Slip, Student Achievement Record, Extra-Curricular Activity Certificate, Academic Progress Summary, Enrollment Certificate (Board Registration), Admit Card for Board Exams, Duplicate Admit Card, Board Examination Schedule/Timetable, Marks Statement (10th/12th), Consolidated Marks Statement, Grade Sheet (10th/12th), Passing Certificate, Migration Certificate, Provisional Certificate, Transcript for Equivalency Abroad, Merit Certificate (Board), Distinction Certificate, Re-Evaluation Result Sheet, Improvement Exam Result Sheet, Duplicate Marks Statement, Duplicate Passing Certificate, Verification of Certificate Letter, Confidential Result Sheet, Correction Certificate, Medium of Instruction Certificate, No-Objection Certificate (NOC), Eligibility Certificate for Higher Studies, Recognition/Accreditation Letter for School, Syllabus Confirmation Letter, Examination Center Allocation Letter, Transfer of Credit Certificate, Board Result Gazette Extract, Board Scholarship Award Letter, Student Performance Record`;
 
 serve(async (req) => {
   // Handle CORS preflight requests

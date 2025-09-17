@@ -32,7 +32,7 @@ interface GeneratedDocument {
   created_at: string;
 }
 
-const DOC_TYPES = ['University', 'College', 'School', 'Board'];
+const DOC_TYPES = ['Higher Education', 'Secondary Education'];
 
 export const DocGenTab = () => {
   const [students, setStudents] = useState<Student[]>([]);
