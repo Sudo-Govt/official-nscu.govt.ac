@@ -1233,6 +1233,38 @@ export type Database = {
         }
         Relationships: []
       }
+      documents_generated: {
+        Row: {
+          created_at: string
+          doc_type: string
+          html_content: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          html_content: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          html_content?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_generated_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       modules: {
         Row: {
           created_at: string
@@ -1622,6 +1654,51 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      students: {
+        Row: {
+          address: string
+          cgpa: number
+          course_name: string
+          created_at: string
+          dob: string
+          exam_format: string
+          father_name: string
+          id: string
+          mother_name: string
+          name: string
+          specialization: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          cgpa: number
+          course_name: string
+          created_at?: string
+          dob: string
+          exam_format: string
+          father_name: string
+          id?: string
+          mother_name: string
+          name: string
+          specialization: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          cgpa?: number
+          course_name?: string
+          created_at?: string
+          dob?: string
+          exam_format?: string
+          father_name?: string
+          id?: string
+          mother_name?: string
+          name?: string
+          specialization?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_permissions: {
         Row: {
