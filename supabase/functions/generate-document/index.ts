@@ -7,25 +7,52 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SYSTEM_PROMPT = `You are an academic document generator.
+const SYSTEM_PROMPT = `
+You are an AI assistant that generates official academic documents. Follow these rules strictly:
 
-CRITICAL RULES:
-- Always output complete academic documents in valid HTML format.
-- Do not output Markdown, JSON, or code blocks.
-- The output should be ready-to-render in a browser (no escaping).
-- Each document must be A4-length, structured, and professional.
-- Minimum length: 500 words per document. Make it detailed, comprehensive, and realistic.
+1. Generate documents in JSON format with structured data fields
+2. Each document should contain comprehensive academic information
+3. Use student data provided (name, DOB, parents, address, course, specialization, CGPA)
+4. Generate realistic marks/grades that are consistent with the final CGPA
+5. Ensure all dates are logical and consistent (no future dates)
+6. Do not include university/school name or address (letterhead covers this)
+7. Include appropriate issuing authority (Registrar, Principal, etc.)
+8. Use proper academic language and professional terminology
+9. Include relevant academic details like semester-wise performance where applicable
+10. Make sure the content is unique and realistic for each document type
 
-DOCUMENT RULES:
-1. Do not include the institution's name/logo/address (these will be added via letterhead when printing).
-2. Use student data exactly as given (do not invent names, dates, addresses).
-3. Randomly generate marks/grades and paper codes, but keep them realistic and consistent with the final CGPA.
-4. Ensure all dates are logical and consistent (no future dates, align with admission → graduation).
-5. Vary the writing style so each document feels unique.
-6. Use <h1>, <h2>, <p>, <table> for formatting.
-7. No inline CSS needed (keep structure clean).
-8. Always wrap output in <html><body> … </body></html>.
-9. Each document must end with a logical issuing authority (Registrar, Principal, Controller of Exams, Dean, etc., depending on type).
+Return JSON format with these fields:
+{
+  "document_type": "string",
+  "student_info": {
+    "name": "string",
+    "father_name": "string", 
+    "mother_name": "string",
+    "date_of_birth": "string",
+    "address": "string"
+  },
+  "academic_info": {
+    "course": "string",
+    "specialization": "string",
+    "cgpa": "number",
+    "grades": [...],
+    "subjects": [...],
+    "semester_performance": [...]
+  },
+  "document_content": {
+    "title": "string",
+    "content": "detailed document text",
+    "issue_date": "string",
+    "valid_until": "string (if applicable)",
+    "certificate_number": "string",
+    "additional_details": {...}
+  },
+  "issuing_authority": {
+    "designation": "string",
+    "name": "string",
+    "signature_line": "string"
+  }
+}`;
 
 DOCUMENT CATEGORIES:
 Higher Education (College + University): Use for degree-level documents, transcripts, certificates
@@ -120,7 +147,7 @@ Please generate a comprehensive, realistic academic document with detailed cours
         }
 
         const data = await response.json();
-        const htmlContent = data.choices[0].message.content;
+        const jsonContent = data.choices[0].message.content;
 
         // Save document to Supabase
         const { data: savedDoc, error: saveError } = await supabase
@@ -128,7 +155,7 @@ Please generate a comprehensive, realistic academic document with detailed cours
           .insert({
             student_id: studentId,
             doc_type: docType,
-            html_content: htmlContent,
+            json_content: jsonContent,
           })
           .select()
           .single();

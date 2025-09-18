@@ -88,7 +88,7 @@ export const DocGenTab = () => {
     try {
       const [studentsResponse, documentsResponse] = await Promise.all([
         supabase.from('students').select('*').order('name'),
-        supabase.from('documents_generated').select('*').order('created_at', { ascending: false })
+        supabase.from('documents_generated').select('id, student_id, doc_type, json_content, created_at').order('created_at', { ascending: false })
       ]);
 
       if (studentsResponse.error) throw studentsResponse.error;

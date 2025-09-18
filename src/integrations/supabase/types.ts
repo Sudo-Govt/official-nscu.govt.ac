@@ -1237,22 +1237,22 @@ export type Database = {
         Row: {
           created_at: string
           doc_type: string
-          html_content: string
           id: string
+          json_content: string
           student_id: string
         }
         Insert: {
           created_at?: string
           doc_type: string
-          html_content: string
           id?: string
+          json_content?: string
           student_id: string
         }
         Update: {
           created_at?: string
           doc_type?: string
-          html_content?: string
           id?: string
+          json_content?: string
           student_id?: string
         }
         Relationships: [
