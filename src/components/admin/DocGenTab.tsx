@@ -3,11 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Eye, Download, Trash2, FileText, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import jsPDF from 'jspdf';
 
 interface Student {
   id: string;
@@ -28,16 +29,52 @@ interface GeneratedDocument {
   id: string;
   student_id: string;
   doc_type: string;
-  html_content: string;
+  json_content: string;
   created_at: string;
 }
 
-const DOC_TYPES = ['Higher Education', 'Secondary Education'];
+const HIGHER_EDUCATION_DOCS = [
+  'Admission Offer Letter', 'Admission Confirmation Receipt', 'Course Registration Acknowledgment',
+  'Fee Payment Receipt', 'ID Card (College/University)', 'Enrollment Certificate', 'Semester Admit Card',
+  'Internal Assessment Report', 'Semester Marksheet', 'Consolidated Marksheet', 'Attendance Certificate',
+  'Internship/Training Certificate', 'Industrial Visit Certificate', 'Character Certificate',
+  'Conduct Certificate', 'Bonafide Certificate', 'Migration Certificate', 'Transfer Certificate',
+  'Provisional Degree Certificate', 'Degree Award Recommendation Letter', 'No-Dues Certificate',
+  'Library Clearance Certificate', 'Hostel Clearance Certificate', 'Practical/Project Submission Certificate',
+  'Viva/Oral Examination Certificate', 'Course Completion Certificate', 'Recommendation Letter',
+  'Placement Record/Certificate', 'Training & Development Certificate', 'Student Achievement Certificate'
+];
+
+const SECONDARY_EDUCATION_DOCS = [
+  'Admission Confirmation Letter', 'Fee Receipt / Payment Acknowledgment', 'Student ID Card',
+  'Attendance Certificate', 'Conduct Certificate', 'Transfer Certificate (TC)', 'Character Certificate',
+  'Bonafide Certificate', 'School Leaving Certificate', 'Examination Admit Card', 'Internal Assessment Report',
+  'Progress Report (Class-wise)', 'Yearly Report Card', 'Co-curricular Participation Certificate',
+  'Sports Participation Certificate', 'Merit Certificate', 'Detention/Promotion Letter',
+  'Parent-Teacher Meeting Record', 'Library Clearance Certificate', 'No-Dues Certificate',
+  'Provisional Certificate', 'Subject-wise Grade Sheet', 'Medical Fitness Certificate',
+  'Fee Concession/Scholarship Certificate', 'Duplicate Report Card Issuance Letter',
+  'Migration Certificate', 'Enrollment Confirmation Slip', 'Student Achievement Record',
+  'Extra-Curricular Activity Certificate', 'Academic Progress Summary'
+];
+
+const DOC_CATEGORIES = [
+  { 
+    name: 'Higher Education', 
+    docs: HIGHER_EDUCATION_DOCS 
+  },
+  { 
+    name: 'Secondary Education', 
+    docs: SECONDARY_EDUCATION_DOCS 
+  }
+];
 
 export const DocGenTab = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [documents, setDocuments] = useState<GeneratedDocument[]>([]);
   const [selectedDocs, setSelectedDocs] = useState<{[studentId: string]: string[]}>({});
+  const [selectedCategory, setSelectedCategory] = useState<{[studentId: string]: string}>({});
+  const [selectionMode, setSelectionMode] = useState<{[studentId: string]: 'all' | 'none' | 'manual'}>({});
   const [isGenerating, setIsGenerating] = useState<{[studentId: string]: boolean}>({});
   const [previewDoc, setPreviewDoc] = useState<GeneratedDocument | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,6 +108,27 @@ export const DocGenTab = () => {
     }
   };
 
+  const handleSelectionModeChange = (studentId: string, mode: 'all' | 'none' | 'manual') => {
+    setSelectionMode(prev => ({ ...prev, [studentId]: mode }));
+    
+    const category = selectedCategory[studentId];
+    if (!category) return;
+    
+    const categoryDocs = DOC_CATEGORIES.find(c => c.name === category)?.docs || [];
+    
+    if (mode === 'all') {
+      setSelectedDocs(prev => ({ ...prev, [studentId]: [...categoryDocs] }));
+    } else if (mode === 'none') {
+      setSelectedDocs(prev => ({ ...prev, [studentId]: [] }));
+    }
+  };
+
+  const handleCategoryChange = (studentId: string, category: string) => {
+    setSelectedCategory(prev => ({ ...prev, [studentId]: category }));
+    setSelectionMode(prev => ({ ...prev, [studentId]: 'none' }));
+    setSelectedDocs(prev => ({ ...prev, [studentId]: [] }));
+  };
+
   const handleDocTypeChange = (studentId: string, docType: string, checked: boolean) => {
     setSelectedDocs(prev => {
       const studentDocs = prev[studentId] || [];
@@ -80,6 +138,7 @@ export const DocGenTab = () => {
         return { ...prev, [studentId]: studentDocs.filter(d => d !== docType) };
       }
     });
+    setSelectionMode(prev => ({ ...prev, [studentId]: 'manual' }));
   };
 
   const generateDocuments = async (studentId: string) => {
@@ -130,53 +189,33 @@ export const DocGenTab = () => {
 
   const downloadDocument = (doc: GeneratedDocument) => {
     try {
-      // Create a temporary div to render HTML content
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = doc.html_content;
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.fontFamily = 'Times, serif';
-      tempDiv.style.fontSize = '14px';
-      tempDiv.style.lineHeight = '1.4';
-      tempDiv.style.width = '800px';
-      tempDiv.style.padding = '20px';
-      document.body.appendChild(tempDiv);
+      // Parse JSON content
+      let jsonData;
+      try {
+        jsonData = JSON.parse(doc.json_content);
+      } catch {
+        // If it's not valid JSON, treat as plain text
+        jsonData = { content: doc.json_content };
+      }
 
-      // Initialize jsPDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageHeight = pdf.internal.pageSize.height;
-      const pageWidth = pdf.internal.pageSize.width;
-      const margin = 15;
-      let yPosition = margin;
-
-      // Set font for PDF
-      pdf.setFont('Times', 'normal');
-      pdf.setFontSize(12);
-
-      // Extract and format text content
-      const textContent = tempDiv.innerText || tempDiv.textContent || '';
-      const lines = pdf.splitTextToSize(textContent, pageWidth - (margin * 2));
-
-      // Add content to PDF with proper formatting
-      lines.forEach((line: string) => {
-        if (yPosition > pageHeight - margin - 10) {
-          pdf.addPage();
-          yPosition = margin;
-        }
-        pdf.text(line, margin, yPosition);
-        yPosition += 6;
-      });
-
-      // Clean up
-      document.body.removeChild(tempDiv);
-
+      // Create downloadable JSON file
+      const dataStr = JSON.stringify(jsonData, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      
       // Generate filename
       const student = students.find(s => s.id === doc.student_id);
       const cleanDocType = doc.doc_type.replace(/[^a-zA-Z0-9]/g, '_');
       const cleanStudentName = student?.name.replace(/[^a-zA-Z0-9]/g, '_') || 'Student';
-      const fileName = `${cleanStudentName}_${cleanDocType}.pdf`;
+      const fileName = `${cleanStudentName}_${cleanDocType}.json`;
       
-      pdf.save(fileName);
+      // Download file
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(dataBlob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
 
       toast({
         title: "Success",
@@ -252,28 +291,86 @@ export const DocGenTab = () => {
                     <Badge variant="outline">{student.exam_format}</Badge>
                   </div>
 
-                  {/* Document Type Selection */}
-                  <div className="mb-4">
-                    <p className="text-sm font-medium mb-2">Select Document Types:</p>
-                    <div className="flex flex-wrap gap-4">
-                      {DOC_TYPES.map((docType) => (
-                        <div key={docType} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`${student.id}-${docType}`}
-                            checked={selectedDocTypes.includes(docType)}
-                            onCheckedChange={(checked) => 
-                              handleDocTypeChange(student.id, docType, checked as boolean)
-                            }
-                          />
-                          <label 
-                            htmlFor={`${student.id}-${docType}`} 
-                            className="text-sm cursor-pointer"
-                          >
-                            {docType}
-                          </label>
-                        </div>
-                      ))}
+                  {/* Category Selection */}
+                  <div className="mb-4 space-y-4">
+                    <div>
+                      <p className="text-sm font-medium mb-2">Select Document Category:</p>
+                      <RadioGroup
+                        value={selectedCategory[student.id] || ''}
+                        onValueChange={(value) => handleCategoryChange(student.id, value)}
+                        className="flex gap-6"
+                      >
+                        {DOC_CATEGORIES.map((category) => (
+                          <div key={category.name} className="flex items-center space-x-2">
+                            <RadioGroupItem value={category.name} id={`${student.id}-${category.name}`} />
+                            <Label htmlFor={`${student.id}-${category.name}`} className="cursor-pointer">
+                              {category.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
                     </div>
+
+                    {selectedCategory[student.id] && (
+                      <>
+                        {/* Selection Mode */}
+                        <div>
+                          <p className="text-sm font-medium mb-2">Selection Mode:</p>
+                          <RadioGroup
+                            value={selectionMode[student.id] || 'none'}
+                            onValueChange={(value: 'all' | 'none' | 'manual') => 
+                              handleSelectionModeChange(student.id, value)
+                            }
+                            className="flex gap-6"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="all" id={`${student.id}-all`} />
+                              <Label htmlFor={`${student.id}-all`} className="cursor-pointer">
+                                Select All
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="none" id={`${student.id}-none`} />
+                              <Label htmlFor={`${student.id}-none`} className="cursor-pointer">
+                                Select None
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="manual" id={`${student.id}-manual`} />
+                              <Label htmlFor={`${student.id}-manual`} className="cursor-pointer">
+                                Manual Selection
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+
+                        {/* Manual Document Selection */}
+                        {selectionMode[student.id] === 'manual' && (
+                          <div>
+                            <p className="text-sm font-medium mb-2">Select Specific Documents:</p>
+                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border rounded p-3">
+                              {DOC_CATEGORIES.find(c => c.name === selectedCategory[student.id])?.docs.map((docType) => (
+                                <div key={docType} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`${student.id}-${docType}`}
+                                    checked={selectedDocTypes.includes(docType)}
+                                    onCheckedChange={(checked) => 
+                                      handleDocTypeChange(student.id, docType, checked as boolean)
+                                    }
+                                  />
+                                  <label 
+                                    htmlFor={`${student.id}-${docType}`} 
+                                    className="text-xs cursor-pointer"
+                                  >
+                                    {docType}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
 
                   {/* Generate Button */}
@@ -364,23 +461,15 @@ export const DocGenTab = () => {
                 className="ml-4"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download PDF
+                Download JSON
               </Button>
             )}
           </DialogHeader>
           {previewDoc && (
             <div className="mt-4">
-              <div 
-                className="p-8 bg-white text-black border rounded-lg shadow-lg min-h-[600px]"
-                style={{
-                  fontFamily: 'Times, serif',
-                  fontSize: '14px',
-                  lineHeight: '1.5',
-                  maxWidth: '210mm',
-                  margin: '0 auto'
-                }}
-                dangerouslySetInnerHTML={{ __html: previewDoc.html_content }}
-              />
+              <pre className="p-6 bg-gray-50 border rounded-lg text-sm overflow-auto max-h-[600px] whitespace-pre-wrap">
+                {JSON.stringify(JSON.parse(previewDoc.json_content), null, 2)}
+              </pre>
             </div>
           )}
         </DialogContent>
