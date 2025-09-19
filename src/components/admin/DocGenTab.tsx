@@ -6,7 +6,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Download, Trash2, FileText, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Eye, Download, Trash2, FileText, Loader2, Plus, User, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,6 +34,27 @@ interface GeneratedDocument {
   doc_type: string;
   json_content: string;
   created_at: string;
+  access_level?: string;
+  accessible_to?: string[];
+  is_public?: boolean;
+}
+
+interface UserProfile {
+  user_id: string;
+  full_name: string;
+  role: string;
+}
+
+interface NewStudent {
+  name: string;
+  father_name: string;
+  mother_name: string;
+  dob: string;
+  address: string;
+  course_name: string;
+  specialization: string;
+  exam_format: string;
+  cgpa: number;
 }
 
 const HIGHER_EDUCATION_DOCS = [
@@ -72,12 +96,31 @@ const DOC_CATEGORIES = [
 export const DocGenTab = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [documents, setDocuments] = useState<GeneratedDocument[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [selectedDocs, setSelectedDocs] = useState<{[studentId: string]: string[]}>({});
   const [selectedCategory, setSelectedCategory] = useState<{[studentId: string]: string}>({});
   const [selectionMode, setSelectionMode] = useState<{[studentId: string]: 'all' | 'none' | 'manual'}>({});
   const [isGenerating, setIsGenerating] = useState<{[studentId: string]: boolean}>({});
   const [previewDoc, setPreviewDoc] = useState<GeneratedDocument | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCreateStudent, setShowCreateStudent] = useState(false);
+  const [isCreatingStudent, setIsCreatingStudent] = useState(false);
+  const [documentAccess, setDocumentAccess] = useState<{[studentId: string]: {
+    access_level: string;
+    accessible_to: string[];
+    is_public: boolean;
+  }}>({});
+  const [newStudent, setNewStudent] = useState<NewStudent>({
+    name: '',
+    father_name: '',
+    mother_name: '',
+    dob: '',
+    address: '',
+    course_name: '',
+    specialization: '',
+    exam_format: 'Semester',
+    cgpa: 0
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,16 +129,19 @@ export const DocGenTab = () => {
 
   const fetchData = async () => {
     try {
-      const [studentsResponse, documentsResponse] = await Promise.all([
+      const [studentsResponse, documentsResponse, usersResponse] = await Promise.all([
         supabase.from('students').select('*').order('name'),
-        supabase.from('documents_generated').select('id, student_id, doc_type, json_content, created_at').order('created_at', { ascending: false })
+        supabase.from('documents_generated').select('*').order('created_at', { ascending: false }),
+        supabase.from('profiles').select('user_id, full_name, role').in('role', ['student', 'admission_agent', 'faculty'])
       ]);
 
       if (studentsResponse.error) throw studentsResponse.error;
       if (documentsResponse.error) throw documentsResponse.error;
+      if (usersResponse.error) throw usersResponse.error;
 
       setStudents(studentsResponse.data || []);
       setDocuments(documentsResponse.data || []);
+      setUsers(usersResponse.data || []);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -105,6 +151,58 @@ export const DocGenTab = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const createStudent = async () => {
+    if (!newStudent.name || !newStudent.father_name || !newStudent.mother_name || 
+        !newStudent.dob || !newStudent.address || !newStudent.course_name || 
+        !newStudent.specialization) {
+      toast({
+        title: "Error",
+        description: "Please fill all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsCreatingStudent(true);
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .insert([newStudent])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Student created successfully"
+      });
+
+      setNewStudent({
+        name: '',
+        father_name: '',
+        mother_name: '',
+        dob: '',
+        address: '',
+        course_name: '',
+        specialization: '',
+        exam_format: 'Semester',
+        cgpa: 0
+      });
+      setShowCreateStudent(false);
+      fetchData();
+    } catch (error) {
+      console.error('Error creating student:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create student",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingStudent(false);
     }
   };
 
@@ -156,7 +254,15 @@ export const DocGenTab = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('generate-document', {
-        body: { studentId, docTypes }
+        body: { 
+          studentId, 
+          docTypes,
+          accessControl: documentAccess[studentId] || {
+            access_level: 'admin_only',
+            accessible_to: [],
+            is_public: false
+          }
+        }
       });
 
       if (error) throw error;
@@ -267,6 +373,136 @@ export const DocGenTab = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Create Student Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Create Student Record
+            <Button
+              onClick={() => setShowCreateStudent(!showCreateStudent)}
+              variant="outline"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {showCreateStudent ? 'Cancel' : 'Add Student'}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        {showCreateStudent && (
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="student-name">Student Name *</Label>
+                <Input
+                  id="student-name"
+                  value={newStudent.name}
+                  onChange={(e) => setNewStudent(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter student name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="father-name">Father's Name *</Label>
+                <Input
+                  id="father-name"
+                  value={newStudent.father_name}
+                  onChange={(e) => setNewStudent(prev => ({ ...prev, father_name: e.target.value }))}
+                  placeholder="Enter father's name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="mother-name">Mother's Name *</Label>
+                <Input
+                  id="mother-name"
+                  value={newStudent.mother_name}
+                  onChange={(e) => setNewStudent(prev => ({ ...prev, mother_name: e.target.value }))}
+                  placeholder="Enter mother's name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dob">Date of Birth *</Label>
+                <Input
+                  id="dob"
+                  type="date"
+                  value={newStudent.dob}
+                  onChange={(e) => setNewStudent(prev => ({ ...prev, dob: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="course">Course Name *</Label>
+                <Input
+                  id="course"
+                  value={newStudent.course_name}
+                  onChange={(e) => setNewStudent(prev => ({ ...prev, course_name: e.target.value }))}
+                  placeholder="e.g., Bachelors of Technology"
+                />
+              </div>
+              <div>
+                <Label htmlFor="specialization">Specialization *</Label>
+                <Input
+                  id="specialization"
+                  value={newStudent.specialization}
+                  onChange={(e) => setNewStudent(prev => ({ ...prev, specialization: e.target.value }))}
+                  placeholder="e.g., Computer Science"
+                />
+              </div>
+              <div>
+                <Label htmlFor="exam-format">Exam Format</Label>
+                <Select
+                  value={newStudent.exam_format}
+                  onValueChange={(value) => setNewStudent(prev => ({ ...prev, exam_format: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Semester">Semester</SelectItem>
+                    <SelectItem value="Annual">Annual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="cgpa">CGPA</Label>
+                <Input
+                  id="cgpa"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="10"
+                  value={newStudent.cgpa}
+                  onChange={(e) => setNewStudent(prev => ({ ...prev, cgpa: parseFloat(e.target.value) || 0 }))}
+                  placeholder="e.g., 8.5"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="address">Address *</Label>
+              <Textarea
+                id="address"
+                value={newStudent.address}
+                onChange={(e) => setNewStudent(prev => ({ ...prev, address: e.target.value }))}
+                placeholder="Enter complete address"
+                rows={3}
+              />
+            </div>
+            <Button
+              onClick={createStudent}
+              disabled={isCreatingStudent}
+              className="w-full"
+            >
+              {isCreatingStudent ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating Student...
+                </>
+              ) : (
+                <>
+                  <User className="h-4 w-4 mr-2" />
+                  Create Student
+                </>
+              )}
+            </Button>
+          </CardContent>
+        )}
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Document Generation</CardTitle>
@@ -370,6 +606,91 @@ export const DocGenTab = () => {
                           </div>
                         )}
                       </>
+                    )}
+                  </div>
+
+                  {/* Access Control Settings */}
+                  <div className="mb-4 space-y-4 p-4 border rounded-lg bg-muted/50">
+                    <p className="text-sm font-medium">Document Access Control:</p>
+                    
+                    <div>
+                      <Label className="text-sm">Access Level:</Label>
+                      <Select
+                        value={documentAccess[student.id]?.access_level || 'admin_only'}
+                        onValueChange={(value) => setDocumentAccess(prev => ({
+                          ...prev,
+                          [student.id]: {
+                            ...prev[student.id],
+                            access_level: value,
+                            accessible_to: prev[student.id]?.accessible_to || [],
+                            is_public: prev[student.id]?.is_public || false
+                          }
+                        }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin_only">Admin Only</SelectItem>
+                          <SelectItem value="student_specific">Specific Users</SelectItem>
+                          <SelectItem value="public">Public Access</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {documentAccess[student.id]?.access_level === 'student_specific' && (
+                      <div>
+                        <Label className="text-sm">Select Users:</Label>
+                        <div className="max-h-32 overflow-y-auto border rounded p-2 space-y-1">
+                          {users.map((user) => (
+                            <div key={user.user_id} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`${student.id}-user-${user.user_id}`}
+                                checked={(documentAccess[student.id]?.accessible_to || []).includes(user.user_id)}
+                                onCheckedChange={(checked) => {
+                                  setDocumentAccess(prev => ({
+                                    ...prev,
+                                    [student.id]: {
+                                      ...prev[student.id],
+                                      access_level: prev[student.id]?.access_level || 'student_specific',
+                                      accessible_to: checked 
+                                        ? [...(prev[student.id]?.accessible_to || []), user.user_id]
+                                        : (prev[student.id]?.accessible_to || []).filter(id => id !== user.user_id),
+                                      is_public: prev[student.id]?.is_public || false
+                                    }
+                                  }));
+                                }}
+                              />
+                              <Label htmlFor={`${student.id}-user-${user.user_id}`} className="text-xs cursor-pointer">
+                                {user.full_name} ({user.role})
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {documentAccess[student.id]?.access_level === 'public' && (
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`${student.id}-public`}
+                          checked={documentAccess[student.id]?.is_public || false}
+                          onCheckedChange={(checked) => {
+                            setDocumentAccess(prev => ({
+                              ...prev,
+                              [student.id]: {
+                                ...prev[student.id],
+                                access_level: prev[student.id]?.access_level || 'public',
+                                accessible_to: prev[student.id]?.accessible_to || [],
+                                is_public: checked as boolean
+                              }
+                            }));
+                          }}
+                        />
+                        <Label htmlFor={`${student.id}-public`} className="text-sm">
+                          Make documents publicly accessible
+                        </Label>
+                      </div>
                     )}
                   </div>
 

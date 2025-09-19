@@ -1235,23 +1235,32 @@ export type Database = {
       }
       documents_generated: {
         Row: {
+          access_level: string | null
+          accessible_to: string[] | null
           created_at: string
           doc_type: string
           id: string
+          is_public: boolean | null
           json_content: string
           student_id: string
         }
         Insert: {
+          access_level?: string | null
+          accessible_to?: string[] | null
           created_at?: string
           doc_type: string
           id?: string
+          is_public?: boolean | null
           json_content?: string
           student_id: string
         }
         Update: {
+          access_level?: string | null
+          accessible_to?: string[] | null
           created_at?: string
           doc_type?: string
           id?: string
+          is_public?: boolean | null
           json_content?: string
           student_id?: string
         }

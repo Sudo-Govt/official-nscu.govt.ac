@@ -119,12 +119,20 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const { studentId, docTypes } = await req.json();
+    try {
+      const { studentId, docTypes, accessControl } = await req.json();
 
-    if (!studentId || !docTypes || !Array.isArray(docTypes)) {
-      throw new Error('Missing required fields: studentId and docTypes array');
-    }
+      if (!studentId || !docTypes || !Array.isArray(docTypes)) {
+        throw new Error('Missing required fields: studentId and docTypes array');
+      }
+
+      // Default access control if not provided
+      const defaultAccessControl = {
+        access_level: 'admin_only',
+        accessible_to: [],
+        is_public: false
+      };
+      const finalAccessControl = { ...defaultAccessControl, ...accessControl };
 
     // Initialize Supabase client
     const supabase = createClient(
@@ -203,6 +211,9 @@ Please generate a comprehensive, realistic academic document with detailed cours
             student_id: studentId,
             doc_type: docType,
             json_content: jsonContent,
+            access_level: finalAccessControl.access_level,
+            accessible_to: finalAccessControl.accessible_to,
+            is_public: finalAccessControl.is_public,
           })
           .select()
           .single();
