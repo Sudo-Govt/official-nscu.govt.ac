@@ -18,21 +18,12 @@ const Header = () => {
 
   const menuData = [
     {
-      title: "Home",
-      items: [
-        {title: "Welcome Message", href: "/home/welcome"},
-        {title: "Fast Facts", href: "/home/fast-facts"},
-        {title: "Virtual Tour", href: "/home/virtual-tour"},
-        {title: "News Ticker", href: "/home/news"},
-        {title: "Emergency Alerts", href: "/home/emergency"}
-      ]
-    },
-    {
-      title: "About",
+      title: "About NSCU",
       items: [
         {title: "History & Mission", href: "/about/history-mission"},
         {title: "Leadership", href: "/about/leadership"},
         {title: "Accreditation", href: "/about/accreditation"},
+        {title: "Fast Facts", href: "/home/fast-facts"},
         {title: "Campus Map", href: "/about/campus-map"},
         {title: "Sustainability", href: "/about/sustainability"},
         {title: "Diversity & Inclusion", href: "/about/diversity-inclusion"}
@@ -51,10 +42,15 @@ const Header = () => {
             {title: "College of Health Sciences", href: "/academics/college-health-sciences"},
             {title: "School of Medicine", href: "/academics/school-medicine"},
             {title: "School of Law", href: "/academics/school-law"},
-            {title: "College of Education", href: "/academics/college-education"},
-            {title: "School of Public Health", href: "/academics/school-public-health"},
-            {title: "School of Social Work", href: "/academics/school-social-work"},
-            {title: "College of Veterinary Medicine", href: "/academics/college-veterinary-medicine"}
+            {title: "College of Education", href: "/academics/college-education"}
+          ]
+        },
+        {
+          title: "Global Campuses",
+          items: [
+            {title: "Full-Fledged Colleges", href: "/colleges/full-fledged"},
+            {title: "Offshore Colleges", href: "/colleges/offshore"},
+            {title: "Study Centers", href: "/colleges/study-centers"}
           ]
         },
         {
@@ -67,50 +63,58 @@ const Header = () => {
       ]
     },
     {
-      title: "Admissions",
+      title: "Admissions & Aid",
       items: [
         {title: "Undergraduate Admissions", href: "/admissions/undergraduate"},
         {title: "Graduate Admissions", href: "/admissions/graduate"},
         {title: "International Admissions", href: "/admissions/international"},
         {title: "Transfer Admissions", href: "/admissions/transfer"},
-        {title: "Financial Aid", href: "/admissions/financial-aid"}
+        {title: "Financial Aid", href: "/admissions/financial-aid"},
+        {title: "Campus Tours", href: "/admissions/tours"}
       ]
     },
     {
-      title: "Student Life",
+      title: "Student Experience",
       items: [
-        {title: "Housing", href: "/student-life/housing"},
-        {title: "Dining", href: "/student-life/dining"},
-        {title: "Health & Wellness", href: "/student-life/health-wellness"},
-        {title: "Career Services", href: "/student-life/career-services"},
-        {title: "Student Organizations", href: "/student-life/organizations"},
-        {title: "Campus Recreation", href: "/student-life/recreation"}
+        {
+          title: "Campus Life",
+          items: [
+            {title: "Housing & Dining", href: "/student-life/housing"},
+            {title: "Student Organizations", href: "/student-life/organizations"},
+            {title: "Campus Recreation", href: "/student-life/recreation"},
+            {title: "Greek Life", href: "/campus-life/greek-life"}
+          ]
+        },
+        {
+          title: "Student Services",
+          items: [
+            {title: "Health & Wellness", href: "/student-life/health-wellness"},
+            {title: "Career Services", href: "/student-life/career-services"},
+            {title: "Academic Support", href: "/services/writing-center"},
+            {title: "Disability Services", href: "/services/disability-services"}
+          ]
+        }
       ]
     },
     {
-      title: "Research",
+      title: "Research & Innovation",
       items: [
         {title: "Research Office", href: "/research/office"},
-        {title: "Funding Opportunities", href: "/research/funding"},
+        {title: "Undergraduate Research", href: "/research/undergraduate"},
         {title: "Core Facilities", href: "/research/core-facilities"},
+        {title: "Funding Opportunities", href: "/research/funding"},
         {title: "Technology Transfer", href: "/research/technology-transfer"}
       ]
     },
     {
-      title: "Colleges",
-      items: [
-        {title: "Full-Fledged Colleges", href: "/colleges/full-fledged"},
-        {title: "Offshore Colleges", href: "/colleges/offshore"},
-        {title: "Study Centers", href: "/colleges/study-centers"}
-      ]
-    },
-    {
-      title: "Alumni",
+      title: "Alumni & Community",
       items: [
         {title: "Alumni Association", href: "/alumni/association"},
         {title: "Alumni Benefits", href: "/alumni/benefits"},
         {title: "Alumni Events", href: "/alumni/events"},
-        {title: "Give Back", href: "/alumni/give-back"}
+        {title: "Career Networking", href: "/alumni/career-networking"},
+        {title: "Give Back", href: "/alumni/give-back"},
+        {title: "News & Events", href: "/news/university-news"}
       ]
     }
   ];
