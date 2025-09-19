@@ -155,6 +155,7 @@ export const DocGenTab = () => {
   };
 
   const createStudent = async () => {
+    console.log('Create student clicked', newStudent);
     if (!newStudent.name || !newStudent.father_name || !newStudent.mother_name || 
         !newStudent.dob || !newStudent.address || !newStudent.course_name || 
         !newStudent.specialization) {
@@ -168,14 +169,19 @@ export const DocGenTab = () => {
 
     setIsCreatingStudent(true);
     try {
+      console.log('Inserting student into database:', newStudent);
       const { data, error } = await supabase
         .from('students')
         .insert([newStudent])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
 
+      console.log('Student created successfully:', data);
       toast({
         title: "Success",
         description: "Student created successfully"
@@ -240,7 +246,10 @@ export const DocGenTab = () => {
   };
 
   const generateDocuments = async (studentId: string) => {
+    console.log('Generate documents clicked for student:', studentId);
     const docTypes = selectedDocs[studentId];
+    console.log('Selected document types:', docTypes);
+    
     if (!docTypes || docTypes.length === 0) {
       toast({
         title: "Error",
@@ -253,18 +262,22 @@ export const DocGenTab = () => {
     setIsGenerating(prev => ({ ...prev, [studentId]: true }));
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-document', {
-        body: { 
-          studentId, 
-          docTypes,
-          accessControl: documentAccess[studentId] || {
-            access_level: 'admin_only',
-            accessible_to: [],
-            is_public: false
-          }
+      const requestBody = { 
+        studentId, 
+        docTypes,
+        accessControl: documentAccess[studentId] || {
+          access_level: 'admin_only',
+          accessible_to: [],
+          is_public: false
         }
+      };
+      console.log('Calling generate-document function with:', requestBody);
+      
+      const { data, error } = await supabase.functions.invoke('generate-document', {
+        body: requestBody
       });
 
+      console.log('Function response:', { data, error });
       if (error) throw error;
 
       if (data.success) {
