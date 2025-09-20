@@ -1,5 +1,5 @@
 
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Linkedin, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -113,6 +113,10 @@ const Footer = () => {
                     <Mail className="h-4 w-4 text-uw-gold flex-shrink-0" />
                     <span className="text-sm text-gray-300">info@nscu.govt.ac</span>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <Linkedin className="h-4 w-4 text-uw-gold flex-shrink-0" />
+                    <a href="https://linkedin.com/company/nscu-us" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-300 hover:text-uw-gold transition-colors">NSCU on LinkedIn</a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -202,10 +206,9 @@ const Footer = () => {
                 engagement in the First State and beyond.
               </p>
               <div className="flex space-x-4">
-                <Facebook className="h-5 w-5 text-gray-300 hover:text-uw-gold cursor-pointer transition-colors" />
-                <Twitter className="h-5 w-5 text-gray-300 hover:text-uw-gold cursor-pointer transition-colors" />
-                <Instagram className="h-5 w-5 text-gray-300 hover:text-uw-gold cursor-pointer transition-colors" />
-                <Youtube className="h-5 w-5 text-gray-300 hover:text-uw-gold cursor-pointer transition-colors" />
+                <a href="https://linkedin.com/company/nscu-us" target="_blank" rel="noopener noreferrer">
+                  <Linkedin className="h-5 w-5 text-gray-300 hover:text-uw-gold cursor-pointer transition-colors" />
+                </a>
               </div>
             </div>
             
