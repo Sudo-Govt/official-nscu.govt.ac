@@ -20,13 +20,13 @@ const TermsDisclaimer = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-6">
               <div>
-                <strong>Effective Date:</strong> [Insert Date]
+                <strong>Effective Date:</strong> 2nd January, 2016
               </div>
               <div>
-                <strong>Last Updated:</strong> [Insert Date]
+                <strong>Last Updated:</strong> 18th February, 2025
               </div>
               <div>
-                <strong>Version:</strong> 2.0
+                <strong>Version:</strong> 2.6
               </div>
             </div>
           </div>
@@ -404,14 +404,15 @@ const TermsDisclaimer = () => {
             <h2 className="text-2xl font-bold mb-4">12. Contact Information, Dispute Resolution, and Legal Framework</h2>
             
             <h3 className="text-xl font-semibold mb-3">12.1 Official Contact Information and Communication Channels</h3>
-            <ul className="list-disc pl-6 mb-4">
-              <li><strong>U.S. Administrative Headquarters:</strong> [Insert Complete Address]</li>
-              <li><strong>Student Services and Support:</strong> [Insert Contact Information]</li>
-              <li><strong>Academic Affairs and Faculty Relations:</strong> [Insert Contact Information]</li>
-              <li><strong>Admissions and Enrollment Services:</strong> [Insert Contact Information]</li>
-              <li><strong>Financial Services and Business Office:</strong> [Insert Contact Information]</li>
-              <li><strong>Legal and Compliance Matters:</strong> [Insert Legal Contact Information]</li>
-              <li><strong>International Student Services:</strong> [Insert International Contact]</li>
+<ul className="list-disc pl-6 mb-4">
+  <li><strong>U.S. Administrative Headquarters:</strong> The Tatnall School, 1501 Barley Mill Road, Wilmington, DE 19807, USA | Email: admin@nscu.govt.ac | Phone: +1 302-998-2292</li>
+  <li><strong>Student Services and Support:</strong> Email: studentsupport@nscu.govt.ac | Phone: +1 302-998-2292</li>
+  <li><strong>Academic Affairs and Faculty Relations:</strong> Email: academics@nscu.govt.ac | Phone: +1 302-998-2292</li>
+  <li><strong>Admissions and Enrollment Services:</strong> Email: admissions@nscu.govt.ac | Phone: +1 302-998-2292</li>
+  <li><strong>Financial Services and Business Office:</strong> Email: finance@nscu.govt.ac | Phone: +1 302-998-2292</li>
+  <li><strong>Legal and Compliance Matters:</strong> Email: legal@nscu.govt.ac | Phone: +1 302-998-2292</li>
+  <li><strong>International Student Services:</strong> Email: international@nscu.govt.ac | Phone: +1 302-998-2292</li>
+</ul>
             </ul>
 
             <h3 className="text-xl font-semibold mb-3">12.2 Dispute Resolution and Grievance Procedures</h3>
