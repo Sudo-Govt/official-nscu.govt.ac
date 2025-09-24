@@ -92,6 +92,7 @@ import AcademicPolicies from "./pages/resources/AcademicPolicies";
 // Legal pages
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import TermsOfUse from "./pages/legal/TermsOfUse";
+import TermsDisclaimer from "./pages/legal/TermsDisclaimer";
 
 // Campus Life pages
 import GreekLife from "./pages/campus-life/GreekLife";
@@ -222,6 +223,7 @@ const App = () => (
           {/* Legal Routes */}
           <Route path="/legal/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/legal/terms-of-use" element={<TermsOfUse />} />
+          <Route path="/legal/terms-disclaimer" element={<TermsDisclaimer />} />
           
           {/* Campus Life Routes */}
           <Route path="/campus-life/greek-life" element={<GreekLife />} />

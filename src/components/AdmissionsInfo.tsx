@@ -63,7 +63,7 @@ const AdmissionsInfo = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-uw-purple mb-4">
-            Apply to NSCU Belize - GCHEA Accredited Global University
+            Apply to NSCU Delaware USA - GCHEA Accredited Global University
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Join thousands of working professionals earning accredited degrees. 
@@ -123,7 +123,7 @@ const AdmissionsInfo = () => {
         <div className="bg-uw-purple rounded-lg p-8 text-white text-center">
           <h3 className="text-2xl font-bold mb-4">Ready to Earn Your Global Degree?</h3>
           <p className="text-lg mb-6 text-gray-200">
-            Join NSCU Belize - the trusted GCHEA accredited university for working professionals worldwide. 
+            Join NSCU Delaware USA - the trusted GCHEA accredited university for working professionals worldwide. 
             Study with our globally recognized programs designed for international students.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

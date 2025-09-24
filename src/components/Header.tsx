@@ -18,7 +18,7 @@ const Header = () => {
 
   const menuData = [
     {
-      title: "About NSCU",
+      title: "About NSCU Delaware USA",
       items: [
         {title: "History & Mission", href: "/about/history-mission"},
         {title: "Leadership", href: "/about/leadership"},
@@ -131,7 +131,7 @@ const Header = () => {
               <Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni</Link>
             </div>
             <div className="flex space-x-4">
-              <Link to="/login" className="hover:text-uw-gold transition-colors">MyNSCU</Link>
+              <Link to="/login" className="hover:text-uw-gold transition-colors">MyNSCU Delaware</Link>
               <Link to="/academics/academic-calendar" className="hover:text-uw-gold transition-colors">Calendar</Link>
             </div>
           </div>
@@ -146,7 +146,7 @@ const Header = () => {
             <Link to="/" className="flex items-center">
               <img 
                 src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
-                alt="NSCU Belize Logo - Accredited International University GCHEA Approved" 
+                alt="NSCU Delaware USA Logo - The New States Continental University" 
                 className="h-12 w-auto"
               />
             </Link>

@@ -88,7 +88,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-bold mb-4 text-uw-gold">About & Contact</h3>
             <div className="space-y-2">
-              <h4 className="font-semibold text-sm mb-2">About NSCU</h4>
+              <h4 className="font-semibold text-sm mb-2">About NSCU Delaware USA</h4>
               <ul className="space-y-1 text-sm text-gray-300">
                 <li><Link to="/about/history-mission" className="hover:text-uw-gold transition-colors">History & Mission</Link></li>
                 <li><Link to="/about/leadership" className="hover:text-uw-gold transition-colors">Leadership</Link></li>
@@ -198,12 +198,12 @@ const Footer = () => {
         <div className="border-t border-gray-700 pt-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <h3 className="text-xl font-bold mb-4">New States Continental University - Delaware</h3>
+              <h3 className="text-xl font-bold mb-4">The New States Continental University Delaware USA</h3>
               <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                A world-class public research university committed to educating diverse 
-                leaders and expanding the boundaries of human knowledge. NSCU-Delaware 
-                serves as a beacon of academic excellence, innovation, and community 
-                engagement in the First State and beyond.
+                The New States Continental University Delaware USA serves as the Delaware headquarters 
+                for NSCU's global operations. A world-class research university committed to educating 
+                diverse leaders and expanding the boundaries of human knowledge. NSCU Delaware USA 
+                serves as a beacon of academic excellence, innovation, and community engagement.
               </p>
               <div className="flex space-x-4">
                 <a href="https://linkedin.com/company/nscu-us" target="_blank" rel="noopener noreferrer">
@@ -234,11 +234,12 @@ const Footer = () => {
         {/* Bottom Footer */}
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-300 text-sm">
-            © 2024 New States Continental University - Delaware. All rights reserved.
+            © 2024 The New States Continental University Delaware USA. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center md:justify-end space-x-6 mt-4 md:mt-0">
             <Link to="/legal/privacy-policy" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Privacy Policy</Link>
             <Link to="/legal/terms-of-use" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Terms of Use</Link>
+            <Link to="/legal/terms-disclaimer" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Terms & Disclaimer</Link>
             <Link to="/about/diversity-inclusion" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Accessibility</Link>
             <Link to="/about/diversity-inclusion" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Non-Discrimination</Link>
             <Link to="/resources/academic-policies" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">FERPA</Link>
