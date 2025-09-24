@@ -412,7 +412,6 @@ const TermsDisclaimer = () => {
   <li><strong>Financial Services and Business Office:</strong> Email: finance@nscu.govt.ac | Phone: +1 302-998-2292</li>
   <li><strong>Legal and Compliance Matters:</strong> Email: legal@nscu.govt.ac | Phone: +1 302-998-2292</li>
   <li><strong>International Student Services:</strong> Email: international@nscu.govt.ac | Phone: +1 302-998-2292</li>
-</ul>
             </ul>
 
             <h3 className="text-xl font-semibold mb-3">12.2 Dispute Resolution and Grievance Procedures</h3>
