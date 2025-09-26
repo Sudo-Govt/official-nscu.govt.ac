@@ -4,49 +4,57 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Users, Calendar, Settings, User } from 'lucide-react';
-import { TabsContent } from '@/components/ui/tabs';
-import DashboardLayout from '@/components/DashboardLayout';
+import { BookOpen, Users, Calendar, LogOut } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ChangePassword from '@/components/ChangePassword';
 
 const FacultyDashboard = () => {
-  const { user } = useAuth();
-
-  const menuItems = [
-    {
-      id: 'overview',
-      label: 'Dashboard',
-      icon: BookOpen
-    },
-    {
-      id: 'courses',
-      label: 'Courses',
-      icon: Users
-    },
-    {
-      id: 'schedule',
-      label: 'Schedule',
-      icon: Calendar
-    },
-    {
-      id: 'account',
-      label: 'Account',
-      icon: User,
-      subItems: [
-        { id: 'profile', label: 'Profile' },
-        { id: 'password', label: 'Change Password' }
-      ]
-    }
-  ];
+  const { user, logout } = useAuth();
 
   return (
-    <DashboardLayout 
-      menuItems={menuItems}
-      title="Faculty Portal"
-      subtitle="Academic Management System"
-    >
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-card border-b border-border shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 
+                alt="NSCU Logo" 
+                className="h-8 w-auto mr-3"
+              />
+              <div>
+                <h1 className="text-xl font-semibold text-foreground">Faculty Portal</h1>
+                <p className="text-sm text-muted-foreground">Academic Management System</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-foreground">{user?.full_name}</p>
+                <Badge variant="secondary" className="text-xs">
+                  {user?.role.toUpperCase()}
+                </Badge>
+              </div>
+              <Button variant="outline" size="sm" onClick={logout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
 
-          <TabsContent value="overview" className="p-6 space-y-6">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="courses">Courses</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="password">Password</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
             <div className="text-center py-16">
               <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-6" />
               <h2 className="text-2xl font-bold text-foreground mb-4">Faculty Dashboard</h2>
@@ -77,9 +85,9 @@ const FacultyDashboard = () => {
                 </a>
               </p>
             </div>
-      </TabsContent>
+          </TabsContent>
 
-      <TabsContent value="courses" className="p-6 space-y-6">
+          <TabsContent value="courses" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>My Courses</CardTitle>
@@ -89,9 +97,9 @@ const FacultyDashboard = () => {
                 <p className="text-muted-foreground text-center py-8">Course management coming soon</p>
               </CardContent>
             </Card>
-      </TabsContent>
+          </TabsContent>
 
-      <TabsContent value="profile" className="p-6 space-y-6">
+          <TabsContent value="profile" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Faculty Profile</CardTitle>
@@ -119,12 +127,14 @@ const FacultyDashboard = () => {
                 <Button>Edit Profile</Button>
               </CardContent>
             </Card>
-      </TabsContent>
+          </TabsContent>
 
-      <TabsContent value="password" className="p-6 space-y-6">
-        <ChangePassword />
-      </TabsContent>
-    </DashboardLayout>
+          <TabsContent value="password" className="space-y-6">
+            <ChangePassword />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
   );
 };
 
