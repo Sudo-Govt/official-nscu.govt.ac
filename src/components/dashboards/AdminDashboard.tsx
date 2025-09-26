@@ -29,7 +29,9 @@ import {
   Shield,
   Database,
   BarChart3,
-  LogOut
+  LogOut,
+  DollarSign,
+  TrendingUp
 } from 'lucide-react';
 import ChangePassword from '@/components/ChangePassword';
 import ApplicationManagement from '@/components/admin/ApplicationManagement';
@@ -38,6 +40,9 @@ import ApplicationScoringSystem from '@/components/admin/ApplicationScoringSyste
 import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
 import { StudentsTab } from '@/components/admin/StudentsTab';
 import { DocGenTab } from '@/components/admin/DocGenTab';
+import AcademicManagement from '@/components/erp/modules/AcademicManagement';
+import StudentManagement from '@/components/erp/modules/StudentManagement';
+import FinanceManagement from '@/components/erp/modules/FinanceManagement';
 
 interface Student {
   id: string;
@@ -677,16 +682,16 @@ const AdminDashboard = () => {
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-8">
           <TabsList className="grid w-full grid-cols-12 h-14 bg-muted/50 backdrop-blur-sm p-1">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="academic">Academic</TabsTrigger>
+            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="applications">Applications</TabsTrigger>
             <TabsTrigger value="scoring">Scoring</TabsTrigger>
-            <TabsTrigger value="messaging">Messaging</TabsTrigger>
-            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="messaging">Messages</TabsTrigger>
             <TabsTrigger value="docgen">DocGen</TabsTrigger>
-            <TabsTrigger value="user-management">User Mgmt</TabsTrigger>
+            <TabsTrigger value="user-management">Users</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="announcements">Announcements</TabsTrigger>
-            <TabsTrigger value="alumni-requests">Alumni</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            <TabsTrigger value="announcements">Announce</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -1007,6 +1012,14 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="academic" className="space-y-6">
+            <AcademicManagement />
+          </TabsContent>
+
+          <TabsContent value="finance" className="space-y-6">
+            <FinanceManagement />
+          </TabsContent>
+
           <TabsContent value="applications" className="space-y-6">
             <ApplicationManagement />
           </TabsContent>
@@ -1024,7 +1037,7 @@ const AdminDashboard = () => {
           </TabsContent>
 
         <TabsContent value="students" className="space-y-6">
-          <StudentsTab />
+          <StudentManagement />
         </TabsContent>
 
         <TabsContent value="docgen" className="space-y-6">
@@ -1342,12 +1355,70 @@ const AdminDashboard = () => {
             <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold">System Settings</CardTitle>
-                <CardDescription className="text-lg mt-2">Configure system preferences and permissions</CardDescription>
+                <CardDescription className="text-lg mt-2">Configure system preferences and security</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground text-lg">System settings panel coming soon</p>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Settings className="mr-2 h-5 w-5" />
+                        General Settings
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>University Name</Label>
+                        <Input defaultValue="NSCU Delaware USA" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Academic Year</Label>
+                        <Select defaultValue="2024-25">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="2024-25">2024-25</SelectItem>
+                            <SelectItem value="2025-26">2025-26</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Default Language</Label>
+                        <Select defaultValue="en">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">English</SelectItem>
+                            <SelectItem value="es">Spanish</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Shield className="mr-2 h-5 w-5" />
+                        Security Settings
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <ChangePassword />
+                      <div className="pt-4 border-t">
+                        <Button variant="outline" className="w-full">
+                          <Database className="mr-2 h-4 w-4" />
+                          Backup Database
+                        </Button>
+                      </div>
+                      <Button variant="outline" className="w-full">
+                        <FileText className="mr-2 h-4 w-4" />
+                        System Audit Log
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
               </CardContent>
             </Card>
