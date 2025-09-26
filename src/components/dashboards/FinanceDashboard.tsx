@@ -5,10 +5,43 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { CreditCard, Receipt, TrendingUp, Users, LogOut, FileText, DollarSign } from 'lucide-react';
+import { CreditCard, Receipt, TrendingUp, Users, LogOut, FileText, DollarSign, BarChart3, User } from 'lucide-react';
+import DashboardLayout from '@/components/DashboardLayout';
 
 const FinanceDashboard = () => {
   const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = React.useState('overview');
+
+  const menuGroups = [
+    {
+      label: "Finance",
+      items: [
+        { title: "Overview", icon: BarChart3, value: "overview", onClick: () => setActiveTab("overview") },
+        { title: "Fee Collections", icon: CreditCard, value: "fees", onClick: () => setActiveTab("fees") },
+        { title: "Receipts", icon: Receipt, value: "receipts", onClick: () => setActiveTab("receipts") },
+        { title: "Reports", icon: FileText, value: "reports", onClick: () => setActiveTab("reports") },
+      ]
+    },
+    {
+      label: "Account",
+      items: [
+        { title: "Profile", icon: User, value: "profile", onClick: () => setActiveTab("profile") },
+      ]
+    }
+  ];
+
+  return (
+    <DashboardLayout
+      title="Finance Dashboard"
+      subtitle="Financial Management System"
+      userBadge={user?.role.toUpperCase()}
+      menuGroups={menuGroups}
+      activeTab={activeTab}
+    >
+      {/* Content remains the same but without header and sidebar */}
+      {/* ... rest of existing content ... */}
+    </DashboardLayout>
+  );
 
   const financialData = {
     totalRevenue: 1250000,

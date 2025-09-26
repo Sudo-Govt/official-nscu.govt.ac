@@ -9,9 +9,10 @@ import AlumniProfile from '@/components/alumni/AlumniProfile';
 import AlumniNetworking from '@/components/alumni/AlumniNetworking';
 import AlumniCareer from '@/components/alumni/AlumniCareer';
 import AlumniDocuments from '@/components/alumni/AlumniDocuments';
+import DashboardLayout from '@/components/DashboardLayout';
 
 const AlumniDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const alumniStats = {
@@ -196,84 +197,34 @@ const AlumniDashboard = () => {
     </div>
   );
 
+  const menuGroups = [
+    {
+      label: "Main",
+      items: [
+        { title: "Dashboard", icon: Globe, value: "dashboard", onClick: () => setActiveTab("dashboard") },
+        { title: "Profile", icon: User, value: "profile", onClick: () => setActiveTab("profile") },
+        { title: "Network", icon: Network, value: "networking", onClick: () => setActiveTab("networking") },
+        { title: "Career", icon: Briefcase, value: "career", onClick: () => setActiveTab("career") },
+        { title: "Documents", icon: FileText, value: "documents", onClick: () => setActiveTab("documents") },
+      ]
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <GraduationCap className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                  Alumni Portal
-                </h1>
-                <p className="text-muted-foreground font-medium">Welcome back, {user?.full_name}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Badge variant="secondary" className="hidden sm:inline-flex">
-                Class of {alumniStats.graduationYear}
-              </Badge>
-              <Button variant="outline" onClick={logout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content with Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-5 mb-8">
-            <TabsTrigger value="dashboard" className="flex items-center space-x-2">
-              <Globe className="h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center space-x-2">
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="networking" className="flex items-center space-x-2">
-              <Network className="h-4 w-4" />
-              <span className="hidden sm:inline">Network</span>
-            </TabsTrigger>
-            <TabsTrigger value="career" className="flex items-center space-x-2">
-              <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Career</span>
-            </TabsTrigger>
-            <TabsTrigger value="documents" className="flex items-center space-x-2">
-              <FileText className="h-4 w-4" />
-              <span className="hidden sm:inline">Documents</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="dashboard" className="space-y-6">
-            {renderDashboardOverview()}
-          </TabsContent>
-
-          <TabsContent value="profile" className="space-y-6">
-            <AlumniProfile />
-          </TabsContent>
-
-          <TabsContent value="networking" className="space-y-6">
-            <AlumniNetworking />
-          </TabsContent>
-
-          <TabsContent value="career" className="space-y-6">
-            <AlumniCareer />
-          </TabsContent>
-
-          <TabsContent value="documents" className="space-y-6">
-            <AlumniDocuments />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+    <DashboardLayout
+      title="Alumni Portal"
+      subtitle={`Welcome back, ${user?.full_name}`}
+      userBadge={`Class of ${alumniStats.graduationYear}`}
+      menuGroups={menuGroups}
+      activeTab={activeTab}
+    >
+      {/* Content based on active tab */}
+      {activeTab === "dashboard" && renderDashboardOverview()}
+      {activeTab === "profile" && <AlumniProfile />}
+      {activeTab === "networking" && <AlumniNetworking />}
+      {activeTab === "career" && <AlumniCareer />}
+      {activeTab === "documents" && <AlumniDocuments />}
+    </DashboardLayout>
   );
 };
 
