@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload, TrendingUp, Bell, Star, Target, Zap, Trophy } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import mockDb from '@/database/mockDb';
 import ChangePassword from '@/components/ChangePassword';
 import MessagesPanel from '@/components/student/MessagesPanel';
@@ -13,6 +14,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
   const [currentTab, setCurrentTab] = useState('overview');
   const [studentData, setStudentData] = useState<any>(null);
   const [courses, setCourses] = useState<any[]>([]);
@@ -45,6 +47,72 @@ const StudentDashboard = () => {
   }, [user]);
 
   const feePercentage = feeData ? (feeData.paidFees / feeData.totalFees) * 100 : 0;
+
+  // Student Action Handlers
+  const handleDownloadTranscript = () => {
+    // Create a mock PDF download
+    const link = document.createElement('a');
+    link.href = 'data:application/pdf;base64,JVBERi0xLjQKJYqhoralU3ViIFZhcmlhYmxlcy9GaWxsYWJsZSAvUGFnZTF8';
+    link.download = `transcript_${studentData?.student_id || 'student'}.pdf`;
+    link.click();
+    toast({
+      title: "Success",
+      description: "Transcript downloaded successfully"
+    });
+  };
+
+  const handleSubmitAssignment = () => {
+    // Open file upload dialog simulation
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        toast({
+          title: "Assignment Submitted",
+          description: `${file.name} uploaded successfully`
+        });
+      }
+    };
+    input.click();
+  };
+
+  const handleLibraryServices = () => {
+    toast({
+      title: "Library Services",
+      description: "Opening digital library portal...",
+      action: (
+        <Button variant="outline" size="sm">
+          Visit Library
+        </Button>
+      )
+    });
+  };
+
+  const handleContactAdvisor = () => {
+    toast({
+      title: "Academic Advisor",
+      description: "Connecting to advisor chat...",
+      action: (
+        <Button variant="outline" size="sm">
+          Start Chat
+        </Button>
+      )
+    });
+  };
+
+  const handleMakePayment = () => {
+    toast({
+      title: "Fee Payment",
+      description: "Redirecting to secure payment gateway...",
+      action: (
+        <Button variant="outline" size="sm">
+          Proceed
+        </Button>
+      )
+    });
+  };
 
   const menuGroups = [
     {
@@ -177,6 +245,7 @@ const StudentDashboard = () => {
                 <Button 
                   variant="outline" 
                   className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  onClick={handleDownloadTranscript}
                 >
                   <Download className="h-8 w-8 text-primary" />
                   <span className="font-medium">Download Transcript</span>
@@ -184,6 +253,7 @@ const StudentDashboard = () => {
                 <Button 
                   variant="outline" 
                   className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  onClick={handleSubmitAssignment}
                 >
                   <Upload className="h-8 w-8 text-emerald-600" />
                   <span className="font-medium">Submit Assignment</span>
@@ -191,6 +261,7 @@ const StudentDashboard = () => {
                 <Button 
                   variant="outline" 
                   className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  onClick={handleLibraryServices}
                 >
                   <Library className="h-8 w-8 text-amber-600" />
                   <span className="font-medium">Library Services</span>
@@ -198,6 +269,7 @@ const StudentDashboard = () => {
                 <Button 
                   variant="outline" 
                   className="h-24 flex flex-col gap-3 hover:shadow-lg hover:scale-105 transition-all duration-200 bg-gradient-to-br from-background to-muted/30 border-2"
+                  onClick={handleContactAdvisor}
                 >
                   <MessageSquare className="h-8 w-8 text-violet-600" />
                   <span className="font-medium">Contact Advisor</span>
@@ -270,7 +342,10 @@ const StudentDashboard = () => {
                     <p className="text-sm text-muted-foreground text-center">{feePercentage.toFixed(1)}% completed</p>
                   </div>
                 </div>
-                <Button className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70">
+                <Button 
+                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                  onClick={handleMakePayment}
+                >
                   Make Payment
                 </Button>
               </CardContent>

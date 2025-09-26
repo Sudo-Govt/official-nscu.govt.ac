@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Heart, Users, Calendar, LogOut, Network, GraduationCap, Briefcase, Award, Globe, Coffee, BookOpen, Mail, User, FileText, DollarSign, Settings, HelpCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import AlumniProfile from '@/components/alumni/AlumniProfile';
 import AlumniNetworking from '@/components/alumni/AlumniNetworking';
 import AlumniCareer from '@/components/alumni/AlumniCareer';
@@ -13,6 +14,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 
 const AlumniDashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const alumniStats = {
@@ -40,13 +42,27 @@ const AlumniDashboard = () => {
   ];
 
   const handleDonationClick = () => {
-    // Placeholder for donation functionality
-    alert('Donation portal coming soon! You can contribute to scholarships, research, and campus improvements.');
+    toast({
+      title: "Alumni Giving",
+      description: "Redirecting to donation portal...",
+      action: (
+        <Button variant="outline" size="sm">
+          Donate Now
+        </Button>
+      )
+    });
   };
 
   const handleEventClick = () => {
-    // Placeholder for events functionality  
-    alert('Events calendar coming soon! Register for reunions, networking events, and professional development.');
+    toast({
+      title: "Alumni Events", 
+      description: "Opening events calendar...",
+      action: (
+        <Button variant="outline" size="sm">
+          View Events
+        </Button>
+      )
+    });
   };
 
   const renderDashboardOverview = () => (

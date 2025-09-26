@@ -27,11 +27,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .single();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        setIsLoading(false);
+        return;
+      }
       
       if (profile) {
         const { data: authUser } = await supabase.auth.getUser();
@@ -86,15 +92,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      setIsLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
-      return !error;
+      if (error) {
+        console.error('Login error:', error);
+        return false;
+      }
+      
+      return true;
     } catch (error) {
       console.error('Login error:', error);
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 

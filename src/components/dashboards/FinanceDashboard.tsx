@@ -6,11 +6,41 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CreditCard, Receipt, TrendingUp, Users, LogOut, FileText, DollarSign, BarChart3, User } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
 
 const FinanceDashboard = () => {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = React.useState('overview');
+
+  const handleRecordPayment = () => {
+    toast({
+      title: "Record Payment",
+      description: "Payment recording interface will open here",
+    });
+  };
+
+  const handleGenerateReceipt = () => {
+    toast({
+      title: "Generate Receipt",
+      description: "Creating new receipt...",
+    });
+  };
+
+  const handleDownloadAll = () => {
+    toast({
+      title: "Download All Receipts",
+      description: "Preparing receipt archive...",
+    });
+  };
+
+  const handleReportClick = (reportType: string) => {
+    toast({
+      title: `${reportType} Report`,
+      description: "Generating report...",
+    });
+  };
 
   const menuGroups = [
     {
@@ -217,7 +247,7 @@ const FinanceDashboard = () => {
             <div className="text-center py-8">
               <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">Fee collection interface will be available here</p>
-              <Button className="mt-4">Record Payment</Button>
+              <Button className="mt-4" onClick={handleRecordPayment}>Record Payment</Button>
             </div>
           </CardContent>
         </Card>
@@ -234,8 +264,8 @@ const FinanceDashboard = () => {
               <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">Receipt generation and management tools</p>
               <div className="flex gap-2 justify-center mt-4">
-                <Button>Generate Receipt</Button>
-                <Button variant="outline">Download All</Button>
+                <Button onClick={handleGenerateReceipt}>Generate Receipt</Button>
+                <Button variant="outline" onClick={handleDownloadAll}>Download All</Button>
               </div>
             </div>
           </CardContent>
@@ -250,27 +280,27 @@ const FinanceDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Button variant="outline" className="h-20 flex-col">
+              <Button variant="outline" className="h-20 flex-col" onClick={() => handleReportClick("Daily Collection")}>
                 <FileText className="h-6 w-6 mb-2" />
                 Daily Collection Report
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button variant="outline" className="h-20 flex-col" onClick={() => handleReportClick("Monthly Balance Sheet")}>
                 <TrendingUp className="h-6 w-6 mb-2" />
                 Monthly Balance Sheet
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button variant="outline" className="h-20 flex-col" onClick={() => handleReportClick("Student Payment Status")}>
                 <Users className="h-6 w-6 mb-2" />
                 Student Payment Status
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button variant="outline" className="h-20 flex-col" onClick={() => handleReportClick("Revenue Analysis")}>
                 <DollarSign className="h-6 w-6 mb-2" />
                 Revenue Analysis
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button variant="outline" className="h-20 flex-col" onClick={() => handleReportClick("Receipt Register")}>
                 <Receipt className="h-6 w-6 mb-2" />
                 Receipt Register
               </Button>
-              <Button variant="outline" className="h-20 flex-col">
+              <Button variant="outline" className="h-20 flex-col" onClick={() => handleReportClick("Payment Mode")}>
                 <CreditCard className="h-6 w-6 mb-2" />
                 Payment Mode Report
               </Button>

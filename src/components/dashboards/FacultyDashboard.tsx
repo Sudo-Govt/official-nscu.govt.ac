@@ -6,12 +6,21 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { BookOpen, Users, Calendar, LogOut, User } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import ChangePassword from '@/components/ChangePassword';
 import DashboardLayout from '@/components/DashboardLayout';
 
 const FacultyDashboard = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = React.useState('overview');
+
+  const handleEditProfile = () => {
+    toast({
+      title: "Edit Profile",
+      description: "Profile editing feature coming soon!",
+    });
+  };
 
   const menuGroups = [
     {
@@ -106,7 +115,7 @@ const FacultyDashboard = () => {
                 <p className="text-sm text-muted-foreground mt-1">Computer Science</p>
               </div>
             </div>
-            <Button>Edit Profile</Button>
+            <Button onClick={handleEditProfile}>Edit Profile</Button>
           </CardContent>
         </Card>
       )}
