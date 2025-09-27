@@ -29,6 +29,7 @@ import DiversityInclusion from "./pages/about/DiversityInclusion";
 import SchoolArts from "./pages/academics/SchoolArts";
 import SchoolScience from "./pages/academics/SchoolScience";
 import CollegeEngineering from "./pages/academics/CollegeEngineering";
+import CollegeArtsSciences from "./pages/academics/CollegeArtsSciences";
 import SchoolBusiness from "./pages/academics/SchoolBusiness";
 import CollegeHealthSciences from "./pages/academics/CollegeHealthSciences";
 import SchoolMedicine from "./pages/academics/SchoolMedicine";
@@ -51,6 +52,7 @@ import GraduateAdmissions from "./pages/admissions/GraduateAdmissions";
 import InternationalAdmissions from "./pages/admissions/InternationalAdmissions";
 import TransferAdmissions from "./pages/admissions/TransferAdmissions";
 import FinancialAid from "./pages/admissions/FinancialAid";
+import CampusTours from "./pages/admissions/CampusTours";
 import AdmissionApplication from "./pages/AdmissionApplication";
 
 // Student Life pages
@@ -60,9 +62,11 @@ import HealthWellness from "./pages/student-life/HealthWellness";
 import CareerServices from "./pages/student-life/CareerServices";
 import StudentOrganizations from "./pages/student-life/StudentOrganizations";
 import CampusRecreation from "./pages/student-life/CampusRecreation";
+import ArtsCulture from "./pages/student-life/Artsculture";
 
 // Research pages
 import ResearchOffice from "./pages/research/ResearchOffice";
+import UndergraduateResearch from "./pages/research/UndergraduateResearch";
 import FundingOpportunities from "./pages/research/FundingOpportunities";
 import CoreFacilities from "./pages/research/CoreFacilities";
 import TechnologyTransfer from "./pages/research/TechnologyTransfer";
@@ -71,6 +75,7 @@ import TechnologyTransfer from "./pages/research/TechnologyTransfer";
 import AlumniAssociation from "./pages/alumni/AlumniAssociation";
 import AlumniBenefits from "./pages/alumni/AlumniBenefits";
 import AlumniEvents from "./pages/alumni/AlumniEvents";
+import CareerNetworking from "./pages/alumni/CareerNetworking";
 import GiveBack from "./pages/alumni/GiveBack";
 
 // Colleges pages
@@ -93,6 +98,12 @@ import AcademicPolicies from "./pages/resources/AcademicPolicies";
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import TermsOfUse from "./pages/legal/TermsOfUse";
 import TermsDisclaimer from "./pages/legal/TermsDisclaimer";
+
+// Portal pages
+import MyNSCU from "./pages/portal/MyNSCU";
+
+// Site pages
+import Sitemap from "./pages/Sitemap";
 
 // Campus Life pages
 import GreekLife from "./pages/campus-life/GreekLife";
@@ -148,6 +159,7 @@ const App = () => (
           <Route path="/academics/school-arts" element={<SchoolArts />} />
           <Route path="/academics/school-science" element={<SchoolScience />} />
           <Route path="/academics/college-engineering" element={<CollegeEngineering />} />
+          <Route path="/academics/college-arts-sciences" element={<CollegeArtsSciences />} />
           <Route path="/academics/school-business" element={<SchoolBusiness />} />
           <Route path="/academics/college-health-sciences" element={<CollegeHealthSciences />} />
           <Route path="/academics/school-medicine" element={<SchoolMedicine />} />
@@ -182,6 +194,7 @@ const App = () => (
           <Route path="/admissions/international" element={<InternationalAdmissions />} />
           <Route path="/admissions/transfer" element={<TransferAdmissions />} />
           <Route path="/admissions/financial-aid" element={<FinancialAid />} />
+          <Route path="/admissions/tours" element={<CampusTours />} />
           <Route path="/admissions/apply" element={<AdmissionApplication />} />
           
           {/* Student Life Routes */}
@@ -191,9 +204,11 @@ const App = () => (
           <Route path="/student-life/career-services" element={<CareerServices />} />
           <Route path="/student-life/organizations" element={<StudentOrganizations />} />
           <Route path="/student-life/recreation" element={<CampusRecreation />} />
+          <Route path="/student-life/artsculture" element={<ArtsCulture />} />
           
           {/* Research Routes */}
           <Route path="/research/office" element={<ResearchOffice />} />
+          <Route path="/research/undergraduate" element={<UndergraduateResearch />} />
           <Route path="/research/funding" element={<FundingOpportunities />} />
           <Route path="/research/core-facilities" element={<CoreFacilities />} />
           <Route path="/research/technology-transfer" element={<TechnologyTransfer />} />
@@ -202,6 +217,7 @@ const App = () => (
           <Route path="/alumni/association" element={<AlumniAssociation />} />
           <Route path="/alumni/benefits" element={<AlumniBenefits />} />
           <Route path="/alumni/events" element={<AlumniEvents />} />
+          <Route path="/alumni/career-networking" element={<CareerNetworking />} />
           <Route path="/alumni/give-back" element={<GiveBack />} />
           
           {/* Colleges Routes */}
@@ -228,6 +244,12 @@ const App = () => (
           {/* Campus Life Routes */}
           <Route path="/campus-life/greek-life" element={<GreekLife />} />
           <Route path="/campus-life/intramurals" element={<IntramuralsSpecial />} />
+          
+          {/* Portal Routes */}
+          <Route path="/portal/mynscu" element={<MyNSCU />} />
+          
+          {/* Site Routes */}
+          <Route path="/sitemap" element={<Sitemap />} />
           
           {/* News Routes */}
           <Route path="/news/university-news" element={<UniversityNews />} />

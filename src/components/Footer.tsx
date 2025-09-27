@@ -15,7 +15,7 @@ const Footer = () => {
             <div className="space-y-2">
               <h4 className="font-semibold text-sm mb-2">Colleges & Schools</h4>
               <ul className="space-y-1 text-sm text-gray-300">
-                <li><Link to="/academics/college-engineering" className="hover:text-uw-gold transition-colors">College of Arts & Sciences</Link></li>
+                <li><Link to="/academics/college-arts-sciences" className="hover:text-uw-gold transition-colors">College of Arts & Sciences</Link></li>
                 <li><Link to="/academics/college-engineering" className="hover:text-uw-gold transition-colors">College of Engineering</Link></li>
                 <li><Link to="/academics/school-business" className="hover:text-uw-gold transition-colors">School of Business</Link></li>
                 <li><Link to="/academics/college-health-sciences" className="hover:text-uw-gold transition-colors">College of Health Sciences</Link></li>
@@ -44,7 +44,7 @@ const Footer = () => {
                 <li><Link to="/student-life/career-services" className="hover:text-uw-gold transition-colors">Career Services</Link></li>
                 <li><Link to="/student-life/organizations" className="hover:text-uw-gold transition-colors">Student Organizations</Link></li>
                 <li><Link to="/student-life/recreation" className="hover:text-uw-gold transition-colors">Campus Recreation</Link></li>
-                <li><Link to="/student-life/dining" className="hover:text-uw-gold transition-colors">Arts & Culture</Link></li>
+                <li><Link to="/student-life/artsculture" className="hover:text-uw-gold transition-colors">Arts & Culture</Link></li>
               </ul>
               
               <h4 className="font-semibold text-sm mb-2 mt-4">Admissions</h4>
@@ -54,7 +54,7 @@ const Footer = () => {
                 <li><Link to="/admissions/international" className="hover:text-uw-gold transition-colors">International Admissions</Link></li>
                 <li><Link to="/admissions/transfer" className="hover:text-uw-gold transition-colors">Transfer Admissions</Link></li>
                 <li><Link to="/admissions/financial-aid" className="hover:text-uw-gold transition-colors">Financial Aid</Link></li>
-                <li><Link to="/home/virtual-tour" className="hover:text-uw-gold transition-colors">Campus Tours</Link></li>
+                <li><Link to="/admissions/tours" className="hover:text-uw-gold transition-colors">Campus Tours</Link></li>
               </ul>
             </div>
           </div>
@@ -69,14 +69,14 @@ const Footer = () => {
                 <li><Link to="/research/funding" className="hover:text-uw-gold transition-colors">Funding Opportunities</Link></li>
                 <li><Link to="/research/core-facilities" className="hover:text-uw-gold transition-colors">Core Facilities</Link></li>
                 <li><Link to="/research/technology-transfer" className="hover:text-uw-gold transition-colors">Technology Transfer</Link></li>
-                <li><Link to="/research/funding" className="hover:text-uw-gold transition-colors">Undergraduate Research</Link></li>
+                <li><Link to="/research/undergraduate" className="hover:text-uw-gold transition-colors">Undergraduate Research</Link></li>
               </ul>
               
               <h4 className="font-semibold text-sm mb-2 mt-4">Alumni</h4>
               <ul className="space-y-1 text-sm text-gray-300">
                 <li><Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni Association</Link></li>
                 <li><Link to="/alumni/benefits" className="hover:text-uw-gold transition-colors">Alumni Benefits</Link></li>
-                <li><Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Career Networking</Link></li>
+                <li><Link to="/alumni/career-networking" className="hover:text-uw-gold transition-colors">Career Networking</Link></li>
                 <li><Link to="/alumni/events" className="hover:text-uw-gold transition-colors">Alumni Events</Link></li>
                 <li><Link to="/alumni/give-back" className="hover:text-uw-gold transition-colors">Give Back</Link></li>
                 <li><Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni Directory</Link></li>

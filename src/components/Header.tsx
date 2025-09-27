@@ -12,9 +12,11 @@ import {
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
+import SearchDialog from './SearchDialog';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const menuData = [
     {
@@ -211,7 +213,12 @@ const Header = () => {
 
           {/* Search and Mobile Menu */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" className="hidden md:flex">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="hidden md:flex"
+              onClick={() => setIsSearchOpen(true)}
+            >
               <Search className="h-4 w-4" />
             </Button>
             <Button
@@ -271,6 +278,8 @@ const Header = () => {
           </div>
         )}
       </div>
+      
+      <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </header>
   );
 };
