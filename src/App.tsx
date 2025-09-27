@@ -212,6 +212,19 @@ const App = () => (
           <Route path="/research/funding" element={<FundingOpportunities />} />
           <Route path="/research/core-facilities" element={<CoreFacilities />} />
           <Route path="/research/technology-transfer" element={<TechnologyTransfer />} />
+          <Route path="/research/centers" element={<ResearchCenters />} />
+          
+          {/* Athletics Routes */}
+          <Route path="/athletics" element={<Athletics />} />
+          
+          {/* Faculty Routes */}
+          <Route path="/faculty/directory" element={<FacultyDirectory />} />
+          
+          {/* Campus Routes */}
+          <Route path="/campus/facilities" element={<CampusFacilities />} />
+          
+          {/* International Routes */}
+          <Route path="/international/programs" element={<InternationalPrograms />} />
           
           {/* Alumni Routes */}
           <Route path="/alumni/association" element={<AlumniAssociation />} />
