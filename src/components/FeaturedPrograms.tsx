@@ -4,6 +4,7 @@ import { GraduationCap, Microscope, Code, Briefcase, Heart, BookOpen } from 'luc
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface Course {
   id: string;
@@ -28,6 +29,7 @@ const getIconForCollege = (college: string) => {
 };
 
 const FeaturedPrograms = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -117,7 +119,11 @@ const FeaturedPrograms = () => {
         </div>
 
         <div className="text-center">
-          <Button size="lg" className="bg-uw-purple hover:bg-uw-dark text-white">
+          <Button 
+            size="lg" 
+            className="bg-uw-purple hover:bg-uw-dark text-white"
+            onClick={() => navigate('/academics/course-catalog')}
+          >
             Explore All Programs
           </Button>
         </div>

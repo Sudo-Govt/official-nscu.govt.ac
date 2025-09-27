@@ -2,8 +2,11 @@
 import { ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DynamicAdmissionsBanner from '@/components/DynamicAdmissionsBanner';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative h-[600px] bg-gradient-to-r from-uw-purple to-uw-dark overflow-hidden">
       {/* Background Image */}
@@ -29,11 +32,20 @@ const HeroSection = () => {
                 Earn prestigious degrees with flexible study options designed for working professionals.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 animate-fade-in">
-                <Button size="lg" className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark font-semibold">
+                <Button 
+                  size="lg" 
+                  className="bg-uw-gold hover:bg-uw-gold/90 text-uw-dark font-semibold"
+                  onClick={() => navigate('/admissions/apply')}
+                >
                   Apply Now
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-uw-purple">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-white text-white hover:bg-white hover:text-uw-purple"
+                  onClick={() => navigate('/home/virtual-tour')}
+                >
                   <Play className="mr-2 h-5 w-5" />
                   Take a Virtual Tour
                 </Button>

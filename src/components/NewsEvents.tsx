@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import DynamicAdmissionsBanner from '@/components/DynamicAdmissionsBanner';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface Announcement {
   id: string;
@@ -27,6 +28,7 @@ interface AcademicEvent {
 }
 
 const NewsEvents = () => {
+  const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [events, setEvents] = useState<AcademicEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +102,11 @@ const NewsEvents = () => {
 
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-bold text-uw-purple">Latest News</h2>
-              <Button variant="outline" className="border-uw-purple text-uw-purple hover:bg-uw-purple hover:text-white">
+              <Button 
+                variant="outline" 
+                className="border-uw-purple text-uw-purple hover:bg-uw-purple hover:text-white"
+                onClick={() => navigate('/news/university-news')}
+              >
                 View All News
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -186,7 +192,10 @@ const NewsEvents = () => {
               ))}
             </div>
 
-            <Button className="w-full mt-6 bg-uw-purple hover:bg-uw-dark text-white">
+            <Button 
+              className="w-full mt-6 bg-uw-purple hover:bg-uw-dark text-white"
+              onClick={() => navigate('/events/calendar')}
+            >
               View Full Calendar
             </Button>
           </div>
