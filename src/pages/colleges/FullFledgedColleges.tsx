@@ -28,7 +28,7 @@ const FullFledgedColleges = () => {
         paperChecking: true,
         results: true
       },
-      accreditation: "NAAC A+",
+      accreditation: "GCHEA Accredited",
       totalStudents: 16500,
       facultyCount: 1250,
       departments: 28,
@@ -59,7 +59,7 @@ const FullFledgedColleges = () => {
         paperChecking: true,
         results: true
       },
-      accreditation: "NAAC A",
+      accreditation: "GCHEA Accredited",
       totalStudents: 12100,
       facultyCount: 890,
       departments: 22,
@@ -90,7 +90,7 @@ const FullFledgedColleges = () => {
         paperChecking: true,
         results: true
       },
-      accreditation: "NAAC A+",
+      accreditation: "GCHEA Accredited",
       totalStudents: 15500,
       facultyCount: 1180,
       departments: 25,
@@ -121,7 +121,7 @@ const FullFledgedColleges = () => {
         paperChecking: true,
         results: true
       },
-      accreditation: "NAAC A",
+      accreditation: "GCHEA Accredited",
       totalStudents: 11000,
       facultyCount: 780,
       departments: 20,
@@ -152,7 +152,7 @@ const FullFledgedColleges = () => {
         paperChecking: true,
         results: true
       },
-      accreditation: "NAAC A+",
+      accreditation: "GCHEA Accredited",
       totalStudents: 14700,
       facultyCount: 1050,
       departments: 26,
@@ -183,7 +183,7 @@ const FullFledgedColleges = () => {
         paperChecking: true,
         results: true
       },
-      accreditation: "NAAC A",
+      accreditation: "GCHEA Accredited",
       totalStudents: 9200,
       facultyCount: 650,
       departments: 18,
