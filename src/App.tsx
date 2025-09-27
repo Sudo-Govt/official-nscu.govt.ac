@@ -105,6 +105,13 @@ import MyNSCU from "./pages/portal/MyNSCU";
 // Site pages
 import Sitemap from "./pages/Sitemap";
 
+// New Phase 3 pages
+import Athletics from "./pages/athletics/Athletics";
+import ResearchCenters from "./pages/research/ResearchCenters";
+import FacultyDirectory from "./pages/faculty/FacultyDirectory";
+import CampusFacilities from "./pages/campus/CampusFacilities";
+import InternationalPrograms from "./pages/international/InternationalPrograms";
+
 // Campus Life pages
 import GreekLife from "./pages/campus-life/GreekLife";
 import IntramuralsSpecial from "./pages/campus-life/Intramurals";
