@@ -1274,6 +1274,127 @@ export type Database = {
           },
         ]
       }
+      email_attachments: {
+        Row: {
+          created_at: string | null
+          email_id: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_id: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_id?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_attachments_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emails: {
+        Row: {
+          bcc: string | null
+          body: string
+          cc: string | null
+          created_at: string | null
+          email_type: string
+          error_message: string | null
+          from_email: string
+          from_name: string | null
+          id: string
+          in_reply_to: string | null
+          is_read: boolean | null
+          is_starred: boolean | null
+          metadata: Json | null
+          received_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          thread_id: string | null
+          to_email: string
+          to_name: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bcc?: string | null
+          body: string
+          cc?: string | null
+          created_at?: string | null
+          email_type?: string
+          error_message?: string | null
+          from_email: string
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          metadata?: Json | null
+          received_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          thread_id?: string | null
+          to_email: string
+          to_name?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bcc?: string | null
+          body?: string
+          cc?: string | null
+          created_at?: string | null
+          email_type?: string
+          error_message?: string | null
+          from_email?: string
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          metadata?: Json | null
+          received_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          thread_id?: string | null
+          to_email?: string
+          to_name?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emails_in_reply_to_fkey"
+            columns: ["in_reply_to"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fee_payments: {
         Row: {
           amount: number

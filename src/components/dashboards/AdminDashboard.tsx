@@ -50,6 +50,10 @@ import AvatarUpload from '@/components/AvatarUpload';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 import EmailSettings from '@/components/admin/EmailSettings';
+import EmailInbox from '@/components/admin/email/EmailInbox';
+import EmailSent from '@/components/admin/email/EmailSent';
+import EmailDrafts from '@/components/admin/email/EmailDrafts';
+import EmailComposer from '@/components/admin/email/EmailComposer';
 
 interface Student {
   id: string;
@@ -697,6 +701,15 @@ const AdminDashboard = () => {
       ]
     },
     {
+      label: "Email",
+      items: [
+        { title: "Inbox", icon: Mail, value: "email-inbox", onClick: () => setCurrentTab("email-inbox") },
+        { title: "Sent", icon: FileText, value: "email-sent", onClick: () => setCurrentTab("email-sent") },
+        { title: "Drafts", icon: Edit, value: "email-drafts", onClick: () => setCurrentTab("email-drafts") },
+        { title: "Compose", icon: Bell, value: "email-compose", onClick: () => setCurrentTab("email-compose") },
+      ]
+    },
+    {
       label: "Admissions",
       items: [
         { title: "Applications", icon: FileText, value: "applications", onClick: () => setCurrentTab("applications") },
@@ -717,7 +730,7 @@ const AdminDashboard = () => {
       label: "Settings",
       items: [
         { title: "Profile", icon: User, value: "profile", onClick: () => setCurrentTab("profile") },
-        { title: "Email Settings", icon: Mail, value: "email", onClick: () => setCurrentTab("email") },
+        { title: "SMTP Settings", icon: Settings, value: "email", onClick: () => setCurrentTab("email") },
         { title: "System Settings", icon: Settings, value: "settings", onClick: () => setCurrentTab("settings") },
       ]
     }
@@ -1025,6 +1038,10 @@ const AdminDashboard = () => {
           <ChangePassword />
         </div>
       )}
+      {currentTab === "email-inbox" && <EmailInbox />}
+      {currentTab === "email-sent" && <EmailSent />}
+      {currentTab === "email-drafts" && <EmailDrafts />}
+      {currentTab === "email-compose" && <EmailComposer />}
       {currentTab === "email" && <EmailSettings />}
       {currentTab === "settings" && <SystemSettings />}
 
