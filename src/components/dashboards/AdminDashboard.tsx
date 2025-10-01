@@ -156,6 +156,7 @@ const AdminDashboard = () => {
   const [announcementContent, setAnnouncementContent] = useState('');
   const [announcementPriority, setAnnouncementPriority] = useState('normal');
   const [announcementAudience, setAnnouncementAudience] = useState('all');
+  const [announcementExpiresAt, setAnnouncementExpiresAt] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -326,7 +327,8 @@ const AdminDashboard = () => {
             title: announcementTitle,
             content: announcementContent,
             priority: announcementPriority,
-            target_audience: announcementAudience
+            target_audience: announcementAudience,
+            expires_at: announcementExpiresAt || null
           })
           .eq('id', editingAnnouncement.id);
 
@@ -345,6 +347,7 @@ const AdminDashboard = () => {
             content: announcementContent,
             priority: announcementPriority,
             target_audience: announcementAudience,
+            expires_at: announcementExpiresAt || null,
             created_by: user?.id
           });
 
@@ -363,6 +366,7 @@ const AdminDashboard = () => {
       setAnnouncementContent('');
       setAnnouncementPriority('normal');
       setAnnouncementAudience('all');
+      setAnnouncementExpiresAt('');
       fetchData();
     } catch (error) {
       console.error('Error with announcement:', error);
@@ -565,7 +569,47 @@ const AdminDashboard = () => {
     setAnnouncementContent(announcement.content);
     setAnnouncementPriority(announcement.priority);
     setAnnouncementAudience(announcement.target_audience);
+    setAnnouncementExpiresAt(announcement.expires_at ? announcement.expires_at.split('T')[0] : '');
     setAnnouncementDialogOpen(true);
+  };
+
+  const handleAddAnnouncement = () => {
+    setEditingAnnouncement(null);
+    setAnnouncementTitle('');
+    setAnnouncementContent('');
+    setAnnouncementPriority('normal');
+    setAnnouncementAudience('all');
+    setAnnouncementExpiresAt('');
+    setAnnouncementDialogOpen(true);
+  };
+
+  const handleDeleteAnnouncement = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this announcement?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('announcements')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Announcement deleted successfully"
+      });
+
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting announcement:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete announcement",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleViewReports = () => {
@@ -861,11 +905,82 @@ const AdminDashboard = () => {
       {currentTab === "announcements" && (
         <Card>
           <CardHeader>
-            <CardTitle>Announcements</CardTitle>
-            <CardDescription>Create and manage announcements</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl font-bold">Announcements</CardTitle>
+                <CardDescription className="text-lg mt-2">Create and manage announcements for homepage and users</CardDescription>
+              </div>
+              <Button onClick={handleAddAnnouncement} className="h-12">
+                <Bell className="mr-2 h-5 w-5" />
+                New Announcement
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <p>Announcements management interface coming soon</p>
+            <div className="space-y-4">
+              {announcements.length === 0 ? (
+                <div className="text-center py-12">
+                  <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg text-muted-foreground">No announcements yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Create your first announcement to display on the homepage</p>
+                </div>
+              ) : (
+                announcements.map((announcement) => (
+                  <div key={announcement.id} className="flex items-start justify-between p-6 border rounded-xl hover:shadow-lg transition-all">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-semibold text-lg">{announcement.title}</h3>
+                        <Badge variant={announcement.priority === 'high' ? 'destructive' : 'default'}>
+                          {announcement.priority}
+                        </Badge>
+                        <Badge variant={announcement.is_active ? 'default' : 'secondary'}>
+                          {announcement.is_active ? 'Active' : 'Inactive'}
+                        </Badge>
+                        <Badge variant="outline">
+                          {announcement.target_audience}
+                        </Badge>
+                      </div>
+                      <div 
+                        className="prose prose-sm max-w-none mb-3"
+                        dangerouslySetInnerHTML={{ __html: announcement.content }}
+                      />
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>Created: {new Date(announcement.created_at).toLocaleDateString()}</span>
+                        {announcement.expires_at && (
+                          <span>Expires: {new Date(announcement.expires_at).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleAnnouncementStatus(announcement.id, announcement.is_active)}
+                      >
+                        {announcement.is_active ? 'Deactivate' : 'Activate'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditAnnouncement(announcement)}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteAnnouncement(announcement.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -1120,6 +1235,97 @@ const AdminDashboard = () => {
             </Button>
             <Button onClick={handleSaveStudent}>
               {editingStudent ? 'Update Student' : 'Add Student'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={announcementDialogOpen} onOpenChange={setAnnouncementDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              {editingAnnouncement ? 'Edit Announcement' : 'Create Announcement'}
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Create announcements with HTML/CSS styling that will appear on the homepage
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="ann-title" className="text-base font-medium">Title *</Label>
+              <Input
+                id="ann-title"
+                value={announcementTitle}
+                onChange={(e) => setAnnouncementTitle(e.target.value)}
+                placeholder="Enter announcement title"
+                className="h-12"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ann-content" className="text-base font-medium">
+                Content (HTML/CSS Supported) *
+              </Label>
+              <Textarea
+                id="ann-content"
+                value={announcementContent}
+                onChange={(e) => setAnnouncementContent(e.target.value)}
+                placeholder="Enter announcement content. You can use HTML tags like <strong>, <em>, <p>, <ul>, <li>, etc."
+                className="min-h-[200px] font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Example: &lt;p&gt;Welcome to &lt;strong&gt;NSCU&lt;/strong&gt;! Check out our &lt;a href="/programs"&gt;programs&lt;/a&gt;.&lt;/p&gt;
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="ann-priority" className="text-base font-medium">Priority</Label>
+                <Select value={announcementPriority} onValueChange={setAnnouncementPriority}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="high">High (Red Alert)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ann-audience" className="text-base font-medium">Target Audience</Label>
+                <Select value={announcementAudience} onValueChange={setAnnouncementAudience}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Select audience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All (Homepage)</SelectItem>
+                    <SelectItem value="students">Students Only</SelectItem>
+                    <SelectItem value="faculty">Faculty Only</SelectItem>
+                    <SelectItem value="staff">Staff Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ann-expires" className="text-base font-medium">Expiry Date (Optional)</Label>
+              <Input
+                id="ann-expires"
+                type="date"
+                value={announcementExpiresAt}
+                onChange={(e) => setAnnouncementExpiresAt(e.target.value)}
+                className="h-12"
+                min={new Date().toISOString().split('T')[0]}
+              />
+              <p className="text-xs text-muted-foreground">
+                Leave empty for no expiration. Announcement will auto-hide after this date.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAnnouncementDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateAnnouncement}>
+              {editingAnnouncement ? 'Update Announcement' : 'Create Announcement'}
             </Button>
           </DialogFooter>
         </DialogContent>
