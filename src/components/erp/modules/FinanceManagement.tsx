@@ -295,7 +295,7 @@ const FinanceManagement = () => {
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
     
     // Receipt title
     doc.setTextColor(0, 0, 0);
@@ -354,7 +354,7 @@ const FinanceManagement = () => {
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
     
-    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
     doc.text('123 University Avenue, Campus City, ST 12345', pageWidth / 2, footerY + 13, { align: 'center' });
     doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 18, { align: 'center' });
     doc.text('Website: www.nscu.edu', pageWidth / 2, footerY + 23, { align: 'center' });
@@ -382,7 +382,7 @@ const FinanceManagement = () => {
     doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
     
     // Report title
     doc.setTextColor(0, 0, 0);
@@ -447,7 +447,7 @@ const FinanceManagement = () => {
     doc.line(20, footerY, pageWidth - 20, footerY);
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
-    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
     doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
     
     doc.save(`NSCU_Monthly_Revenue_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -468,7 +468,7 @@ const FinanceManagement = () => {
     doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
     
     // Report title
     doc.setTextColor(0, 0, 0);
@@ -535,7 +535,7 @@ const FinanceManagement = () => {
     doc.line(20, footerY, pageWidth - 20, footerY);
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
-    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
     doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
     
     doc.save(`NSCU_Outstanding_Dues_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -559,7 +559,7 @@ const FinanceManagement = () => {
     doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
     
     // Report title
     doc.setTextColor(0, 0, 0);
@@ -623,7 +623,7 @@ const FinanceManagement = () => {
     doc.line(20, footerY, pageWidth - 20, footerY);
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
-    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
     doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
     
     doc.save(`NSCU_Scholarship_Distribution_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -655,7 +655,7 @@ const FinanceManagement = () => {
     doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
     
     // Report title
     doc.setTextColor(0, 0, 0);
@@ -704,7 +704,7 @@ const FinanceManagement = () => {
     doc.line(20, footerY, pageWidth - 20, footerY);
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
-    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
     doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
     
     doc.save(`NSCU_Payment_Methods_Analysis_${new Date().toISOString().split('T')[0]}.pdf`);

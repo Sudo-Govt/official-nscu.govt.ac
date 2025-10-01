@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Filter, Eye, Edit, Trash2, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { Search, Filter, Eye, Edit, Trash2, CheckCircle, XCircle, FileText, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface StudentApplication {
@@ -47,6 +47,9 @@ const ApplicationManagement = () => {
   const [selectedApplication, setSelectedApplication] = useState<StudentApplication | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [reviewAction, setReviewAction] = useState<'accept' | 'reject'>('accept');
+  const [documentsDialogOpen, setDocumentsDialogOpen] = useState(false);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -161,6 +164,63 @@ const ApplicationManagement = () => {
       toast({
         title: "Error",
         description: "Failed to delete application",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleViewDocuments = async (application: StudentApplication) => {
+    setSelectedApplication(application);
+    setDocumentsDialogOpen(true);
+    setLoadingDocuments(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('student_documents')
+        .select('*')
+        .eq('application_id', application.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setDocuments(data || []);
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load documents",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingDocuments(false);
+    }
+  };
+
+  const handleDownloadDocument = async (filePath: string, fileName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('student-documents')
+        .download(filePath);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Document downloaded successfully"
+      });
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download document",
         variant: "destructive"
       });
     }
@@ -293,7 +353,11 @@ const ApplicationManagement = () => {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleViewDocuments(app)}
+                      >
                         <FileText className="h-4 w-4" />
                       </Button>
                       <Button 
@@ -389,6 +453,81 @@ const ApplicationManagement = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Documents Dialog */}
+      <Dialog open={documentsDialogOpen} onOpenChange={setDocumentsDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Application Documents</DialogTitle>
+            <DialogDescription>
+              {selectedApplication && (
+                <>
+                  Documents for {selectedApplication.first_name} {selectedApplication.last_name} 
+                  ({selectedApplication.application_number})
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {loadingDocuments ? (
+              <div className="text-center py-8">Loading documents...</div>
+            ) : documents.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Document Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Size</TableHead>
+                    <TableHead>Uploaded</TableHead>
+                    <TableHead>Verified</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {documents.map((doc) => (
+                    <TableRow key={doc.id}>
+                      <TableCell className="font-medium">{doc.document_name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {doc.document_type.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {doc.file_size ? `${(doc.file_size / 1024).toFixed(2)} KB` : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(doc.created_at), 'MMM dd, yyyy')}
+                      </TableCell>
+                      <TableCell>
+                        {doc.is_verified ? (
+                          <Badge variant="default">Verified</Badge>
+                        ) : (
+                          <Badge variant="secondary">Pending</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDownloadDocument(doc.file_path, doc.document_name)}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No documents uploaded yet</p>
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
