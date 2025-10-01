@@ -200,10 +200,10 @@ const FinanceManagement = () => {
           <div className="grid gap-2">
             <Label htmlFor="studentSelect">Select Student *</Label>
             <Select onValueChange={handleStudentSelect}>
-              <SelectTrigger className="bg-background z-50">
+              <SelectTrigger>
                 <SelectValue placeholder="Select a student" />
               </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
+              <SelectContent className="bg-background border shadow-md max-h-[300px] overflow-y-auto z-[100]">
                 {students.map((student) => (
                   <SelectItem key={student.id} value={student.id}>
                     {student.first_name} {student.last_name} - {student.application_number || student.student_id}
