@@ -1531,6 +1531,45 @@ export type Database = {
         }
         Relationships: []
       }
+      smtp_settings: {
+        Row: {
+          created_at: string | null
+          from_email: string
+          from_name: string
+          id: string
+          smtp_host: string
+          smtp_password: string
+          smtp_port: number
+          smtp_user: string
+          updated_at: string | null
+          use_tls: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          from_email: string
+          from_name: string
+          id?: string
+          smtp_host: string
+          smtp_password: string
+          smtp_port?: number
+          smtp_user: string
+          updated_at?: string | null
+          use_tls?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          from_email?: string
+          from_name?: string
+          id?: string
+          smtp_host?: string
+          smtp_password?: string
+          smtp_port?: number
+          smtp_user?: string
+          updated_at?: string | null
+          use_tls?: boolean | null
+        }
+        Relationships: []
+      }
       student_applications: {
         Row: {
           academic_documents: Json | null

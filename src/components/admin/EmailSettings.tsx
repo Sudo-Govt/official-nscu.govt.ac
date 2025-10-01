@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Send, Settings } from 'lucide-react';
-import { apiService } from '@/services/api';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const EmailSettings = () => {
@@ -26,23 +26,86 @@ const EmailSettings = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load existing SMTP settings
+    // Load existing SMTP settings or create default ones
     const loadSettings = async () => {
       try {
-        const settings = await apiService.getSmtpSettings();
-        if (settings) {
-          setSmtpSettings(settings);
+        const { data: existingSettings, error: fetchError } = await supabase
+          .from('smtp_settings')
+          .select('*')
+          .single();
+
+        if (existingSettings) {
+          setSmtpSettings({
+            smtp_host: existingSettings.smtp_host,
+            smtp_port: existingSettings.smtp_port,
+            smtp_user: existingSettings.smtp_user,
+            smtp_password: existingSettings.smtp_password,
+            from_email: existingSettings.from_email,
+            from_name: existingSettings.from_name
+          });
+        } else {
+          // Auto-create with provided credentials
+          const defaultSettings = {
+            smtp_host: 'nscu.govt.ac',
+            smtp_port: 465,
+            smtp_user: 'ncore@nscu.govt.ac',
+            smtp_password: '6&T;g4E1EylzaoxOvr',
+            from_email: 'ncore@nscu.govt.ac',
+            from_name: 'nCore NSCU',
+            use_tls: true
+          };
+
+          const { error: insertError } = await supabase
+            .from('smtp_settings')
+            .insert([defaultSettings]);
+
+          if (!insertError) {
+            setSmtpSettings(defaultSettings);
+            toast({
+              title: "Success",
+              description: "SMTP settings auto-configured"
+            });
+          }
         }
       } catch (error) {
         console.error('Error loading SMTP settings:', error);
       }
     };
     loadSettings();
-  }, []);
+  }, [toast]);
 
   const saveSmtpSettings = async () => {
     try {
-      await apiService.updateSmtpSettings(smtpSettings);
+      // Check if settings exist
+      const { data: existing } = await supabase
+        .from('smtp_settings')
+        .select('id')
+        .single();
+
+      if (existing) {
+        // Update existing settings
+        const { error } = await supabase
+          .from('smtp_settings')
+          .update({
+            smtp_host: smtpSettings.smtp_host,
+            smtp_port: smtpSettings.smtp_port,
+            smtp_user: smtpSettings.smtp_user,
+            smtp_password: smtpSettings.smtp_password,
+            from_email: smtpSettings.from_email,
+            from_name: smtpSettings.from_name,
+            use_tls: true
+          })
+          .eq('id', existing.id);
+
+        if (error) throw error;
+      } else {
+        // Insert new settings
+        const { error } = await supabase
+          .from('smtp_settings')
+          .insert([{ ...smtpSettings, use_tls: true }]);
+
+        if (error) throw error;
+      }
       
       toast({
         title: "Success",
