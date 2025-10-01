@@ -1,8 +1,8 @@
-
 import { ArrowRight, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DynamicAdmissionsBanner from '@/components/DynamicAdmissionsBanner';
 import { useNavigate } from 'react-router-dom';
+import heroBanner from '@/assets/hero-banner.jpeg';
 
 const HeroSection = () => {
   const navigate = useNavigate();
@@ -11,9 +11,9 @@ const HeroSection = () => {
     <section className="relative h-[600px] bg-gradient-to-r from-uw-purple to-uw-dark overflow-hidden">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
         style={{
-          backgroundImage: `url(https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80)`
+          backgroundImage: `url(${heroBanner})`
         }}
       />
       
