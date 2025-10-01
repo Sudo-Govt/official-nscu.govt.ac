@@ -9,10 +9,18 @@ import FinanceDashboard from '@/components/dashboards/FinanceDashboard';
 import AlumniDashboard from '@/components/dashboards/AlumniDashboard';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div>Please log in to access your dashboard.</div>;
   }
 
   const renderDashboard = () => {
