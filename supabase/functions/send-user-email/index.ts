@@ -53,7 +53,7 @@ serve(async (req) => {
     // Send via SMTP using user's credentials with STARTTLS
     const client = new SMTPClient({
       connection: {
-        hostname: 'mail.nscu.govt.ac',
+        hostname: 'premium12-2.web-hosting.com',
         port: 587,
         tls: false, // false = STARTTLS, true = direct SSL/TLS
         auth: {
@@ -66,7 +66,8 @@ serve(async (req) => {
       },
     });
 
-    console.log('SMTP client configured for STARTTLS:', 'mail.nscu.govt.ac:587');
+    console.log('SMTP client configured for STARTTLS:', 'premium12-2.web-hosting.com:587');
+    console.log('Sending from:', emailAccount.email_address, 'to:', email.to_email);
 
     await client.send({
       from: `${emailAccount.display_name} <${emailAccount.email_address}>`,

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, UserPlus, RefreshCw, AlertCircle, CheckCircle, Copy } from 'lucide-react';
+import { Mail, UserPlus, RefreshCw, AlertCircle, CheckCircle, Copy, Wifi } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -39,6 +39,7 @@ const EmailAccountManagement = () => {
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string } | null>(null);
   const [showCredentials, setShowCredentials] = useState(false);
+  const [testingConnection, setTestingConnection] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -142,6 +143,40 @@ const EmailAccountManagement = () => {
       });
     } finally {
       setCreating(false);
+    }
+  };
+
+  const testSmtpConnection = async (accountId: string) => {
+    setTestingConnection(accountId);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('test-smtp-connection', {
+        body: { email_account_id: accountId }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast({
+          title: "Connection Test Successful",
+          description: data.message,
+        });
+      } else {
+        toast({
+          title: "Connection Test Failed",
+          description: data.results?.error_details || data.message,
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      console.error('Error testing SMTP:', error);
+      toast({
+        title: "Test Failed",
+        description: error.message || "Failed to test SMTP connection",
+        variant: "destructive"
+      });
+    } finally {
+      setTestingConnection(null);
     }
   };
 
@@ -323,6 +358,15 @@ const EmailAccountManagement = () => {
                           )}
                         </div>
                       </div>
+                      <Button
+                        onClick={() => testSmtpConnection(account.id)}
+                        disabled={testingConnection === account.id}
+                        size="sm"
+                        variant="outline"
+                      >
+                        <Wifi className="h-4 w-4 mr-2" />
+                        {testingConnection === account.id ? 'Testing...' : 'Test Connection'}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>

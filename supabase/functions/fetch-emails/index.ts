@@ -112,57 +112,79 @@ serve(async (req) => {
 });
 
 async function fetchEmailsViaIMAP(account: any): Promise<any[]> {
-  // PLACEHOLDER: Implement actual IMAP fetching
-  // This would use an IMAP library to connect to mail.govt.ac:993
-  // and fetch new emails since last sync
+  // IMAP implementation for premium12-2.web-hosting.com
+  console.log(`Fetching IMAP emails for ${account.email_address} from premium12-2.web-hosting.com`);
   
-  console.log(`[PLACEHOLDER] Would fetch IMAP emails for ${account.email_address}`);
-  
-  // For now, return empty array
-  // In production, this would:
-  // 1. Connect to IMAP server (mail.govt.ac:993 with SSL)
-  // 2. Authenticate with account.email_address and account.email_password
-  // 3. Fetch new emails since account.last_synced_at
-  // 4. Parse email headers and body
-  // 5. Return array of email objects
-  
-  return [];
-  
-  /* Example IMAP implementation structure:
-  
-  const client = new ImapClient({
-    host: 'mail.govt.ac',
-    port: 993,
-    secure: true,
-    auth: {
-      user: account.email_address,
-      pass: account.email_password
+  try {
+    // Note: Deno has limited native IMAP support. For production, consider:
+    // 1. Using a Node.js-based IMAP library via npm: prefix
+    // 2. Using email forwarding to a webhook endpoint
+    // 3. Using cPanel API to fetch emails
+    // 4. Using a third-party email API service
+    
+    // This is a placeholder that shows the correct configuration
+    // In production, you would use a library like:
+    // import { ImapFlow } from 'npm:imapflow@1.0.150';
+    
+    /*
+    const client = new ImapFlow({
+      host: 'premium12-2.web-hosting.com',
+      port: 993,
+      secure: true, // Use SSL/TLS
+      auth: {
+        user: account.email_address,
+        pass: account.email_password
+      },
+      logger: false
+    });
+
+    await client.connect();
+    
+    // Select INBOX
+    await client.mailboxOpen('INBOX');
+    
+    // Fetch unseen messages or messages since last sync
+    const lastSync = account.last_synced_at 
+      ? new Date(account.last_synced_at) 
+      : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // Last 7 days
+    
+    const messages = [];
+    
+    // Search for messages
+    for await (const msg of client.fetch(
+      { since: lastSync },
+      { 
+        envelope: true, 
+        bodyStructure: true,
+        source: true 
+      }
+    )) {
+      messages.push({
+        message_id: msg.envelope.messageId,
+        from_email: msg.envelope.from?.[0]?.address || '',
+        from_name: msg.envelope.from?.[0]?.name || '',
+        to_email: msg.envelope.to?.[0]?.address || account.email_address,
+        to_name: msg.envelope.to?.[0]?.name || '',
+        subject: msg.envelope.subject || '(No Subject)',
+        body: msg.source?.toString() || '',
+        body_html: msg.source?.toString() || '',
+        snippet: msg.envelope.subject?.substring(0, 200) || '',
+        received_at: msg.envelope.date?.toISOString() || new Date().toISOString(),
+        has_attachments: false // Would need to parse bodyStructure
+      });
     }
-  });
-  
-  await client.connect();
-  await client.selectMailbox('INBOX');
-  
-  const messages = await client.fetchMessages('1:*', {
-    headers: true,
-    body: true,
-    envelope: true
-  });
-  
-  await client.close();
-  
-  return messages.map(msg => ({
-    message_id: msg.messageId,
-    from_email: msg.from.address,
-    from_name: msg.from.name,
-    to_email: msg.to[0].address,
-    to_name: msg.to[0].name,
-    subject: msg.subject,
-    body: msg.text || msg.html,
-    body_html: msg.html,
-    snippet: msg.text?.substring(0, 200),
-    received_at: msg.date,
-    has_attachments: msg.attachments?.length > 0
-  }));
-  */
+    
+    await client.logout();
+    
+    console.log(`Fetched ${messages.length} emails for ${account.email_address}`);
+    return messages;
+    */
+    
+    console.log('IMAP fetching is not yet fully implemented. Configure with premium12-2.web-hosting.com:993');
+    return [];
+    
+  } catch (error) {
+    console.error(`IMAP error for ${account.email_address}:`, error);
+    throw error;
+  }
 }
