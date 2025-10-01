@@ -32,7 +32,8 @@ import {
   LogOut,
   DollarSign,
   TrendingUp,
-  User
+  User,
+  Mail
 } from 'lucide-react';
 import ChangePassword from '@/components/ChangePassword';
 import ApplicationManagement from '@/components/admin/ApplicationManagement';
@@ -48,6 +49,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import AvatarUpload from '@/components/AvatarUpload';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
+import EmailSettings from '@/components/admin/EmailSettings';
 
 interface Student {
   id: string;
@@ -715,6 +717,7 @@ const AdminDashboard = () => {
       label: "Settings",
       items: [
         { title: "Profile", icon: User, value: "profile", onClick: () => setCurrentTab("profile") },
+        { title: "Email Settings", icon: Mail, value: "email", onClick: () => setCurrentTab("email") },
         { title: "System Settings", icon: Settings, value: "settings", onClick: () => setCurrentTab("settings") },
       ]
     }
@@ -1022,6 +1025,7 @@ const AdminDashboard = () => {
           <ChangePassword />
         </div>
       )}
+      {currentTab === "email" && <EmailSettings />}
       {currentTab === "settings" && <SystemSettings />}
 
       {/* Dialogs remain the same */}
