@@ -1274,6 +1274,48 @@ export type Database = {
           },
         ]
       }
+      email_accounts: {
+        Row: {
+          cpanel_account_created: boolean | null
+          created_at: string | null
+          display_name: string
+          email_address: string
+          email_password: string
+          id: string
+          is_active: boolean | null
+          last_synced_at: string | null
+          quota_mb: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cpanel_account_created?: boolean | null
+          created_at?: string | null
+          display_name: string
+          email_address: string
+          email_password: string
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          quota_mb?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cpanel_account_created?: boolean | null
+          created_at?: string | null
+          display_name?: string
+          email_address?: string
+          email_password?: string
+          id?: string
+          is_active?: boolean | null
+          last_synced_at?: string | null
+          quota_mb?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_attachments: {
         Row: {
           created_at: string | null
@@ -1312,23 +1354,141 @@ export type Database = {
           },
         ]
       }
+      email_folders: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          parent_folder_id: string | null
+          sort_order: number | null
+          type: string
+          unread_count: number | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          parent_folder_id?: string | null
+          sort_order?: number | null
+          type?: string
+          unread_count?: number | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          parent_folder_id?: string | null
+          sort_order?: number | null
+          type?: string
+          unread_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "email_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_label_assignments: {
+        Row: {
+          created_at: string | null
+          email_id: string
+          id: string
+          label_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_id: string
+          id?: string
+          label_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_id?: string
+          id?: string
+          label_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_label_assignments_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_label_assignments_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "email_labels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_labels: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       emails: {
         Row: {
           bcc: string | null
           body: string
+          body_html: string | null
           cc: string | null
           created_at: string | null
+          email_account_id: string | null
           email_type: string
           error_message: string | null
+          folder_id: string | null
           from_email: string
           from_name: string | null
+          has_attachments: boolean | null
           id: string
           in_reply_to: string | null
+          is_archived: boolean | null
+          is_deleted: boolean | null
+          is_important: boolean | null
           is_read: boolean | null
           is_starred: boolean | null
+          message_id: string | null
           metadata: Json | null
           received_at: string | null
+          reply_to: string | null
+          search_vector: unknown | null
           sent_at: string | null
+          snippet: string | null
           status: string
           subject: string
           thread_id: string | null
@@ -1340,19 +1500,30 @@ export type Database = {
         Insert: {
           bcc?: string | null
           body: string
+          body_html?: string | null
           cc?: string | null
           created_at?: string | null
+          email_account_id?: string | null
           email_type?: string
           error_message?: string | null
+          folder_id?: string | null
           from_email: string
           from_name?: string | null
+          has_attachments?: boolean | null
           id?: string
           in_reply_to?: string | null
+          is_archived?: boolean | null
+          is_deleted?: boolean | null
+          is_important?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
+          message_id?: string | null
           metadata?: Json | null
           received_at?: string | null
+          reply_to?: string | null
+          search_vector?: unknown | null
           sent_at?: string | null
+          snippet?: string | null
           status?: string
           subject: string
           thread_id?: string | null
@@ -1364,19 +1535,30 @@ export type Database = {
         Update: {
           bcc?: string | null
           body?: string
+          body_html?: string | null
           cc?: string | null
           created_at?: string | null
+          email_account_id?: string | null
           email_type?: string
           error_message?: string | null
+          folder_id?: string | null
           from_email?: string
           from_name?: string | null
+          has_attachments?: boolean | null
           id?: string
           in_reply_to?: string | null
+          is_archived?: boolean | null
+          is_deleted?: boolean | null
+          is_important?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
+          message_id?: string | null
           metadata?: Json | null
           received_at?: string | null
+          reply_to?: string | null
+          search_vector?: unknown | null
           sent_at?: string | null
+          snippet?: string | null
           status?: string
           subject?: string
           thread_id?: string | null
@@ -1386,6 +1568,20 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "emails_email_account_id_fkey"
+            columns: ["email_account_id"]
+            isOneToOne: false
+            referencedRelation: "email_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emails_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "email_folders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "emails_in_reply_to_fkey"
             columns: ["in_reply_to"]
