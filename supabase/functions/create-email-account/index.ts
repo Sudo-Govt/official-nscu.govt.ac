@@ -44,40 +44,50 @@ serve(async (req) => {
     let cpanelError = null;
 
     try {
-      const cpanelUrl = `https://${cpanelHost}:2083/execute/Email/add_pop`;
-      const params = new URLSearchParams({
-        email: emailUsername, // Username only (e.g., "john.doe")
-        domain: 'nscu.govt.ac', // Explicit domain
+      // Use UAPI2 format which is more reliable for email operations
+      const cpanelUrl = `https://${cpanelHost}:2083/json-api/cpanel`;
+      
+      const requestBody = {
+        cpanel_jsonapi_user: cpanelUsername,
+        cpanel_jsonapi_apiversion: '2',
+        cpanel_jsonapi_module: 'Email',
+        cpanel_jsonapi_func: 'addpop',
+        email: emailUsername,
         password: defaultPassword,
-        quota: '1024' // 1GB quota in MB
-      });
+        quota: 1024,
+        domain: 'nscu.govt.ac'
+      };
 
-      console.log('Calling cPanel API at:', cpanelHost, 'with username:', cpanelUsername);
+      console.log('Calling cPanel UAPI2 at:', cpanelHost);
       console.log('cPanel API parameters:', {
         email: emailUsername,
         domain: 'nscu.govt.ac',
-        quota: '1024'
+        quota: 1024
       });
-      console.log('Full cPanel URL:', `${cpanelUrl}?${params.toString()}`);
+      console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
-      // Use cPanel API token authentication format
-      const cpanelResponse = await fetch(`${cpanelUrl}?${params.toString()}`, {
-        method: 'GET',
+      // Use POST with form data for UAPI2
+      const formData = new URLSearchParams(requestBody as any);
+      const cpanelResponse = await fetch(cpanelUrl, {
+        method: 'POST',
         headers: {
           'Authorization': `cpanel ${cpanelUsername}:${cpanelApiToken}`,
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
+        body: formData.toString(),
         signal: AbortSignal.timeout(10000) // 10 second timeout
       });
 
       const cpanelResult = await cpanelResponse.json();
-      console.log('cPanel response:', cpanelResult);
+      console.log('cPanel UAPI2 response:', cpanelResult);
 
-      if (cpanelResponse.ok && cpanelResult.status) {
+      // UAPI2 returns result in cpanelresult.data
+      if (cpanelResponse.ok && cpanelResult?.cpanelresult?.data?.result === 1) {
         cpanelAccountCreated = true;
-        console.log('cPanel account created successfully');
+        console.log('cPanel account created successfully via UAPI2');
       } else {
-        cpanelError = `cPanel API error: ${JSON.stringify(cpanelResult)}`;
+        const errorMsg = cpanelResult?.cpanelresult?.data?.reason || JSON.stringify(cpanelResult);
+        cpanelError = `cPanel API error: ${errorMsg}`;
         console.error(cpanelError);
       }
     } catch (error) {
