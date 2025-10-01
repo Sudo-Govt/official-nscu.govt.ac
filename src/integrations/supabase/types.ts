@@ -1274,6 +1274,75 @@ export type Database = {
           },
         ]
       }
+      fee_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          delegator_amount: number | null
+          delegator_id: string | null
+          delegator_percentage: number | null
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string | null
+          student_id: string
+          student_name: string
+          total_fees: number | null
+          transaction_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          delegator_amount?: number | null
+          delegator_id?: string | null
+          delegator_percentage?: number | null
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          student_id: string
+          student_name: string
+          total_fees?: number | null
+          transaction_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          delegator_amount?: number | null
+          delegator_id?: string | null
+          delegator_percentage?: number | null
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          student_id?: string
+          student_name?: string
+          total_fees?: number | null
+          transaction_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_payments_delegator_id_fkey"
+            columns: ["delegator_id"]
+            isOneToOne: false
+            referencedRelation: "agent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       modules: {
         Row: {
           created_at: string

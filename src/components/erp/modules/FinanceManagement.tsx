@@ -44,11 +44,13 @@ const FinanceManagement = () => {
   const [delegators, setDelegators] = useState<any[]>([]);
   const [pendingDues, setPendingDues] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
+  const [feePayments, setFeePayments] = useState<any[]>([]);
 
   useEffect(() => {
     fetchDelegators();
     fetchPendingDues();
     fetchStudents();
+    fetchFeePayments();
   }, []);
 
   const fetchDelegators = async () => {
@@ -73,6 +75,14 @@ const FinanceManagement = () => {
       .select('id, name, cgpa, course_name, specialization')
       .order('created_at', { ascending: false });
     if (data) setStudents(data);
+  };
+
+  const fetchFeePayments = async () => {
+    const { data } = await supabase
+      .from('fee_payments')
+      .select('*')
+      .order('payment_date', { ascending: false });
+    if (data) setFeePayments(data);
   };
 
   const handleStudentSelect = (studentId: string) => {
@@ -152,9 +162,9 @@ const FinanceManagement = () => {
     }
   };
 
-  const totalRevenue = mockFeeData.reduce((sum, item) => sum + item.paid, 0);
+  const totalRevenue = feePayments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
   const totalPending = mockFeeData.reduce((sum, item) => sum + item.pending, 0);
-  const collectionRate = ((totalRevenue / (totalRevenue + totalPending)) * 100).toFixed(1);
+  const collectionRate = totalRevenue > 0 ? ((totalRevenue / (totalRevenue + totalPending)) * 100).toFixed(1) : '0';
 
   const handleAddNew = () => {
     setFormData({
@@ -173,24 +183,76 @@ const FinanceManagement = () => {
     setDialogOpen(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validation
-    if (!formData.studentName || !formData.amount) {
+    if (!formData.studentId || !formData.amount) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please select a student and enter amount",
         variant: "destructive"
       });
       return;
     }
 
-    const typeLabel = activeTab === 'overview' ? 'Fee Payment' : activeTab === 'receipts' ? 'Receipt' : 'Scholarship';
+    const selectedStudent = students.find(s => s.id === formData.studentId);
+    
+    const { error } = await supabase
+      .from('fee_payments')
+      .insert({
+        student_id: formData.studentId,
+        student_name: selectedStudent?.name || formData.studentName,
+        amount: parseFloat(formData.amount),
+        payment_method: formData.paymentMethod,
+        total_fees: formData.totalFees ? parseFloat(formData.totalFees) : null,
+        delegator_id: formData.delegatorId || null,
+        delegator_amount: formData.delegatorAmount ? parseFloat(formData.delegatorAmount) : 0,
+        delegator_percentage: formData.delegatorPercentage ? parseFloat(formData.delegatorPercentage) : 0,
+        transaction_type: 'fee_payment'
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save payment: " + error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Success",
-      description: `${typeLabel} recorded successfully`
+      description: "Fee payment recorded successfully"
     });
     
     setDialogOpen(false);
+    fetchFeePayments();
+  };
+
+  const handleDeletePayment = async (paymentId: string) => {
+    if (!confirm('Are you sure you want to delete this payment record?')) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('fee_payments')
+      .delete()
+      .eq('id', paymentId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete payment: " + error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Payment deleted successfully"
+    });
+
+    fetchFeePayments();
   };
 
   const renderDialogContent = () => {
@@ -555,42 +617,57 @@ const FinanceManagement = () => {
         <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Student Fee Management</CardTitle>
+              <CardTitle>Recent Fee Payments</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockFeeData.map((fee, index) => {
-                  const statusInfo = getPaymentStatus(fee.status);
-                  const paidPercentage = (fee.paid / fee.totalFee) * 100;
-                  
-                  return (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                          <DollarSign className="h-5 w-5 text-primary" />
+                {feePayments.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No payments recorded yet</p>
+                ) : (
+                  feePayments.map((payment) => {
+                    const paymentDate = new Date(payment.payment_date).toLocaleDateString();
+                    
+                    return (
+                      <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                            <DollarSign className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold">{payment.student_name}</h4>
+                            <p className="text-sm text-muted-foreground">Payment Date: {paymentDate}</p>
+                            {payment.payment_method && (
+                              <p className="text-xs text-muted-foreground">Method: {payment.payment_method}</p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="font-semibold">{fee.student}</h4>
-                          <p className="text-sm text-muted-foreground">{fee.id}</p>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <p className="text-sm font-medium">Amount: ${parseFloat(payment.amount).toLocaleString()}</p>
+                            {payment.total_fees && (
+                              <p className="text-sm text-muted-foreground">
+                                Total Fees: ${parseFloat(payment.total_fees).toLocaleString()}
+                              </p>
+                            )}
+                            {payment.delegator_amount > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                Delegator: ${parseFloat(payment.delegator_amount).toLocaleString()} ({parseFloat(payment.delegator_percentage).toFixed(1)}%)
+                              </p>
+                            )}
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDeletePayment(payment.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            Delete
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <p className="text-sm font-medium">Total: ${fee.totalFee.toLocaleString()}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Paid: ${fee.paid.toLocaleString()} | Pending: ${fee.pending.toLocaleString()}
-                          </p>
-                          <Progress value={paidPercentage} className="mt-1 w-24" />
-                        </div>
-                        <Badge className={statusInfo.color}>{fee.status}</Badge>
-                        <Button variant="outline" size="sm">
-                          <Receipt className="mr-2 h-4 w-4" />
-                          Generate Receipt
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </CardContent>
           </Card>
