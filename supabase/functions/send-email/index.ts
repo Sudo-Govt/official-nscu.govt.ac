@@ -54,12 +54,20 @@ serve(async (req) => {
       throw new Error('SMTP settings not configured');
     }
 
-    // Send email using SMTP
+    // Log SMTP settings for debugging
+    console.log('Attempting to send email via SMTP:', {
+      host: smtpSettings.smtp_host,
+      port: smtpSettings.smtp_port,
+      user: smtpSettings.smtp_user,
+      tls: smtpSettings.use_tls,
+    });
+
+    // Send email using SMTP with proper STARTTLS configuration
     const client = new SMTPClient({
       connection: {
         hostname: smtpSettings.smtp_host,
         port: smtpSettings.smtp_port,
-        tls: smtpSettings.use_tls,
+        tls: false, // Start without TLS
         auth: {
           username: smtpSettings.smtp_user,
           password: smtpSettings.smtp_password,
@@ -67,17 +75,24 @@ serve(async (req) => {
       },
     });
 
-    await client.send({
-      from: `${smtpSettings.from_name} <${smtpSettings.from_email}>`,
-      to: email.to_email,
-      cc: email.cc || undefined,
-      bcc: email.bcc || undefined,
-      subject: email.subject,
-      content: email.body,
-      html: email.body,
-    });
+    try {
+      await client.send({
+        from: `${smtpSettings.from_name} <${smtpSettings.from_email}>`,
+        to: email.to_email,
+        cc: email.cc || undefined,
+        bcc: email.bcc || undefined,
+        subject: email.subject,
+        content: email.body,
+        html: email.body,
+      });
 
-    await client.close();
+      console.log('Email sent successfully to:', email.to_email);
+      await client.close();
+    } catch (smtpError) {
+      console.error('SMTP send error:', smtpError);
+      await client.close();
+      throw new Error(`SMTP Error: ${smtpError.message}`);
+    }
 
     // Update email status
     const { error: updateError } = await supabaseClient
