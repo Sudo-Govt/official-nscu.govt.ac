@@ -368,6 +368,349 @@ const FinanceManagement = () => {
     });
   };
 
+  const generateMonthlyRevenueReport = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Header
+    doc.setFillColor(41, 128, 185);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    
+    // Report title
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MONTHLY REVENUE REPORT', pageWidth / 2, 55, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
+    
+    // Summary
+    const leftMargin = 20;
+    let yPosition = 85;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Revenue Summary', leftMargin, yPosition);
+    
+    yPosition += 10;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total Revenue: $${totalRevenue.toLocaleString()}`, leftMargin, yPosition);
+    yPosition += 8;
+    doc.text(`Total Payments: ${feePayments.length}`, leftMargin, yPosition);
+    yPosition += 8;
+    doc.text(`Collection Rate: ${collectionRate}%`, leftMargin, yPosition);
+    
+    // Payments table
+    yPosition += 20;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Recent Payments', leftMargin, yPosition);
+    yPosition += 10;
+    
+    // Table headers
+    doc.setFillColor(240, 240, 240);
+    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
+    doc.setFontSize(9);
+    doc.text('Date', leftMargin + 2, yPosition);
+    doc.text('Student', leftMargin + 35, yPosition);
+    doc.text('Method', leftMargin + 95, yPosition);
+    doc.text('Amount', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+    
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    
+    feePayments.slice(0, 15).forEach((payment, index) => {
+      if (yPosition > pageHeight - 50) return;
+      
+      const date = new Date(payment.payment_date).toLocaleDateString();
+      doc.text(date, leftMargin + 2, yPosition);
+      doc.text(payment.student_name.substring(0, 20), leftMargin + 35, yPosition);
+      doc.text(payment.payment_method || 'N/A', leftMargin + 95, yPosition);
+      doc.text(`$${parseFloat(payment.amount).toLocaleString()}`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+      
+      yPosition += 7;
+    });
+    
+    // Footer
+    const footerY = pageHeight - 40;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, footerY, pageWidth - 20, footerY);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
+    
+    doc.save(`NSCU_Monthly_Revenue_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: "Success", description: "Monthly revenue report downloaded" });
+  };
+
+  const generateOutstandingDuesReport = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Header
+    doc.setFillColor(41, 128, 185);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    
+    // Report title
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('OUTSTANDING DUES REPORT', pageWidth / 2, 55, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
+    
+    // Summary
+    const leftMargin = 20;
+    let yPosition = 85;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Summary', leftMargin, yPosition);
+    
+    yPosition += 10;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total Pending: $${totalPending.toLocaleString()}`, leftMargin, yPosition);
+    yPosition += 8;
+    doc.text(`Students with Dues: ${pendingDues.length}`, leftMargin, yPosition);
+    
+    // Dues table
+    yPosition += 20;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Pending Dues Details', leftMargin, yPosition);
+    yPosition += 10;
+    
+    // Table headers
+    doc.setFillColor(240, 240, 240);
+    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
+    doc.setFontSize(9);
+    doc.text('Application', leftMargin + 2, yPosition);
+    doc.text('Student', leftMargin + 40, yPosition);
+    doc.text('Total', leftMargin + 95, yPosition);
+    doc.text('Paid', leftMargin + 125, yPosition);
+    doc.text('Pending', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+    
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    
+    pendingDues.slice(0, 15).forEach((due) => {
+      if (yPosition > pageHeight - 50) return;
+      
+      const totalFee = due.courses?.fee_structure?.total || 0;
+      const paidAmount = due.application_fee_paid ? (due.application_fee_amount || 0) : 0;
+      const pending = totalFee - paidAmount;
+      
+      doc.text(due.application_number.substring(0, 10), leftMargin + 2, yPosition);
+      doc.text(`${due.first_name} ${due.last_name}`.substring(0, 18), leftMargin + 40, yPosition);
+      doc.text(`$${totalFee.toLocaleString()}`, leftMargin + 95, yPosition);
+      doc.text(`$${paidAmount.toLocaleString()}`, leftMargin + 125, yPosition);
+      doc.text(`$${pending.toLocaleString()}`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+      
+      yPosition += 7;
+    });
+    
+    // Footer
+    const footerY = pageHeight - 40;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, footerY, pageWidth - 20, footerY);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
+    
+    doc.save(`NSCU_Outstanding_Dues_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: "Success", description: "Outstanding dues report downloaded" });
+  };
+
+  const generateScholarshipReport = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    const scholarships = feePayments.filter(p => p.transaction_type === 'scholarship');
+    const totalScholarships = scholarships.reduce((sum, s) => sum + parseFloat(s.amount), 0);
+    
+    // Header
+    doc.setFillColor(41, 128, 185);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    
+    // Report title
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('SCHOLARSHIP DISTRIBUTION REPORT', pageWidth / 2, 55, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
+    
+    // Summary
+    const leftMargin = 20;
+    let yPosition = 85;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Summary', leftMargin, yPosition);
+    
+    yPosition += 10;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total Scholarships Distributed: $${totalScholarships.toLocaleString()}`, leftMargin, yPosition);
+    yPosition += 8;
+    doc.text(`Number of Recipients: ${scholarships.length}`, leftMargin, yPosition);
+    
+    // Scholarships table
+    yPosition += 20;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Scholarship Details', leftMargin, yPosition);
+    yPosition += 10;
+    
+    // Table headers
+    doc.setFillColor(240, 240, 240);
+    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
+    doc.setFontSize(9);
+    doc.text('Date', leftMargin + 2, yPosition);
+    doc.text('Student', leftMargin + 35, yPosition);
+    doc.text('Type', leftMargin + 95, yPosition);
+    doc.text('Amount', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+    
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    
+    scholarships.slice(0, 15).forEach((scholarship) => {
+      if (yPosition > pageHeight - 50) return;
+      
+      const date = new Date(scholarship.payment_date).toLocaleDateString();
+      const type = scholarship.notes?.split(':')[1]?.split(',')[0]?.trim() || 'N/A';
+      
+      doc.text(date, leftMargin + 2, yPosition);
+      doc.text(scholarship.student_name.substring(0, 20), leftMargin + 35, yPosition);
+      doc.text(type.substring(0, 15), leftMargin + 95, yPosition);
+      doc.text(`$${parseFloat(scholarship.amount).toLocaleString()}`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+      
+      yPosition += 7;
+    });
+    
+    // Footer
+    const footerY = pageHeight - 40;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, footerY, pageWidth - 20, footerY);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
+    
+    doc.save(`NSCU_Scholarship_Distribution_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: "Success", description: "Scholarship distribution report downloaded" });
+  };
+
+  const generatePaymentMethodsReport = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Calculate payment method stats
+    const methodStats: { [key: string]: { count: number; total: number } } = {};
+    feePayments.forEach(payment => {
+      const method = payment.payment_method || 'Not Specified';
+      if (!methodStats[method]) {
+        methodStats[method] = { count: 0, total: 0 };
+      }
+      methodStats[method].count++;
+      methodStats[method].total += parseFloat(payment.amount);
+    });
+    
+    // Header
+    doc.setFillColor(41, 128, 185);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    
+    // Report title
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PAYMENT METHODS ANALYSIS', pageWidth / 2, 55, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
+    
+    // Summary
+    const leftMargin = 20;
+    let yPosition = 85;
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Payment Method Breakdown', leftMargin, yPosition);
+    yPosition += 15;
+    
+    // Method stats table
+    doc.setFillColor(240, 240, 240);
+    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
+    doc.setFontSize(9);
+    doc.text('Payment Method', leftMargin + 2, yPosition);
+    doc.text('Transactions', leftMargin + 80, yPosition);
+    doc.text('Total Amount', leftMargin + 125, yPosition);
+    doc.text('Percentage', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+    
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    
+    Object.entries(methodStats).forEach(([method, stats]) => {
+      const percentage = ((stats.total / totalRevenue) * 100).toFixed(1);
+      
+      doc.text(method, leftMargin + 2, yPosition);
+      doc.text(stats.count.toString(), leftMargin + 80, yPosition);
+      doc.text(`$${stats.total.toLocaleString()}`, leftMargin + 125, yPosition);
+      doc.text(`${percentage}%`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
+      
+      yPosition += 7;
+    });
+    
+    // Footer
+    const footerY = pageHeight - 40;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, footerY, pageWidth - 20, footerY);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
+    
+    doc.save(`NSCU_Payment_Methods_Analysis_${new Date().toISOString().split('T')[0]}.pdf`);
+    toast({ title: "Success", description: "Payment methods analysis downloaded" });
+  };
+
   const renderDialogContent = () => {
     if (activeTab === 'overview') {
       return (
@@ -934,19 +1277,19 @@ const FinanceManagement = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" onClick={generateMonthlyRevenueReport}>
                     <Download className="mr-2 h-4 w-4" />
                     Monthly Revenue Report
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" onClick={generateOutstandingDuesReport}>
                     <Download className="mr-2 h-4 w-4" />
                     Outstanding Dues Report
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" onClick={generateScholarshipReport}>
                     <Download className="mr-2 h-4 w-4" />
                     Scholarship Distribution
                   </Button>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button variant="outline" className="w-full justify-start" onClick={generatePaymentMethodsReport}>
                     <Download className="mr-2 h-4 w-4" />
                     Payment Methods Analysis
                   </Button>
