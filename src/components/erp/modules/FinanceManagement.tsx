@@ -141,17 +141,7 @@ const FinanceManagement = () => {
     { student: 'Michael Brown', id: 'NSCU2024003', totalFee: 16000, paid: 8000, pending: 8000, status: 'Pending' }
   ];
 
-  const mockReceipts = [
-    { id: 'RCP001', student: 'John Smith', amount: 5000, date: '2024-09-15', method: 'Bank Transfer', status: 'Completed' },
-    { id: 'RCP002', student: 'Sarah Johnson', amount: 9000, date: '2024-09-14', method: 'Credit Card', status: 'Completed' },
-    { id: 'RCP003', student: 'Michael Brown', amount: 4000, date: '2024-09-13', method: 'Cash', status: 'Processing' }
-  ];
 
-  const mockScholarships = [
-    { student: 'John Smith', type: 'Merit Scholarship', amount: 3000, status: 'Active', year: '2024-25' },
-    { student: 'Sarah Johnson', type: 'Need-based Aid', amount: 2500, status: 'Active', year: '2024-25' },
-    { student: 'Emily Davis', type: 'Athletic Scholarship', amount: 5000, status: 'Pending', year: '2024-25' }
-  ];
 
   const getPaymentStatus = (status: string) => {
     switch (status.toLowerCase()) {
@@ -196,24 +186,29 @@ const FinanceManagement = () => {
 
     const selectedStudent = students.find(s => s.id === formData.studentId);
     
+    let transactionType = 'fee_payment';
+    if (activeTab === 'receipts') transactionType = 'receipt';
+    if (activeTab === 'scholarships') transactionType = 'scholarship';
+    
     const { error } = await supabase
       .from('fee_payments')
       .insert({
         student_id: formData.studentId,
         student_name: selectedStudent?.name || formData.studentName,
         amount: parseFloat(formData.amount),
-        payment_method: formData.paymentMethod,
+        payment_method: formData.paymentMethod || null,
         total_fees: formData.totalFees ? parseFloat(formData.totalFees) : null,
         delegator_id: formData.delegatorId || null,
         delegator_amount: formData.delegatorAmount ? parseFloat(formData.delegatorAmount) : 0,
         delegator_percentage: formData.delegatorPercentage ? parseFloat(formData.delegatorPercentage) : 0,
-        transaction_type: 'fee_payment'
+        transaction_type: transactionType,
+        notes: formData.scholarshipType ? `Scholarship Type: ${formData.scholarshipType}, Year: ${formData.year}` : null
       });
 
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to save payment: " + error.message,
+        description: "Failed to save: " + error.message,
         variant: "destructive"
       });
       return;
@@ -221,7 +216,7 @@ const FinanceManagement = () => {
 
     toast({
       title: "Success",
-      description: "Fee payment recorded successfully"
+      description: `${activeTab === 'receipts' ? 'Receipt' : activeTab === 'scholarships' ? 'Scholarship' : 'Fee payment'} recorded successfully`
     });
     
     setDialogOpen(false);
@@ -372,13 +367,25 @@ const FinanceManagement = () => {
       return (
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="studentName">Student Name *</Label>
-            <Input
-              id="studentName"
-              value={formData.studentName}
-              onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-              placeholder="e.g., John Smith"
-            />
+            <Label htmlFor="studentSelect">Select Student *</Label>
+            <Select onValueChange={handleStudentSelect} value={formData.studentId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a student">
+                  {formData.studentName || "Select a student"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                {students.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground">No students found</div>
+                ) : (
+                  students.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.name} - {student.course_name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="amount">Amount *</Label>
@@ -412,13 +419,25 @@ const FinanceManagement = () => {
       return (
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="studentName">Student Name *</Label>
-            <Input
-              id="studentName"
-              value={formData.studentName}
-              onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-              placeholder="e.g., John Smith"
-            />
+            <Label htmlFor="studentSelect">Select Student *</Label>
+            <Select onValueChange={handleStudentSelect} value={formData.studentId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a student">
+                  {formData.studentName || "Select a student"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                {students.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground">No students found</div>
+                ) : (
+                  students.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.name} - {student.course_name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="scholarshipType">Scholarship Type *</Label>
@@ -539,8 +558,8 @@ const FinanceManagement = () => {
             <Receipt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${mockScholarships.reduce((sum, s) => sum + s.amount, 0).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{mockScholarships.length} active scholarships</p>
+            <div className="text-2xl font-bold">${feePayments.filter(p => p.transaction_type === 'scholarship').reduce((sum, s) => sum + parseFloat(s.amount), 0).toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{feePayments.filter(p => p.transaction_type === 'scholarship').length} scholarships</p>
           </CardContent>
         </Card>
       </div>
@@ -680,30 +699,41 @@ const FinanceManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockReceipts.map((receipt) => (
-                  <div key={receipt.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <Receipt className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <h4 className="font-semibold">Receipt #{receipt.id}</h4>
-                        <p className="text-sm text-muted-foreground">{receipt.student} • {receipt.date}</p>
+                {feePayments.filter(p => p.transaction_type === 'receipt').length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No receipts recorded yet</p>
+                ) : (
+                  feePayments.filter(p => p.transaction_type === 'receipt').map((receipt) => {
+                    const receiptDate = new Date(receipt.payment_date).toLocaleDateString();
+                    
+                    return (
+                      <div key={receipt.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <Receipt className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <h4 className="font-semibold">{receipt.student_name}</h4>
+                            <p className="text-sm text-muted-foreground">{receiptDate}</p>
+                            {receipt.payment_method && (
+                              <p className="text-xs text-muted-foreground">Method: {receipt.payment_method}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <p className="font-semibold">${parseFloat(receipt.amount).toLocaleString()}</p>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDeletePayment(receipt.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="font-semibold">${receipt.amount.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">{receipt.method}</p>
-                      </div>
-                      <Badge variant={receipt.status === 'Completed' ? 'default' : 'secondary'}>
-                        {receipt.status}
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download PDF
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })
+                )}
               </div>
             </CardContent>
           </Card>
@@ -716,28 +746,43 @@ const FinanceManagement = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockScholarships.map((scholarship, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <CreditCard className="h-5 w-5 text-blue-600" />
+                {feePayments.filter(p => p.transaction_type === 'scholarship').length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No scholarships recorded yet</p>
+                ) : (
+                  feePayments.filter(p => p.transaction_type === 'scholarship').map((scholarship) => {
+                    const scholarshipDate = new Date(scholarship.payment_date).toLocaleDateString();
+                    
+                    return (
+                      <div key={scholarship.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <CreditCard className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold">{scholarship.student_name}</h4>
+                            <p className="text-sm text-muted-foreground">{scholarshipDate}</p>
+                            {scholarship.notes && (
+                              <p className="text-xs text-muted-foreground">{scholarship.notes}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <p className="font-semibold">${parseFloat(scholarship.amount).toLocaleString()}</p>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDeletePayment(scholarship.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold">{scholarship.type}</h4>
-                        <p className="text-sm text-muted-foreground">{scholarship.student} • {scholarship.year}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="font-semibold">${scholarship.amount.toLocaleString()}</p>
-                        <p className="text-sm text-muted-foreground">Annual Award</p>
-                      </div>
-                      <Badge variant={scholarship.status === 'Active' ? 'default' : 'secondary'}>
-                        {scholarship.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })
+                )}
               </div>
             </CardContent>
           </Card>
