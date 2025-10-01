@@ -84,6 +84,14 @@ export const StudentsTab = () => {
     setEditingStudent(null);
   };
 
+  const generateDefaultPassword = () => {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const year = today.getFullYear();
+    return `Nscu_${month}-${day}-${year}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -101,26 +109,47 @@ export const StudentsTab = () => {
           description: "Student updated successfully"
         });
       } else {
-        const { error } = await supabase
+        // Generate email if not provided (using name)
+        const email = `${formData.name.toLowerCase().replace(/\s+/g, '.')}@nscu.edu`;
+        const defaultPassword = generateDefaultPassword();
+        
+        // Create auth user
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: email,
+          password: defaultPassword,
+          options: {
+            data: {
+              full_name: formData.name,
+              role: 'student',
+              requires_password_change: true
+            }
+          }
+        });
+        
+        if (authError) throw authError;
+        
+        // Insert student data
+        const { error: studentError } = await supabase
           .from('students')
           .insert(formData);
         
-        if (error) throw error;
+        if (studentError) throw studentError;
         
         toast({
           title: "Success",
-          description: "Student added successfully"
+          description: `Student added successfully. Login credentials: Email: ${email}, Password: ${defaultPassword}`,
+          duration: 10000
         });
       }
       
       fetchStudents();
       setIsDialogOpen(false);
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving student:', error);
       toast({
         title: "Error",
-        description: "Failed to save student",
+        description: error.message || "Failed to save student",
         variant: "destructive"
       });
     }

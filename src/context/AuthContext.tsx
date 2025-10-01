@@ -7,6 +7,7 @@ interface User {
   user_id: string;
   email: string;
   full_name: string;
+  avatar_url?: string;
   role: 'admin' | 'student' | 'faculty' | 'admission_agent' | 'finance' | 'superadmin' | 'alumni' | 'staff' | 'accounts' | 'registrar' | 'auditor';
 }
 
@@ -47,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             user_id: authUser.user.id,
             email: authUser.user.email!,
             full_name: profile.full_name,
+            avatar_url: profile.avatar_url,
             role: profile.role || 'student'
           });
         }

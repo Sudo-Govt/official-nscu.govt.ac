@@ -174,6 +174,8 @@ const ApplicationScoringSystem = () => {
 
   const getStatusBadge = (status: string, score?: number) => {
     switch (status) {
+      case 'on_hold':
+        return <Badge variant="secondary" className="bg-yellow-500 text-white">On Hold</Badge>;
       case 'approved':
         return <Badge className="bg-green-500 text-white">Approved</Badge>;
       case 'rejected':
@@ -205,14 +207,15 @@ const ApplicationScoringSystem = () => {
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Filter applications" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Applications</SelectItem>
-                <SelectItem value="unscored">Unscored</SelectItem>
-                <SelectItem value="scored">Scored</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-              </SelectContent>
+                    <SelectContent>
+                      <SelectItem value="all">All Applications</SelectItem>
+                      <SelectItem value="unscored">Unscored</SelectItem>
+                      <SelectItem value="scored">Scored</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="on_hold">On Hold</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                    </SelectContent>
             </Select>
           </div>
         </CardHeader>

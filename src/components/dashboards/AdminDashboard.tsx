@@ -45,6 +45,9 @@ import AcademicManagement from '@/components/erp/modules/AcademicManagement';
 import StudentManagement from '@/components/erp/modules/StudentManagement';
 import FinanceManagement from '@/components/erp/modules/FinanceManagement';
 import DashboardLayout from '@/components/DashboardLayout';
+import AvatarUpload from '@/components/AvatarUpload';
+import DocumentManagement from '@/components/agent/DocumentManagement';
+import SystemSettings from '@/components/admin/SystemSettings';
 
 interface Student {
   id: string;
@@ -902,6 +905,7 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       )}
+      {currentTab === "documents" && <DocumentManagement />}
       {currentTab === "announcements" && (
         <Card>
           <CardHeader>
@@ -991,7 +995,20 @@ const AdminDashboard = () => {
               <CardTitle>Admin Profile</CardTitle>
               <CardDescription>Manage your administrator information</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              <AvatarUpload 
+                currentAvatarUrl={user?.avatar_url}
+                userId={user?.user_id || ''}
+                userName={user?.full_name || 'Admin'}
+                onAvatarUpdate={(url) => {
+                  // Avatar updated successfully
+                  toast({
+                    title: "Success",
+                    description: "Profile picture updated"
+                  });
+                }}
+              />
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Full Name</Label>
@@ -1010,85 +1027,13 @@ const AdminDashboard = () => {
                   <p className="text-sm text-muted-foreground mt-1">ADM001</p>
                 </div>
               </div>
-              <Button>Edit Profile</Button>
             </CardContent>
           </Card>
           
           <ChangePassword />
         </div>
       )}
-      {currentTab === "settings" && (
-        <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card via-card to-muted/20">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">System Settings</CardTitle>
-            <CardDescription className="text-lg mt-2">Configure system preferences and security</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Settings className="mr-2 h-5 w-5" />
-                    General Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>University Name</Label>
-                    <Input defaultValue="NSCU Delaware USA" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Academic Year</Label>
-                    <Select defaultValue="2024-25">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2024-25">2024-25</SelectItem>
-                        <SelectItem value="2025-26">2025-26</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Default Language</Label>
-                    <Select defaultValue="en">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="es">Spanish</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Shield className="mr-2 h-5 w-5" />
-                    Security Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <ChangePassword />
-                  <div className="pt-4 border-t">
-                    <Button variant="outline" className="w-full">
-                      <Database className="mr-2 h-4 w-4" />
-                      Backup Database
-                    </Button>
-                  </div>
-                  <Button variant="outline" className="w-full">
-                    <FileText className="mr-2 h-4 w-4" />
-                    System Audit Log
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {currentTab === "settings" && <SystemSettings />}
 
       {/* Dialogs remain the same */}
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
