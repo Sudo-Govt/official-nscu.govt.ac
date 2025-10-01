@@ -46,16 +46,14 @@ serve(async (req) => {
     try {
       const cpanelUrl = `https://${cpanelHost}:2083/execute/Email/add_pop`;
       const params = new URLSearchParams({
-        email: emailUsername, // Just the username part (e.g., "john.doe")
+        email: emailAddress, // Full email address (e.g., "john.doe@nscu.govt.ac")
         password: defaultPassword,
-        quota: '1024', // 1GB quota in MB
-        domain: 'nscu.govt.ac'
+        quota: '1024' // 1GB quota in MB
       });
 
       console.log('Calling cPanel API at:', cpanelHost, 'with username:', cpanelUsername);
       console.log('cPanel API parameters:', {
-        email: emailUsername,
-        domain: 'nscu.govt.ac',
+        email: emailAddress,
         quota: '1024'
       });
       console.log('Full cPanel URL:', `${cpanelUrl}?${params.toString()}`);
