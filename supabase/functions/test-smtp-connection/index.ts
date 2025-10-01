@@ -42,7 +42,7 @@ serve(async (req) => {
     const testResults = {
       email: emailAccount.email_address,
       smtp_hostname: 'premium12-2.web-hosting.com',
-      smtp_port: 587,
+      smtp_port: 465,
       connection_successful: false,
       authentication_successful: false,
       test_email_sent: false,
@@ -50,12 +50,12 @@ serve(async (req) => {
     };
 
     try {
-      // Test SMTP connection with STARTTLS
+      // Test SMTP connection with SSL/TLS (port 465)
       const client = new SMTPClient({
         connection: {
           hostname: 'premium12-2.web-hosting.com',
-          port: 587,
-          tls: false, // STARTTLS
+          port: 465,
+          tls: true, // Direct SSL/TLS
           auth: {
             username: emailAccount.email_address,
             password: emailAccount.email_password,
@@ -82,7 +82,7 @@ serve(async (req) => {
             <h2 style="color: #10b981;">✓ SMTP Connection Test Successful</h2>
             <p>Your email account <strong>${emailAccount.email_address}</strong> is configured correctly and can send emails.</p>
             <p style="color: #6b7280; font-size: 14px;">
-              Server: premium12-2.web-hosting.com:587 (STARTTLS)<br>
+              Server: premium12-2.web-hosting.com:465 (SSL/TLS)<br>
               Tested at: ${new Date().toLocaleString()}
             </p>
           </div>

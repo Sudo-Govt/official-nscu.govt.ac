@@ -50,12 +50,12 @@ serve(async (req) => {
 
     console.log('Sending email from:', emailAccount.email_address);
 
-    // Send via SMTP using user's credentials with STARTTLS
+    // Send via SMTP using user's credentials with SSL/TLS (port 465)
     const client = new SMTPClient({
       connection: {
         hostname: 'premium12-2.web-hosting.com',
-        port: 587,
-        tls: false, // false = STARTTLS, true = direct SSL/TLS
+        port: 465,
+        tls: true, // true = direct SSL/TLS
         auth: {
           username: emailAccount.email_address,
           password: emailAccount.email_password,
@@ -66,7 +66,7 @@ serve(async (req) => {
       },
     });
 
-    console.log('SMTP client configured for STARTTLS:', 'premium12-2.web-hosting.com:587');
+    console.log('SMTP client configured for SSL/TLS:', 'premium12-2.web-hosting.com:465');
     console.log('Sending from:', emailAccount.email_address, 'to:', email.to_email);
 
     await client.send({
