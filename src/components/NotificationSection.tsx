@@ -102,7 +102,7 @@ const NotificationSection = () => {
                       </Badge>
                     </div>
                     <div
-                      className="text-muted-foreground prose prose-sm max-w-none dark:prose-invert"
+                      className="text-muted-foreground text-sm leading-relaxed [&>p]:mb-2 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&>strong]:font-semibold [&>em]:italic"
                       dangerouslySetInnerHTML={{ __html: announcement.content }}
                     />
                     <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
