@@ -36,6 +36,7 @@ serve(async (req) => {
 
     // Try to create email account via cPanel API
     const cpanelApiToken = Deno.env.get('CPANEL_API_TOKEN');
+    const cpanelUsername = Deno.env.get('CPANEL_USERNAME');
     const cpanelHost = Deno.env.get('CPANEL_HOST') || 'mail.nscu.govt.ac'; // cPanel server hostname
     
     let cpanelAccountCreated = false;
@@ -50,12 +51,16 @@ serve(async (req) => {
         domain: 'nscu.govt.ac'
       });
 
-      console.log('Calling cPanel API at:', cpanelHost);
+      console.log('Calling cPanel API at:', cpanelHost, 'with username:', cpanelUsername);
+
+      // Use Basic Authentication with username:token format
+      const authString = `${cpanelUsername}:${cpanelApiToken}`;
+      const base64Auth = btoa(authString);
 
       const cpanelResponse = await fetch(`${cpanelUrl}?${params.toString()}`, {
         method: 'GET',
         headers: {
-          'Authorization': `cpanel ${cpanelApiToken}`,
+          'Authorization': `Basic ${base64Auth}`,
           'Content-Type': 'application/json',
         },
         signal: AbortSignal.timeout(10000) // 10 second timeout
