@@ -33,6 +33,7 @@ serve(async (req) => {
     const defaultPassword = generateRandomPassword();
 
     console.log('Generated email:', emailAddress);
+    console.log('Email username for cPanel:', emailUsername);
 
     // Try to create email account via cPanel API
     const cpanelApiToken = Deno.env.get('CPANEL_API_TOKEN');
@@ -52,6 +53,12 @@ serve(async (req) => {
       });
 
       console.log('Calling cPanel API at:', cpanelHost, 'with username:', cpanelUsername);
+      console.log('cPanel API parameters:', {
+        email: emailUsername,
+        domain: 'nscu.govt.ac',
+        quota: '1024'
+      });
+      console.log('Full cPanel URL:', `${cpanelUrl}?${params.toString()}`);
 
       // Use cPanel API token authentication format
       const cpanelResponse = await fetch(`${cpanelUrl}?${params.toString()}`, {
