@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, UserPlus, RefreshCw, AlertCircle, CheckCircle, Copy } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface EmailAccount {
   id: string;
@@ -35,6 +36,7 @@ const EmailAccountManagement = () => {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string } | null>(null);
   const [showCredentials, setShowCredentials] = useState(false);
 
@@ -80,6 +82,29 @@ const EmailAccountManagement = () => {
     }
   };
 
+  const createEmailAccountFromDropdown = async () => {
+    if (!selectedUserId) {
+      toast({
+        title: "Error",
+        description: "Please select a user first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const userProfile = usersWithoutEmail.find(u => u.user_id === selectedUserId);
+    if (!userProfile) {
+      toast({
+        title: "Error",
+        description: "User not found",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    await createEmailAccount(userProfile);
+  };
+
   const createEmailAccount = async (userProfile: UserProfile) => {
     setCreating(true);
     setSelectedUser(userProfile);
@@ -99,6 +124,7 @@ const EmailAccountManagement = () => {
         password: data.password
       });
       setShowCredentials(true);
+      setSelectedUserId(''); // Reset selection
 
       toast({
         title: "Success",
@@ -158,6 +184,41 @@ const EmailAccountManagement = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Create Email Form */}
+          {usersWithoutEmail.length > 0 && (
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Create New Email Account</CardTitle>
+                <CardDescription>Select a user to create their @nscu.govt.ac email account</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a user..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {usersWithoutEmail.map((user) => (
+                          <SelectItem key={user.user_id} value={user.user_id}>
+                            {user.full_name} ({user.role})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    onClick={createEmailAccountFromDropdown}
+                    disabled={creating || !selectedUserId}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {creating ? 'Creating...' : 'Create Email'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4">
             <Card>
