@@ -45,9 +45,9 @@ serve(async (req) => {
     try {
       const cpanelUrl = `https://${cpanelHost}:2083/execute/Email/add_pop`;
       const params = new URLSearchParams({
-        email: emailUsername,
+        email: emailUsername, // Just the username part (e.g., "john.doe")
         password: defaultPassword,
-        quota: '1024', // 1GB quota
+        quota: '1024', // 1GB quota in MB
         domain: 'nscu.govt.ac'
       });
 
