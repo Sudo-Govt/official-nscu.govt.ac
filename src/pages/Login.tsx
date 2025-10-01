@@ -46,7 +46,7 @@ const Login = () => {
             alt="NSCU Belize University Logo - Student Portal Access" 
             className="h-16 w-auto mx-auto mb-4"
           />
-          <h1 className="text-3xl font-bold text-foreground">MyNSCU Portal</h1>
+          <h1 className="text-3xl font-bold text-foreground">nCore</h1>
           <p className="text-muted-foreground mt-2">The New States Continental University</p>
         </div>
 

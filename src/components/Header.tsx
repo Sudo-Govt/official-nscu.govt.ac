@@ -148,7 +148,7 @@ const Header = () => {
               <Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni</Link>
             </div>
             <div className="flex space-x-4">
-              <Link to="/login" className="hover:text-uw-gold transition-colors">MyNSCU Delaware</Link>
+              <Link to="/login" className="hover:text-uw-gold transition-colors">nCore</Link>
               <Link to="/academics/academic-calendar" className="hover:text-uw-gold transition-colors">Calendar</Link>
             </div>
           </div>
