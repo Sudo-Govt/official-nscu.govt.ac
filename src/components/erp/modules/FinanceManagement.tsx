@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   DollarSign, 
   Receipt, 
@@ -33,8 +34,75 @@ const FinanceManagement = () => {
     paymentMethod: '',
     scholarshipType: '',
     year: '',
-    transactionType: ''
+    transactionType: '',
+    delegatorId: '',
+    delegatorAmount: '',
+    delegatorPercentage: '',
+    totalFees: ''
   });
+
+  const [delegators, setDelegators] = useState<any[]>([]);
+  const [pendingDues, setPendingDues] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchDelegators();
+    fetchPendingDues();
+  }, []);
+
+  const fetchDelegators = async () => {
+    const { data } = await supabase
+      .from('agent_profiles')
+      .select('id, user_id, agent_id, profiles!inner(full_name)');
+    if (data) setDelegators(data);
+  };
+
+  const fetchPendingDues = async () => {
+    const { data } = await supabase
+      .from('student_applications')
+      .select('*, courses(course_name, fee_structure)')
+      .neq('status', 'paid')
+      .neq('tuition_fee_paid', true);
+    if (data) setPendingDues(data);
+  };
+
+  // Calculate delegator percentage when amount changes
+  const handleDelegatorAmountChange = (value: string) => {
+    const amount = parseFloat(value) || 0;
+    const total = parseFloat(formData.totalFees) || 0;
+    const percentage = total > 0 ? (amount / total * 100).toFixed(2) : '0';
+    
+    setFormData({
+      ...formData,
+      delegatorAmount: value,
+      delegatorPercentage: percentage
+    });
+  };
+
+  // Calculate delegator amount when percentage changes
+  const handleDelegatorPercentageChange = (value: string) => {
+    const percentage = parseFloat(value) || 0;
+    const total = parseFloat(formData.totalFees) || 0;
+    const amount = (total * percentage / 100).toFixed(2);
+    
+    setFormData({
+      ...formData,
+      delegatorPercentage: value,
+      delegatorAmount: amount
+    });
+  };
+
+  // Update calculations when total fees change
+  const handleTotalFeesChange = (value: string) => {
+    const total = parseFloat(value) || 0;
+    const percentage = parseFloat(formData.delegatorPercentage) || 0;
+    const amount = (total * percentage / 100).toFixed(2);
+    
+    setFormData({
+      ...formData,
+      totalFees: value,
+      delegatorAmount: amount
+    });
+  };
 
   const mockFeeData = [
     { student: 'John Smith', id: 'NSCU2024001', totalFee: 15000, paid: 10000, pending: 5000, status: 'Partial' },
@@ -75,7 +143,11 @@ const FinanceManagement = () => {
       paymentMethod: '',
       scholarshipType: '',
       year: '',
-      transactionType: ''
+      transactionType: '',
+      delegatorId: '',
+      delegatorAmount: '',
+      delegatorPercentage: '',
+      totalFees: ''
     });
     setDialogOpen(true);
   };
@@ -123,6 +195,16 @@ const FinanceManagement = () => {
             />
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="totalFees">Total Fees *</Label>
+            <Input
+              id="totalFees"
+              type="number"
+              value={formData.totalFees}
+              onChange={(e) => handleTotalFeesChange(e.target.value)}
+              placeholder="e.g., 10000"
+            />
+          </div>
+          <div className="grid gap-2">
             <Label htmlFor="amount">Payment Amount *</Label>
             <Input
               id="amount"
@@ -145,6 +227,56 @@ const FinanceManagement = () => {
                 <SelectItem value="Check">Check</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          
+          <div className="border-t pt-4 mt-4">
+            <h4 className="font-semibold mb-3">Delegator Commission</h4>
+            <div className="grid gap-2">
+              <Label htmlFor="delegatorId">Select Delegator (Optional)</Label>
+              <Select value={formData.delegatorId} onValueChange={(value) => setFormData({ ...formData, delegatorId: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select delegator" />
+                </SelectTrigger>
+                <SelectContent>
+                  {delegators.map((del) => (
+                    <SelectItem key={del.id} value={del.id}>
+                      {del.profiles?.full_name} ({del.agent_id})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {formData.delegatorId && (
+              <>
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="grid gap-2">
+                    <Label htmlFor="delegatorAmount">Delegator Amount ($)</Label>
+                    <Input
+                      id="delegatorAmount"
+                      type="number"
+                      value={formData.delegatorAmount}
+                      onChange={(e) => handleDelegatorAmountChange(e.target.value)}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="delegatorPercentage">Percentage (%)</Label>
+                    <Input
+                      id="delegatorPercentage"
+                      type="number"
+                      value={formData.delegatorPercentage}
+                      onChange={(e) => handleDelegatorPercentageChange(e.target.value)}
+                      placeholder="0.00"
+                      max="100"
+                    />
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  University receives: ${(parseFloat(formData.totalFees || '0') - parseFloat(formData.delegatorAmount || '0')).toFixed(2)}
+                </p>
+              </>
+            )}
           </div>
         </div>
       );
@@ -328,12 +460,73 @@ const FinanceManagement = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Fee Management</TabsTrigger>
+          <TabsTrigger value="pending">Pending Dues</TabsTrigger>
           <TabsTrigger value="receipts">Receipts</TabsTrigger>
           <TabsTrigger value="scholarships">Scholarships</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="pending" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Pending Dues Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pendingDues.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No pending dues found</p>
+                ) : (
+                  pendingDues.map((due, index) => {
+                    const totalFee = due.courses?.fee_structure?.total || 0;
+                    const paidAmount = due.application_fee_paid ? (due.application_fee_amount || 0) : 0;
+                    const pending = totalFee - paidAmount;
+                    
+                    return (
+                      <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                            <AlertCircle className="h-5 w-5 text-red-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold">{due.first_name} {due.last_name}</h4>
+                            <p className="text-sm text-muted-foreground">{due.application_number}</p>
+                            <p className="text-xs text-muted-foreground">{due.courses?.course_name}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <p className="text-sm font-medium">Total: ${totalFee.toLocaleString()}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Paid: ${paidAmount.toLocaleString()}
+                            </p>
+                            <p className="text-sm font-bold text-red-600">
+                              Pending: ${pending.toLocaleString()}
+                            </p>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => {
+                            setFormData({
+                              ...formData,
+                              studentName: `${due.first_name} ${due.last_name}`,
+                              studentId: due.application_number,
+                              totalFees: totalFee.toString()
+                            });
+                            setActiveTab('overview');
+                            setDialogOpen(true);
+                          }}>
+                            <DollarSign className="mr-2 h-4 w-4" />
+                            Collect Payment
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="overview" className="space-y-4">
           <Card>

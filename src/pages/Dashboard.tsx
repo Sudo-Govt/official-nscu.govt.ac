@@ -4,6 +4,7 @@ import AdminDashboard from '@/components/dashboards/AdminDashboard';
 import StudentDashboard from '@/components/dashboards/StudentDashboard';
 import FacultyDashboard from '@/components/dashboards/FacultyDashboard';
 import AdmissionAgentDashboard from '@/components/dashboards/AdmissionAgentDashboard';
+import DelegatorDashboard from '@/components/dashboards/DelegatorDashboard';
 import FinanceDashboard from '@/components/dashboards/FinanceDashboard';
 import AlumniDashboard from '@/components/dashboards/AlumniDashboard';
 
@@ -18,14 +19,16 @@ const Dashboard = () => {
     switch (user.role) {
       case 'admin':
       case 'superadmin':
+      case 'registrar':
         return <AdminDashboard />;
       case 'student':
         return <StudentDashboard />;
       case 'faculty':
         return <FacultyDashboard />;
       case 'admission_agent':
-        return <AdmissionAgentDashboard />;
+        return <DelegatorDashboard />;
       case 'finance':
+      case 'accounts':
         return <FinanceDashboard />;
       case 'alumni':
         return <AlumniDashboard />;
