@@ -53,8 +53,8 @@ serve(async (req) => {
     // Send via SMTP using user's credentials
     const client = new SMTPClient({
       connection: {
-        hostname: 'mail.govt.ac',
-        port: 465,
+        hostname: 'mail.nscu.govt.ac',
+        port: 587,
         tls: true,
         auth: {
           username: emailAccount.email_address,
@@ -62,6 +62,8 @@ serve(async (req) => {
         },
       },
     });
+
+    console.log('SMTP client configured for:', 'mail.nscu.govt.ac:587');
 
     await client.send({
       from: `${emailAccount.display_name} <${emailAccount.email_address}>`,
