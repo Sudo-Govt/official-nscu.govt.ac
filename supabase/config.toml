@@ -2,3 +2,12 @@ project_id = "jywejigatlsdytnppgnc"
 
 [functions.send-email]
 verify_jwt = true
+
+[functions.create-email-account]
+verify_jwt = true
+
+[functions.fetch-emails]
+verify_jwt = true
+
+[functions.send-user-email]
+verify_jwt = true

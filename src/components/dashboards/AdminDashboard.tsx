@@ -54,6 +54,8 @@ import EmailInbox from '@/components/admin/email/EmailInbox';
 import EmailSent from '@/components/admin/email/EmailSent';
 import EmailDrafts from '@/components/admin/email/EmailDrafts';
 import EmailComposer from '@/components/admin/email/EmailComposer';
+import EmailAccountManagement from '@/components/admin/EmailAccountManagement';
+import EmailApp from '@/components/email/EmailApp';
 
 interface Student {
   id: string;
@@ -703,10 +705,9 @@ const AdminDashboard = () => {
     {
       label: "Email",
       items: [
-        { title: "Inbox", icon: Mail, value: "email-inbox", onClick: () => setCurrentTab("email-inbox") },
-        { title: "Sent", icon: FileText, value: "email-sent", onClick: () => setCurrentTab("email-sent") },
-        { title: "Drafts", icon: Edit, value: "email-drafts", onClick: () => setCurrentTab("email-drafts") },
-        { title: "Compose", icon: Bell, value: "email-compose", onClick: () => setCurrentTab("email-compose") },
+        { title: "My Email", icon: Mail, value: "my-email", onClick: () => setCurrentTab("my-email") },
+        { title: "Email Accounts", icon: Users, value: "email-accounts", onClick: () => setCurrentTab("email-accounts") },
+        { title: "SMTP Settings", icon: Settings, value: "email-settings", onClick: () => setCurrentTab("email-settings") },
       ]
     },
     {
@@ -1038,11 +1039,9 @@ const AdminDashboard = () => {
           <ChangePassword />
         </div>
       )}
-      {currentTab === "email-inbox" && <EmailInbox />}
-      {currentTab === "email-sent" && <EmailSent />}
-      {currentTab === "email-drafts" && <EmailDrafts />}
-      {currentTab === "email-compose" && <EmailComposer />}
-      {currentTab === "email" && <EmailSettings />}
+      {currentTab === "my-email" && <EmailApp />}
+      {currentTab === "email-accounts" && <EmailAccountManagement />}
+      {currentTab === "email-settings" && <EmailSettings />}
       {currentTab === "settings" && <SystemSettings />}
 
       {/* Dialogs remain the same */}

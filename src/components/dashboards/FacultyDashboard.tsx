@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Users, Calendar, LogOut, User } from 'lucide-react';
+import { BookOpen, Users, Calendar, LogOut, User, Mail } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import ChangePassword from '@/components/ChangePassword';
 import DashboardLayout from '@/components/DashboardLayout';
+import EmailApp from '@/components/email/EmailApp';
 
 const FacultyDashboard = () => {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ const FacultyDashboard = () => {
       items: [
         { title: "Overview", icon: BookOpen, value: "overview", onClick: () => setActiveTab("overview") },
         { title: "Courses", icon: BookOpen, value: "courses", onClick: () => setActiveTab("courses") },
+        { title: "Email", icon: Mail, value: "email", onClick: () => setActiveTab("email") },
         { title: "Profile", icon: User, value: "profile", onClick: () => setActiveTab("profile") },
         { title: "Password", icon: LogOut, value: "password", onClick: () => setActiveTab("password") },
       ]
@@ -121,6 +123,7 @@ const FacultyDashboard = () => {
       )}
 
       {activeTab === "password" && <ChangePassword />}
+      {activeTab === "email" && <EmailApp />}
     </DashboardLayout>
   );
 };

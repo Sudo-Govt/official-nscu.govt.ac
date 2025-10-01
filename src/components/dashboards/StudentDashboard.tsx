@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload, TrendingUp, Bell, Star, Target, Zap, Trophy } from 'lucide-react';
+import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload, TrendingUp, Bell, Star, Target, Zap, Trophy, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import mockDb from '@/database/mockDb';
 import ChangePassword from '@/components/ChangePassword';
 import MessagesPanel from '@/components/student/MessagesPanel';
 import DashboardLayout from '@/components/DashboardLayout';
+import EmailApp from '@/components/email/EmailApp';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -122,6 +123,13 @@ const StudentDashboard = () => {
         { title: "Courses", icon: BookOpen, value: "courses", onClick: () => setCurrentTab("courses") },
         { title: "Academics", icon: GraduationCap, value: "academics", onClick: () => setCurrentTab("academics") },
         { title: "Fees", icon: CreditCard, value: "fees", onClick: () => setCurrentTab("fees") },
+      ]
+    },
+    {
+      label: "Communication",
+      items: [
+        { title: "Email", icon: Mail, value: "email", onClick: () => setCurrentTab("email") },
+        { title: "Messages", icon: MessageSquare, value: "messages", onClick: () => setCurrentTab("messages") },
       ]
     },
     {
@@ -461,6 +469,7 @@ const StudentDashboard = () => {
       )}
 
       {currentTab === "messages" && <MessagesPanel />}
+      {currentTab === "email" && <EmailApp />}
 
       {currentTab === "fees" && (
         <Card>
