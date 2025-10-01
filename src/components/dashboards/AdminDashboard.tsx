@@ -46,7 +46,7 @@ import StudentManagement from '@/components/erp/modules/StudentManagement';
 import FinanceManagement from '@/components/erp/modules/FinanceManagement';
 import DashboardLayout from '@/components/DashboardLayout';
 import AvatarUpload from '@/components/AvatarUpload';
-import DocumentManagement from '@/components/agent/DocumentManagement';
+import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 
 interface Student {
@@ -894,18 +894,7 @@ const AdminDashboard = () => {
       {currentTab === "messaging" && <AdminMessagingSystem />}
       {currentTab === "docgen" && <DocGenTab />}
       {currentTab === "user-management" && <SuperAdminUserManagement />}
-      {currentTab === "documents" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Document Management</CardTitle>
-            <CardDescription>Manage university documents and files</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p>Document management interface coming soon</p>
-          </CardContent>
-        </Card>
-      )}
-      {currentTab === "documents" && <DocumentManagement />}
+      {currentTab === "documents" && <AdminDocumentManagement />}
       {currentTab === "announcements" && (
         <Card>
           <CardHeader>
