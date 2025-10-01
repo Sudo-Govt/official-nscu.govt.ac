@@ -73,7 +73,7 @@ serve(async (req) => {
       // Send a test email to the same address
       console.log('Sending test email...');
       await client.send({
-        from: `${emailAccount.display_name} <${emailAccount.email_address}>`,
+        from: emailAccount.email_address, // Must match authenticated account exactly
         to: emailAccount.email_address,
         subject: 'SMTP Connection Test - Success',
         content: 'This is a test email to verify your SMTP configuration is working correctly.',

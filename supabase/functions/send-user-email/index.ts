@@ -69,8 +69,9 @@ serve(async (req) => {
     console.log('SMTP client configured for SSL/TLS:', 'premium12-2.web-hosting.com:465');
     console.log('Sending from:', emailAccount.email_address, 'to:', email.to_email);
 
+    // Important: Use exact email format that matches the authenticated account
     await client.send({
-      from: `${emailAccount.display_name} <${emailAccount.email_address}>`,
+      from: emailAccount.email_address, // Must match authenticated account exactly
       to: email.to_email,
       cc: email.cc || undefined,
       bcc: email.bcc || undefined,
