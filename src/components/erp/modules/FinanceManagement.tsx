@@ -43,10 +43,12 @@ const FinanceManagement = () => {
 
   const [delegators, setDelegators] = useState<any[]>([]);
   const [pendingDues, setPendingDues] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
 
   useEffect(() => {
     fetchDelegators();
     fetchPendingDues();
+    fetchStudents();
   }, []);
 
   const fetchDelegators = async () => {
@@ -63,6 +65,25 @@ const FinanceManagement = () => {
       .neq('status', 'paid')
       .neq('tuition_fee_paid', true);
     if (data) setPendingDues(data);
+  };
+
+  const fetchStudents = async () => {
+    const { data } = await supabase
+      .from('student_applications')
+      .select('id, first_name, last_name, application_number, student_id, email')
+      .order('created_at', { ascending: false });
+    if (data) setStudents(data);
+  };
+
+  const handleStudentSelect = (studentId: string) => {
+    const selected = students.find(s => s.id === studentId);
+    if (selected) {
+      setFormData({
+        ...formData,
+        studentName: `${selected.first_name} ${selected.last_name}`,
+        studentId: selected.application_number || selected.student_id || selected.id
+      });
+    }
   };
 
   // Calculate delegator percentage when amount changes
@@ -177,21 +198,38 @@ const FinanceManagement = () => {
       return (
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="studentName">Student Name *</Label>
+            <Label htmlFor="studentSelect">Select Student *</Label>
+            <Select onValueChange={handleStudentSelect}>
+              <SelectTrigger className="bg-background z-50">
+                <SelectValue placeholder="Select a student" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.first_name} {student.last_name} - {student.application_number || student.student_id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="studentName">Student Name (Auto-filled)</Label>
             <Input
               id="studentName"
               value={formData.studentName}
-              onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-              placeholder="e.g., John Smith"
+              readOnly
+              className="bg-muted"
+              placeholder="Will be auto-filled"
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="studentId">Student ID *</Label>
+            <Label htmlFor="studentId">Student ID (Auto-filled)</Label>
             <Input
               id="studentId"
               value={formData.studentId}
-              onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
-              placeholder="e.g., NSCU2024001"
+              readOnly
+              className="bg-muted"
+              placeholder="Will be auto-filled"
             />
           </div>
           <div className="grid gap-2">
