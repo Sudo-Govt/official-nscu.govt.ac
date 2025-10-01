@@ -4,6 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { 
   BookOpen, 
   GraduationCap, 
@@ -17,6 +21,22 @@ import {
 
 const AcademicManagement = () => {
   const [activeTab, setActiveTab] = useState('departments');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    code: '',
+    credits: '',
+    department: '',
+    semester: '',
+    type: '',
+    duration: '',
+    faculty: '',
+    students: '',
+    programs: ''
+  });
 
   const mockDepartments = [
     { id: 1, name: 'Computer Science', faculty: 15, students: 240, programs: 4 },
@@ -39,15 +59,254 @@ const AcademicManagement = () => {
     { id: 4, name: 'Doctor of Philosophy in Computer Science', type: 'Doctoral', duration: '4-6 years', credits: 90 }
   ];
 
+  const handleAddNew = () => {
+    setFormData({
+      name: '',
+      code: '',
+      credits: '',
+      department: '',
+      semester: '',
+      type: '',
+      duration: '',
+      faculty: '',
+      students: '',
+      programs: ''
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSubmit = () => {
+    // Validation based on active tab
+    if (activeTab === 'departments' && (!formData.name || !formData.faculty)) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (activeTab === 'courses' && (!formData.name || !formData.code || !formData.credits)) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (activeTab === 'programs' && (!formData.name || !formData.type || !formData.duration)) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: `${activeTab === 'departments' ? 'Department' : activeTab === 'courses' ? 'Course' : 'Program'} added successfully`
+    });
+    
+    setDialogOpen(false);
+  };
+
+  const renderDialogContent = () => {
+    switch (activeTab) {
+      case 'departments':
+        return (
+          <>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Department Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g., Computer Science"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="faculty">Faculty Count *</Label>
+                <Input
+                  id="faculty"
+                  type="number"
+                  value={formData.faculty}
+                  onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}
+                  placeholder="e.g., 15"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="students">Student Count</Label>
+                <Input
+                  id="students"
+                  type="number"
+                  value={formData.students}
+                  onChange={(e) => setFormData({ ...formData, students: e.target.value })}
+                  placeholder="e.g., 240"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="programs">Number of Programs</Label>
+                <Input
+                  id="programs"
+                  type="number"
+                  value={formData.programs}
+                  onChange={(e) => setFormData({ ...formData, programs: e.target.value })}
+                  placeholder="e.g., 4"
+                />
+              </div>
+            </div>
+          </>
+        );
+      
+      case 'courses':
+        return (
+          <>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="code">Course Code *</Label>
+                <Input
+                  id="code"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  placeholder="e.g., CS101"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="name">Course Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g., Introduction to Programming"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="credits">Credits *</Label>
+                <Input
+                  id="credits"
+                  type="number"
+                  value={formData.credits}
+                  onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+                  placeholder="e.g., 3"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="department">Department</Label>
+                <Select value={formData.department} onValueChange={(value) => setFormData({ ...formData, department: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Computer Science">Computer Science</SelectItem>
+                    <SelectItem value="Business Administration">Business Administration</SelectItem>
+                    <SelectItem value="Engineering">Engineering</SelectItem>
+                    <SelectItem value="Liberal Arts">Liberal Arts</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="semester">Semester</Label>
+                <Select value={formData.semester} onValueChange={(value) => setFormData({ ...formData, semester: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select semester" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Fall 2024">Fall 2024</SelectItem>
+                    <SelectItem value="Spring 2025">Spring 2025</SelectItem>
+                    <SelectItem value="Both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </>
+        );
+      
+      case 'programs':
+        return (
+          <>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Program Name *</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g., Bachelor of Computer Science"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="type">Program Type *</Label>
+                <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
+                    <SelectItem value="Graduate">Graduate</SelectItem>
+                    <SelectItem value="Doctoral">Doctoral</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="duration">Duration *</Label>
+                <Input
+                  id="duration"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  placeholder="e.g., 4 years"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="credits">Total Credits</Label>
+                <Input
+                  id="credits"
+                  type="number"
+                  value={formData.credits}
+                  onChange={(e) => setFormData({ ...formData, credits: e.target.value })}
+                  placeholder="e.g., 120"
+                />
+              </div>
+            </div>
+          </>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold tracking-tight">Academic Management</h2>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add New
-        </Button>
+        {activeTab !== 'accreditation' && (
+          <Button onClick={handleAddNew}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New
+          </Button>
+        )}
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Add New {activeTab === 'departments' ? 'Department' : activeTab === 'courses' ? 'Course' : 'Program'}
+            </DialogTitle>
+            <DialogDescription>
+              Fill in the details below to add a new {activeTab === 'departments' ? 'department' : activeTab === 'courses' ? 'course' : 'program'}.
+            </DialogDescription>
+          </DialogHeader>
+          {renderDialogContent()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmit}>Add {activeTab === 'departments' ? 'Department' : activeTab === 'courses' ? 'Course' : 'Program'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">

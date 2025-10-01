@@ -4,6 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { 
   DollarSign, 
   Receipt, 
@@ -17,6 +22,19 @@ import {
 
 const FinanceManagement = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
+  
+  // Form states
+  const [formData, setFormData] = useState({
+    studentName: '',
+    studentId: '',
+    amount: '',
+    paymentMethod: '',
+    scholarshipType: '',
+    year: '',
+    transactionType: ''
+  });
 
   const mockFeeData = [
     { student: 'John Smith', id: 'NSCU2024001', totalFee: 15000, paid: 10000, pending: 5000, status: 'Partial' },
@@ -49,6 +67,181 @@ const FinanceManagement = () => {
   const totalPending = mockFeeData.reduce((sum, item) => sum + item.pending, 0);
   const collectionRate = ((totalRevenue / (totalRevenue + totalPending)) * 100).toFixed(1);
 
+  const handleAddNew = () => {
+    setFormData({
+      studentName: '',
+      studentId: '',
+      amount: '',
+      paymentMethod: '',
+      scholarshipType: '',
+      year: '',
+      transactionType: ''
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSubmit = () => {
+    // Validation
+    if (!formData.studentName || !formData.amount) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const typeLabel = activeTab === 'overview' ? 'Fee Payment' : activeTab === 'receipts' ? 'Receipt' : 'Scholarship';
+    toast({
+      title: "Success",
+      description: `${typeLabel} recorded successfully`
+    });
+    
+    setDialogOpen(false);
+  };
+
+  const renderDialogContent = () => {
+    if (activeTab === 'overview') {
+      return (
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="studentName">Student Name *</Label>
+            <Input
+              id="studentName"
+              value={formData.studentName}
+              onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
+              placeholder="e.g., John Smith"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="studentId">Student ID *</Label>
+            <Input
+              id="studentId"
+              value={formData.studentId}
+              onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+              placeholder="e.g., NSCU2024001"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="amount">Payment Amount *</Label>
+            <Input
+              id="amount"
+              type="number"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              placeholder="e.g., 5000"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="paymentMethod">Payment Method</Label>
+            <Select value={formData.paymentMethod} onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select payment method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                <SelectItem value="Credit Card">Credit Card</SelectItem>
+                <SelectItem value="Cash">Cash</SelectItem>
+                <SelectItem value="Check">Check</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeTab === 'receipts') {
+      return (
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="studentName">Student Name *</Label>
+            <Input
+              id="studentName"
+              value={formData.studentName}
+              onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
+              placeholder="e.g., John Smith"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="amount">Amount *</Label>
+            <Input
+              id="amount"
+              type="number"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              placeholder="e.g., 5000"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="paymentMethod">Payment Method *</Label>
+            <Select value={formData.paymentMethod} onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select payment method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
+                <SelectItem value="Credit Card">Credit Card</SelectItem>
+                <SelectItem value="Cash">Cash</SelectItem>
+                <SelectItem value="Check">Check</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeTab === 'scholarships') {
+      return (
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="studentName">Student Name *</Label>
+            <Input
+              id="studentName"
+              value={formData.studentName}
+              onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
+              placeholder="e.g., John Smith"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="scholarshipType">Scholarship Type *</Label>
+            <Select value={formData.scholarshipType} onValueChange={(value) => setFormData({ ...formData, scholarshipType: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select scholarship type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Merit Scholarship">Merit Scholarship</SelectItem>
+                <SelectItem value="Need-based Aid">Need-based Aid</SelectItem>
+                <SelectItem value="Athletic Scholarship">Athletic Scholarship</SelectItem>
+                <SelectItem value="Academic Excellence">Academic Excellence</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="amount">Amount *</Label>
+            <Input
+              id="amount"
+              type="number"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              placeholder="e.g., 3000"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="year">Academic Year</Label>
+            <Input
+              id="year"
+              value={formData.year}
+              onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+              placeholder="e.g., 2024-25"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -58,12 +251,34 @@ const FinanceManagement = () => {
             <Download className="mr-2 h-4 w-4" />
             Export Report
           </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Transaction
-          </Button>
+          {activeTab !== 'reports' && (
+            <Button onClick={handleAddNew}>
+              <Plus className="mr-2 h-4 w-4" />
+              New {activeTab === 'overview' ? 'Payment' : activeTab === 'receipts' ? 'Receipt' : 'Scholarship'}
+            </Button>
+          )}
         </div>
       </div>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              New {activeTab === 'overview' ? 'Fee Payment' : activeTab === 'receipts' ? 'Receipt' : 'Scholarship'}
+            </DialogTitle>
+            <DialogDescription>
+              Record a new {activeTab === 'overview' ? 'fee payment' : activeTab === 'receipts' ? 'receipt' : 'scholarship'} for a student.
+            </DialogDescription>
+          </DialogHeader>
+          {renderDialogContent()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmit}>
+              Submit {activeTab === 'overview' ? 'Payment' : activeTab === 'receipts' ? 'Receipt' : 'Scholarship'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Overview Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
