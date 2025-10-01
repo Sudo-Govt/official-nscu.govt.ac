@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import jsPDF from 'jspdf';
 import { 
   DollarSign, 
   Receipt, 
@@ -18,7 +19,8 @@ import {
   Download,
   Plus,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Trash2
 } from 'lucide-react';
 
 const FinanceManagement = () => {
@@ -248,6 +250,122 @@ const FinanceManagement = () => {
     });
 
     fetchFeePayments();
+  };
+
+  const handleDeletePendingDue = async (applicationId: string) => {
+    if (!confirm('Are you sure you want to delete this pending due record?')) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('student_applications')
+      .delete()
+      .eq('id', applicationId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete pending due: " + error.message,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Pending due deleted successfully"
+    });
+
+    fetchPendingDues();
+  };
+
+  const generateReceiptPDF = (receipt: any) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Header with NSCU branding
+    doc.setFillColor(41, 128, 185);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text('National State Central University', pageWidth / 2, 30, { align: 'center' });
+    
+    // Receipt title
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PAYMENT RECEIPT', pageWidth / 2, 55, { align: 'center' });
+    
+    // Receipt details
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    
+    const leftMargin = 20;
+    let yPosition = 75;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Receipt Number:', leftMargin, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.text(receipt.id.substring(0, 8).toUpperCase(), leftMargin + 50, yPosition);
+    
+    yPosition += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date:', leftMargin, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date(receipt.payment_date).toLocaleDateString(), leftMargin + 50, yPosition);
+    
+    yPosition += 15;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Student Name:', leftMargin, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.text(receipt.student_name, leftMargin + 50, yPosition);
+    
+    yPosition += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Payment Method:', leftMargin, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.text(receipt.payment_method || 'N/A', leftMargin + 50, yPosition);
+    
+    yPosition += 20;
+    
+    // Amount box
+    doc.setFillColor(240, 240, 240);
+    doc.rect(leftMargin, yPosition, pageWidth - 40, 25, 'F');
+    
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Amount Paid:', leftMargin + 5, yPosition + 15);
+    doc.setFontSize(16);
+    doc.text(`$${parseFloat(receipt.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - leftMargin - 5, yPosition + 15, { align: 'right' });
+    
+    // Footer with contact information
+    const footerY = pageHeight - 40;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, footerY, pageWidth - 20, footerY);
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    
+    doc.text('National State Central University', pageWidth / 2, footerY + 8, { align: 'center' });
+    doc.text('123 University Avenue, Campus City, ST 12345', pageWidth / 2, footerY + 13, { align: 'center' });
+    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 18, { align: 'center' });
+    doc.text('Website: www.nscu.edu', pageWidth / 2, footerY + 23, { align: 'center' });
+    
+    // Save the PDF
+    doc.save(`NSCU_Receipt_${receipt.id.substring(0, 8)}.pdf`);
+    
+    toast({
+      title: "Success",
+      description: "Receipt downloaded successfully"
+    });
   };
 
   const renderDialogContent = () => {
@@ -610,19 +728,29 @@ const FinanceManagement = () => {
                               Pending: ${pending.toLocaleString()}
                             </p>
                           </div>
-                          <Button variant="outline" size="sm" onClick={() => {
-                            setFormData({
-                              ...formData,
-                              studentName: `${due.first_name} ${due.last_name}`,
-                              studentId: due.application_number,
-                              totalFees: totalFee.toString()
-                            });
-                            setActiveTab('overview');
-                            setDialogOpen(true);
-                          }}>
-                            <DollarSign className="mr-2 h-4 w-4" />
-                            Collect Payment
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => {
+                              setFormData({
+                                ...formData,
+                                studentName: `${due.first_name} ${due.last_name}`,
+                                studentId: due.application_number,
+                                totalFees: totalFee.toString()
+                              });
+                              setActiveTab('overview');
+                              setDialogOpen(true);
+                            }}>
+                              <DollarSign className="mr-2 h-4 w-4" />
+                              Collect Payment
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleDeletePendingDue(due.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -721,14 +849,24 @@ const FinanceManagement = () => {
                           <div className="text-right">
                             <p className="font-semibold">${parseFloat(receipt.amount).toLocaleString()}</p>
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleDeletePayment(receipt.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            Delete
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => generateReceiptPDF(receipt)}
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Download PDF
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleDeletePayment(receipt.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );
