@@ -380,21 +380,20 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ programName, onSuccess })
                 <FormField
                   control={form.control}
                   name="startTerm"
-                  rules={{ required: "Please select start term" }}
+                  rules={{ required: "Please select admission intake" }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Intended Start Term *</FormLabel>
+                      <FormLabel>Admission Intake *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select term" />
+                            <SelectValue placeholder="Select intake" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="fall-2025">Fall 2025</SelectItem>
-                          <SelectItem value="spring-2026">Spring 2026</SelectItem>
-                          <SelectItem value="summer-2026">Summer 2026</SelectItem>
-                          <SelectItem value="fall-2026">Fall 2026</SelectItem>
+                          <SelectItem value="fall">Fall Intake (August/September)</SelectItem>
+                          <SelectItem value="spring">Spring Intake (January)</SelectItem>
+                          <SelectItem value="summer">Summer Intake (May/June)</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

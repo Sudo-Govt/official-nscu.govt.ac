@@ -54,6 +54,7 @@ import TransferAdmissions from "./pages/admissions/TransferAdmissions";
 import FinancialAid from "./pages/admissions/FinancialAid";
 import CampusTours from "./pages/admissions/CampusTours";
 import AdmissionApplication from "./pages/AdmissionApplication";
+import PublicAdmissionForm from "./pages/PublicAdmissionForm";
 
 // Student Life pages
 import Housing from "./pages/student-life/Housing";
@@ -203,6 +204,7 @@ const App = () => (
           <Route path="/admissions/financial-aid" element={<FinancialAid />} />
           <Route path="/admissions/tours" element={<CampusTours />} />
           <Route path="/admissions/apply" element={<AdmissionApplication />} />
+          <Route path="/apply" element={<PublicAdmissionForm />} />
           
           {/* Student Life Routes */}
           <Route path="/student-life/housing" element={<Housing />} />

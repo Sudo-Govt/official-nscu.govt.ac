@@ -640,17 +640,18 @@ const AddStudentForm = ({ courses, onSuccess }: { courses: Course[], onSuccess: 
           </Select>
         </div>
         <div>
-          <Label>Admission Month</Label>
+          <Label>Admission Intake</Label>
           <Select 
             value={formData.admission_month.toString()} 
             onValueChange={(value) => setFormData({ ...formData, admission_month: parseInt(value) })}
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder="Select intake" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">January</SelectItem>
-              <SelectItem value="9">September</SelectItem>
+              <SelectItem value="8">Fall Intake (August/September)</SelectItem>
+              <SelectItem value="1">Spring Intake (January)</SelectItem>
+              <SelectItem value="5">Summer Intake (May/June)</SelectItem>
             </SelectContent>
           </Select>
         </div>
