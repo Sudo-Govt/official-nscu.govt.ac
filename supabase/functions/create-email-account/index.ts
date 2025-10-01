@@ -53,14 +53,11 @@ serve(async (req) => {
 
       console.log('Calling cPanel API at:', cpanelHost, 'with username:', cpanelUsername);
 
-      // Use Basic Authentication with username:token format
-      const authString = `${cpanelUsername}:${cpanelApiToken}`;
-      const base64Auth = btoa(authString);
-
+      // Use cPanel API token authentication format
       const cpanelResponse = await fetch(`${cpanelUrl}?${params.toString()}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Basic ${base64Auth}`,
+          'Authorization': `cpanel ${cpanelUsername}:${cpanelApiToken}`,
           'Content-Type': 'application/json',
         },
         signal: AbortSignal.timeout(10000) // 10 second timeout
