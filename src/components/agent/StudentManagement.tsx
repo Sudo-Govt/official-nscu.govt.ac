@@ -629,9 +629,13 @@ const AddStudentForm = ({ courses, onSuccess }: { courses: Course[], onSuccess: 
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="2024">2024</SelectItem>
-              <SelectItem value="2025">2025</SelectItem>
-              <SelectItem value="2026">2026</SelectItem>
+              {Array.from({ length: new Date().getFullYear() + 2 - 1980 + 1 }, (_, i) => 1980 + i)
+                .reverse()
+                .map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
