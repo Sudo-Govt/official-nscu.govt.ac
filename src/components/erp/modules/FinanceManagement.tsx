@@ -69,8 +69,8 @@ const FinanceManagement = () => {
 
   const fetchStudents = async () => {
     const { data } = await supabase
-      .from('student_applications')
-      .select('id, first_name, last_name, application_number, student_id, email')
+      .from('students')
+      .select('id, name, cgpa, course_name, specialization')
       .order('created_at', { ascending: false });
     if (data) setStudents(data);
   };
@@ -80,8 +80,8 @@ const FinanceManagement = () => {
     if (selected) {
       setFormData({
         ...formData,
-        studentName: `${selected.first_name} ${selected.last_name}`,
-        studentId: selected.application_number || selected.student_id || selected.id
+        studentName: selected.name,
+        studentId: selected.id
       });
     }
   };
@@ -211,7 +211,7 @@ const FinanceManagement = () => {
                 ) : (
                   students.map((student) => (
                     <SelectItem key={student.id} value={student.id}>
-                      {student.first_name} {student.last_name} - {student.application_number || student.student_id}
+                      {student.name} - {student.course_name}
                     </SelectItem>
                   ))
                 )}
