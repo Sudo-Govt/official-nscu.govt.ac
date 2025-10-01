@@ -199,38 +199,24 @@ const FinanceManagement = () => {
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="studentSelect">Select Student *</Label>
-            <Select onValueChange={handleStudentSelect}>
+            <Select onValueChange={handleStudentSelect} value={formData.studentId}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a student" />
+                <SelectValue placeholder="Select a student">
+                  {formData.studentName || "Select a student"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
-                {students.map((student) => (
-                  <SelectItem key={student.id} value={student.id}>
-                    {student.first_name} {student.last_name} - {student.application_number || student.student_id}
-                  </SelectItem>
-                ))}
+                {students.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground">No students found</div>
+                ) : (
+                  students.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.first_name} {student.last_name} - {student.application_number || student.student_id}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="studentName">Student Name (Auto-filled)</Label>
-            <Input
-              id="studentName"
-              value={formData.studentName}
-              readOnly
-              className="bg-muted"
-              placeholder="Will be auto-filled"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="studentId">Student ID (Auto-filled)</Label>
-            <Input
-              id="studentId"
-              value={formData.studentId}
-              readOnly
-              className="bg-muted"
-              placeholder="Will be auto-filled"
-            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="totalFees">Total Fees *</Label>
