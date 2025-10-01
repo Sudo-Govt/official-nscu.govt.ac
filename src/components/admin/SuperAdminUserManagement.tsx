@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Pencil, Search, Shield, Users } from 'lucide-react';
+import { UserPlus, Pencil, Search, Shield, Users, Key } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,6 +38,10 @@ const SuperAdminUserManagement = () => {
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [selectedUserForPassword, setSelectedUserForPassword] = useState<UserProfile | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -238,6 +242,81 @@ const SuperAdminUserManagement = () => {
       permissions: []
     });
     setIsCreateDialogOpen(true);
+  };
+
+  const handleChangePassword = (user: UserProfile) => {
+    setSelectedUserForPassword(user);
+    setNewPassword('');
+    setIsPasswordDialogOpen(true);
+  };
+
+  const updateUserPassword = async () => {
+    if (!selectedUserForPassword || !newPassword) {
+      toast({
+        title: "Error",
+        description: "Please enter a new password",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      const response = await fetch(
+        'https://jywejigatlsdytnppgnc.supabase.co/functions/v1/admin-update-password',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            userId: selectedUserForPassword.user_id,
+            newPassword: newPassword
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update password');
+      }
+
+      toast({
+        title: "Success",
+        description: "Password updated successfully"
+      });
+
+      setIsPasswordDialogOpen(false);
+      setSelectedUserForPassword(null);
+      setNewPassword('');
+    } catch (error) {
+      console.error('Error updating password:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update password",
+        variant: "destructive"
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const filteredUsers = users.filter(user => 
@@ -458,6 +537,14 @@ const SuperAdminUserManagement = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
+                  onClick={() => handleChangePassword(user)}
+                >
+                  <Key className="h-4 w-4 mr-1" />
+                  Password
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
                   onClick={() => handleEditUser(user)}
                 >
                   <Pencil className="h-4 w-4 mr-1" />
@@ -475,6 +562,46 @@ const SuperAdminUserManagement = () => {
           </div>
         )}
       </CardContent>
+
+      {/* Password Change Dialog */}
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change User Password</DialogTitle>
+            <DialogDescription>
+              Set a new password for {selectedUserForPassword?.full_name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password (min 6 characters)"
+                disabled={isChangingPassword}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsPasswordDialogOpen(false)}
+              disabled={isChangingPassword}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={updateUserPassword}
+              disabled={isChangingPassword}
+            >
+              {isChangingPassword ? 'Updating...' : 'Update Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
