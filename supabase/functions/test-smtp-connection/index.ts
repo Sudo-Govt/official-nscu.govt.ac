@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,74 +36,87 @@ serve(async (req) => {
       throw new Error('Email account not found');
     }
 
-    console.log('Testing SMTP connection for:', emailAccount.email_address);
+    console.log('Testing cPanel API connection for:', emailAccount.email_address);
+
+    // Get cPanel credentials
+    const cpanelHost = Deno.env.get('CPANEL_HOST');
+    const cpanelUsername = Deno.env.get('CPANEL_USERNAME');
+    const cpanelToken = Deno.env.get('CPANEL_API_TOKEN');
 
     const testResults = {
       email: emailAccount.email_address,
-      smtp_hostname: 'premium12-2.web-hosting.com',
-      smtp_port: 465,
+      method: 'cPanel API',
+      cpanel_host: cpanelHost,
       connection_successful: false,
       authentication_successful: false,
       test_email_sent: false,
       error_details: null as string | null,
     };
 
+    if (!cpanelHost || !cpanelUsername || !cpanelToken) {
+      throw new Error('cPanel credentials not configured in environment');
+    }
+
     try {
-      // Test SMTP connection with SSL/TLS (port 465)
-      const client = new SMTPClient({
-        connection: {
-          hostname: 'premium12-2.web-hosting.com',
-          port: 465,
-          tls: true, // Direct SSL/TLS
-          auth: {
-            username: emailAccount.email_address,
-            password: emailAccount.email_password,
-          },
-        },
-        debug: {
-          log: true,
-        },
-      });
+      // Test sending via cPanel API
+      const cpanelApiUrl = `https://${cpanelHost}:2083/execute/Email/send_message`;
+      
+      const formData = new URLSearchParams();
+      formData.append('from', emailAccount.email_address);
+      formData.append('to', emailAccount.email_address); // Send test email to self
+      formData.append('subject', 'cPanel API Connection Test - Success');
+      formData.append('text', 'This is a test email to verify your cPanel API configuration is working correctly.');
+      formData.append('html', `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2 style="color: #10b981;">✓ cPanel API Connection Test Successful</h2>
+          <p>Your email account <strong>${emailAccount.email_address}</strong> is configured correctly and can send emails via cPanel API.</p>
+          <p style="color: #6b7280; font-size: 14px;">
+            Method: cPanel API<br>
+            Host: ${cpanelHost}<br>
+            Tested at: ${new Date().toLocaleString()}
+          </p>
+        </div>
+      `);
 
-      console.log('Attempting SMTP connection...');
+      console.log('Attempting cPanel API connection to:', cpanelApiUrl);
       testResults.connection_successful = true;
-      testResults.authentication_successful = true;
 
-      // Send a test email to the same address
-      console.log('Sending test email...');
-      await client.send({
-        from: emailAccount.email_address, // Must match authenticated account exactly
-        to: emailAccount.email_address,
-        subject: 'SMTP Connection Test - Success',
-        content: 'This is a test email to verify your SMTP configuration is working correctly.',
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2 style="color: #10b981;">✓ SMTP Connection Test Successful</h2>
-            <p>Your email account <strong>${emailAccount.email_address}</strong> is configured correctly and can send emails.</p>
-            <p style="color: #6b7280; font-size: 14px;">
-              Server: premium12-2.web-hosting.com:465 (SSL/TLS)<br>
-              Tested at: ${new Date().toLocaleString()}
-            </p>
-          </div>
-        `,
+      const response = await fetch(cpanelApiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `cpanel ${cpanelUsername}:${cpanelToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
       });
 
-      await client.close();
+      const result = await response.json();
+      console.log('cPanel API Response:', result);
+
+      if (!response.ok) {
+        throw new Error(`cPanel API error: ${response.status} - ${JSON.stringify(result)}`);
+      }
+
+      if (result.errors) {
+        throw new Error(`cPanel API errors: ${result.errors}`);
+      }
+
+      testResults.authentication_successful = true;
       testResults.test_email_sent = true;
 
-      console.log('Test email sent successfully');
+      console.log('Test email sent successfully via cPanel API');
 
     } catch (error: any) {
-      console.error('SMTP test failed:', error);
+      console.error('cPanel API test failed:', error);
       testResults.error_details = error.message;
       
       // Provide specific error guidance
-      if (error.message.includes('authentication')) {
-        testResults.error_details = 'Authentication failed. Please verify the email password is correct.';
+      if (error.message.includes('401') || error.message.includes('authentication')) {
+        testResults.error_details = 'Authentication failed. Please verify cPanel API token is correct.';
       } else if (error.message.includes('connection') || error.message.includes('ECONNREFUSED')) {
-        testResults.error_details = 'Cannot connect to mail server. Check if mail.nscu.govt.ac resolves to premium12-2.web-hosting.com';
+        testResults.error_details = `Cannot connect to cPanel host: ${cpanelHost}. Check if the host is correct.`;
       } else if (error.message.includes('timeout')) {
-        testResults.error_details = 'Connection timeout. The mail server may be temporarily unavailable.';
+        testResults.error_details = 'Connection timeout. The cPanel server may be temporarily unavailable.';
       }
     }
 
@@ -113,8 +125,8 @@ serve(async (req) => {
         success: testResults.test_email_sent,
         results: testResults,
         message: testResults.test_email_sent 
-          ? 'SMTP test successful! Check the inbox for test email.'
-          : 'SMTP test failed. See error details.'
+          ? 'cPanel API test successful! Check the inbox for test email.'
+          : 'cPanel API test failed. See error details.'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -129,7 +141,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: false,
         error: error.message,
-        message: 'Failed to test SMTP connection'
+        message: 'Failed to test connection'
       }),
       { 
         status: 500, 

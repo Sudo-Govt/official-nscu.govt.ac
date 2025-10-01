@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,39 +47,54 @@ serve(async (req) => {
       throw new Error('Email account not configured');
     }
 
-    console.log('Sending email from:', emailAccount.email_address);
+    console.log('Sending email via cPanel API from:', emailAccount.email_address);
 
-    // Send via SMTP using user's credentials with SSL/TLS (port 465)
-    const client = new SMTPClient({
-      connection: {
-        hostname: 'premium12-2.web-hosting.com',
-        port: 465,
-        tls: true, // true = direct SSL/TLS
-        auth: {
-          username: emailAccount.email_address,
-          password: emailAccount.email_password,
-        },
+    // Get cPanel credentials from environment
+    const cpanelHost = Deno.env.get('CPANEL_HOST');
+    const cpanelUsername = Deno.env.get('CPANEL_USERNAME');
+    const cpanelToken = Deno.env.get('CPANEL_API_TOKEN');
+
+    if (!cpanelHost || !cpanelUsername || !cpanelToken) {
+      throw new Error('cPanel credentials not configured');
+    }
+
+    // Prepare email content
+    const emailBody = email.body_html || email.body;
+    
+    // Send email using cPanel API
+    const cpanelApiUrl = `https://${cpanelHost}:2083/execute/Email/send_message`;
+    
+    const formData = new URLSearchParams();
+    formData.append('from', emailAccount.email_address);
+    formData.append('to', email.to_email);
+    formData.append('subject', email.subject);
+    formData.append('text', email.body);
+    formData.append('html', emailBody);
+    
+    if (email.cc) {
+      formData.append('cc', email.cc);
+    }
+    if (email.bcc) {
+      formData.append('bcc', email.bcc);
+    }
+
+    console.log('Calling cPanel API:', cpanelApiUrl);
+
+    const response = await fetch(cpanelApiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `cpanel ${cpanelUsername}:${cpanelToken}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      debug: {
-        log: true, // Enable debug logging
-      },
+      body: formData.toString(),
     });
 
-    console.log('SMTP client configured for SSL/TLS:', 'premium12-2.web-hosting.com:465');
-    console.log('Sending from:', emailAccount.email_address, 'to:', email.to_email);
+    const result = await response.json();
+    console.log('cPanel API Response:', result);
 
-    // Important: Use exact email format that matches the authenticated account
-    await client.send({
-      from: emailAccount.email_address, // Must match authenticated account exactly
-      to: email.to_email,
-      cc: email.cc || undefined,
-      bcc: email.bcc || undefined,
-      subject: email.subject,
-      content: email.body,
-      html: email.body_html || email.body,
-    });
-
-    await client.close();
+    if (!response.ok || result.errors) {
+      throw new Error(result.errors || `cPanel API error: ${response.status}`);
+    }
 
     // Update email status
     const { error: updateError } = await supabaseClient
@@ -94,10 +108,10 @@ serve(async (req) => {
 
     if (updateError) throw updateError;
 
-    console.log('Email sent successfully');
+    console.log('Email sent successfully via cPanel API');
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Email sent successfully' }),
+      JSON.stringify({ success: true, message: 'Email sent successfully via cPanel API' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
