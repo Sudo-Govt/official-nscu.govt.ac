@@ -109,6 +109,21 @@ const Header = () => {
       ]
     },
     {
+      title: "Global Campus",
+      items: [
+        {title: "International Programs", href: "/international/programs"},
+        {title: "Collaborations", href: "/international/collaborations"},
+        {
+          title: "Global Campuses",
+          items: [
+            {title: "Full-Fledged Colleges", href: "/colleges/full-fledged"},
+            {title: "Offshore Colleges", href: "/colleges/offshore"},
+            {title: "Study Centers", href: "/colleges/study-centers"}
+          ]
+        }
+      ]
+    },
+    {
       title: "Alumni & Community",
       items: [
         {title: "Alumni Association", href: "/alumni/association"},

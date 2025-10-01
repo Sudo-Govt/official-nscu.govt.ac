@@ -112,6 +112,7 @@ import ResearchCenters from "./pages/research/ResearchCenters";
 import FacultyDirectory from "./pages/faculty/FacultyDirectory";
 import CampusFacilities from "./pages/campus/CampusFacilities";
 import InternationalPrograms from "./pages/international/InternationalPrograms";
+import Collaborations from "./pages/international/Collaborations";
 
 // Campus Life pages
 import GreekLife from "./pages/campus-life/GreekLife";
@@ -234,6 +235,7 @@ const App = () => (
           
           {/* International Routes */}
           <Route path="/international/programs" element={<InternationalPrograms />} />
+          <Route path="/international/collaborations" element={<Collaborations />} />
           
           {/* Alumni Routes */}
           <Route path="/alumni/association" element={<AlumniAssociation />} />
