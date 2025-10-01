@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import AgentProfile from '@/components/agent/AgentProfile';
 import StudentManagement from '@/components/agent/StudentManagement';
 import DocumentManagement from '@/components/agent/DocumentManagement';
+import AnalyticsTable from '@/components/agent/AnalyticsTable';
 
 const AdmissionAgentDashboard = () => {
   const { user, logout } = useAuth();
@@ -279,13 +280,13 @@ const AdmissionAgentDashboard = () => {
           </TabsContent>
 
           <TabsContent value="analytics">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Analytics</CardTitle>
-                <CardDescription>Detailed insights into your recruitment performance</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Analytics</CardTitle>
+                  <CardDescription>Detailed insights into your recruitment performance</CardDescription>
+                </CardHeader>
+                <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card>
                       <CardContent className="pt-6">
@@ -306,14 +307,11 @@ const AdmissionAgentDashboard = () => {
                       </CardContent>
                     </Card>
                   </div>
-                  
-                  <div className="text-center py-8">
-                    <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">Detailed analytics charts coming soon</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <AnalyticsTable />
+            </div>
           </TabsContent>
 
           <TabsContent value="communications">

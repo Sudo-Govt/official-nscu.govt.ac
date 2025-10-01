@@ -46,7 +46,7 @@ const ApplicationManagement = () => {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<StudentApplication | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
-  const [reviewAction, setReviewAction] = useState<'accept' | 'reject'>('accept');
+  const [reviewAction, setReviewAction] = useState<'accept' | 'reject' | 'hold'>('accept');
   const [documentsDialogOpen, setDocumentsDialogOpen] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
@@ -86,6 +86,7 @@ const ApplicationManagement = () => {
       case 'enrolled': return 'default';
       case 'submitted': return 'secondary';
       case 'in_review': return 'outline';
+      case 'on_hold': return 'outline';
       case 'rejected': return 'destructive';
       default: return 'secondary';
     }
@@ -107,7 +108,7 @@ const ApplicationManagement = () => {
     if (!selectedApplication) return;
 
     try {
-      const newStatus = reviewAction === 'accept' ? 'accepted' : 'rejected';
+      const newStatus = reviewAction === 'accept' ? 'accepted' : reviewAction === 'reject' ? 'rejected' : 'on_hold';
       
       const { error } = await supabase
         .from('student_applications')
@@ -279,6 +280,7 @@ const ApplicationManagement = () => {
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="submitted">Submitted</SelectItem>
                   <SelectItem value="in_review">In Review</SelectItem>
+                  <SelectItem value="on_hold">On Hold</SelectItem>
                   <SelectItem value="accepted">Accepted</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                   <SelectItem value="enrolled">Enrolled</SelectItem>
@@ -412,12 +414,13 @@ const ApplicationManagement = () => {
 
               <div>
                 <Label>Action</Label>
-                <Select value={reviewAction} onValueChange={(value: 'accept' | 'reject') => setReviewAction(value)}>
+                <Select value={reviewAction} onValueChange={(value: 'accept' | 'reject' | 'hold') => setReviewAction(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="accept">Accept Application</SelectItem>
+                    <SelectItem value="hold">Put On Hold</SelectItem>
                     <SelectItem value="reject">Reject Application</SelectItem>
                   </SelectContent>
                 </Select>

@@ -10,16 +10,14 @@ import StudentTestimonials from '@/components/StudentTestimonials';
 import AdmissionsInfo from '@/components/AdmissionsInfo';
 import NewsEvents from '@/components/NewsEvents';
 import Footer from '@/components/Footer';
-import AnnouncementBanner from '@/components/AnnouncementBanner';
+import NotificationSection from '@/components/NotificationSection';
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="container mx-auto px-4 pt-8">
-        <AnnouncementBanner />
-      </div>
       <HeroSection />
+      <NotificationSection />
       <FeaturedPrograms />
       <StatsSection />
       <CampusLife />
