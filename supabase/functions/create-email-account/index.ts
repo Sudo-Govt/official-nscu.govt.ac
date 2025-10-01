@@ -34,45 +34,58 @@ serve(async (req) => {
 
     console.log('Generated email:', emailAddress);
 
-    // Create email account via cPanel API
+    // Try to create email account via cPanel API
     const cpanelApiToken = Deno.env.get('CPANEL_API_TOKEN');
-    const cpanelDomain = 'govt.ac'; // Your cPanel domain
+    const cpanelHost = Deno.env.get('CPANEL_HOST') || 'mail.nscu.govt.ac'; // cPanel server hostname
     
-    const cpanelUrl = `https://${cpanelDomain}:2083/execute/Email/add_pop`;
-    const params = new URLSearchParams({
-      email: emailUsername,
-      password: defaultPassword,
-      quota: '1024', // 1GB quota
-      domain: 'nscu.govt.ac'
-    });
+    let cpanelAccountCreated = false;
+    let cpanelError = null;
 
-    console.log('Calling cPanel API...');
+    try {
+      const cpanelUrl = `https://${cpanelHost}:2083/execute/Email/add_pop`;
+      const params = new URLSearchParams({
+        email: emailUsername,
+        password: defaultPassword,
+        quota: '1024', // 1GB quota
+        domain: 'nscu.govt.ac'
+      });
 
-    const cpanelResponse = await fetch(`${cpanelUrl}?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `cpanel ${cpanelApiToken}`,
-        'Content-Type': 'application/json',
+      console.log('Calling cPanel API at:', cpanelHost);
+
+      const cpanelResponse = await fetch(`${cpanelUrl}?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `cpanel ${cpanelApiToken}`,
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+
+      const cpanelResult = await cpanelResponse.json();
+      console.log('cPanel response:', cpanelResult);
+
+      if (cpanelResponse.ok && cpanelResult.status) {
+        cpanelAccountCreated = true;
+        console.log('cPanel account created successfully');
+      } else {
+        cpanelError = `cPanel API error: ${JSON.stringify(cpanelResult)}`;
+        console.error(cpanelError);
       }
-    });
-
-    const cpanelResult = await cpanelResponse.json();
-    console.log('cPanel response:', cpanelResult);
-
-    if (!cpanelResponse.ok || !cpanelResult.status) {
-      throw new Error(`cPanel API error: ${JSON.stringify(cpanelResult)}`);
+    } catch (error) {
+      cpanelError = `cPanel connection failed: ${error.message}`;
+      console.error(cpanelError);
     }
 
-    // Store email account in database
+    // Store email account in database (even if cPanel fails)
     const { data: emailAccount, error: dbError } = await supabaseClient
       .from('email_accounts')
       .insert({
         user_id: user_id || user.id,
         email_address: emailAddress,
-        email_password: defaultPassword, // In production, encrypt this!
+        email_password: defaultPassword,
         display_name: full_name,
         quota_mb: 1024,
-        cpanel_account_created: true,
+        cpanel_account_created: cpanelAccountCreated,
         is_active: true
       })
       .select()
@@ -87,7 +100,11 @@ serve(async (req) => {
         success: true,
         email_address: emailAddress,
         password: defaultPassword,
-        message: 'Email account created successfully'
+        cpanel_created: cpanelAccountCreated,
+        cpanel_error: cpanelError,
+        message: cpanelAccountCreated 
+          ? 'Email account created successfully' 
+          : 'Email account created in database. cPanel setup pending - please contact your system administrator.'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -105,18 +122,25 @@ serve(async (req) => {
 });
 
 function generateEmailUsername(fullName: string): string {
-  // Convert "Ajit Mishra" to "a.mishra" or "ajit.mishra"
-  const parts = fullName.toLowerCase().trim().split(' ');
-  if (parts.length >= 2) {
-    const firstName = parts[0];
-    const lastName = parts[parts.length - 1];
-    
-    // Use first initial + last name for shorter emails
-    return `${firstName.charAt(0)}.${lastName}`.replace(/[^a-z.]/g, '');
+  // Clean the input - remove any existing email domain if present
+  let cleanName = fullName.toLowerCase().trim();
+  if (cleanName.includes('@')) {
+    cleanName = cleanName.split('@')[0]; // Remove email domain
   }
   
-  // Fallback: just use the name
-  return fullName.toLowerCase().replace(/[^a-z]/g, '');
+  // Split into parts
+  const parts = cleanName.split(/[\s.]+/).filter(p => p.length > 0);
+  
+  if (parts.length >= 2) {
+    const firstName = parts[0].replace(/[^a-z]/g, '');
+    const lastName = parts[parts.length - 1].replace(/[^a-z]/g, '');
+    
+    // Use firstname.lastname format
+    return `${firstName}.${lastName}`;
+  }
+  
+  // Fallback: just use the cleaned name
+  return cleanName.replace(/[^a-z]/g, '') || 'user' + Date.now();
 }
 
 function generateRandomPassword(): string {
