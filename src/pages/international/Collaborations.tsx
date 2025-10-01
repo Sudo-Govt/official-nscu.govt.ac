@@ -2,8 +2,45 @@ import PageLayout from '@/components/PageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Globe, Users, BookOpen, Award, Target, Briefcase, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSEO } from '@/hooks/useSEO';
 
 const Collaborations = () => {
+  // SEO optimization with comprehensive meta tags
+  useSEO({
+    title: 'Global Academic Collaborations | Partner with NSCU Delaware',
+    description: 'Explore partnership opportunities with NSCU. Joint research, student exchange, dual degree programs, and international academic collaborations with Indian institutions.',
+    keywords: 'NSCU partnerships, academic collaboration, international university partnerships, dual degree programs, student exchange, faculty exchange, research collaboration, study abroad India, higher education partnerships, joint research programs, academic excellence, global education network',
+    canonical: 'https://www.nscu.govt.ac/international/collaborations',
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "New States Continental University",
+      "alternateName": "NSCU Delaware",
+      "url": "https://www.nscu.govt.ac",
+      "description": "NSCU offers global academic collaborations and partnerships with premier institutions worldwide, focusing on joint research, student exchange, and dual degree programs.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "US",
+        "addressRegion": "Delaware"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "International Partnerships",
+        "email": "partnerships@nscu.govt.ac",
+        "telephone": "+1-302-XXX-XXXX"
+      },
+      "offers": {
+        "@type": "Offer",
+        "category": "Academic Partnerships",
+        "description": "Joint research, faculty & student exchange, dual degree programs, skill development training, and cultural exchange programs"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "India"
+      }
+    }
+  });
+
   return (
     <PageLayout
       title="Global Academic Collaborations"
