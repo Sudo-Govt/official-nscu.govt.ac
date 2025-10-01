@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { Send, X, Paperclip, Minimize2 } from 'lucide-react';
+import { Send, X, Paperclip, Minimize2, FileText } from 'lucide-react';
 
 interface EmailComposeProps {
   onClose: () => void;
@@ -23,6 +23,7 @@ interface EmailComposeProps {
 const EmailCompose = ({ onClose, replyTo, fromEmail, fromName }: EmailComposeProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [to, setTo] = useState(replyTo?.from_email || '');
   const [cc, setCc] = useState('');
   const [bcc, setBcc] = useState('');
@@ -33,6 +34,26 @@ const EmailCompose = ({ onClose, replyTo, fromEmail, fromName }: EmailComposePro
   const [sending, setSending] = useState(false);
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter(file => file.size <= 25 * 1024 * 1024); // 25MB limit
+    
+    if (validFiles.length < files.length) {
+      toast({
+        title: "File size limit",
+        description: "Some files exceed 25MB and were not added",
+        variant: "destructive"
+      });
+    }
+    
+    setAttachments(prev => [...prev, ...validFiles]);
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
 
   const saveDraft = async () => {
     try {
@@ -220,9 +241,39 @@ const EmailCompose = ({ onClose, replyTo, fromEmail, fromName }: EmailComposePro
             />
           </div>
 
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2 pb-4 border-t">
+              {attachments.map((file, index) => (
+                <div key={index} className="flex items-center gap-2 bg-muted px-3 py-2 rounded-md">
+                  <FileText className="h-4 w-4" />
+                  <span className="text-sm">{file.name}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 w-5 p-0"
+                    onClick={() => removeAttachment(index)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center justify-between pt-4 border-t">
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={handleFileSelect}
+              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <Paperclip className="h-4 w-4 mr-2" />
                 Attach
               </Button>

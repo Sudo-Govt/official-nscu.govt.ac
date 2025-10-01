@@ -54,8 +54,8 @@ serve(async (req) => {
     const client = new SMTPClient({
       connection: {
         hostname: 'mail.govt.ac',
-        port: 587,
-        tls: false, // Start without TLS, use STARTTLS
+        port: 465,
+        tls: true,
         auth: {
           username: emailAccount.email_address,
           password: emailAccount.email_password,
