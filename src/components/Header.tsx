@@ -20,7 +20,7 @@ const Header = () => {
 
   const menuData = [
     {
-      title: "About NSCU Delaware USA",
+      title: "About NSCU",
       items: [
         {title: "History & Mission", href: "/about/history-mission"},
         {title: "Leadership", href: "/about/leadership"},
