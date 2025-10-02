@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -47,53 +48,38 @@ serve(async (req) => {
       throw new Error('Email account not configured');
     }
 
-    console.log('Sending email via cPanel API from:', emailAccount.email_address);
+    console.log('Sending email via SMTP from:', emailAccount.email_address);
 
-    // Get cPanel credentials from environment
-    const cpanelHost = Deno.env.get('CPANEL_HOST');
-    const cpanelUsername = Deno.env.get('CPANEL_USERNAME');
-    const cpanelToken = Deno.env.get('CPANEL_API_TOKEN');
-
-    if (!cpanelHost || !cpanelUsername || !cpanelToken) {
-      throw new Error('cPanel credentials not configured');
-    }
-
-    // Prepare email content
-    const emailBody = email.body_html || email.body;
-    
-    // Send email using cPanel API
-    const cpanelApiUrl = `https://${cpanelHost}:2083/execute/Email/send_message`;
-    
-    const formData = new URLSearchParams();
-    formData.append('from', emailAccount.email_address);
-    formData.append('to', email.to_email);
-    formData.append('subject', email.subject);
-    formData.append('text', email.body);
-    formData.append('html', emailBody);
-    
-    if (email.cc) {
-      formData.append('cc', email.cc);
-    }
-    if (email.bcc) {
-      formData.append('bcc', email.bcc);
-    }
-
-    console.log('Calling cPanel API:', cpanelApiUrl);
-
-    const response = await fetch(cpanelApiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `cpanel ${cpanelUsername}:${cpanelToken}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+    // Send email using SMTP
+    const client = new SMTPClient({
+      connection: {
+        hostname: 'mail.nscu.govt.ac',
+        port: 587,
+        tls: false, // Start without TLS, will upgrade with STARTTLS
+        auth: {
+          username: emailAccount.email_address,
+          password: emailAccount.email_password,
+        },
       },
-      body: formData.toString(),
     });
 
-    const result = await response.json();
-    console.log('cPanel API Response:', result);
+    try {
+      await client.send({
+        from: `${emailAccount.display_name} <${emailAccount.email_address}>`,
+        to: email.to_email,
+        cc: email.cc || undefined,
+        bcc: email.bcc || undefined,
+        subject: email.subject,
+        content: email.body,
+        html: email.body_html || email.body,
+      });
 
-    if (!response.ok || result.errors) {
-      throw new Error(result.errors || `cPanel API error: ${response.status}`);
+      console.log('Email sent successfully to:', email.to_email);
+      await client.close();
+    } catch (smtpError) {
+      console.error('SMTP send error:', smtpError);
+      await client.close();
+      throw new Error(`SMTP Error: ${smtpError.message}`);
     }
 
     // Update email status
@@ -108,10 +94,10 @@ serve(async (req) => {
 
     if (updateError) throw updateError;
 
-    console.log('Email sent successfully via cPanel API');
+    console.log('Email sent successfully via SMTP');
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Email sent successfully via cPanel API' }),
+      JSON.stringify({ success: true, message: 'Email sent successfully via SMTP' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
