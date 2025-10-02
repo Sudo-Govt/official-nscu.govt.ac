@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { CreditCard, Receipt, TrendingUp, Users, LogOut, FileText, DollarSign, BarChart3, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import DashboardLayout from '@/components/DashboardLayout';
+import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 const FinanceDashboard = () => {
   const { user, logout } = useAuth();
@@ -50,6 +51,7 @@ const FinanceDashboard = () => {
         { title: "Fee Collections", icon: CreditCard, value: "fees", onClick: () => setActiveTab("fees") },
         { title: "Receipts", icon: Receipt, value: "receipts", onClick: () => setActiveTab("receipts") },
         { title: "Reports", icon: FileText, value: "reports", onClick: () => setActiveTab("reports") },
+        { title: "Internal Mail", icon: User, value: "mail", onClick: () => setActiveTab("mail") },
       ]
     },
     {
@@ -308,6 +310,8 @@ const FinanceDashboard = () => {
           </CardContent>
         </Card>
       )}
+
+      {activeTab === "mail" && <InternalMailSystem />}
     </DashboardLayout>
   );
 };

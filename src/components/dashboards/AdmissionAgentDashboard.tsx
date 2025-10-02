@@ -11,6 +11,7 @@ import AgentProfile from '@/components/agent/AgentProfile';
 import StudentManagement from '@/components/agent/StudentManagement';
 import DocumentManagement from '@/components/agent/DocumentManagement';
 import AnalyticsTable from '@/components/agent/AnalyticsTable';
+import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 const AdmissionAgentDashboard = () => {
   const { user, logout } = useAuth();
@@ -117,12 +118,13 @@ const AdmissionAgentDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="mail">Internal Mail</TabsTrigger>
             <TabsTrigger value="communications">Messages</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -312,6 +314,10 @@ const AdmissionAgentDashboard = () => {
 
               <AnalyticsTable />
             </div>
+          </TabsContent>
+
+          <TabsContent value="mail">
+            <InternalMailSystem />
           </TabsContent>
 
           <TabsContent value="communications">

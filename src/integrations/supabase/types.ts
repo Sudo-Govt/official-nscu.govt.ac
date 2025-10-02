@@ -1692,6 +1692,9 @@ export type Database = {
       }
       internal_messages: {
         Row: {
+          attachment_name: string | null
+          attachment_size: number | null
+          attachment_url: string | null
           body: string
           created_at: string | null
           id: string
@@ -1705,6 +1708,9 @@ export type Database = {
           subject: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_url?: string | null
           body: string
           created_at?: string | null
           id?: string
@@ -1718,6 +1724,9 @@ export type Database = {
           subject: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_size?: number | null
+          attachment_url?: string | null
           body?: string
           created_at?: string | null
           id?: string

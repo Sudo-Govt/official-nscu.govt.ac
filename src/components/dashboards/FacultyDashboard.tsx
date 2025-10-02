@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import ChangePassword from '@/components/ChangePassword';
 import DashboardLayout from '@/components/DashboardLayout';
-import EmailApp from '@/components/email/EmailApp';
+import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 const FacultyDashboard = () => {
   const { user } = useAuth();
@@ -29,7 +29,7 @@ const FacultyDashboard = () => {
       items: [
         { title: "Overview", icon: BookOpen, value: "overview", onClick: () => setActiveTab("overview") },
         { title: "Courses", icon: BookOpen, value: "courses", onClick: () => setActiveTab("courses") },
-        { title: "Email", icon: Mail, value: "email", onClick: () => setActiveTab("email") },
+        { title: "Internal Mail", icon: Mail, value: "mail", onClick: () => setActiveTab("mail") },
         { title: "Profile", icon: User, value: "profile", onClick: () => setActiveTab("profile") },
         { title: "Password", icon: LogOut, value: "password", onClick: () => setActiveTab("password") },
       ]
@@ -123,7 +123,7 @@ const FacultyDashboard = () => {
       )}
 
       {activeTab === "password" && <ChangePassword />}
-      {activeTab === "email" && <EmailApp />}
+      {activeTab === "mail" && <InternalMailSystem />}
     </DashboardLayout>
   );
 };

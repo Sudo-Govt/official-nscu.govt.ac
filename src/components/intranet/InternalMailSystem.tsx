@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Inbox, Send, Star, Trash2, Mail } from 'lucide-react';
+import { Inbox, Send, Star, Trash2, Mail, Paperclip, X } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface InternalMessage {
@@ -21,6 +21,9 @@ interface InternalMessage {
   is_deleted_by_recipient: boolean;
   created_at: string;
   read_at: string | null;
+  attachment_url: string | null;
+  attachment_name: string | null;
+  attachment_size: number | null;
   sender?: { full_name: string };
   recipient?: { full_name: string };
 }
@@ -38,6 +41,7 @@ export const InternalMailSystem = () => {
   const [recipientId, setRecipientId] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
+  const [attachment, setAttachment] = useState<File | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -110,20 +114,39 @@ export const InternalMailSystem = () => {
       return;
     }
 
-    const { error } = await supabase.from('internal_messages').insert({
-      sender_id: user?.id,
-      recipient_id: recipientId,
-      subject,
-      body,
-    });
+    try {
+      let attachmentUrl = null;
+      let attachmentName = null;
+      let attachmentSize = null;
 
-    if (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to send message',
-        variant: 'destructive',
+      // Upload attachment if exists
+      if (attachment) {
+        const fileExt = attachment.name.split('.').pop();
+        const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('internal-attachments')
+          .upload(fileName, attachment);
+
+        if (uploadError) throw uploadError;
+
+        attachmentUrl = fileName;
+        attachmentName = attachment.name;
+        attachmentSize = attachment.size;
+      }
+
+      const { error } = await supabase.from('internal_messages').insert({
+        sender_id: user?.id,
+        recipient_id: recipientId,
+        subject,
+        body,
+        attachment_url: attachmentUrl,
+        attachment_name: attachmentName,
+        attachment_size: attachmentSize,
       });
-    } else {
+
+      if (error) throw error;
+
       toast({
         title: 'Success',
         description: 'Message sent successfully',
@@ -131,7 +154,14 @@ export const InternalMailSystem = () => {
       setRecipientId('');
       setSubject('');
       setBody('');
+      setAttachment(null);
       setView('sent');
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to send message',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -234,6 +264,34 @@ export const InternalMailSystem = () => {
                   className="mt-1 min-h-[300px]"
                 />
               </div>
+              <div>
+                <label className="text-sm font-medium">Attachment</label>
+                <div className="mt-1">
+                  <input
+                    type="file"
+                    id="attachment"
+                    onChange={(e) => setAttachment(e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="attachment"
+                    className="inline-flex items-center gap-2 px-4 py-2 border rounded cursor-pointer hover:bg-accent"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    {attachment ? attachment.name : 'Attach file'}
+                  </label>
+                  {attachment && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setAttachment(null)}
+                      className="ml-2"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
               <Button onClick={sendMessage}>
                 <Send className="mr-2 h-4 w-4" />
                 Send Message
@@ -325,6 +383,35 @@ export const InternalMailSystem = () => {
                     </p>
                   </div>
                   <div className="whitespace-pre-wrap">{selectedMessage.body}</div>
+                  {selectedMessage.attachment_url && (
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-sm font-medium mb-2">Attachment:</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          const { data } = await supabase.storage
+                            .from('internal-attachments')
+                            .download(selectedMessage.attachment_url!);
+                          if (data) {
+                            const url = URL.createObjectURL(data);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = selectedMessage.attachment_name || 'attachment';
+                            a.click();
+                          }
+                        }}
+                      >
+                        <Paperclip className="h-4 w-4 mr-2" />
+                        {selectedMessage.attachment_name}
+                        {selectedMessage.attachment_size && (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({(selectedMessage.attachment_size / 1024).toFixed(1)} KB)
+                          </span>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">

@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import StudentManagement from '@/components/agent/StudentManagement';
 import DocumentManagement from '@/components/agent/DocumentManagement';
+import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 const DelegatorDashboard = () => {
   const { user, logout } = useAuth();
@@ -116,11 +117,12 @@ const DelegatorDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="students">My Students</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="commission">Commission</TabsTrigger>
+            <TabsTrigger value="mail">Internal Mail</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
@@ -263,6 +265,10 @@ const DelegatorDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="mail">
+            <InternalMailSystem />
           </TabsContent>
 
           <TabsContent value="profile">

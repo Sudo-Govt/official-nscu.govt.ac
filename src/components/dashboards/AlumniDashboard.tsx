@@ -11,6 +11,7 @@ import AlumniNetworking from '@/components/alumni/AlumniNetworking';
 import AlumniCareer from '@/components/alumni/AlumniCareer';
 import AlumniDocuments from '@/components/alumni/AlumniDocuments';
 import DashboardLayout from '@/components/DashboardLayout';
+import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 const AlumniDashboard = () => {
   const { user } = useAuth();
@@ -222,6 +223,7 @@ const AlumniDashboard = () => {
         { title: "Network", icon: Network, value: "networking", onClick: () => setActiveTab("networking") },
         { title: "Career", icon: Briefcase, value: "career", onClick: () => setActiveTab("career") },
         { title: "Documents", icon: FileText, value: "documents", onClick: () => setActiveTab("documents") },
+        { title: "Internal Mail", icon: Mail, value: "mail", onClick: () => setActiveTab("mail") },
       ]
     }
   ];
@@ -240,6 +242,7 @@ const AlumniDashboard = () => {
       {activeTab === "networking" && <AlumniNetworking />}
       {activeTab === "career" && <AlumniCareer />}
       {activeTab === "documents" && <AlumniDocuments />}
+      {activeTab === "mail" && <InternalMailSystem />}
     </DashboardLayout>
   );
 };
