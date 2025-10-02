@@ -50,14 +50,27 @@ const SuperAdminUserManagement = () => {
 
   const fetchUsers = async () => {
     try {
+      // Fetch profiles with their roles from user_roles table
       const { data: profiles, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          *,
+          user_roles(role)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       
-      setUsers(profiles || []);
+      // Transform data to include role from user_roles
+      const usersWithRoles = profiles?.map(profile => {
+        const userRoles = profile.user_roles as any;
+        return {
+          ...profile,
+          role: userRoles?.[0]?.role || profile.role
+        };
+      }) || [];
+      
+      setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
@@ -104,7 +117,7 @@ const SuperAdminUserManagement = () => {
         return;
       }
 
-      // Update profile with additional info
+      // Update profile with additional info and assign role
       if (authData.user) {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for trigger
         
@@ -122,6 +135,19 @@ const SuperAdminUserManagement = () => {
 
         if (profileError) {
           console.error('Profile update error:', profileError);
+        }
+
+        // Assign role in user_roles table
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: authData.user.id,
+            role: newUser.role as any,
+            created_by: authData.user.id
+          });
+
+        if (roleError) {
+          console.error('Role assignment error:', roleError);
         }
       }
 
@@ -155,11 +181,11 @@ const SuperAdminUserManagement = () => {
     if (!editingUser) return;
 
     try {
-      const { error } = await supabase
+      // Update profile
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           full_name: newUser.full_name,
-          role: newUser.role as any,
           department: newUser.department,
           phone: newUser.phone,
           metadata: {
@@ -169,7 +195,24 @@ const SuperAdminUserManagement = () => {
         })
         .eq('id', editingUser.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Update role in user_roles table
+      // First delete existing role
+      await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', editingUser.user_id);
+
+      // Then insert new role
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: editingUser.user_id,
+          role: newUser.role as any
+        });
+
+      if (roleError) throw roleError;
 
       toast({
         title: "Success",

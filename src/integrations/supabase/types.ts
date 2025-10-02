@@ -2275,6 +2275,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2301,7 +2325,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_admin_role: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
@@ -2320,6 +2355,15 @@ export type Database = {
         | "approve"
         | "manage"
         | "full"
+      app_role:
+        | "superadmin"
+        | "registrar"
+        | "faculty"
+        | "student"
+        | "alumni"
+        | "admission_agent"
+        | "finance"
+        | "delegator"
       user_role:
         | "superadmin"
         | "student"
@@ -2466,6 +2510,16 @@ export const Constants = {
         "approve",
         "manage",
         "full",
+      ],
+      app_role: [
+        "superadmin",
+        "registrar",
+        "faculty",
+        "student",
+        "alumni",
+        "admission_agent",
+        "finance",
+        "delegator",
       ],
       user_role: [
         "superadmin",
