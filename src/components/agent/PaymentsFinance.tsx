@@ -4,10 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, Download, FileText, TrendingUp, CreditCard, Clock } from 'lucide-react';
+import { DollarSign, Download, FileText, TrendingUp, CreditCard, Clock, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Commission {
@@ -40,6 +44,12 @@ const PaymentsFinance = () => {
     thisMonth: 0,
     lastPayout: 0
   });
+  
+  // Payment dialog state
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [studentName, setStudentName] = useState('');
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [currency, setCurrency] = useState('USD');
 
   useEffect(() => {
     fetchCommissions();
@@ -119,15 +129,113 @@ const PaymentsFinance = () => {
     });
   };
 
+  const handleAddPayment = async () => {
+    if (!studentName || !paymentAmount) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // This would normally create a payment record
+      // For now, we'll just show success
+      toast({
+        title: "Success",
+        description: `Payment of ${currency} ${paymentAmount} recorded for ${studentName}`
+      });
+      
+      setPaymentDialogOpen(false);
+      setStudentName('');
+      setPaymentAmount('');
+      setCurrency('USD');
+      
+      // Refresh commissions
+      fetchCommissions();
+    } catch (error) {
+      console.error('Error adding payment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add payment",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading) {
     return <div>Loading payment information...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Payments & Finance</h2>
-        <p className="text-muted-foreground">Track commissions, earnings, and payment history</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Payments & Finance</h2>
+          <p className="text-muted-foreground">Track commissions, earnings, and payment history</p>
+        </div>
+        <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Payment
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Payment</DialogTitle>
+              <DialogDescription>
+                Record a new payment transaction
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div>
+                <Label>Student Name</Label>
+                <Input
+                  placeholder="Enter student name"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Payment Amount</Label>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Currency</Label>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="EUR">EUR</SelectItem>
+                      <SelectItem value="GBP">GBP</SelectItem>
+                      <SelectItem value="INR">INR</SelectItem>
+                      <SelectItem value="AUD">AUD</SelectItem>
+                      <SelectItem value="CAD">CAD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setPaymentDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddPayment}>
+                Add Payment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats Cards */}

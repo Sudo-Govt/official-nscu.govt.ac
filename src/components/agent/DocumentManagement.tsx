@@ -483,6 +483,7 @@ const DocumentUploadForm = ({ applications, onSuccess }: {
   const [loading, setLoading] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState('');
   const [documentType, setDocumentType] = useState('');
+  const [customDocumentType, setCustomDocumentType] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
   const documentTypes = [
@@ -500,6 +501,16 @@ const DocumentUploadForm = ({ applications, onSuccess }: {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !selectedApplication || !documentType) return;
+    
+    // If "Other" is selected, require custom document type
+    if (documentType === 'other' && !customDocumentType.trim()) {
+      toast({
+        title: "Error",
+        description: "Please specify the document type",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -511,12 +522,15 @@ const DocumentUploadForm = ({ applications, onSuccess }: {
 
       if (uploadError) throw uploadError;
 
+      // Use custom document type if "Other" is selected
+      const finalDocumentType = documentType === 'other' ? customDocumentType : documentType;
+
       // Save document record
       const { error: dbError } = await supabase
         .from('student_documents')
         .insert({
           application_id: selectedApplication,
-          document_type: documentType,
+          document_type: finalDocumentType,
           document_name: file.name,
           file_path: fileName,
           file_size: file.size,
@@ -575,6 +589,17 @@ const DocumentUploadForm = ({ applications, onSuccess }: {
           </SelectContent>
         </Select>
       </div>
+
+      {documentType === 'other' && (
+        <div>
+          <Label>Specify Document Type</Label>
+          <Input
+            placeholder="e.g., Birth Certificate, Marriage Certificate"
+            value={customDocumentType}
+            onChange={(e) => setCustomDocumentType(e.target.value)}
+          />
+        </div>
+      )}
 
       <div>
         <Label>Document File</Label>

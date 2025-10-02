@@ -49,6 +49,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import AvatarUpload from '@/components/AvatarUpload';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
+import CourseManagement from '@/components/admin/CourseManagement';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 interface Student {
@@ -718,6 +719,7 @@ const AdminDashboard = () => {
         { title: "User Management", icon: Shield, value: "user-management", onClick: () => setCurrentTab("user-management") },
         { title: "Documents", icon: FileText, value: "documents", onClick: () => setCurrentTab("documents") },
         { title: "Announcements", icon: Bell, value: "announcements", onClick: () => setCurrentTab("announcements") },
+        { title: "Courses", icon: BookOpen, value: "courses", onClick: () => setCurrentTab("courses") },
       ]
     },
     {
@@ -1034,6 +1036,7 @@ const AdminDashboard = () => {
       )}
       {currentTab === "mail" && <InternalMailSystem />}
       {currentTab === "settings" && <SystemSettings />}
+      {currentTab === "courses" && <CourseManagement />}
 
       {/* Dialogs remain the same */}
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
