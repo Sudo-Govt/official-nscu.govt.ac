@@ -198,15 +198,15 @@ const StudentDashboard = () => {
             </Card>
 
             <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-dashboard-orange/10 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-destructive/10 to-transparent"></div>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle className="text-base font-semibold text-dashboard-orange">Fee Status</CardTitle>
-                <div className="p-3 bg-dashboard-orange/10 rounded-xl">
-                  <CreditCard className="h-6 w-6 text-dashboard-orange" />
+                <CardTitle className="text-base font-semibold text-destructive">Fee Status</CardTitle>
+                <div className="p-3 bg-destructive/10 rounded-xl">
+                  <CreditCard className="h-6 w-6 text-destructive" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-dashboard-orange mb-2">{feePercentage.toFixed(0)}%</div>
+                <div className="text-4xl font-bold text-destructive mb-2">{feePercentage.toFixed(0)}%</div>
                 <p className="text-muted-foreground font-medium">Fees paid</p>
                 <div className="mt-4">
                   <Progress value={feePercentage} className="h-2" />

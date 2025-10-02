@@ -783,15 +783,15 @@ const AdminDashboard = () => {
               className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
               onClick={() => setCurrentTab('documents')}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-dashboard-orange/10 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle className="text-base font-semibold text-dashboard-orange">Documents</CardTitle>
-                <div className="p-3 bg-dashboard-orange/10 rounded-xl">
-                  <FileText className="h-6 w-6 text-dashboard-orange" />
+                <CardTitle className="text-base font-semibold text-primary">Documents</CardTitle>
+                <div className="p-3 bg-primary/10 rounded-xl">
+                  <FileText className="h-6 w-6 text-primary" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-dashboard-orange mb-2">{stats.totalDocuments}</div>
+                <div className="text-4xl font-bold text-primary mb-2">{stats.totalDocuments}</div>
                 <p className="text-muted-foreground font-medium">Uploaded files</p>
               </CardContent>
             </Card>
@@ -817,7 +817,7 @@ const AdminDashboard = () => {
               className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm cursor-pointer hover:scale-105"
               onClick={() => setCurrentTab('applications')}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-dashboard-green/10 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent"></div>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <CardTitle className="text-base font-semibold">Alumni Requests</CardTitle>
                 <div className="p-3 bg-red-500/10 rounded-xl">
