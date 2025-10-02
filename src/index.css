@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 210 12% 16%;
 
-    --primary: 262.1 83.3% 57.8%;
+    --primary: 240 42% 33%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 220 14.3% 95.9%;
@@ -53,7 +53,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* University brand colors */
-    --uw-purple: 262.1 83.3% 57.8%;
+    --uw-purple: 240 42% 33%;
     --uw-gold: 45 93.4% 47.5%;
     --uw-dark: 240 5.9% 10%;
   }
@@ -68,7 +68,7 @@
     --popover: 217 33% 17%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 263.4 70% 50.4%;
+    --primary: 240 42% 33%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 215 27.9% 16.9%;
@@ -104,7 +104,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* University brand colors - dark mode */
-    --uw-purple: 263.4 70% 50.4%;
+    --uw-purple: 240 42% 33%;
     --uw-gold: 45 93.4% 47.5%;
     --uw-dark: 240 5.9% 10%;
   }

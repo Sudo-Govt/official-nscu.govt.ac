@@ -79,16 +79,20 @@ const PaymentsFinance = () => {
       const { data: studentsData, error: studentsError } = await supabase
         .from('student_applications')
         .select(`
-          id,
           student_id,
           profiles!student_applications_student_id_fkey(
             user_id,
-            full_name
+            full_name,
+            email
           )
         `)
         .eq('agent_id', agentProfile.id);
 
-      if (studentsError) throw studentsError;
+      if (studentsError) {
+        console.error('Error fetching students:', studentsError);
+      }
+
+      console.log('Students data:', studentsData);
 
       const uniqueStudents = studentsData?.reduce((acc: Student[], app: any) => {
         const student = app.profiles;
@@ -96,12 +100,13 @@ const PaymentsFinance = () => {
           acc.push({
             user_id: student.user_id,
             full_name: student.full_name,
-            email: app.email || ''
+            email: student.email || ''
           });
         }
         return acc;
       }, []) || [];
 
+      console.log('Unique students:', uniqueStudents);
       setStudents(uniqueStudents);
 
       // Fetch payments
@@ -260,15 +265,19 @@ const PaymentsFinance = () => {
               <div>
                 <Label>Student Name</Label>
                 <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background">
                     <SelectValue placeholder="Select student" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.user_id} value={student.user_id}>
-                        {student.full_name}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="bg-popover z-50">
+                    {students.length === 0 ? (
+                      <div className="p-4 text-sm text-muted-foreground">No students found</div>
+                    ) : (
+                      students.map((student) => (
+                        <SelectItem key={student.user_id} value={student.user_id}>
+                          {student.full_name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
