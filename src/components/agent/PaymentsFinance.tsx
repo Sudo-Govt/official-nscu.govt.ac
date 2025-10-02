@@ -64,18 +64,31 @@ const PaymentsFinance = () => {
     if (!user) return;
 
     try {
-      const { data: agentProfile } = await supabase
+      console.log('Fetching agent data for user:', user.user_id);
+      
+      const { data: agentProfile, error: agentError } = await supabase
         .from('agent_profiles')
         .select('id, preferred_currency')
         .eq('user_id', user.user_id)
         .single();
 
-      if (!agentProfile) return;
+      if (agentError) {
+        console.error('Error fetching agent profile:', agentError);
+        throw agentError;
+      }
 
+      if (!agentProfile) {
+        console.log('No agent profile found');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Agent profile found:', agentProfile);
       const currency = agentProfile.preferred_currency || 'USD';
       setAgentCurrency(currency);
 
       // Fetch students added by this agent
+      console.log('Fetching students for agent:', agentProfile.id);
       const { data: studentsData, error: studentsError } = await supabase
         .from('student_applications')
         .select(`
@@ -88,7 +101,12 @@ const PaymentsFinance = () => {
         `)
         .eq('agent_id', agentProfile.id);
 
-      if (studentsError) throw studentsError;
+      if (studentsError) {
+        console.error('Error fetching students:', studentsError);
+        throw studentsError;
+      }
+
+      console.log('Students data:', studentsData);
 
       const uniqueStudents = studentsData?.reduce((acc: Student[], app: any) => {
         const student = app.profiles;
@@ -102,9 +120,11 @@ const PaymentsFinance = () => {
         return acc;
       }, []) || [];
 
+      console.log('Unique students:', uniqueStudents);
       setStudents(uniqueStudents);
 
       // Fetch payments
+      console.log('Fetching payments for agent:', agentProfile.id);
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('student_payments')
         .select(`
@@ -116,8 +136,12 @@ const PaymentsFinance = () => {
         .eq('agent_id', agentProfile.id)
         .order('payment_date', { ascending: false });
 
-      if (paymentsError) throw paymentsError;
+      if (paymentsError) {
+        console.error('Error fetching payments:', paymentsError);
+        throw paymentsError;
+      }
 
+      console.log('Payments data:', paymentsData);
       setPayments(paymentsData || []);
 
       // Calculate stats in agent's currency
@@ -140,6 +164,8 @@ const PaymentsFinance = () => {
         return sum + converted;
       }, 0) || 0;
 
+      console.log('Calculated stats:', { totalPayments, totalBalance, thisMonth, studentCount: uniqueStudents.length });
+
       setStats({
         totalPayments,
         totalBalance,
@@ -150,7 +176,7 @@ const PaymentsFinance = () => {
       console.error('Error fetching data:', error);
       toast({
         title: "Error",
-        description: "Failed to load payment data",
+        description: error instanceof Error ? error.message : "Failed to load payment data",
         variant: "destructive"
       });
     } finally {
@@ -232,7 +258,14 @@ const PaymentsFinance = () => {
   };
 
   if (loading) {
-    return <div>Loading payment information...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading payment information...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
