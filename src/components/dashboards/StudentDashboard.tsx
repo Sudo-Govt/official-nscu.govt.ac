@@ -162,17 +162,17 @@ const StudentDashboard = () => {
           {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent"></div>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle className="text-base font-semibold">Enrolled Courses</CardTitle>
+                <CardTitle className="text-base font-semibold text-primary">Enrolled Courses</CardTitle>
                 <div className="p-3 bg-primary/10 rounded-xl">
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-foreground mb-2">{courses.length}</div>
+                <div className="text-4xl font-bold text-primary mb-2">{courses.length}</div>
                 <p className="text-muted-foreground font-medium">Current semester</p>
-                <div className="mt-4 flex items-center text-sm text-muted-foreground">
+                <div className="mt-4 flex items-center text-sm text-primary">
                   <TrendingUp className="h-4 w-4 mr-1" />
                   +2 from last semester
                 </div>
@@ -180,17 +180,17 @@ const StudentDashboard = () => {
             </Card>
 
             <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent"></div>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle className="text-base font-semibold">CGPA</CardTitle>
-                <div className="p-3 bg-emerald-500/10 rounded-xl">
-                  <GraduationCap className="h-6 w-6 text-emerald-600" />
+                <CardTitle className="text-base font-semibold text-accent">CGPA</CardTitle>
+                <div className="p-3 bg-accent/10 rounded-xl">
+                  <GraduationCap className="h-6 w-6 text-accent" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-foreground mb-2">8.7</div>
+                <div className="text-4xl font-bold text-accent mb-2">8.7</div>
                 <p className="text-muted-foreground font-medium">Overall grade</p>
-                <div className="mt-4 flex items-center text-sm text-emerald-600">
+                <div className="mt-4 flex items-center text-sm text-accent">
                   <Star className="h-4 w-4 mr-1" />
                   Excellent performance
                 </div>
@@ -198,15 +198,15 @@ const StudentDashboard = () => {
             </Card>
 
             <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-dashboard-orange/10 to-transparent"></div>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle className="text-base font-semibold">Fee Status</CardTitle>
-                <div className="p-3 bg-amber-500/10 rounded-xl">
-                  <CreditCard className="h-6 w-6 text-amber-600" />
+                <CardTitle className="text-base font-semibold text-dashboard-orange">Fee Status</CardTitle>
+                <div className="p-3 bg-dashboard-orange/10 rounded-xl">
+                  <CreditCard className="h-6 w-6 text-dashboard-orange" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-foreground mb-2">{feePercentage.toFixed(0)}%</div>
+                <div className="text-4xl font-bold text-dashboard-orange mb-2">{feePercentage.toFixed(0)}%</div>
                 <p className="text-muted-foreground font-medium">Fees paid</p>
                 <div className="mt-4">
                   <Progress value={feePercentage} className="h-2" />
@@ -215,17 +215,17 @@ const StudentDashboard = () => {
             </Card>
 
             <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent"></div>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <CardTitle className="text-base font-semibold">Credits Earned</CardTitle>
-                <div className="p-3 bg-violet-500/10 rounded-xl">
-                  <Award className="h-6 w-6 text-violet-600" />
+                <CardTitle className="text-base font-semibold text-secondary">Credits Earned</CardTitle>
+                <div className="p-3 bg-secondary/10 rounded-xl">
+                  <Award className="h-6 w-6 text-secondary" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold text-foreground mb-2">142</div>
+                <div className="text-4xl font-bold text-secondary mb-2">142</div>
                 <p className="text-muted-foreground font-medium">Out of 180 required</p>
-                <div className="mt-4 flex items-center text-sm text-violet-600">
+                <div className="mt-4 flex items-center text-sm text-secondary">
                   <Target className="h-4 w-4 mr-1" />
                   79% complete
                 </div>

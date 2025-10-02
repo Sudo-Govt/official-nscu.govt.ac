@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
 import SearchDialog from './SearchDialog';
+import { ThemeToggle } from './ThemeToggle';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -137,19 +138,19 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-background shadow-sm border-b sticky top-0 z-50">
       {/* Top bar */}
-      <div className="bg-uw-purple text-white py-2">
+      <div className="bg-primary text-primary-foreground py-2">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center text-sm">
             <div className="flex space-x-6">
-              <Link to="/student-life/organizations" className="hover:text-uw-gold transition-colors">Students</Link>
-              <Link to="/about/leadership" className="hover:text-uw-gold transition-colors">Faculty</Link>
-              <Link to="/alumni/association" className="hover:text-uw-gold transition-colors">Alumni</Link>
+              <Link to="/student-life/organizations" className="hover:text-accent transition-colors">Students</Link>
+              <Link to="/about/leadership" className="hover:text-accent transition-colors">Faculty</Link>
+              <Link to="/alumni/association" className="hover:text-accent transition-colors">Alumni</Link>
             </div>
             <div className="flex space-x-4">
-              <Link to="/login" className="hover:text-uw-gold transition-colors">nCore</Link>
-              <Link to="/academics/academic-calendar" className="hover:text-uw-gold transition-colors">Calendar</Link>
+              <Link to="/login" className="hover:text-accent transition-colors">nCore</Link>
+              <Link to="/academics/academic-calendar" className="hover:text-accent transition-colors">Calendar</Link>
             </div>
           </div>
         </div>
@@ -175,7 +176,7 @@ const Header = () => {
               <NavigationMenuList>
                 {menuData.map((menu, index) => (
                   <NavigationMenuItem key={index}>
-                    <NavigationMenuTrigger className="text-sm font-medium text-uw-purple hover:text-uw-gold">
+                    <NavigationMenuTrigger className="text-sm font-medium text-primary hover:text-accent">
                       {menu.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -185,7 +186,7 @@ const Header = () => {
                             {item.items ? (
                               // This is a submenu category (like "Colleges & Schools")
                               <>
-                                <h4 className="text-sm font-semibold text-uw-purple border-b border-gray-200 pb-2">
+                                <h4 className="text-sm font-semibold text-primary border-b pb-2">
                                   {item.title}
                                 </h4>
                                 <div className="space-y-1">
@@ -226,8 +227,9 @@ const Header = () => {
             </NavigationMenu>
           </div>
 
-          {/* Search and Mobile Menu */}
-          <div className="flex items-center space-x-4">
+          {/* Search, Theme Toggle and Mobile Menu */}
+          <div className="flex items-center space-x-2">
+            <ThemeToggle />
             <Button 
               variant="ghost" 
               size="sm" 
@@ -249,11 +251,11 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-4">
+          <div className="lg:hidden border-t py-4">
             <div className="space-y-4">
               {menuData.map((item, index) => (
                 <div key={index} className="space-y-2">
-                  <h3 className="font-semibold text-uw-purple">{item.title}</h3>
+                  <h3 className="font-semibold text-primary">{item.title}</h3>
                   <div className="pl-4 space-y-2">
                     {item.items.map((subItem: any, subIndex: number) => (
                       <div key={subIndex}>
@@ -266,7 +268,7 @@ const Header = () => {
                                 <Link
                                   key={subSubIndex}
                                   to={subSubItem.href || "#"}
-                                  className="block text-sm text-gray-600 hover:text-uw-gold transition-colors"
+                                  className="block text-sm text-muted-foreground hover:text-accent transition-colors"
                                   onClick={() => setIsMenuOpen(false)}
                                 >
                                   {subSubItem.title}
@@ -278,7 +280,7 @@ const Header = () => {
                           // Regular menu item for mobile
                           <Link
                             to={subItem.href || "#"}
-                            className="block text-sm text-gray-600 hover:text-uw-gold transition-colors"
+                            className="block text-sm text-muted-foreground hover:text-accent transition-colors"
                             onClick={() => setIsMenuOpen(false)}
                           >
                             {subItem.title}

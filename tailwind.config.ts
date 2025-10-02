@@ -63,6 +63,20 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					foreground: 'hsl(var(--info-foreground))'
+				},
+				dashboard: {
+					orange: 'hsl(var(--dashboard-orange))',
+					green: 'hsl(var(--dashboard-green))',
+					gray: 'hsl(var(--dashboard-gray))',
+					'light-gray': 'hsl(var(--dashboard-light-gray))'
+				},
 				'uw-purple': 'hsl(var(--uw-purple))',
 				'uw-gold': 'hsl(var(--uw-gold))',
 				'uw-dark': 'hsl(var(--uw-dark))'
