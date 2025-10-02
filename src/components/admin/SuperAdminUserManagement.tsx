@@ -50,25 +50,29 @@ const SuperAdminUserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      // Fetch profiles with their roles from user_roles table
-      const { data: profiles, error } = await supabase
+      // Fetch all profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles(role)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
+
+      // Fetch all user roles
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Create a map of user_id to role
+      const rolesMap = new Map(userRoles?.map(ur => [ur.user_id, ur.role]) || []);
       
-      // Transform data to include role from user_roles
-      const usersWithRoles = profiles?.map(profile => {
-        const userRoles = profile.user_roles as any;
-        return {
-          ...profile,
-          role: userRoles?.[0]?.role || profile.role
-        };
-      }) || [];
+      // Combine profiles with their roles from user_roles table, fallback to profile.role
+      const usersWithRoles = profiles?.map(profile => ({
+        ...profile,
+        role: rolesMap.get(profile.user_id) || profile.role
+      })) || [];
       
       setUsers(usersWithRoles);
     } catch (error) {
