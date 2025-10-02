@@ -238,6 +238,7 @@ export type Database = {
           id: string
           kyc_status: string | null
           languages: string[] | null
+          preferred_currency: string | null
           region: string | null
           total_earnings: number | null
           updated_at: string
@@ -253,6 +254,7 @@ export type Database = {
           id?: string
           kyc_status?: string | null
           languages?: string[] | null
+          preferred_currency?: string | null
           region?: string | null
           total_earnings?: number | null
           updated_at?: string
@@ -268,6 +270,7 @@ export type Database = {
           id?: string
           kyc_status?: string | null
           languages?: string[] | null
+          preferred_currency?: string | null
           region?: string | null
           total_earnings?: number | null
           updated_at?: string
@@ -1814,6 +1817,7 @@ export type Database = {
           id: string
           metadata: Json | null
           phone: string | null
+          preferred_currency: string | null
           role: Database["public"]["Enums"]["user_role"]
           status: string | null
           updated_at: string
@@ -1835,6 +1839,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           phone?: string | null
+          preferred_currency?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           status?: string | null
           updated_at?: string
@@ -1856,6 +1861,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           phone?: string | null
+          preferred_currency?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           status?: string | null
           updated_at?: string
@@ -2164,6 +2170,76 @@ export type Database = {
           {
             foreignKeyName: "student_documents_verified_by_fkey"
             columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      student_payments: {
+        Row: {
+          agent_currency: string
+          agent_id: string
+          balance_amount: number
+          created_at: string | null
+          created_by: string | null
+          currency: string
+          exchange_rate: number
+          id: string
+          notes: string | null
+          payment_amount: number
+          payment_date: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          agent_currency?: string
+          agent_id: string
+          balance_amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string
+          exchange_rate?: number
+          id?: string
+          notes?: string | null
+          payment_amount: number
+          payment_date?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          agent_currency?: string
+          agent_id?: string
+          balance_amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string
+          exchange_rate?: number
+          id?: string
+          notes?: string | null
+          payment_amount?: number
+          payment_date?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_payments_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "student_payments_student_id_fkey"
+            columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]

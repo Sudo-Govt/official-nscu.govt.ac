@@ -13,96 +13,141 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DollarSign, Download, FileText, TrendingUp, CreditCard, Clock, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import { convertCurrency, formatCurrency, getExchangeRate, SUPPORTED_CURRENCIES } from '@/lib/currencyConversion';
 
-interface Commission {
+interface Student {
+  user_id: string;
+  full_name: string;
+  email: string;
+}
+
+interface Payment {
   id: string;
-  amount: number;
-  commission_type: string;
-  status: string;
+  student_id: string;
+  payment_amount: number;
+  balance_amount: number;
   currency: string;
-  payment_reference: string;
-  created_at: string;
-  paid_at: string;
-  application: {
-    application_number: string;
-    first_name: string;
-    last_name: string;
-    course: {
-      course_name: string;
-    };
+  agent_currency: string;
+  exchange_rate: number;
+  payment_date: string;
+  notes: string;
+  student: {
+    full_name: string;
   };
 }
 
 const PaymentsFinance = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [commissions, setCommissions] = useState<Commission[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [agentCurrency, setAgentCurrency] = useState('USD');
   const [stats, setStats] = useState({
-    totalEarnings: 0,
-    pendingPayout: 0,
+    totalPayments: 0,
+    totalBalance: 0,
     thisMonth: 0,
-    lastPayout: 0
+    studentCount: 0
   });
   
   // Payment dialog state
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [studentName, setStudentName] = useState('');
+  const [selectedStudentId, setSelectedStudentId] = useState('');
   const [paymentAmount, setPaymentAmount] = useState('');
-  const [currency, setCurrency] = useState('USD');
+  const [balanceAmount, setBalanceAmount] = useState('');
 
   useEffect(() => {
-    fetchCommissions();
+    fetchData();
   }, [user]);
 
-  const fetchCommissions = async () => {
+  const fetchData = async () => {
     if (!user) return;
 
     try {
       const { data: agentProfile } = await supabase
         .from('agent_profiles')
-        .select('id, total_earnings')
+        .select('id, preferred_currency')
         .eq('user_id', user.user_id)
         .single();
 
       if (!agentProfile) return;
 
-      const { data, error } = await supabase
-        .from('agent_commissions')
+      const currency = agentProfile.preferred_currency || 'USD';
+      setAgentCurrency(currency);
+
+      // Fetch students added by this agent
+      const { data: studentsData, error: studentsError } = await supabase
+        .from('student_applications')
+        .select(`
+          id,
+          student_id,
+          profiles!student_applications_student_id_fkey(
+            user_id,
+            full_name
+          )
+        `)
+        .eq('agent_id', agentProfile.id);
+
+      if (studentsError) throw studentsError;
+
+      const uniqueStudents = studentsData?.reduce((acc: Student[], app: any) => {
+        const student = app.profiles;
+        if (student && !acc.find(s => s.user_id === student.user_id)) {
+          acc.push({
+            user_id: student.user_id,
+            full_name: student.full_name,
+            email: app.email || ''
+          });
+        }
+        return acc;
+      }, []) || [];
+
+      setStudents(uniqueStudents);
+
+      // Fetch payments
+      const { data: paymentsData, error: paymentsError } = await supabase
+        .from('student_payments')
         .select(`
           *,
-          application:student_applications(
-            application_number,
-            first_name,
-            last_name,
-            course:courses(course_name)
+          student:profiles!student_payments_student_id_fkey(
+            full_name
           )
         `)
         .eq('agent_id', agentProfile.id)
-        .order('created_at', { ascending: false });
+        .order('payment_date', { ascending: false });
 
-      if (error) throw error;
+      if (paymentsError) throw paymentsError;
 
-      setCommissions(data || []);
+      setPayments(paymentsData || []);
 
-      // Calculate stats
-      const pending = data?.filter(c => c.status === 'pending').reduce((sum, c) => sum + Number(c.amount), 0) || 0;
-      const thisMonth = data?.filter(c => {
-        const date = new Date(c.created_at);
+      // Calculate stats in agent's currency
+      const totalPayments = paymentsData?.reduce((sum, p) => {
+        const converted = convertCurrency(Number(p.payment_amount), p.currency, currency);
+        return sum + converted;
+      }, 0) || 0;
+
+      const totalBalance = paymentsData?.reduce((sum, p) => {
+        const converted = convertCurrency(Number(p.balance_amount), p.currency, currency);
+        return sum + converted;
+      }, 0) || 0;
+
+      const thisMonth = paymentsData?.filter(p => {
+        const date = new Date(p.payment_date);
         const now = new Date();
         return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-      }).reduce((sum, c) => sum + Number(c.amount), 0) || 0;
-
-      const lastPayoutCommission = data?.find(c => c.status === 'paid' && c.paid_at);
+      }).reduce((sum, p) => {
+        const converted = convertCurrency(Number(p.payment_amount), p.currency, currency);
+        return sum + converted;
+      }, 0) || 0;
 
       setStats({
-        totalEarnings: agentProfile.total_earnings || 0,
-        pendingPayout: pending,
+        totalPayments,
+        totalBalance,
         thisMonth,
-        lastPayout: lastPayoutCommission ? Number(lastPayoutCommission.amount) : 0
+        studentCount: uniqueStudents.length
       });
     } catch (error) {
-      console.error('Error fetching commissions:', error);
+      console.error('Error fetching data:', error);
       toast({
         title: "Error",
         description: "Failed to load payment data",
@@ -130,7 +175,7 @@ const PaymentsFinance = () => {
   };
 
   const handleAddPayment = async () => {
-    if (!studentName || !paymentAmount) {
+    if (!selectedStudentId || !paymentAmount || !balanceAmount) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -140,20 +185,42 @@ const PaymentsFinance = () => {
     }
 
     try {
-      // This would normally create a payment record
-      // For now, we'll just show success
+      const { data: agentProfile } = await supabase
+        .from('agent_profiles')
+        .select('id')
+        .eq('user_id', user?.user_id)
+        .single();
+
+      if (!agentProfile) throw new Error('Agent profile not found');
+
+      const exchangeRate = getExchangeRate(agentCurrency, 'USD');
+
+      const { error } = await supabase
+        .from('student_payments')
+        .insert({
+          student_id: selectedStudentId,
+          agent_id: agentProfile.id,
+          payment_amount: Number(paymentAmount),
+          balance_amount: Number(balanceAmount),
+          currency: agentCurrency,
+          agent_currency: agentCurrency,
+          exchange_rate: exchangeRate,
+          created_by: user?.user_id
+        });
+
+      if (error) throw error;
+
       toast({
         title: "Success",
-        description: `Payment of ${currency} ${paymentAmount} recorded for ${studentName}`
+        description: `Payment of ${formatCurrency(Number(paymentAmount), agentCurrency)} recorded successfully`
       });
       
       setPaymentDialogOpen(false);
-      setStudentName('');
+      setSelectedStudentId('');
       setPaymentAmount('');
-      setCurrency('USD');
+      setBalanceAmount('');
       
-      // Refresh commissions
-      fetchCommissions();
+      fetchData();
     } catch (error) {
       console.error('Error adding payment:', error);
       toast({
@@ -192,11 +259,18 @@ const PaymentsFinance = () => {
             <div className="grid gap-4 py-4">
               <div>
                 <Label>Student Name</Label>
-                <Input
-                  placeholder="Enter student name"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                />
+                <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select student" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {students.map((student) => (
+                      <SelectItem key={student.user_id} value={student.user_id}>
+                        {student.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -209,21 +283,21 @@ const PaymentsFinance = () => {
                   />
                 </div>
                 <div>
-                  <Label>Currency</Label>
-                  <Select value={currency} onValueChange={setCurrency}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="USD">USD</SelectItem>
-                      <SelectItem value="EUR">EUR</SelectItem>
-                      <SelectItem value="GBP">GBP</SelectItem>
-                      <SelectItem value="INR">INR</SelectItem>
-                      <SelectItem value="AUD">AUD</SelectItem>
-                      <SelectItem value="CAD">CAD</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Balance Amount</Label>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={balanceAmount}
+                    onChange={(e) => setBalanceAmount(e.target.value)}
+                  />
                 </div>
+              </div>
+              <div>
+                <Label>Currency</Label>
+                <Input value={agentCurrency} disabled className="bg-muted" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Change currency in Agent Profile → Payment Info
+                </p>
               </div>
             </div>
             <DialogFooter>
@@ -242,23 +316,23 @@ const PaymentsFinance = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Payments</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.totalEarnings.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Lifetime earnings</p>
+            <div className="text-2xl font-bold">{formatCurrency(stats.totalPayments, agentCurrency)}</div>
+            <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payout</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.pendingPayout.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Awaiting payment</p>
+            <div className="text-2xl font-bold">{formatCurrency(stats.totalBalance, agentCurrency)}</div>
+            <p className="text-xs text-muted-foreground">Outstanding</p>
           </CardContent>
         </Card>
 
@@ -268,19 +342,19 @@ const PaymentsFinance = () => {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.thisMonth.toFixed(2)}</div>
-            <p className="text-xs text-green-600">+{((stats.thisMonth / (stats.totalEarnings || 1)) * 100).toFixed(1)}% of total</p>
+            <div className="text-2xl font-bold">{formatCurrency(stats.thisMonth, agentCurrency)}</div>
+            <p className="text-xs text-muted-foreground">This month's payments</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last Payout</CardTitle>
+            <CardTitle className="text-sm font-medium">Students</CardTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.lastPayout.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Most recent payment</p>
+            <div className="text-2xl font-bold">{stats.studentCount}</div>
+            <p className="text-xs text-muted-foreground">Total students</p>
           </CardContent>
         </Card>
       </div>
@@ -297,8 +371,8 @@ const PaymentsFinance = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Commission History</CardTitle>
-                  <CardDescription>All commission payments and pending amounts</CardDescription>
+                  <CardTitle>Payment History</CardTitle>
+                  <CardDescription>All student payments in {agentCurrency}</CardDescription>
                 </div>
                 <Button variant="outline" onClick={handleExportInvoices}>
                   <Download className="h-4 w-4 mr-2" />
@@ -312,50 +386,52 @@ const PaymentsFinance = () => {
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Student</TableHead>
-                    <TableHead>Course</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Paid Date</TableHead>
+                    <TableHead>Payment Amount</TableHead>
+                    <TableHead>Balance</TableHead>
+                    <TableHead>Total</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {commissions.map((commission) => (
-                    <TableRow key={commission.id}>
-                      <TableCell>
-                        {format(new Date(commission.created_at), 'MMM dd, yyyy')}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">
-                            {commission.application.first_name} {commission.application.last_name}
-                          </div>
-                          <div className="text-sm text-muted-foreground">
-                            {commission.application.application_number}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{commission.application.course.course_name}</TableCell>
-                      <TableCell className="capitalize">{commission.commission_type.replace('_', ' ')}</TableCell>
-                      <TableCell className="font-mono">
-                        {commission.currency} ${Number(commission.amount).toFixed(2)}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(commission.status)}</TableCell>
-                      <TableCell>
-                        {commission.paid_at 
-                          ? format(new Date(commission.paid_at), 'MMM dd, yyyy')
-                          : '-'
-                        }
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {payments.map((payment) => {
+                    const paymentConverted = convertCurrency(
+                      Number(payment.payment_amount),
+                      payment.currency,
+                      agentCurrency
+                    );
+                    const balanceConverted = convertCurrency(
+                      Number(payment.balance_amount),
+                      payment.currency,
+                      agentCurrency
+                    );
+                    const total = paymentConverted + balanceConverted;
+
+                    return (
+                      <TableRow key={payment.id}>
+                        <TableCell>
+                          {format(new Date(payment.payment_date), 'MMM dd, yyyy')}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">{payment.student.full_name}</div>
+                        </TableCell>
+                        <TableCell className="font-mono">
+                          {formatCurrency(paymentConverted, agentCurrency)}
+                        </TableCell>
+                        <TableCell className="font-mono">
+                          {formatCurrency(balanceConverted, agentCurrency)}
+                        </TableCell>
+                        <TableCell className="font-mono font-bold">
+                          {formatCurrency(total, agentCurrency)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
 
-              {commissions.length === 0 && (
+              {payments.length === 0 && (
                 <div className="text-center py-8">
                   <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No commission records yet</p>
+                  <p className="text-muted-foreground">No payment records yet</p>
                 </div>
               )}
             </CardContent>
@@ -365,21 +441,21 @@ const PaymentsFinance = () => {
         <TabsContent value="invoices" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Invoices & Receipts</CardTitle>
-              <CardDescription>Download invoices and payment receipts</CardDescription>
+              <CardTitle>Payment Receipts</CardTitle>
+              <CardDescription>Download payment receipts</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {commissions.filter(c => c.status === 'paid').map((commission) => (
-                  <div key={commission.id} className="flex items-center justify-between p-4 border rounded-lg">
+                {payments.map((payment) => (
+                  <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center gap-3">
                       <FileText className="h-8 w-8 text-muted-foreground" />
                       <div>
                         <div className="font-medium">
-                          Invoice #{commission.payment_reference || commission.id.slice(0, 8)}
+                          Receipt #{payment.id.slice(0, 8)}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {format(new Date(commission.paid_at), 'MMMM dd, yyyy')} - ${Number(commission.amount).toFixed(2)}
+                          {format(new Date(payment.payment_date), 'MMMM dd, yyyy')} - {formatCurrency(Number(payment.payment_amount), payment.currency)}
                         </div>
                       </div>
                     </div>
@@ -390,10 +466,10 @@ const PaymentsFinance = () => {
                   </div>
                 ))}
 
-                {commissions.filter(c => c.status === 'paid').length === 0 && (
+                {payments.length === 0 && (
                   <div className="text-center py-8">
                     <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No paid invoices available</p>
+                    <p className="text-muted-foreground">No payment receipts available</p>
                   </div>
                 )}
               </div>
@@ -423,7 +499,7 @@ const PaymentsFinance = () => {
                     Monthly payouts on the 15th of each month
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Minimum payout threshold: $100
+                    Minimum payout threshold: {formatCurrency(100, agentCurrency)}
                   </p>
                 </div>
               </div>
@@ -431,16 +507,11 @@ const PaymentsFinance = () => {
               <div className="border-t pt-6">
                 <h3 className="font-semibold mb-4">Request Payout</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Current pending balance: <span className="font-bold">${stats.pendingPayout.toFixed(2)}</span>
+                  Current balance: <span className="font-bold">{formatCurrency(stats.totalBalance, agentCurrency)}</span>
                 </p>
-                <Button disabled={stats.pendingPayout < 100}>
+                <Button disabled={stats.totalBalance < convertCurrency(100, 'USD', agentCurrency)}>
                   Request Early Payout
                 </Button>
-                {stats.pendingPayout < 100 && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Minimum balance of $100 required for payout request
-                  </p>
-                )}
               </div>
             </CardContent>
           </Card>

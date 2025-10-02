@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { User, Shield, Download, DollarSign, Globe, Upload } from 'lucide-react';
 import ChangePassword from '@/components/ChangePassword';
+import { SUPPORTED_CURRENCIES } from '@/lib/currencyConversion';
 
 interface AgentProfile {
   id: string;
@@ -23,6 +24,7 @@ interface AgentProfile {
   region?: string;
   languages: string[];
   contact_info: any;
+  preferred_currency: string;
 }
 
 const AgentProfile = () => {
@@ -326,6 +328,27 @@ const AgentProfile = () => {
                 <CardTitle>Payment Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div>
+                  <Label>Preferred Currency</Label>
+                  <Select
+                    value={profile.preferred_currency || 'USD'}
+                    onValueChange={(value) => updateProfile({ preferred_currency: value })}
+                  >
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_CURRENCIES.map((currency) => (
+                        <SelectItem key={currency} value={currency}>
+                          {currency}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    All amounts will be displayed in this currency
+                  </p>
+                </div>
                 <div>
                   <Label>Bank Account</Label>
                   <Button size="sm" variant="outline" className="mt-2">
