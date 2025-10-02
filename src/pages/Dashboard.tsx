@@ -34,7 +34,7 @@ const Dashboard = () => {
       case 'faculty':
         return <FacultyDashboard />;
       case 'admission_agent':
-        return <DelegatorDashboard />;
+        return <AdmissionAgentDashboard />;
       case 'finance':
       case 'accounts':
         return <FinanceDashboard />;
