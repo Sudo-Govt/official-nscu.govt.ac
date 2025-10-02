@@ -2180,6 +2180,7 @@ export type Database = {
         Row: {
           agent_currency: string
           agent_id: string
+          application_id: string | null
           balance_amount: number
           created_at: string | null
           created_by: string | null
@@ -2189,12 +2190,13 @@ export type Database = {
           notes: string | null
           payment_amount: number
           payment_date: string | null
-          student_id: string
+          student_id: string | null
           updated_at: string | null
         }
         Insert: {
           agent_currency?: string
           agent_id: string
+          application_id?: string | null
           balance_amount?: number
           created_at?: string | null
           created_by?: string | null
@@ -2204,12 +2206,13 @@ export type Database = {
           notes?: string | null
           payment_amount: number
           payment_date?: string | null
-          student_id: string
+          student_id?: string | null
           updated_at?: string | null
         }
         Update: {
           agent_currency?: string
           agent_id?: string
+          application_id?: string | null
           balance_amount?: number
           created_at?: string | null
           created_by?: string | null
@@ -2219,7 +2222,7 @@ export type Database = {
           notes?: string | null
           payment_amount?: number
           payment_date?: string | null
-          student_id?: string
+          student_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -2228,6 +2231,13 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "agent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_payments_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "student_applications"
             referencedColumns: ["id"]
           },
           {

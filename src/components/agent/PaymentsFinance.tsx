@@ -75,45 +75,38 @@ const PaymentsFinance = () => {
       const currency = agentProfile.preferred_currency || 'USD';
       setAgentCurrency(currency);
 
-      // Fetch students added by this agent
+      // Fetch students from applications added by this agent
       const { data: studentsData, error: studentsError } = await supabase
         .from('student_applications')
-        .select(`
-          student_id,
-          profiles!student_applications_student_id_fkey(
-            user_id,
-            full_name,
-            email
-          )
-        `)
-        .eq('agent_id', agentProfile.id);
+        .select('id, first_name, last_name, email, student_id')
+        .eq('agent_id', agentProfile.id)
+        .eq('status', 'submitted');
 
       if (studentsError) {
         console.error('Error fetching students:', studentsError);
       }
 
-      console.log('Students data:', studentsData);
+      console.log('Students applications data:', studentsData);
 
-      const uniqueStudents = studentsData?.reduce((acc: Student[], app: any) => {
-        const student = app.profiles;
-        if (student && !acc.find(s => s.user_id === student.user_id)) {
-          acc.push({
-            user_id: student.user_id,
-            full_name: student.full_name,
-            email: student.email || ''
-          });
-        }
-        return acc;
-      }, []) || [];
+      // Use application data directly since student_id may be null for pending applications
+      const uniqueStudents = studentsData?.map((app: any) => ({
+        user_id: app.id, // Use application id as the identifier
+        full_name: `${app.first_name} ${app.last_name}`,
+        email: app.email
+      })) || [];
 
       console.log('Unique students:', uniqueStudents);
       setStudents(uniqueStudents);
 
-      // Fetch payments
+      // Fetch payments - handle both application-based and student-based payments
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('student_payments')
         .select(`
           *,
+          application:student_applications!student_payments_application_id_fkey(
+            first_name,
+            last_name
+          ),
           student:profiles!student_payments_student_id_fkey(
             full_name
           )
@@ -123,7 +116,17 @@ const PaymentsFinance = () => {
 
       if (paymentsError) throw paymentsError;
 
-      setPayments(paymentsData || []);
+      // Transform payments to have consistent student name
+      const transformedPayments = paymentsData?.map(p => ({
+        ...p,
+        student: {
+          full_name: p.application 
+            ? `${p.application.first_name} ${p.application.last_name}`
+            : p.student?.full_name || 'Unknown'
+        }
+      })) || [];
+
+      setPayments(transformedPayments);
 
       // Calculate stats in agent's currency
       const totalPayments = paymentsData?.reduce((sum, p) => {
@@ -200,10 +203,11 @@ const PaymentsFinance = () => {
 
       const exchangeRate = getExchangeRate(agentCurrency, 'USD');
 
+      // selectedStudentId is actually the application id in this context
       const { error } = await supabase
         .from('student_payments')
         .insert({
-          student_id: selectedStudentId,
+          application_id: selectedStudentId,
           agent_id: agentProfile.id,
           payment_amount: Number(paymentAmount),
           balance_amount: Number(balanceAmount),
