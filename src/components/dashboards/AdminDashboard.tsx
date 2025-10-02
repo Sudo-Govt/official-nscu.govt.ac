@@ -49,13 +49,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import AvatarUpload from '@/components/AvatarUpload';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
-import EmailSettings from '@/components/admin/EmailSettings';
-import EmailInbox from '@/components/admin/email/EmailInbox';
-import EmailSent from '@/components/admin/email/EmailSent';
-import EmailDrafts from '@/components/admin/email/EmailDrafts';
-import EmailComposer from '@/components/admin/email/EmailComposer';
-import EmailAccountManagement from '@/components/admin/EmailAccountManagement';
-import EmailApp from '@/components/email/EmailApp';
+import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 interface Student {
   id: string;
@@ -703,11 +697,10 @@ const AdminDashboard = () => {
       ]
     },
     {
-      label: "Email",
+      label: "Communication",
       items: [
-        { title: "My Email", icon: Mail, value: "my-email", onClick: () => setCurrentTab("my-email") },
-        { title: "Email Accounts", icon: Users, value: "email-accounts", onClick: () => setCurrentTab("email-accounts") },
-        { title: "SMTP Settings", icon: Settings, value: "email-settings", onClick: () => setCurrentTab("email-settings") },
+        { title: "Internal Mail", icon: Mail, value: "mail", onClick: () => setCurrentTab("mail") },
+        { title: "Messages", icon: Bell, value: "messaging", onClick: () => setCurrentTab("messaging") },
       ]
     },
     {
@@ -1039,9 +1032,7 @@ const AdminDashboard = () => {
           <ChangePassword />
         </div>
       )}
-      {currentTab === "my-email" && <EmailApp />}
-      {currentTab === "email-accounts" && <EmailAccountManagement />}
-      {currentTab === "email-settings" && <EmailSettings />}
+      {currentTab === "mail" && <InternalMailSystem />}
       {currentTab === "settings" && <SystemSettings />}
 
       {/* Dialogs remain the same */}

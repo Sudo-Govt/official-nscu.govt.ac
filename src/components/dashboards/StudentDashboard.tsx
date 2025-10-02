@@ -9,9 +9,8 @@ import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, Graduati
 import { useToast } from '@/hooks/use-toast';
 import mockDb from '@/database/mockDb';
 import ChangePassword from '@/components/ChangePassword';
-import MessagesPanel from '@/components/student/MessagesPanel';
 import DashboardLayout from '@/components/DashboardLayout';
-import EmailApp from '@/components/email/EmailApp';
+import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -128,8 +127,7 @@ const StudentDashboard = () => {
     {
       label: "Communication",
       items: [
-        { title: "Email", icon: Mail, value: "email", onClick: () => setCurrentTab("email") },
-        { title: "Messages", icon: MessageSquare, value: "messages", onClick: () => setCurrentTab("messages") },
+        { title: "Internal Mail", icon: Mail, value: "mail", onClick: () => setCurrentTab("mail") },
       ]
     },
     {
@@ -468,8 +466,7 @@ const StudentDashboard = () => {
         </Card>
       )}
 
-      {currentTab === "messages" && <MessagesPanel />}
-      {currentTab === "email" && <EmailApp />}
+      {currentTab === "mail" && <InternalMailSystem />}
 
       {currentTab === "fees" && (
         <Card>

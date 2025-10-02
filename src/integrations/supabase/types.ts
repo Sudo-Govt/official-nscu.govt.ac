@@ -1125,6 +1125,36 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           available_seats: number | null
@@ -1660,6 +1690,48 @@ export type Database = {
           },
         ]
       }
+      internal_messages: {
+        Row: {
+          body: string
+          created_at: string | null
+          id: string
+          is_deleted_by_recipient: boolean | null
+          is_deleted_by_sender: boolean | null
+          is_read: boolean | null
+          is_starred: boolean | null
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+          subject: string
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          id?: string
+          is_deleted_by_recipient?: boolean | null
+          is_deleted_by_sender?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+          subject: string
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          id?: string
+          is_deleted_by_recipient?: boolean | null
+          is_deleted_by_sender?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       modules: {
         Row: {
           created_at: string
@@ -2172,6 +2244,27 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      user_presence: {
+        Row: {
+          is_online: boolean | null
+          last_seen: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          is_online?: boolean | null
+          last_seen?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          is_online?: boolean | null
+          last_seen?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
