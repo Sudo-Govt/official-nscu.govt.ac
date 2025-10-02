@@ -10,7 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 import AgentProfile from '@/components/agent/AgentProfile';
 import StudentManagement from '@/components/agent/StudentManagement';
 import DocumentManagement from '@/components/agent/DocumentManagement';
-import AnalyticsTable from '@/components/agent/AnalyticsTable';
+import PaymentsFinance from '@/components/agent/PaymentsFinance';
+import CommunicationsHub from '@/components/agent/CommunicationsHub';
+import ReportsAnalytics from '@/components/agent/ReportsAnalytics';
+import SupportResources from '@/components/agent/SupportResources';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 
 const AdmissionAgentDashboard = () => {
@@ -118,16 +121,16 @@ const AdmissionAgentDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="students">Students</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="mail">Internal Mail</TabsTrigger>
-            <TabsTrigger value="communications">Messages</TabsTrigger>
-            <TabsTrigger value="finance">Finance</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-9 gap-1">
+            <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
+            <TabsTrigger value="profile" className="text-xs">Profile</TabsTrigger>
+            <TabsTrigger value="students" className="text-xs">Students</TabsTrigger>
+            <TabsTrigger value="documents" className="text-xs">Documents</TabsTrigger>
+            <TabsTrigger value="payments" className="text-xs">Payments</TabsTrigger>
+            <TabsTrigger value="communications" className="text-xs">Communications</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs">Reports</TabsTrigger>
+            <TabsTrigger value="mail" className="text-xs">Mail</TabsTrigger>
+            <TabsTrigger value="support" className="text-xs">Support</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -281,183 +284,24 @@ const AdmissionAgentDashboard = () => {
             <DocumentManagement />
           </TabsContent>
 
-          <TabsContent value="analytics">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Performance Analytics</CardTitle>
-                  <CardDescription>Detailed insights into your recruitment performance</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-2xl font-bold">{stats.conversionRate.toFixed(1)}%</div>
-                        <p className="text-sm text-muted-foreground">Application to Acceptance Rate</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-2xl font-bold">3.2 days</div>
-                        <p className="text-sm text-muted-foreground">Average Processing Time</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-2xl font-bold">95%</div>
-                        <p className="text-sm text-muted-foreground">Document Compliance Rate</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CardContent>
-              </Card>
+          <TabsContent value="payments">
+            <PaymentsFinance />
+          </TabsContent>
 
-              <AnalyticsTable />
-            </div>
+          <TabsContent value="communications">
+            <CommunicationsHub />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <ReportsAnalytics />
           </TabsContent>
 
           <TabsContent value="mail">
             <InternalMailSystem />
           </TabsContent>
 
-          <TabsContent value="communications">
-            <Card>
-              <CardHeader>
-                <CardTitle>Communications Hub</CardTitle>
-                <CardDescription>Messages, announcements, and notifications</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg">Direct Messages</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-center py-4">
-                          <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-sm text-muted-foreground">No new messages</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg">Announcements</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="p-2 bg-muted rounded">
-                            <p className="text-sm font-medium">New intake dates announced</p>
-                            <p className="text-xs text-muted-foreground">2 hours ago</p>
-                          </div>
-                          <div className="p-2 bg-muted rounded">
-                            <p className="text-sm font-medium">Document verification updates</p>
-                            <p className="text-xs text-muted-foreground">1 day ago</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="finance">
-            <Card>
-              <CardHeader>
-                <CardTitle>Commission & Payments</CardTitle>
-                <CardDescription>Track your earnings and payment history</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-2xl font-bold">${stats.totalEarnings}</div>
-                        <p className="text-sm text-muted-foreground">Total Earnings</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-2xl font-bold">$0</div>
-                        <p className="text-sm text-muted-foreground">Pending Payout</p>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-2xl font-bold">5.0%</div>
-                        <p className="text-sm text-muted-foreground">Commission Rate</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  
-                  <div className="text-center py-8">
-                    <DollarSign className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">Payment history will be displayed here</p>
-                    <Button className="mt-4" variant="outline">
-                      Request Payout
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings">
-            <Card>
-              <CardHeader>
-                <CardTitle>Agent Settings</CardTitle>
-                <CardDescription>Configure your account preferences</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg">Notifications</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">Email notifications</span>
-                            <Badge variant="outline">Enabled</Badge>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">SMS alerts</span>
-                            <Badge variant="secondary">Disabled</Badge>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg">Regional Settings</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">Time zone</span>
-                            <span className="text-sm text-muted-foreground">UTC</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">Language</span>
-                            <span className="text-sm text-muted-foreground">English</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  
-                  <Button variant="outline">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configure Settings
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="support">
+            <SupportResources />
           </TabsContent>
         </Tabs>
       </div>
