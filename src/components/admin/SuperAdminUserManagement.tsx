@@ -146,12 +146,16 @@ const SuperAdminUserManagement = () => {
           .from('user_roles')
           .insert({
             user_id: authData.user.id,
-            role: newUser.role as any,
-            created_by: authData.user.id
+            role: newUser.role as any
           });
 
         if (roleError) {
           console.error('Role assignment error:', roleError);
+          toast({
+            title: "Warning",
+            description: "User created but role assignment failed. Please assign role manually.",
+            variant: "destructive"
+          });
         }
       }
 

@@ -8,7 +8,7 @@ interface User {
   email: string;
   full_name: string;
   avatar_url?: string;
-  role: 'admin' | 'student' | 'faculty' | 'admission_agent' | 'finance' | 'superadmin' | 'alumni' | 'staff' | 'accounts' | 'registrar' | 'auditor';
+  role: 'admin' | 'student' | 'faculty' | 'admission_agent' | 'finance' | 'superadmin' | 'alumni' | 'staff' | 'accounts' | 'registrar' | 'auditor' | 'delegator';
 }
 
 interface AuthContextType {
@@ -40,6 +40,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
+      // Fetch role from user_roles table
+      const { data: userRole, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (roleError) {
+        console.error('Error fetching role:', roleError);
+      }
+      
       if (profile) {
         const { data: authUser } = await supabase.auth.getUser();
         if (authUser.user) {
@@ -49,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: authUser.user.email!,
             full_name: profile.full_name,
             avatar_url: profile.avatar_url,
-            role: profile.role || 'student'
+            role: userRole?.role || profile.role || 'student'
           });
         }
       }
