@@ -141,7 +141,8 @@ const Header = () => {
         {title: "Alumni Events", href: "/alumni/events"},
         {title: "Career Networking", href: "/alumni/career-networking"},
         {title: "Give Back", href: "/alumni/give-back"},
-        {title: "News & Events", href: "/news/university-news"}
+        {title: "News & Events", href: "/news/university-news"},
+        {title: "Press Releases", href: "/news/press-releases"}
       ]
     }
   ];

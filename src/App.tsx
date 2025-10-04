@@ -120,6 +120,8 @@ import IntramuralsSpecial from "./pages/campus-life/Intramurals";
 
 // News pages
 import UniversityNews from "./pages/news/UniversityNews";
+import PressReleases from "./pages/news/PressReleases";
+import PressReleaseDetail from "./pages/news/PressReleaseDetail";
 
 // Additional Departments
 import ComputerScience from "./pages/departments/ComputerScience";
@@ -277,6 +279,8 @@ const App = () => (
           
           {/* News Routes */}
           <Route path="/news/university-news" element={<UniversityNews />} />
+          <Route path="/news/press-releases" element={<PressReleases />} />
+          <Route path="/news/press-release/:id" element={<PressReleaseDetail />} />
           
           {/* Additional Department Routes */}
           <Route path="/departments/computer-science" element={<ComputerScience />} />
