@@ -138,6 +138,18 @@ const Footer = () => {
             </div>
             
             <div>
+              <h4 className="font-semibold text-sm mb-3 text-uw-gold">Important Links</h4>
+              <ul className="space-y-1 text-xs text-gray-300">
+                <li><a href="https://www.moecst.gov.bz/" target="_blank" rel="noopener noreferrer" className="hover:text-uw-gold transition-colors">Ministry of Education (Belize)</a></li>
+                <li><a href="https://www.moecst.gov.bz/resources/" target="_blank" rel="noopener noreferrer" className="hover:text-uw-gold transition-colors">MoECST Resources</a></li>
+                <li><a href="https://www.moecst.gov.bz/education-services/teacher-services/teacher-learning-institute/" target="_blank" rel="noopener noreferrer" className="hover:text-uw-gold transition-colors">Teacher Learning Institute</a></li>
+                <li><a href="https://501academy.edu.bz/" target="_blank" rel="noopener noreferrer" className="hover:text-uw-gold transition-colors">501 Academy Belize</a></li>
+                <li><a href="https://gchea.org" target="_blank" rel="noopener noreferrer" className="hover:text-uw-gold transition-colors">GCHEA</a></li>
+                <li><a href="https://ub.edu.bz/" target="_blank" rel="noopener noreferrer" className="hover:text-uw-gold transition-colors">University of Belize</a></li>
+              </ul>
+            </div>
+            
+            <div>
               <h4 className="font-semibold text-sm mb-3 text-uw-gold">Resources</h4>
               <ul className="space-y-1 text-xs text-gray-300">
                 <li><Link to="/resources/student-handbook" className="hover:text-uw-gold transition-colors">Student Handbook</Link></li>

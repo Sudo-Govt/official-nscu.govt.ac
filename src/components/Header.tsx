@@ -149,6 +149,7 @@ const Header = () => {
               <Link to="/alumni/association" className="hover:text-accent transition-colors">Alumni</Link>
             </div>
             <div className="flex space-x-4">
+              <a href="https://gchea.org/verify" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">Verification</a>
               <Link to="/login" className="hover:text-accent transition-colors">nCore</Link>
               <Link to="/academics/academic-calendar" className="hover:text-accent transition-colors">Calendar</Link>
             </div>
