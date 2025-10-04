@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { LogOut } from 'lucide-react';
+import { LogOut, Home } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -131,6 +132,12 @@ export default function DashboardLayout({
               </div>
               
               <div className="flex items-center space-x-4">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/" className="flex items-center space-x-2">
+                    <Home className="h-4 w-4" />
+                    <span className="hidden md:inline">Back to Home</span>
+                  </Link>
+                </Button>
                 {userBadge && (
                   <Badge variant="secondary">{userBadge}</Badge>
                 )}

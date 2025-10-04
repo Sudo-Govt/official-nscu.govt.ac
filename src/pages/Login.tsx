@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Home } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -40,6 +40,15 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="flex justify-center mb-4">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/" className="flex items-center space-x-2">
+              <Home className="h-4 w-4" />
+              <span>Back to Home</span>
+            </Link>
+          </Button>
+        </div>
+        
         <div className="text-center mb-8">
           <img 
             src="/lovable-uploads/3dc31e79-5bd0-461f-a8f1-30c173bb258a.png" 

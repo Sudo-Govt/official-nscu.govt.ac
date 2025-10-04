@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Menu, X, Search } from 'lucide-react';
+import { Menu, X, Search, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import {
@@ -11,13 +11,22 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import SearchDialog from './SearchDialog';
 import { ThemeToggle } from './ThemeToggle';
+import { useAuth } from '@/context/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const menuData = [
     {
@@ -148,9 +157,31 @@ const Header = () => {
               <Link to="/about/leadership" className="hover:text-accent transition-colors">Faculty</Link>
               <Link to="/alumni/association" className="hover:text-accent transition-colors">Alumni</Link>
             </div>
-            <div className="flex space-x-4">
+            <div className="flex items-center space-x-4">
               <a href="https://gchea.org/verify" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">Verification</a>
-              <Link to="/login" className="hover:text-accent transition-colors">nCore</Link>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center space-x-1 hover:text-accent transition-colors">
+                    <span>nCore</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard" className="flex items-center cursor-pointer">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="flex items-center cursor-pointer text-destructive">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link to="/login" className="hover:text-accent transition-colors">nCore</Link>
+              )}
               <Link to="/academics/academic-calendar" className="hover:text-accent transition-colors">Calendar</Link>
             </div>
           </div>
