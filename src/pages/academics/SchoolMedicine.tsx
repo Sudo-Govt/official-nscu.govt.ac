@@ -6,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Stethoscope, Users, Award, BookOpen, Heart, Brain, Microscope, Activity, GraduationCap, Clock } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
+import { generateEducationalOrgDeptSchema, generateBreadcrumbSchema, generateCourseSchema } from '@/lib/seoSchemas';
 
 const SchoolMedicine = () => {
   const programs = [
@@ -154,6 +156,31 @@ const SchoolMedicine = () => {
       { name: "Regenerative Medicine Lab", focus: "Stem Cell Therapy", funding: "$10M" }
     ]
   };
+
+  useSEO({
+    title: "School of Medicine - MD Program | NSCU Medical School | GCHEA Accredited",
+    description: "NSCU School of Medicine offers MD, MD/PhD, MD/MPH, and MD/MBA programs. LCME accredited medical education with 96% USMLE Step 1 pass rate and top residency placements.",
+    keywords: "NSCU School of Medicine, MD program NSCU, medical school GCHEA accredited, LCME accredited medical school, MD/PhD dual degree, USMLE preparation, medical residency training, clinical rotations",
+    canonical: "https://nscu.govt.ac/academics/school-medicine",
+    structuredData: [
+      generateEducationalOrgDeptSchema({
+        name: "School of Medicine",
+        description: "NSCU School of Medicine trains compassionate physicians through innovative medical education and groundbreaking research",
+        url: "/academics/school-medicine"
+      }),
+      generateCourseSchema({
+        name: "Doctor of Medicine (MD)",
+        description: "Comprehensive 4-year medical education program preparing students for residency training and clinical practice",
+        provider: "New States Continental University - School of Medicine",
+        url: "/academics/school-medicine"
+      }),
+      generateBreadcrumbSchema([
+        { name: "Home", url: "/" },
+        { name: "Academics", url: "/academics/school-medicine" },
+        { name: "School of Medicine", url: "/academics/school-medicine" }
+      ])
+    ]
+  });
 
   return (
     <PageLayout 

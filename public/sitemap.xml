@@ -8,29 +8,29 @@
 
   <!-- Main Pages -->
   <url>
-    <loc>https://newstatesuniversity.lovable.app/</loc>
-    <lastmod>2025-01-08</lastmod>
+    <loc>https://nscu.govt.ac/</loc>
+    <lastmod>2025-01-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
-    <loc>https://newstatesuniversity.lovable.app/login</loc>
-    <lastmod>2024-08-03</lastmod>
+    <loc>https://nscu.govt.ac/login</loc>
+    <lastmod>2025-01-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://newstatesuniversity.lovable.app/dashboard</loc>
-    <lastmod>2024-08-03</lastmod>
+    <loc>https://nscu.govt.ac/dashboard</loc>
+    <lastmod>2025-01-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- Home Section -->
   <url>
-    <loc>https://newstatesuniversity.lovable.app/home/welcome</loc>
+    <loc>https://nscu.govt.ac/home/welcome</loc>
     <lastmod>2024-08-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

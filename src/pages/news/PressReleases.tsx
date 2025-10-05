@@ -8,12 +8,26 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { pressReleases, getAllYears } from '@/data/pressReleases';
+import { generateWebPageSchema, generateBreadcrumbSchema } from '@/lib/seoSchemas';
 
 const PressReleases = () => {
   useSEO({
-    title: "Press Releases - Official News & Announcements | NSCU Delaware",
-    description: "Official press releases and institutional announcements from The New States Continental University. Stay informed about NSCU's latest developments, achievements, and initiatives.",
-    keywords: "press releases, NSCU news, university announcements, official statements, institutional news"
+    title: "Press Releases - NSCU News & Announcements | GCHEA Accredited University",
+    description: "Latest press releases and official announcements from New States Continental University (NSCU). Read about institutional developments, partnerships, research, and academic achievements since 2010.",
+    keywords: "NSCU press releases, university news GCHEA accredited, NSCU announcements, institutional updates Belize, higher education news, NSCU partnerships, research announcements, academic achievements",
+    canonical: "https://nscu.govt.ac/news/press-releases",
+    structuredData: [
+      generateWebPageSchema({
+        name: "NSCU Press Releases",
+        description: "Official press releases and news announcements from New States Continental University",
+        url: "/news/press-releases"
+      }),
+      generateBreadcrumbSchema([
+        { name: "Home", url: "/" },
+        { name: "News", url: "/news/press-releases" },
+        { name: "Press Releases", url: "/news/press-releases" }
+      ])
+    ]
   });
 
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all');

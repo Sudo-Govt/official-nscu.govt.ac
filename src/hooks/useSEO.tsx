@@ -4,11 +4,21 @@ interface SEOProps {
   title: string;
   description: string;
   keywords?: string;
-  structuredData?: object;
+  structuredData?: object | object[];
   canonical?: string;
+  image?: string;
+  type?: string;
 }
 
-export const useSEO = ({ title, description, keywords, structuredData, canonical }: SEOProps) => {
+export const useSEO = ({ 
+  title, 
+  description, 
+  keywords, 
+  structuredData, 
+  canonical,
+  image = 'https://nscu.govt.ac/assets/images/nscu-logo.png',
+  type = 'website'
+}: SEOProps) => {
   useEffect(() => {
     // Update document title
     document.title = title;
@@ -49,6 +59,30 @@ export const useSEO = ({ title, description, keywords, structuredData, canonical
       document.head.appendChild(ogDescription);
     }
     ogDescription.setAttribute('content', description);
+
+    let ogType = document.querySelector('meta[property="og:type"]');
+    if (!ogType) {
+      ogType = document.createElement('meta');
+      ogType.setAttribute('property', 'og:type');
+      document.head.appendChild(ogType);
+    }
+    ogType.setAttribute('content', type);
+
+    let ogImage = document.querySelector('meta[property="og:image"]');
+    if (!ogImage) {
+      ogImage = document.createElement('meta');
+      ogImage.setAttribute('property', 'og:image');
+      document.head.appendChild(ogImage);
+    }
+    ogImage.setAttribute('content', image);
+
+    let ogUrl = document.querySelector('meta[property="og:url"]');
+    if (!ogUrl) {
+      ogUrl = document.createElement('meta');
+      ogUrl.setAttribute('property', 'og:url');
+      document.head.appendChild(ogUrl);
+    }
+    ogUrl.setAttribute('content', canonical || window.location.href);
     
     // Update Twitter Card tags
     let twitterTitle = document.querySelector('meta[name="twitter:title"]');
@@ -66,6 +100,14 @@ export const useSEO = ({ title, description, keywords, structuredData, canonical
       document.head.appendChild(twitterDescription);
     }
     twitterDescription.setAttribute('content', description);
+
+    let twitterImage = document.querySelector('meta[name="twitter:image"]');
+    if (!twitterImage) {
+      twitterImage = document.createElement('meta');
+      twitterImage.setAttribute('name', 'twitter:image');
+      document.head.appendChild(twitterImage);
+    }
+    twitterImage.setAttribute('content', image);
     
     // Add canonical URL
     if (canonical) {
@@ -78,18 +120,21 @@ export const useSEO = ({ title, description, keywords, structuredData, canonical
       canonicalLink.href = canonical;
     }
     
-    // Add structured data
+    // Add structured data - support multiple schemas
+    // Remove existing page-specific structured data scripts (not the main one in index.html)
+    const existingScripts = document.querySelectorAll('script[data-page-structured-data="true"]');
+    existingScripts.forEach(script => script.remove());
+
     if (structuredData) {
-      let existingScript = document.querySelector('script[data-page-structured-data]');
-      if (existingScript) {
-        existingScript.remove();
-      }
-      
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.setAttribute('data-page-structured-data', 'true');
-      script.textContent = JSON.stringify(structuredData);
-      document.head.appendChild(script);
+      const schemas = Array.isArray(structuredData) ? structuredData : [structuredData];
+      schemas.forEach((schema, index) => {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.setAttribute('data-page-structured-data', 'true');
+        script.setAttribute('data-schema-index', String(index));
+        script.textContent = JSON.stringify(schema);
+        document.head.appendChild(script);
+      });
     }
-  }, [title, description, keywords, structuredData, canonical]);
+  }, [title, description, keywords, structuredData, canonical, image, type]);
 };

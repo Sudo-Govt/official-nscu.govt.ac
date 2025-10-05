@@ -1,6 +1,8 @@
 
 import PageLayout from '@/components/PageLayout';
 import { Calendar, Award, Users, Globe } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
+import { generateWebPageSchema, generateBreadcrumbSchema, generateArticleSchema } from '@/lib/seoSchemas';
 
 const milestones = [
   {
@@ -36,6 +38,31 @@ const milestones = [
 ];
 
 const HistoryMission = () => {
+  useSEO({
+    title: "NSCU History & Mission - GCHEA Accredited Global University | Founded 2010",
+    description: "Discover NSCU's mission as a GCHEA-accredited international university serving students worldwide through quality distance education. Learn about our history, vision, and core values since 2010.",
+    keywords: "NSCU history, GCHEA accredited university, NSCU mission vision values, international university Belize, NSCU Delaware address, distance education university, global higher education, NSCU founding history",
+    canonical: "https://nscu.govt.ac/about/history-mission",
+    structuredData: [
+      generateWebPageSchema({
+        name: "NSCU History & Mission",
+        description: "History, mission, vision, and core values of New States Continental University",
+        url: "/about/history-mission"
+      }),
+      generateBreadcrumbSchema([
+        { name: "Home", url: "/" },
+        { name: "About", url: "/about/history-mission" },
+        { name: "History & Mission", url: "/about/history-mission" }
+      ]),
+      generateArticleSchema({
+        headline: "The History and Mission of New States Continental University",
+        description: "Founded in 2010, NSCU has grown to serve students worldwide through GCHEA-accredited distance education programs.",
+        datePublished: "2010-01-01",
+        dateModified: "2025-01-15"
+      })
+    ]
+  });
+
   return (
     <PageLayout 
       title="NSCU History & Mission - GCHEA Accredited Global University" 
