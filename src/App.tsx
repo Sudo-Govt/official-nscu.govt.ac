@@ -105,6 +105,8 @@ import MyNSCU from "./pages/portal/MyNSCU";
 
 // Site pages
 import Sitemap from "./pages/Sitemap";
+import Transparency from "./pages/Transparency";
+import TransparencyDashboard from "./pages/dashboard/TransparencyDashboard";
 
 // New Phase 3 pages
 import Athletics from "./pages/athletics/Athletics";
@@ -284,6 +286,10 @@ const App = () => (
           
           {/* Additional Department Routes */}
           <Route path="/departments/computer-science" element={<ComputerScience />} />
+          
+          {/* Transparency Routes */}
+          <Route path="/transparency" element={<Transparency />} />
+          <Route path="/dashboard/transparency" element={<TransparencyDashboard />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

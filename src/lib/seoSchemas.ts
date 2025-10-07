@@ -138,3 +138,16 @@ export const generateEventSchema = (event: {
   },
   "url": `${baseUrl}${event.url}`
 });
+
+export const generateTransparencySchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Transparency & Accountability Portal - NSCU",
+  "description": "Access NSCU's institutional transparency portal featuring public records, blockchain credential verification, and annual reports.",
+  "url": `${baseUrl}/transparency`,
+  "mainEntity": {
+    "@type": "CollegeOrUniversity",
+    "name": "New States Continental University",
+    "url": baseUrl
+  }
+});
