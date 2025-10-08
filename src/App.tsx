@@ -107,6 +107,9 @@ import MyNSCU from "./pages/portal/MyNSCU";
 import Sitemap from "./pages/Sitemap";
 import Transparency from "./pages/Transparency";
 import TransparencyDashboard from "./pages/dashboard/TransparencyDashboard";
+import AnnualReports from "./pages/transparency/AnnualReports";
+import FinancialStatements from "./pages/transparency/FinancialStatements";
+import AccreditationCompliance from "./pages/transparency/AccreditationCompliance";
 
 // New Phase 3 pages
 import Athletics from "./pages/athletics/Athletics";
@@ -289,6 +292,9 @@ const App = () => (
           
           {/* Transparency Routes */}
           <Route path="/transparency" element={<Transparency />} />
+          <Route path="/transparency/annual-reports" element={<AnnualReports />} />
+          <Route path="/transparency/financial-statements" element={<FinancialStatements />} />
+          <Route path="/transparency/accreditation" element={<AccreditationCompliance />} />
           <Route path="/dashboard/transparency" element={<TransparencyDashboard />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

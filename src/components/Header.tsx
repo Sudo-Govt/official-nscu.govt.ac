@@ -35,6 +35,7 @@ const Header = () => {
         {title: "History & Mission", href: "/about/history-mission"},
         {title: "Leadership", href: "/about/leadership"},
         {title: "Accreditation", href: "/about/accreditation"},
+        {title: "Transparency Portal", href: "/transparency"},
         {title: "Fast Facts", href: "/home/fast-facts"},
         {title: "Campus Map", href: "/about/campus-map"},
         {title: "Sustainability", href: "/about/sustainability"},

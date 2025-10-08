@@ -93,6 +93,7 @@ const Footer = () => {
                 <li><Link to="/about/history-mission" className="hover:text-uw-gold transition-colors">History & Mission</Link></li>
                 <li><Link to="/about/leadership" className="hover:text-uw-gold transition-colors">Leadership</Link></li>
                 <li><Link to="/about/accreditation" className="hover:text-uw-gold transition-colors">Accreditation</Link></li>
+                <li><Link to="/transparency" className="hover:text-uw-gold transition-colors">Transparency Portal</Link></li>
                 <li><Link to="/about/campus-map" className="hover:text-uw-gold transition-colors">Campus Map</Link></li>
                 <li><Link to="/about/sustainability" className="hover:text-uw-gold transition-colors">Sustainability</Link></li>
                 <li><Link to="/about/diversity-inclusion" className="hover:text-uw-gold transition-colors">Diversity & Inclusion</Link></li>
