@@ -17,21 +17,25 @@ const StudentRecordsModule = () => {
   }, []);
 
   const fetchRecords = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('student_records')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (error) throw error;
-      setRecords(data || []);
-    } catch (error) {
-      console.error('Error fetching student records:', error);
-      toast.error('Failed to load student records');
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Uncomment when student_records table is created
+    setLoading(false);
+    toast.info('Student records module will be available after database migration');
+    
+    // try {
+    //   const { data, error } = await supabase
+    //     .from('student_records')
+    //     .select('*')
+    //     .order('created_at', { ascending: false })
+    //     .limit(50);
+    //
+    //   if (error) throw error;
+    //   setRecords(data || []);
+    // } catch (error) {
+    //   console.error('Error fetching student records:', error);
+    //   toast.error('Failed to load student records');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const filteredRecords = records.filter(record =>

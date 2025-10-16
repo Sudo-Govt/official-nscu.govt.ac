@@ -16,20 +16,24 @@ const ResearchModule = () => {
   }, []);
 
   const fetchProjects = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('research_projects')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProjects(data || []);
-    } catch (error) {
-      console.error('Error fetching research projects:', error);
-      toast.error('Failed to load research projects');
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Uncomment when research_projects table is created
+    setLoading(false);
+    toast.info('Research module will be available after database migration');
+    
+    // try {
+    //   const { data, error } = await supabase
+    //     .from('research_projects')
+    //     .select('*')
+    //     .order('created_at', { ascending: false });
+    //
+    //   if (error) throw error;
+    //   setProjects(data || []);
+    // } catch (error) {
+    //   console.error('Error fetching research projects:', error);
+    //   toast.error('Failed to load research projects');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (

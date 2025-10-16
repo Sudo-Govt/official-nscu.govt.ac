@@ -15,21 +15,25 @@ const FacultyRecordsModule = () => {
   }, []);
 
   const fetchRecords = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('faculty_records')
-        .select('*')
-        .order('joining_date', { ascending: false })
-        .limit(50);
-
-      if (error) throw error;
-      setRecords(data || []);
-    } catch (error) {
-      console.error('Error fetching faculty records:', error);
-      toast.error('Failed to load faculty records');
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Uncomment when faculty_records table is created
+    setLoading(false);
+    toast.info('Faculty records module will be available after database migration');
+    
+    // try {
+    //   const { data, error } = await supabase
+    //     .from('faculty_records')
+    //     .select('*')
+    //     .order('joining_date', { ascending: false })
+    //     .limit(50);
+    //
+    //   if (error) throw error;
+    //   setRecords(data || []);
+    // } catch (error) {
+    //   console.error('Error fetching faculty records:', error);
+    //   toast.error('Failed to load faculty records');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (

@@ -15,20 +15,24 @@ const GovernanceModule = () => {
   }, []);
 
   const fetchMeetings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('governance_meetings')
-        .select('*')
-        .order('meeting_date', { ascending: false });
-
-      if (error) throw error;
-      setMeetings(data || []);
-    } catch (error) {
-      console.error('Error fetching governance meetings:', error);
-      toast.error('Failed to load governance meetings');
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Uncomment when governance_meetings table is created
+    setLoading(false);
+    toast.info('Governance module will be available after database migration');
+    
+    // try {
+    //   const { data, error } = await supabase
+    //     .from('governance_meetings')
+    //     .select('*')
+    //     .order('meeting_date', { ascending: false });
+    //
+    //   if (error) throw error;
+    //   setMeetings(data || []);
+    // } catch (error) {
+    //   console.error('Error fetching governance meetings:', error);
+    //   toast.error('Failed to load governance meetings');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (

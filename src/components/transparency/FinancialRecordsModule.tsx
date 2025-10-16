@@ -16,20 +16,24 @@ const FinancialRecordsModule = () => {
   }, []);
 
   const fetchRecords = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('financial_records')
-        .select('*')
-        .order('report_year', { ascending: false });
-
-      if (error) throw error;
-      setRecords(data || []);
-    } catch (error) {
-      console.error('Error fetching financial records:', error);
-      toast.error('Failed to load financial records');
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Uncomment when financial_records table is created
+    setLoading(false);
+    toast.info('Financial records module will be available after database migration');
+    
+    // try {
+    //   const { data, error } = await supabase
+    //     .from('financial_records')
+    //     .select('*')
+    //     .order('report_year', { ascending: false });
+    //
+    //   if (error) throw error;
+    //   setRecords(data || []);
+    // } catch (error) {
+    //   console.error('Error fetching financial records:', error);
+    //   toast.error('Failed to load financial records');
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
