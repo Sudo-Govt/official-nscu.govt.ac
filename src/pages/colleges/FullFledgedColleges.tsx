@@ -1,12 +1,17 @@
+import { useState } from 'react';
 import PageLayout from '@/components/PageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MapPin, CheckCircle, XCircle, Users, GraduationCap, Calendar, ClipboardCheck, Trophy, Building } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { MapPin, CheckCircle, XCircle, Users, GraduationCap, Calendar, ClipboardCheck, Trophy, Building, Search, ChevronDown } from 'lucide-react';
 
 const FullFledgedColleges = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [openColleges, setOpenColleges] = useState<Record<number, boolean>>({});
   const colleges = [
     {
       id: 1,
@@ -502,6 +507,16 @@ const FullFledgedColleges = () => {
   const totalFacultyAcrossAll = colleges.reduce((sum, college) => sum + college.facultyCount, 0);
   const activeColleges = colleges.filter(c => c.status === "Active").length;
 
+  const filteredColleges = colleges.filter(college => 
+    college.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    college.shortName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    college.locations.some(loc => loc.city.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const toggleCollege = (id: number) => {
+    setOpenColleges(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <PageLayout 
       title="Full-Fledged Colleges" 
@@ -548,38 +563,74 @@ const FullFledgedColleges = () => {
           </TabsList>
           
           <TabsContent value="overview">
-            <div className="grid gap-6">
-              {colleges.map((college) => (
-                <Card key={college.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-xl text-uw-purple">{college.name}</CardTitle>
-                        <CardDescription className="mt-2">
-                          Established {college.established} • {college.shortName} • {college.accreditation}
-                          <br />
-                          <span className="text-sm">
-                            Website: {college.website.startsWith('http') ? (
-                              <a href={college.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                                {college.website}
-                              </a>
-                            ) : (
-                              college.website
-                            )}
-                          </span>
-                        </CardDescription>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant={college.status === "Active" ? "default" : "destructive"}>
-                          {college.status}
-                        </Badge>
-                        <div className="text-sm text-gray-600 mt-1">
-                          Rank #{college.ranking.national} ({college.ranking.category})
+            {/* Search Bar */}
+            <div className="mb-6">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search colleges by name, code, or location..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              {searchTerm && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Found {filteredColleges.length} college{filteredColleges.length !== 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
+
+            <div className="grid gap-4">
+              {filteredColleges.map((college) => (
+                <Collapsible
+                  key={college.id}
+                  open={openColleges[college.id]}
+                  onOpenChange={() => toggleCollege(college.id)}
+                >
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CollapsibleTrigger className="w-full">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div className="text-left">
+                            <CardTitle className="text-xl text-uw-purple flex items-center gap-2">
+                              {college.name}
+                              <ChevronDown className={`h-5 w-5 transition-transform ${openColleges[college.id] ? 'rotate-180' : ''}`} />
+                            </CardTitle>
+                            <CardDescription className="mt-2">
+                              Established {college.established} • {college.shortName} • {college.accreditation}
+                              <br />
+                              <span className="text-sm">
+                                Website: {college.website.startsWith('http') ? (
+                                  <a 
+                                    href={college.website} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="text-primary hover:underline"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    {college.website}
+                                  </a>
+                                ) : (
+                                  college.website
+                                )}
+                              </span>
+                            </CardDescription>
+                          </div>
+                          <div className="text-right">
+                            <Badge variant={college.status === "Active" ? "default" : "destructive"}>
+                              {college.status}
+                            </Badge>
+                            <div className="text-sm text-gray-600 mt-1">
+                              Rank #{college.ranking.national} ({college.ranking.category})
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent>
                     <div className="space-y-6">
                       {/* Leadership */}
                       <div className="grid md:grid-cols-2 gap-4">
@@ -639,9 +690,11 @@ const FullFledgedColleges = () => {
                           ))}
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </div>
+                    </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
               ))}
             </div>
           </TabsContent>
