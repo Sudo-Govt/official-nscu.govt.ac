@@ -13,6 +13,7 @@ const FullFledgedColleges = () => {
       name: "Barcelona Global University",
       shortName: "BGU",
       established: 1998,
+      website: "Website not updated",
       locations: [
         { city: "Barcelona", type: "Main Campus", students: 7800 },
         { city: "Madrid", type: "Branch Campus", students: 3400 },
@@ -44,6 +45,7 @@ const FullFledgedColleges = () => {
       name: "Berlin International Institute",
       shortName: "BII",
       established: 1991,
+      website: "Website not updated",
       locations: [
         { city: "Berlin", type: "Main Campus", students: 9200 },
         { city: "Munich", type: "Branch Campus", students: 4100 },
@@ -75,6 +77,7 @@ const FullFledgedColleges = () => {
       name: "Buenos Aires Metropolitan College",
       shortName: "BAMC",
       established: 1989,
+      website: "Website not updated",
       locations: [
         { city: "Buenos Aires", type: "Main Campus", students: 8600 },
         { city: "Córdoba", type: "Branch Campus", students: 3800 },
@@ -106,6 +109,7 @@ const FullFledgedColleges = () => {
       name: "Cape Town University of Excellence",
       shortName: "CTUE",
       established: 1994,
+      website: "Website not updated",
       locations: [
         { city: "Cape Town", type: "Main Campus", students: 7400 },
         { city: "Johannesburg", type: "Branch Campus", students: 3200 },
@@ -137,6 +141,7 @@ const FullFledgedColleges = () => {
       name: "Guadalajara Technical Institute",
       shortName: "GTI",
       established: 1997,
+      website: "Website not updated",
       locations: [
         { city: "Guadalajara", type: "Main Campus", students: 6900 },
         { city: "Monterrey", type: "Branch Campus", students: 3100 },
@@ -168,6 +173,7 @@ const FullFledgedColleges = () => {
       name: "Jakarta International University",
       shortName: "JIU",
       established: 1993,
+      website: "Website not updated",
       locations: [
         { city: "Jakarta", type: "Main Campus", students: 8800 },
         { city: "Surabaya", type: "Branch Campus", students: 3700 },
@@ -199,6 +205,7 @@ const FullFledgedColleges = () => {
       name: "Kuala Lumpur Institute of Technology",
       shortName: "KLIT",
       established: 2000,
+      website: "Website not updated",
       locations: [
         { city: "Kuala Lumpur", type: "Main Campus", students: 6500 },
         { city: "Penang", type: "Branch Campus", students: 2800 },
@@ -230,6 +237,7 @@ const FullFledgedColleges = () => {
       name: "Lagos Metropolitan University",
       shortName: "LMU",
       established: 1996,
+      website: "Website not updated",
       locations: [
         { city: "Lagos", type: "Main Campus", students: 7900 },
         { city: "Abuja", type: "Branch Campus", students: 3300 },
@@ -261,6 +269,7 @@ const FullFledgedColleges = () => {
       name: "Manila College of Advanced Studies",
       shortName: "MCAS",
       established: 1990,
+      website: "Website not updated",
       locations: [
         { city: "Manila", type: "Main Campus", students: 8300 },
         { city: "Cebu", type: "Branch Campus", students: 3500 },
@@ -292,6 +301,7 @@ const FullFledgedColleges = () => {
       name: "Paris International College",
       shortName: "PIC",
       established: 1987,
+      website: "Website not updated",
       locations: [
         { city: "Paris", type: "Main Campus", students: 9500 },
         { city: "Lyon", type: "Branch Campus", students: 4200 },
@@ -323,6 +333,7 @@ const FullFledgedColleges = () => {
       name: "Rio de Janeiro University of Science",
       shortName: "RJUS",
       established: 1992,
+      website: "Website not updated",
       locations: [
         { city: "Rio de Janeiro", type: "Main Campus", students: 8100 },
         { city: "São Paulo", type: "Branch Campus", students: 3600 },
@@ -354,6 +365,7 @@ const FullFledgedColleges = () => {
       name: "Santiago Institute of Excellence",
       shortName: "SIE",
       established: 1999,
+      website: "Website not updated",
       locations: [
         { city: "Santiago", type: "Main Campus", students: 7100 },
         { city: "Valparaíso", type: "Branch Campus", students: 2900 },
@@ -385,6 +397,7 @@ const FullFledgedColleges = () => {
       name: "Singapore Global Academy",
       shortName: "SGA",
       established: 1995,
+      website: "Website not updated",
       locations: [
         { city: "Singapore", type: "Main Campus", students: 9800 },
         { city: "Singapore East", type: "Branch Campus", students: 4500 },
@@ -416,6 +429,7 @@ const FullFledgedColleges = () => {
       name: "Stockholm University of Innovation",
       shortName: "SUI",
       established: 1986,
+      website: "Website not updated",
       locations: [
         { city: "Stockholm", type: "Main Campus", students: 8700 },
         { city: "Gothenburg", type: "Branch Campus", students: 3900 },
@@ -447,6 +461,7 @@ const FullFledgedColleges = () => {
       name: "Winston Leonard Churchill College",
       shortName: "WLCC",
       established: 1985,
+      website: "https://wlccollege.ac",
       locations: [
         { city: "New Delhi", type: "Main Campus", students: 8500 },
         { city: "Mumbai", type: "Branch Campus", students: 4200 },
@@ -542,6 +557,16 @@ const FullFledgedColleges = () => {
                         <CardTitle className="text-xl text-uw-purple">{college.name}</CardTitle>
                         <CardDescription className="mt-2">
                           Established {college.established} • {college.shortName} • {college.accreditation}
+                          <br />
+                          <span className="text-sm">
+                            Website: {college.website.startsWith('http') ? (
+                              <a href={college.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                {college.website}
+                              </a>
+                            ) : (
+                              college.website
+                            )}
+                          </span>
                         </CardDescription>
                       </div>
                       <div className="text-right">
