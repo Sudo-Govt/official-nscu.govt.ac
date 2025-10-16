@@ -142,6 +142,10 @@ import BachelorNursing from "./pages/programs/BachelorNursing";
 import DoctorMedicine from "./pages/programs/DoctorMedicine";
 import MasterSocialWork from "./pages/programs/MasterSocialWork";
 import BachelorFineArts from "./pages/programs/BachelorFineArts";
+import BachelorPharmacy from "./pages/programs/BachelorPharmacy";
+import DoctorPharmacy from "./pages/programs/DoctorPharmacy";
+import MasterPharmacy from "./pages/programs/MasterPharmacy";
+import MasterMedicine from "./pages/programs/MasterMedicine";
 
 const queryClient = new QueryClient();
 
@@ -203,6 +207,10 @@ const App = () => (
           <Route path="/programs/doctor-medicine" element={<DoctorMedicine />} />
           <Route path="/programs/master-social-work" element={<MasterSocialWork />} />
           <Route path="/programs/bachelor-fine-arts" element={<BachelorFineArts />} />
+          <Route path="/programs/bachelor-pharmacy" element={<BachelorPharmacy />} />
+          <Route path="/programs/doctor-pharmacy" element={<DoctorPharmacy />} />
+          <Route path="/programs/master-pharmacy" element={<MasterPharmacy />} />
+          <Route path="/programs/master-medicine" element={<MasterMedicine />} />
           
           {/* Admissions Routes */}
           <Route path="/admissions/undergraduate" element={<UndergraduateAdmissions />} />
