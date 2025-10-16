@@ -10,6 +10,440 @@ const FullFledgedColleges = () => {
   const colleges = [
     {
       id: 1,
+      name: "Barcelona Global University",
+      shortName: "BGU",
+      established: 1998,
+      locations: [
+        { city: "Barcelona", type: "Main Campus", students: 7800 },
+        { city: "Madrid", type: "Branch Campus", students: 3400 },
+        { city: "Valencia", type: "Branch Campus", students: 2100 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Carlos Fernández",
+      vicechancellor: "Prof. Isabel Martínez",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 13300,
+      facultyCount: 940,
+      departments: 24,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Diploma"],
+      specializations: ["Business", "Architecture", "Tourism", "Engineering", "Arts"],
+      ranking: {
+        national: 18,
+        category: "European Universities"
+      }
+    },
+    {
+      id: 2,
+      name: "Berlin International Institute",
+      shortName: "BII",
+      established: 1991,
+      locations: [
+        { city: "Berlin", type: "Main Campus", students: 9200 },
+        { city: "Munich", type: "Branch Campus", students: 4100 },
+        { city: "Frankfurt", type: "Branch Campus", students: 2900 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Hans Mueller",
+      vicechancellor: "Prof. Eva Schmidt",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 16200,
+      facultyCount: 1220,
+      departments: 29,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
+      specializations: ["Engineering", "Technology", "Sciences", "Business Administration", "Medicine"],
+      ranking: {
+        national: 12,
+        category: "Technical Universities"
+      }
+    },
+    {
+      id: 3,
+      name: "Buenos Aires Metropolitan College",
+      shortName: "BAMC",
+      established: 1989,
+      locations: [
+        { city: "Buenos Aires", type: "Main Campus", students: 8600 },
+        { city: "Córdoba", type: "Branch Campus", students: 3800 },
+        { city: "Rosario", type: "Branch Campus", students: 2700 }
+      ],
+      status: "Active",
+      chancellor: "Dr. María González",
+      vicechancellor: "Prof. Diego Ramírez",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 15100,
+      facultyCount: 1080,
+      departments: 26,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Diploma"],
+      specializations: ["Social Sciences", "Law", "Economics", "Agriculture", "Liberal Arts"],
+      ranking: {
+        national: 21,
+        category: "Multi-Disciplinary Universities"
+      }
+    },
+    {
+      id: 4,
+      name: "Cape Town University of Excellence",
+      shortName: "CTUE",
+      established: 1994,
+      locations: [
+        { city: "Cape Town", type: "Main Campus", students: 7400 },
+        { city: "Johannesburg", type: "Branch Campus", students: 3200 },
+        { city: "Durban", type: "Branch Campus", students: 2400 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Thandiwe Mbeki",
+      vicechancellor: "Prof. John van der Merwe",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 13000,
+      facultyCount: 920,
+      departments: 23,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral"],
+      specializations: ["Health Sciences", "Natural Sciences", "Engineering", "Business", "Humanities"],
+      ranking: {
+        national: 25,
+        category: "Research Universities"
+      }
+    },
+    {
+      id: 5,
+      name: "Guadalajara Technical Institute",
+      shortName: "GTI",
+      established: 1997,
+      locations: [
+        { city: "Guadalajara", type: "Main Campus", students: 6900 },
+        { city: "Monterrey", type: "Branch Campus", students: 3100 },
+        { city: "Puebla", type: "Branch Campus", students: 2300 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Roberto Hernández",
+      vicechancellor: "Prof. Ana López",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 12300,
+      facultyCount: 860,
+      departments: 21,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
+      specializations: ["Engineering", "Technology", "Architecture", "Business", "Design"],
+      ranking: {
+        national: 29,
+        category: "Technical Universities"
+      }
+    },
+    {
+      id: 6,
+      name: "Jakarta International University",
+      shortName: "JIU",
+      established: 1993,
+      locations: [
+        { city: "Jakarta", type: "Main Campus", students: 8800 },
+        { city: "Surabaya", type: "Branch Campus", students: 3700 },
+        { city: "Bandung", type: "Branch Campus", students: 2900 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Siti Rahman",
+      vicechancellor: "Prof. Ahmad Wijaya",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 15400,
+      facultyCount: 1100,
+      departments: 27,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Diploma"],
+      specializations: ["Business", "Information Technology", "Islamic Studies", "Engineering", "Social Sciences"],
+      ranking: {
+        national: 17,
+        category: "Multi-Disciplinary Universities"
+      }
+    },
+    {
+      id: 7,
+      name: "Kuala Lumpur Institute of Technology",
+      shortName: "KLIT",
+      established: 2000,
+      locations: [
+        { city: "Kuala Lumpur", type: "Main Campus", students: 6500 },
+        { city: "Penang", type: "Branch Campus", students: 2800 },
+        { city: "Johor Bahru", type: "Branch Campus", students: 2200 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Azman Abdullah",
+      vicechancellor: "Prof. Mei Ling Tan",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 11500,
+      facultyCount: 810,
+      departments: 19,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral"],
+      specializations: ["Engineering", "Computer Science", "Business", "Biotechnology", "Design"],
+      ranking: {
+        national: 33,
+        category: "Technical Universities"
+      }
+    },
+    {
+      id: 8,
+      name: "Lagos Metropolitan University",
+      shortName: "LMU",
+      established: 1996,
+      locations: [
+        { city: "Lagos", type: "Main Campus", students: 7900 },
+        { city: "Abuja", type: "Branch Campus", students: 3300 },
+        { city: "Port Harcourt", type: "Branch Campus", students: 2500 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Adebayo Okonkwo",
+      vicechancellor: "Prof. Grace Nwosu",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 13700,
+      facultyCount: 970,
+      departments: 25,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
+      specializations: ["Business", "Law", "Medicine", "Engineering", "Arts"],
+      ranking: {
+        national: 20,
+        category: "Multi-Disciplinary Universities"
+      }
+    },
+    {
+      id: 9,
+      name: "Manila College of Advanced Studies",
+      shortName: "MCAS",
+      established: 1990,
+      locations: [
+        { city: "Manila", type: "Main Campus", students: 8300 },
+        { city: "Cebu", type: "Branch Campus", students: 3500 },
+        { city: "Davao", type: "Branch Campus", students: 2600 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Rosa Santos",
+      vicechancellor: "Prof. Ramon Cruz",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 14400,
+      facultyCount: 1020,
+      departments: 26,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Diploma"],
+      specializations: ["Nursing", "Pharmacy", "Business", "Engineering", "Education"],
+      ranking: {
+        national: 19,
+        category: "Health Sciences Universities"
+      }
+    },
+    {
+      id: 10,
+      name: "Paris International College",
+      shortName: "PIC",
+      established: 1987,
+      locations: [
+        { city: "Paris", type: "Main Campus", students: 9500 },
+        { city: "Lyon", type: "Branch Campus", students: 4200 },
+        { city: "Marseille", type: "Branch Campus", students: 3100 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Jean-Pierre Dubois",
+      vicechancellor: "Prof. Sophie Laurent",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 16800,
+      facultyCount: 1280,
+      departments: 30,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
+      specializations: ["Arts", "Literature", "Business", "Sciences", "Humanities"],
+      ranking: {
+        national: 14,
+        category: "Liberal Arts Universities"
+      }
+    },
+    {
+      id: 11,
+      name: "Rio de Janeiro University of Science",
+      shortName: "RJUS",
+      established: 1992,
+      locations: [
+        { city: "Rio de Janeiro", type: "Main Campus", students: 8100 },
+        { city: "São Paulo", type: "Branch Campus", students: 3600 },
+        { city: "Brasília", type: "Branch Campus", students: 2800 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Paulo Silva",
+      vicechancellor: "Prof. Juliana Costa",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 14500,
+      facultyCount: 1040,
+      departments: 25,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral"],
+      specializations: ["Environmental Sciences", "Engineering", "Medicine", "Technology", "Social Work"],
+      ranking: {
+        national: 23,
+        category: "Research Universities"
+      }
+    },
+    {
+      id: 12,
+      name: "Santiago Institute of Excellence",
+      shortName: "SIE",
+      established: 1999,
+      locations: [
+        { city: "Santiago", type: "Main Campus", students: 7100 },
+        { city: "Valparaíso", type: "Branch Campus", students: 2900 },
+        { city: "Concepción", type: "Branch Campus", students: 2300 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Carmen Rodríguez",
+      vicechancellor: "Prof. Andrés Vargas",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 12300,
+      facultyCount: 870,
+      departments: 22,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
+      specializations: ["Mining Engineering", "Business", "Agriculture", "Sciences", "Arts"],
+      ranking: {
+        national: 27,
+        category: "Technical Universities"
+      }
+    },
+    {
+      id: 13,
+      name: "Singapore Global Academy",
+      shortName: "SGA",
+      established: 1995,
+      locations: [
+        { city: "Singapore", type: "Main Campus", students: 9800 },
+        { city: "Singapore East", type: "Branch Campus", students: 4500 },
+        { city: "Singapore West", type: "Branch Campus", students: 3400 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Lee Wei Chen",
+      vicechancellor: "Prof. Sarah Krishnan",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 17700,
+      facultyCount: 1340,
+      departments: 31,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
+      specializations: ["Finance", "Technology", "Medicine", "Engineering", "Business Analytics"],
+      ranking: {
+        national: 8,
+        category: "Research Universities"
+      }
+    },
+    {
+      id: 14,
+      name: "Stockholm University of Innovation",
+      shortName: "SUI",
+      established: 1986,
+      locations: [
+        { city: "Stockholm", type: "Main Campus", students: 8700 },
+        { city: "Gothenburg", type: "Branch Campus", students: 3900 },
+        { city: "Malmö", type: "Branch Campus", students: 2800 }
+      ],
+      status: "Active",
+      chancellor: "Dr. Lars Andersson",
+      vicechancellor: "Prof. Ingrid Johansson",
+      functions: {
+        admissions: true,
+        study: true,
+        exams: true,
+        paperChecking: true,
+        results: true
+      },
+      accreditation: "GCHEA Accredited",
+      totalStudents: 15400,
+      facultyCount: 1120,
+      departments: 28,
+      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
+      specializations: ["Sustainable Technology", "Engineering", "Business", "Design", "Medicine"],
+      ranking: {
+        national: 16,
+        category: "Innovation Universities"
+      }
+    },
+    {
+      id: 15,
       name: "Winston Leonard Churchill College",
       shortName: "WLCC",
       established: 1985,
@@ -37,161 +471,6 @@ const FullFledgedColleges = () => {
       ranking: {
         national: 15,
         category: "Multi-Disciplinary Universities"
-      }
-    },
-    {
-      id: 2,
-      name: "Abraham Lincoln Institute of Excellence",
-      shortName: "ALIOE",
-      established: 1992,
-      locations: [
-        { city: "Chennai", type: "Main Campus", students: 7200 },
-        { city: "Coimbatore", type: "Branch Campus", students: 2800 },
-        { city: "Madurai", type: "Branch Campus", students: 2100 }
-      ],
-      status: "Active",
-      chancellor: "Dr. Priya Sharma",
-      vicechancellor: "Prof. S. Ramakrishnan",
-      functions: {
-        admissions: true,
-        study: true,
-        exams: true,
-        paperChecking: true,
-        results: true
-      },
-      accreditation: "GCHEA Accredited",
-      totalStudents: 12100,
-      facultyCount: 890,
-      departments: 22,
-      programs: ["Undergraduate", "Postgraduate", "Doctoral"],
-      specializations: ["Technology", "Business", "Health Sciences", "Design"],
-      ranking: {
-        national: 28,
-        category: "Technical Universities"
-      }
-    },
-    {
-      id: 3,
-      name: "Theodore Roosevelt University",
-      shortName: "TRU",
-      established: 1978,
-      locations: [
-        { city: "Pune", type: "Main Campus", students: 9800 },
-        { city: "Nashik", type: "Branch Campus", students: 3500 },
-        { city: "Aurangabad", type: "Branch Campus", students: 2200 }
-      ],
-      status: "Active",
-      chancellor: "Dr. Vikram Singh",
-      vicechancellor: "Prof. Anjali Desai",
-      functions: {
-        admissions: true,
-        study: true,
-        exams: true,
-        paperChecking: true,
-        results: true
-      },
-      accreditation: "GCHEA Accredited",
-      totalStudents: 15500,
-      facultyCount: 1180,
-      departments: 25,
-      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Professional"],
-      specializations: ["Engineering", "Medicine", "Pharmacy", "Agriculture", "Social Sciences"],
-      ranking: {
-        national: 22,
-        category: "State Universities"
-      }
-    },
-    {
-      id: 4,
-      name: "Franklin Delano Roosevelt College",
-      shortName: "FDRC",
-      established: 1995,
-      locations: [
-        { city: "Hyderabad", type: "Main Campus", students: 6800 },
-        { city: "Warangal", type: "Branch Campus", students: 2400 },
-        { city: "Karimnagar", type: "Branch Campus", students: 1800 }
-      ],
-      status: "Active",
-      chancellor: "Dr. Sunita Reddy",
-      vicechancellor: "Prof. Krishna Murthy",
-      functions: {
-        admissions: true,
-        study: true,
-        exams: true,
-        paperChecking: true,
-        results: true
-      },
-      accreditation: "GCHEA Accredited",
-      totalStudents: 11000,
-      facultyCount: 780,
-      departments: 20,
-      programs: ["Undergraduate", "Postgraduate", "Doctoral"],
-      specializations: ["Information Technology", "Biotechnology", "Management", "Liberal Arts"],
-      ranking: {
-        national: 35,
-        category: "Private Universities"
-      }
-    },
-    {
-      id: 5,
-      name: "John Fitzgerald Kennedy University",
-      shortName: "JFKU",
-      established: 1988,
-      locations: [
-        { city: "Kolkata", type: "Main Campus", students: 8900 },
-        { city: "Bhubaneswar", type: "Branch Campus", students: 3200 },
-        { city: "Siliguri", type: "Branch Campus", students: 2600 }
-      ],
-      status: "Active",
-      chancellor: "Dr. Amitabh Ghosh",
-      vicechancellor: "Prof. Meera Banerjee",
-      functions: {
-        admissions: true,
-        study: true,
-        exams: true,
-        paperChecking: true,
-        results: true
-      },
-      accreditation: "GCHEA Accredited",
-      totalStudents: 14700,
-      facultyCount: 1050,
-      departments: 26,
-      programs: ["Undergraduate", "Postgraduate", "Doctoral", "Diploma"],
-      specializations: ["Commerce", "Sciences", "Humanities", "Fine Arts", "Journalism"],
-      ranking: {
-        national: 19,
-        category: "Liberal Arts Universities"
-      }
-    },
-    {
-      id: 6,
-      name: "Alexander Hamilton Institute of Technology",
-      shortName: "AHIT",
-      established: 2001,
-      locations: [
-        { city: "Jaipur", type: "Main Campus", students: 5200 },
-        { city: "Udaipur", type: "Branch Campus", students: 2200 },
-        { city: "Jodhpur", type: "Branch Campus", students: 1800 }
-      ],
-      status: "Active",
-      chancellor: "Dr. Rohit Gupta",
-      vicechancellor: "Prof. Kavita Sharma",
-      functions: {
-        admissions: true,
-        study: true,
-        exams: true,
-        paperChecking: true,
-        results: true
-      },
-      accreditation: "GCHEA Accredited",
-      totalStudents: 9200,
-      facultyCount: 650,
-      departments: 18,
-      programs: ["Undergraduate", "Postgraduate", "Doctoral"],
-      specializations: ["Engineering", "Architecture", "Design", "Computer Science"],
-      ranking: {
-        national: 42,
-        category: "Technical Universities"
       }
     }
   ];
