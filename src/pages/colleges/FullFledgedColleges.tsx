@@ -466,7 +466,7 @@ const FullFledgedColleges = () => {
       name: "Winston Leonard Churchill College",
       shortName: "WLCC",
       established: 1985,
-      website: "https://wlccollege.ac",
+      website: "https://www.wlccollege.in/",
       locations: [
         { city: "New Delhi", type: "Main Campus", students: 8500 },
         { city: "Mumbai", type: "Branch Campus", students: 4200 },
