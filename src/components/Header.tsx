@@ -285,7 +285,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t py-4">
+          <div className="lg:hidden border-t py-4 max-h-[70vh] overflow-y-auto">
             <div className="space-y-4">
               {menuData.map((item, index) => (
                 <div key={index} className="space-y-2">

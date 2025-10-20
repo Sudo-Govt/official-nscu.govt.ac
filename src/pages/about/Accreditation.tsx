@@ -113,7 +113,19 @@ const Accreditation = () => {
                   <div className="flex items-start mb-4">
                     <CheckCircle className="h-6 w-6 text-green-600 mr-3 mt-1 flex-shrink-0" />
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-uw-purple mb-2">{accred.organization}</h3>
+                      {accred.organization === "GCHEA" ? (
+                        <a 
+                          href="https://gchea.org" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xl font-bold text-uw-purple mb-2 hover:text-uw-gold transition-colors inline-flex items-center"
+                        >
+                          {accred.organization}
+                          <span className="ml-2">🔗</span>
+                        </a>
+                      ) : (
+                        <h3 className="text-xl font-bold text-uw-purple mb-2">{accred.organization}</h3>
+                      )}
                       <div className="flex items-center mb-2">
                         <span className="bg-uw-gold text-uw-dark px-3 py-1 rounded-full text-sm font-semibold mr-3">
                           {accred.type}
@@ -151,6 +163,226 @@ const Accreditation = () => {
                   </ul>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Eligibility & Recognition Section */}
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
+            <h2 className="text-3xl font-bold text-uw-purple mb-6 text-center">Student Eligibility & School Certificate Recognition</h2>
+            <div className="mb-8">
+              <h3 className="text-xl font-bold text-uw-purple mb-4">International Qualifications Accepted</h3>
+              <p className="text-gray-700 mb-4">
+                NSCU accepts WISE Certification from{' '}
+                <a 
+                  href="https://wise.weqsc.org" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-uw-gold hover:underline font-semibold"
+                >
+                  Wise.weqsc.org
+                </a>
+                {' '}and any course directly approved by{' '}
+                <a 
+                  href="https://weqsc.org" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-uw-gold hover:underline font-semibold"
+                >
+                  WEQSC
+                </a>
+                .
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">United States</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://www.ged.com" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      GED Testing Service
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.collegeboard.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      College Board (High School Diploma)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.state.gov/education-and-culture/" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      US State Department Recognized Programs
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">United Kingdom</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://www.gov.uk/government/organisations/ofqual" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      Ofqual (A-Levels, GCSEs)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.aqa.org.uk" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      AQA (Assessment & Qualifications Alliance)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.cambridgeinternational.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      Cambridge International Examinations
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.edexcel.com" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      Pearson Edexcel
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">Europe</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://www.ibo.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      International Baccalaureate (IB)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://ec.europa.eu/education/" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      European Baccalaureate
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.abitur.de" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      German Abitur
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.education.gouv.fr" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      French Baccalauréat
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">Asia</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://www.cbse.gov.in" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      CBSE (India)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.cisce.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      ICSE/ISC (India)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.seab.gov.sg" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      Singapore-Cambridge GCE
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.hkeaa.edu.hk" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      HKDSE (Hong Kong)
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">China</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="http://en.moe.gov.cn" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      Gaokao (National College Entrance Exam)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="http://www.neea.edu.cn" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      NEEA (National Education Examinations Authority)
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">Africa</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://www.waec.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      WAEC (West African Examinations Council)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.education.gov.za" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      NSC (South African National Senior Certificate)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.knec.ac.ke" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      KCSE (Kenya Certificate of Secondary Education)
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">International Programs</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://wise.weqsc.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      WISE Certification (WEQSC)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://weqsc.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      WEQSC Approved Courses
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.ibo.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      IB Diploma Programme
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">Middle East</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://www.moe.gov.ae" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      UAE Ministry of Education
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.moe.gov.sa" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      Saudi Ministry of Education
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="border rounded-lg p-4">
+                <h4 className="font-bold text-uw-purple mb-3">Australia & Pacific</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <a href="https://www.vcaa.vic.edu.au" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      VCE (Victorian Certificate of Education)
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.nzqa.govt.nz" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
+                      NCEA (New Zealand)
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 
