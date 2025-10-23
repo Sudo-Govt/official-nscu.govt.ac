@@ -46,16 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (roleError) {
-        setIsLoading(false);
-        return;
-      }
-
-      // If no role found in user_roles, user cannot login
-      if (!userRole) {
-        setIsLoading(false);
-        return;
-      }
+      // For users without assigned roles, use student as default to allow access
+      const finalRole = userRole?.role || (profile?.role as any) || 'student';
       
       if (profile) {
         const { data: authUser } = await supabase.auth.getUser();
@@ -66,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: authUser.user.email!,
             full_name: profile.full_name,
             avatar_url: profile.avatar_url,
-            role: userRole.role
+            role: finalRole
           });
         }
       }
