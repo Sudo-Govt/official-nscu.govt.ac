@@ -155,7 +155,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-          <Routes>
+        <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
