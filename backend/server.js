@@ -7,9 +7,14 @@ const { Pool } = require('pg');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Database connection
+// SECURITY FIX: Database connection - credentials moved to environment variables
+if (!process.env.DATABASE_URL) {
+  console.error('FATAL ERROR: DATABASE_URL environment variable is not set');
+  process.exit(1);
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://rajvardhan_nscu:Sanam%401985@premium12.web-hosting.com:5432/rajvardhan_nscu_website_db',
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   }
@@ -22,8 +27,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// JWT secret (use environment variable in production)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+// SECURITY FIX: JWT secret must be in environment variable
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL ERROR: JWT_SECRET environment variable is not set');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Authentication middleware
 const authenticateToken = (req, res, next) => {

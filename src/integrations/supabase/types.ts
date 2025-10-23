@@ -1096,7 +1096,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           module: string | null
           user_id: string | null
         }
@@ -1105,7 +1105,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           module?: string | null
           user_id?: string | null
         }
@@ -1114,7 +1114,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           module?: string | null
           user_id?: string | null
         }
@@ -1519,7 +1519,7 @@ export type Database = {
           metadata: Json | null
           received_at: string | null
           reply_to: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           sent_at: string | null
           snippet: string | null
           status: string
@@ -1554,7 +1554,7 @@ export type Database = {
           metadata?: Json | null
           received_at?: string | null
           reply_to?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           sent_at?: string | null
           snippet?: string | null
           status?: string
@@ -1589,7 +1589,7 @@ export type Database = {
           metadata?: Json | null
           received_at?: string | null
           reply_to?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           sent_at?: string | null
           snippet?: string | null
           status?: string
@@ -2390,10 +2390,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_application_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_application_number: { Args: never; Returns: string }
       get_user_permission: {
         Args: {
           module_key: string
@@ -2418,18 +2415,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_admin_role: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_superadmin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
+      is_admin_role: { Args: never; Returns: boolean }
+      is_superadmin: { Args: never; Returns: boolean }
     }
     Enums: {
       access_level:

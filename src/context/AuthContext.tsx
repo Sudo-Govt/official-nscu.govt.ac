@@ -35,12 +35,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
       
       if (profileError) {
-        console.error('Error fetching profile:', profileError);
         setIsLoading(false);
         return;
       }
       
-      // Fetch role from user_roles table
+      // SECURITY FIX: Only use user_roles table as source of truth for roles
       const { data: userRole, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
@@ -48,7 +47,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .maybeSingle();
 
       if (roleError) {
-        console.error('Error fetching role:', roleError);
+        setIsLoading(false);
+        return;
+      }
+
+      // If no role found in user_roles, user cannot login
+      if (!userRole) {
+        setIsLoading(false);
+        return;
       }
       
       if (profile) {
@@ -60,12 +66,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: authUser.user.email!,
             full_name: profile.full_name,
             avatar_url: profile.avatar_url,
-            role: userRole?.role || profile.role || 'student'
+            role: userRole.role
           });
         }
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      // Error fetching user profile
     }
     setIsLoading(false);
   };
@@ -112,13 +118,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       if (error) {
-        console.error('Login error:', error);
         return false;
       }
       
       return true;
     } catch (error) {
-      console.error('Login error:', error);
       return false;
     } finally {
       setIsLoading(false);

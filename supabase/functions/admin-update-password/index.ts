@@ -35,16 +35,16 @@ serve(async (req) => {
       )
     }
 
-    // Check if user is superadmin
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
+    // SECURITY FIX: Check user_roles table instead of profiles.role to prevent privilege escalation
+    const { data: userRole, error: roleError } = await supabaseClient
+      .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (profileError || !profile || profile.role !== 'superadmin') {
+    if (roleError || !userRole || userRole.role !== 'superadmin') {
       return new Response(
-        JSON.stringify({ error: 'Forbidden - Admin access required' }),
+        JSON.stringify({ error: 'Forbidden - Superadmin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

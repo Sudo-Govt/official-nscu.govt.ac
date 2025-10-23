@@ -43,30 +43,9 @@ const EmailSettings = () => {
             from_email: existingSettings.from_email,
             from_name: existingSettings.from_name
           });
-        } else {
-          // Auto-create with provided credentials
-          const defaultSettings = {
-            smtp_host: 'nscu.govt.ac',
-            smtp_port: 465,
-            smtp_user: 'ncore@nscu.govt.ac',
-            smtp_password: '6&T;g4E1EylzaoxOvr',
-            from_email: 'ncore@nscu.govt.ac',
-            from_name: 'nCore NSCU',
-            use_tls: true
-          };
-
-          const { error: insertError } = await supabase
-            .from('smtp_settings')
-            .insert([defaultSettings]);
-
-          if (!insertError) {
-            setSmtpSettings(defaultSettings);
-            toast({
-              title: "Success",
-              description: "SMTP settings auto-configured"
-            });
-          }
         }
+        // SECURITY FIX: Removed hardcoded SMTP credentials
+        // Admin must configure SMTP settings manually
       } catch (error) {
         console.error('Error loading SMTP settings:', error);
       }
