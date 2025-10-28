@@ -175,6 +175,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "agent_communications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       agent_messages: {
@@ -224,6 +231,13 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "agent_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -285,6 +299,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "agent_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       alumni_chapter_members: {
@@ -325,6 +346,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "alumni_chapter_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -387,6 +415,13 @@ export type Database = {
             columns: ["chapter_head"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "alumni_chapters_chapter_head_fkey"
+            columns: ["chapter_head"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -452,6 +487,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "alumni_credentials_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -522,6 +564,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "alumni_document_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       alumni_donations: {
@@ -581,6 +630,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "alumni_donations_donor_id_fkey"
+            columns: ["donor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       alumni_event_registrations: {
@@ -627,6 +683,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "alumni_event_registrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -700,6 +763,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "alumni_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       alumni_jobs: {
@@ -771,6 +841,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "alumni_jobs_posted_by_fkey"
+            columns: ["posted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       alumni_mentorship: {
@@ -825,10 +902,24 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "alumni_mentorship_mentee_id_fkey"
+            columns: ["mentee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "alumni_mentorship_mentor_id_fkey"
             columns: ["mentor_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "alumni_mentorship_mentor_id_fkey"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -932,6 +1023,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "alumni_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       alumni_support_tickets: {
@@ -986,10 +1084,24 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "alumni_support_tickets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "alumni_support_tickets_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "alumni_support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -1124,6 +1236,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "audit_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -1314,6 +1433,7 @@ export type Database = {
           display_name: string
           email_address: string
           email_password: string
+          email_password_encrypted: string | null
           id: string
           is_active: boolean | null
           last_synced_at: string | null
@@ -1327,6 +1447,7 @@ export type Database = {
           display_name: string
           email_address: string
           email_password: string
+          email_password_encrypted?: string | null
           id?: string
           is_active?: boolean | null
           last_synced_at?: string | null
@@ -1340,6 +1461,7 @@ export type Database = {
           display_name?: string
           email_address?: string
           email_password?: string
+          email_password_encrypted?: string | null
           id?: string
           is_active?: boolean | null
           last_synced_at?: string | null
@@ -1800,6 +1922,33 @@ export type Database = {
           },
         ]
       }
+      profile_access_logs: {
+        Row: {
+          access_type: string
+          accessed_at: string
+          accessed_by: string | null
+          accessed_profile: string | null
+          fields_accessed: string[] | null
+          id: string
+        }
+        Insert: {
+          access_type: string
+          accessed_at?: string
+          accessed_by?: string | null
+          accessed_profile?: string | null
+          fields_accessed?: string[] | null
+          id?: string
+        }
+        Update: {
+          access_type?: string
+          accessed_at?: string
+          accessed_by?: string | null
+          accessed_profile?: string | null
+          fields_accessed?: string[] | null
+          id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           academic_info: Json | null
@@ -2120,6 +2269,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "student_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       student_documents: {
@@ -2187,6 +2343,13 @@ export type Database = {
             columns: ["verified_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "student_documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -2263,10 +2426,24 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
+            foreignKeyName: "student_payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "student_payments_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "student_payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
             referencedColumns: ["user_id"]
           },
         ]
@@ -2353,6 +2530,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "user_permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_masked"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       user_presence: {
@@ -2402,9 +2586,74 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_masked: {
+        Row: {
+          address_masked: string | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          department: string | null
+          enrollment_year: number | null
+          full_name: string | null
+          graduation_year: number | null
+          has_dob: boolean | null
+          has_emergency_contact: boolean | null
+          phone_masked: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address_masked?: never
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          department?: string | null
+          enrollment_year?: number | null
+          full_name?: string | null
+          graduation_year?: number | null
+          has_dob?: never
+          has_emergency_contact?: never
+          phone_masked?: never
+          role?: Database["public"]["Enums"]["user_role"] | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address_masked?: never
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          department?: string | null
+          enrollment_year?: number | null
+          full_name?: string | null
+          graduation_year?: number | null
+          has_dob?: never
+          has_emergency_contact?: never
+          phone_masked?: never
+          role?: Database["public"]["Enums"]["user_role"] | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      decrypt_email_password: {
+        Args: { account_id: string; encryption_key: string }
+        Returns: string
+      }
+      encrypt_email_password: {
+        Args: {
+          account_id: string
+          encryption_key: string
+          plain_password: string
+        }
+        Returns: boolean
+      }
       generate_application_number: { Args: never; Returns: string }
       get_user_permission: {
         Args: {

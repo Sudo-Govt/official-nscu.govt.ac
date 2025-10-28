@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, Home } from 'lucide-react';
+import { loginSchema } from '@/lib/validationSchemas';
+import { z } from 'zod';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -24,14 +26,21 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
+      // Validate input using zod schema
+      const validated = loginSchema.parse({ email, password });
+      
+      const success = await login(validated.email, validated.password);
       if (success) {
         navigate('/dashboard');
       } else {
         setError('Invalid credentials. Please check your email and password.');
       }
     } catch (err) {
-      setError('An error occurred during login. Please try again.');
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      } else {
+        setError('An error occurred during login. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

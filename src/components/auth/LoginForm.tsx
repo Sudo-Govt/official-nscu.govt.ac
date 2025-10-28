@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { loginSchema } from '@/lib/validationSchemas';
+import { z } from 'zod';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -20,19 +22,24 @@ const LoginForm = () => {
     setIsLoading(true);
     setError('');
 
-    if (!email || !password) {
-      setError('Please enter both email and password');
-      setIsLoading(false);
-      return;
-    }
+    try {
+      // Validate input using zod schema
+      const validated = loginSchema.parse({ email, password });
 
-    const success = await login(email, password);
-    
-    if (!success) {
-      setError('Invalid email or password. Please try again.');
+      const success = await login(validated.email, validated.password);
+      
+      if (!success) {
+        setError('Invalid email or password. Please try again.');
+      }
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
