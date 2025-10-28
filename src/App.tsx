@@ -104,7 +104,9 @@ import TermsConditions from "./pages/legal/TermsConditions";
 import RefundPolicy from "./pages/legal/RefundPolicy";
 import Disclaimer from "./pages/legal/Disclaimer";
 import Grievance from "./pages/legal/Grievance";
+import ShippingPolicy from "./pages/legal/ShippingPolicy";
 import AdmissionSuccess from "./pages/AdmissionSuccess";
+import ContactUs from "./pages/ContactUs";
 
 // Portal pages
 import MyNSCU from "./pages/portal/MyNSCU";
@@ -291,7 +293,9 @@ const App = () => (
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/grievance" element={<Grievance />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/admission-success" element={<AdmissionSuccess />} />
+          <Route path="/contact" element={<ContactUs />} />
           
           {/* Campus Life Routes */}
           <Route path="/campus-life/greek-life" element={<GreekLife />} />
