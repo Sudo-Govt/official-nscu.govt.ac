@@ -5,10 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { BookOpen, Search, Filter, Calendar } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 import { useSEO } from '@/hooks/useSEO';
 
 const CourseCatalog = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState<string>('All Levels');
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   useSEO({
     title: "Course Catalog - NSCU Belize Academic Courses & Programs",
     description: "Browse NSCU Belize comprehensive course catalog. Find undergraduate and graduate courses across all departments with detailed descriptions, prerequisites, and schedules.",
@@ -63,7 +67,8 @@ const CourseCatalog = () => {
       credits: 3,
       description: "Fundamental concepts of computer science including programming, algorithms, and data structures.",
       prerequisites: "None",
-      level: "Undergraduate"
+      level: "Undergraduate",
+      department: "COMP"
     },
     {
       code: "BIOL 2540",
@@ -71,7 +76,8 @@ const CourseCatalog = () => {
       credits: 4,
       description: "Principles of heredity, molecular genetics, and biotechnology applications.",
       prerequisites: "BIOL 1010, BIOL 1020",
-      level: "Undergraduate"
+      level: "Undergraduate",
+      department: "BIOL"
     },
     {
       code: "HIST 3200",
@@ -79,7 +85,8 @@ const CourseCatalog = () => {
       credits: 3,
       description: "European political, social, and cultural developments from 1789 to present.",
       prerequisites: "6 hours of HIST or consent",
-      level: "Undergraduate"
+      level: "Undergraduate",
+      department: "HIST"
     },
     {
       code: "PSYC 6800",
@@ -87,9 +94,60 @@ const CourseCatalog = () => {
       credits: 3,
       description: "Advanced statistical techniques and research design in psychological research.",
       prerequisites: "PSYC 3800, Graduate standing",
-      level: "Graduate"
+      level: "Graduate",
+      department: "PSYC"
+    },
+    {
+      code: "ACCT 2010",
+      title: "Financial Accounting",
+      credits: 3,
+      description: "Introduction to financial accounting principles and practices.",
+      prerequisites: "None",
+      level: "Undergraduate",
+      department: "ACCT"
+    },
+    {
+      code: "MATH 3100",
+      title: "Linear Algebra",
+      credits: 3,
+      description: "Vector spaces, linear transformations, matrices, and eigenvalues.",
+      prerequisites: "MATH 1020",
+      level: "Undergraduate",
+      department: "MATH"
+    },
+    {
+      code: "ENGL 1010",
+      title: "Composition I",
+      credits: 3,
+      description: "Academic writing with emphasis on critical thinking and research.",
+      prerequisites: "None",
+      level: "Undergraduate",
+      department: "ENGL"
+    },
+    {
+      code: "CHEM 5200",
+      title: "Organic Chemistry II",
+      credits: 4,
+      description: "Advanced organic chemistry reactions and mechanisms.",
+      prerequisites: "CHEM 5100, Graduate standing",
+      level: "Graduate",
+      department: "CHEM"
     }
   ];
+
+  // Filter courses based on search, level, and department
+  const filteredCourses = sampleCourses.filter(course => {
+    const matchesSearch = searchQuery === '' || 
+      course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesLevel = selectedLevel === 'All Levels' || course.level === selectedLevel;
+    
+    const matchesDepartment = !selectedDepartment || course.department === selectedDepartment;
+    
+    return matchesSearch && matchesLevel && matchesDepartment;
+  });
 
   return (
     <PageLayout 
@@ -111,39 +169,82 @@ const CourseCatalog = () => {
             </CardHeader>
             <CardContent>
               <div className="flex gap-4 mb-4">
-                <Input placeholder="Search courses..." className="flex-1" />
-                <Button>
+                <Input 
+                  placeholder="Search courses..." 
+                  className="flex-1"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Button onClick={() => setSearchQuery('')}>
                   <Search className="h-4 w-4 mr-2" />
-                  Search
+                  Clear
                 </Button>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
+              <div className="flex gap-2 flex-wrap">
+                <Button 
+                  variant={selectedLevel === 'All Levels' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setSelectedLevel('All Levels')}
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   All Levels
                 </Button>
-                <Button variant="outline" size="sm">Undergraduate</Button>
-                <Button variant="outline" size="sm">Graduate</Button>
-                <Button variant="outline" size="sm">Prerequisites Required</Button>
+                <Button 
+                  variant={selectedLevel === 'Undergraduate' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setSelectedLevel('Undergraduate')}
+                >
+                  Undergraduate
+                </Button>
+                <Button 
+                  variant={selectedLevel === 'Graduate' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setSelectedLevel('Graduate')}
+                >
+                  Graduate
+                </Button>
               </div>
+              {(searchQuery || selectedLevel !== 'All Levels' || selectedDepartment) && (
+                <div className="mt-4 text-sm text-muted-foreground">
+                  Showing {filteredCourses.length} of {sampleCourses.length} courses
+                  {selectedDepartment && ` in ${selectedDepartment}`}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
         {/* Departments */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Academic Departments</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold">Academic Departments</h2>
+            {selectedDepartment && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedDepartment(null)}
+              >
+                Clear Filter
+              </Button>
+            )}
+          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
             {departments.map((dept, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card 
+                key={index} 
+                className={`hover:shadow-lg transition-all cursor-pointer ${
+                  selectedDepartment === dept.code ? 'ring-2 ring-primary shadow-lg' : ''
+                }`}
+                onClick={() => setSelectedDepartment(selectedDepartment === dept.code ? null : dept.code)}
+              >
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">{dept.code}</CardTitle>
                   <CardDescription className="text-sm">{dept.name}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center">
-                    <span className="text-2xl font-bold text-uw-purple">{dept.courses}</span>
-                    <p className="text-xs text-gray-600">courses</p>
+                    <span className="text-2xl font-bold text-primary">{dept.courses}</span>
+                    <p className="text-xs text-muted-foreground">courses</p>
                   </div>
                 </CardContent>
               </Card>
@@ -153,9 +254,29 @@ const CourseCatalog = () => {
 
         {/* Sample Course Listings */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Featured Courses</h2>
-          <div className="space-y-6">
-            {sampleCourses.map((course, index) => (
+          <h2 className="text-3xl font-bold mb-6">
+            {selectedDepartment || searchQuery || selectedLevel !== 'All Levels' ? 'Filtered Courses' : 'Featured Courses'}
+          </h2>
+          {filteredCourses.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No courses found matching your criteria.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedLevel('All Levels');
+                    setSelectedDepartment(null);
+                  }}
+                >
+                  Clear All Filters
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6">
+              {filteredCourses.map((course, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
@@ -181,8 +302,9 @@ const CourseCatalog = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Catalog Information */}
