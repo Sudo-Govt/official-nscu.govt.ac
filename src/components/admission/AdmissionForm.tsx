@@ -223,11 +223,11 @@ const AdmissionForm = () => {
                   <SelectTrigger>
                     <SelectValue placeholder="Select program" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {loading ? (
-                      <SelectItem value="" disabled>Loading courses...</SelectItem>
-                    ) : (
-                      courses.map((course) => (
+                          <SelectContent>
+                            {loading ? (
+                              <SelectItem value="loading" disabled>Loading courses...</SelectItem>
+                            ) : (
+                              courses.map((course) => (
                         <SelectItem key={course.id} value={course.course_name}>
                           {course.course_name} ({course.college})
                         </SelectItem>

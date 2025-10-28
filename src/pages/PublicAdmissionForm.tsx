@@ -381,9 +381,9 @@ const PublicAdmissionForm = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {loading ? (
-                              <SelectItem value="" disabled>Loading courses...</SelectItem>
+                              <SelectItem value="loading" disabled>Loading courses...</SelectItem>
                             ) : courses.length === 0 ? (
-                              <SelectItem value="" disabled>No courses available</SelectItem>
+                              <SelectItem value="no-courses" disabled>No courses available</SelectItem>
                             ) : (
                               courses.map((course) => (
                                 <SelectItem key={course.id} value={course.id}>
