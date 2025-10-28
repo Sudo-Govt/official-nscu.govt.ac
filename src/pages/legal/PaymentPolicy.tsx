@@ -55,30 +55,47 @@ const PaymentPolicy = () => {
 
                   <h3 className="text-2xl font-bold mt-8 mb-4 flex items-center gap-2">
                     <CreditCard className="h-6 w-6 text-primary" />
-                    Accepted Payment Modes
+                    Global Payment Methods
                   </h3>
                   
-                  <div className="grid md:grid-cols-2 gap-6 mb-8">
+                  <div className="bg-muted/50 p-6 rounded-lg mb-6">
+                    <p className="font-semibold mb-3">
+                      NSCU accepts payments through multiple channels worldwide. Available payment methods depend on your location and local banking infrastructure.
+                    </p>
+                    <p className="mb-0 text-sm">
+                      Students can use any payment method available in their country or region. Our payment gateway automatically detects your location and displays applicable payment options.
+                    </p>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-3 gap-6 mb-8">
                     <div className="border rounded-lg p-5">
-                      <h4 className="font-bold text-lg mb-3 text-primary">Domestic Payments (India)</h4>
+                      <h4 className="font-bold text-lg mb-3 text-primary">Card Payments</h4>
                       <ul className="space-y-2">
-                        <li>✓ Unified Payments Interface (UPI)</li>
-                        <li>✓ Credit Cards (Visa, Mastercard, RuPay)</li>
+                        <li>✓ Credit Cards (Visa, Mastercard, Amex)</li>
                         <li>✓ Debit Cards (All major banks)</li>
-                        <li>✓ Net Banking (All major banks)</li>
-                        <li>✓ Direct Bank Transfer (NEFT/RTGS/IMPS)</li>
-                        <li>✓ Mobile Wallets (Paytm, PhonePe, Google Pay)</li>
+                        <li>✓ Regional Cards (RuPay, UnionPay, JCB)</li>
+                        <li>✓ Virtual Cards & Digital Cards</li>
                       </ul>
                     </div>
                     <div className="border rounded-lg p-5">
-                      <h4 className="font-bold text-lg mb-3 text-primary">International Payments</h4>
+                      <h4 className="font-bold text-lg mb-3 text-primary">Digital Wallets & Apps</h4>
                       <ul className="space-y-2">
-                        <li>✓ International Credit/Debit Cards</li>
                         <li>✓ PayPal</li>
+                        <li>✓ Mobile Wallets (Paytm, PhonePe, Google Pay)</li>
+                        <li>✓ UPI (Unified Payments Interface)</li>
+                        <li>✓ Alipay, WeChat Pay</li>
+                        <li>✓ Regional payment apps</li>
+                      </ul>
+                    </div>
+                    <div className="border rounded-lg p-5">
+                      <h4 className="font-bold text-lg mb-3 text-primary">Bank Transfers</h4>
+                      <ul className="space-y-2">
+                        <li>✓ Direct Bank Transfer</li>
+                        <li>✓ Net Banking</li>
                         <li>✓ Wire Transfer (SWIFT)</li>
-                        <li>✓ Western Union</li>
-                        <li>✓ Secure payment gateway link (sent via email)</li>
-                        <li>✓ Cryptocurrency (Bitcoin, USDT) - Select programs</li>
+                        <li>✓ Western Union / MoneyGram</li>
+                        <li>✓ SEPA (Europe)</li>
+                        <li>✓ Cryptocurrency (Select programs)</li>
                       </ul>
                     </div>
                   </div>
@@ -228,26 +245,23 @@ const PaymentPolicy = () => {
                     <li>Scholarships may have specific payment deadline requirements</li>
                   </ul>
 
-                  <h3 className="text-2xl font-bold mt-8 mb-4">Banking Details for Direct Transfer</h3>
+                  <h3 className="text-2xl font-bold mt-8 mb-4">Banking Details for Wire Transfer</h3>
                   <div className="bg-muted/50 p-6 rounded-lg border">
-                    <p className="font-bold mb-3">For Domestic (India) Wire Transfers:</p>
+                    <p className="font-bold mb-3">For International Wire Transfers (SWIFT):</p>
                     <div className="grid md:grid-cols-2 gap-4 mb-6">
                       <div><strong>Bank Name:</strong> [Bank Name]</div>
                       <div><strong>Account Name:</strong> New States Continental University</div>
                       <div><strong>Account Number:</strong> [Account Number]</div>
-                      <div><strong>IFSC Code:</strong> [IFSC Code]</div>
-                      <div><strong>Branch:</strong> [Branch Name]</div>
-                      <div><strong>Account Type:</strong> Current Account</div>
-                    </div>
-                    <p className="font-bold mb-3">For International Wire Transfers:</p>
-                    <div className="grid md:grid-cols-2 gap-4">
                       <div><strong>SWIFT Code:</strong> [SWIFT Code]</div>
                       <div><strong>Routing Number:</strong> [Routing Number]</div>
                       <div><strong>Bank Address:</strong> [Bank Address]</div>
-                      <div><strong>Reference:</strong> Application ID / Student ID</div>
+                      <div><strong>Account Type:</strong> Current Account</div>
                     </div>
-                    <p className="text-sm mt-4 text-muted-foreground">
-                      Note: Always include your Application ID or Student ID in the payment reference for quick processing.
+                    <p className="text-sm mb-3 text-muted-foreground">
+                      <strong>Important:</strong> Always include your Application ID or Student ID in the payment reference/memo field for quick processing.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      For region-specific banking details (local transfers), please contact our finance department at finance@nscu.govt.ac for the appropriate account information based on your location.
                     </p>
                   </div>
 
@@ -256,7 +270,7 @@ const PaymentPolicy = () => {
                     <p className="mb-2">For payment-related queries, refund requests, or payment verification:</p>
                     <p className="mb-1"><strong>Email:</strong> finance@nscu.govt.ac</p>
                     <p className="mb-1"><strong>Phone:</strong> +1 (302) 857-6060 (9 AM - 6 PM EST, Mon-Fri)</p>
-                    <p className="mb-1"><strong>WhatsApp Support:</strong> +91-XXXXXXXXXX (24/7 automated responses)</p>
+                    <p className="mb-1"><strong>24/7 Support:</strong> Available through student portal chat</p>
                     <p className="mb-0"><strong>Office Hours:</strong> Monday to Friday, 9:00 AM - 5:00 PM (EST)</p>
                   </div>
                 </div>
