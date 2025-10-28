@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,11 +21,10 @@ interface Course {
 
 const PublicAdmissionForm = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [courseType, setCourseType] = useState('');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [applicationNumber, setApplicationNumber] = useState('');
   
   const [formData, setFormData] = useState({
     // Personal Information
@@ -240,13 +240,13 @@ const PublicAdmissionForm = () => {
 
       if (error) throw error;
 
-      setApplicationNumber(appNumber);
-      setIsSubmitted(true);
-      
       toast({
         title: "Application Submitted Successfully!",
         description: `Your application number is: ${appNumber}`,
       });
+      
+      // Redirect to success page
+      navigate('/admission-success');
 
     } catch (error) {
       console.error('Error submitting application:', error);
@@ -260,72 +260,8 @@ const PublicAdmissionForm = () => {
     }
   };
 
-  if (isSubmitted) {
-    return (
-      <PageLayout title="Application Submitted" description="Your application has been received">
-        <div className="container mx-auto px-4 py-8">
-          <Card className="max-w-2xl mx-auto">
-            <CardContent className="pt-8">
-              <div className="text-center space-y-6">
-                <div className="flex justify-center">
-                  <CheckCircle className="h-16 w-16 text-green-500" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-green-600 mb-2">Application Submitted Successfully!</h2>
-                  <p className="text-muted-foreground mb-4">
-                    Thank you for your interest in NSCU. We have received your application and will review it shortly.
-                  </p>
-                </div>
-                <div className="bg-green-50 dark:bg-green-950 p-6 rounded-lg border border-green-200">
-                  <h3 className="font-semibold text-green-800 dark:text-green-200 mb-2">Your Application Number:</h3>
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400 font-mono tracking-wider">
-                    {applicationNumber}
-                  </div>
-                  <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                    Please save this number for your records. You can use it to track your application status.
-                  </p>
-                </div>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>• You will receive a confirmation email within 24 hours</p>
-                  <p>• Application review typically takes 2-4 weeks</p>
-                  <p>• Check your email regularly for updates</p>
-                </div>
-                <Button 
-                  onClick={() => {
-                    setIsSubmitted(false);
-                    setApplicationNumber('');
-                    setCourseType('');
-                    setFormData({
-                      firstName: '', lastName: '', email: '', phone: '', dateOfBirth: '',
-                      gender: '', nationality: '', passportNumber: '', address: '',
-                      courseId: '', admissionMonth: '', admissionYear: '',
-                      highSchoolName: '', highSchoolGrade: '', bachelorUniversity: '',
-                      bachelorDegree: '', bachelorGPA: '', masterUniversity: '',
-                      masterDegree: '', masterGPA: '', personalStatement: '',
-                      researchInterest: '', workExperience: '',
-                    });
-                    setDocuments({
-                      photoId: null,
-                      addressProof: null,
-                      dobProof: null,
-                      citizenshipProof: null,
-                      passport: null,
-                    });
-                  }}
-                  variant="outline"
-                >
-                  Submit Another Application
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </PageLayout>
-    );
-  }
-
   return (
-    <PageLayout 
+    <PageLayout
       title="Apply to NSCU" 
       description="Start your journey at North South Caribbean University"
     >

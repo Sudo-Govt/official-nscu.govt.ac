@@ -99,6 +99,12 @@ import AcademicPolicies from "./pages/resources/AcademicPolicies";
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import TermsOfUse from "./pages/legal/TermsOfUse";
 import TermsDisclaimer from "./pages/legal/TermsDisclaimer";
+import PaymentPolicy from "./pages/legal/PaymentPolicy";
+import TermsConditions from "./pages/legal/TermsConditions";
+import RefundPolicy from "./pages/legal/RefundPolicy";
+import Disclaimer from "./pages/legal/Disclaimer";
+import Grievance from "./pages/legal/Grievance";
+import AdmissionSuccess from "./pages/AdmissionSuccess";
 
 // Portal pages
 import MyNSCU from "./pages/portal/MyNSCU";
@@ -279,6 +285,13 @@ const App = () => (
           <Route path="/legal/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/legal/terms-of-use" element={<TermsOfUse />} />
           <Route path="/legal/terms-disclaimer" element={<TermsDisclaimer />} />
+          <Route path="/payment-policy" element={<PaymentPolicy />} />
+          <Route path="/terms" element={<TermsConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
+          <Route path="/grievance" element={<Grievance />} />
+          <Route path="/admission-success" element={<AdmissionSuccess />} />
           
           {/* Campus Life Routes */}
           <Route path="/campus-life/greek-life" element={<GreekLife />} />
