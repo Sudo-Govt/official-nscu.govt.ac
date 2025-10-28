@@ -59,6 +59,14 @@ const PublicAdmissionForm = () => {
     workExperience: '',
   });
 
+  const [documents, setDocuments] = useState({
+    photoId: null as File | null,
+    addressProof: null as File | null,
+    dobProof: null as File | null,
+    citizenshipProof: null as File | null,
+    passport: null as File | null,
+  });
+
   useEffect(() => {
     if (courseType) {
       fetchCoursesByType(courseType);
@@ -109,6 +117,27 @@ const PublicAdmissionForm = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleFileChange = (docType: string, file: File | null) => {
+    setDocuments(prev => ({ ...prev, [docType]: file }));
+  };
+
+  const uploadDocument = async (file: File, docType: string, appNumber: string) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${appNumber}/${docType}.${fileExt}`;
+    
+    const { data, error } = await supabase.storage
+      .from('application-documents')
+      .upload(fileName, file, { upsert: true });
+
+    if (error) throw error;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('application-documents')
+      .getPublicUrl(fileName);
+    
+    return publicUrl;
+  };
+
   const generateApplicationNumber = () => {
     const year = new Date().getFullYear();
     const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
@@ -119,13 +148,51 @@ const PublicAdmissionForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate mandatory documents
+    if (!documents.photoId) {
+      toast({
+        title: "Missing Document",
+        description: "Photo ID is mandatory",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!documents.dobProof) {
+      toast({
+        title: "Missing Document",
+        description: "Proof of Date of Birth is mandatory",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
       const appNumber = generateApplicationNumber();
       
+      // Upload documents
+      const photoIdUrl = await uploadDocument(documents.photoId, 'photo_id', appNumber);
+      const dobProofUrl = await uploadDocument(documents.dobProof, 'dob_proof', appNumber);
+      
+      let addressProofUrl = null;
+      let citizenshipProofUrl = null;
+      let passportUrl = null;
+      
+      if (documents.addressProof) {
+        addressProofUrl = await uploadDocument(documents.addressProof, 'address_proof', appNumber);
+      }
+      if (documents.citizenshipProof) {
+        citizenshipProofUrl = await uploadDocument(documents.citizenshipProof, 'citizenship_proof', appNumber);
+      }
+      if (documents.passport) {
+        passportUrl = await uploadDocument(documents.passport, 'passport', appNumber);
+      }
+      
       // Prepare application data
-      const applicationData = {
+      const applicationData: any = {
         application_number: appNumber,
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -138,7 +205,17 @@ const PublicAdmissionForm = () => {
         course_id: formData.courseId,
         admission_month: parseInt(formData.admissionMonth),
         admission_year: parseInt(formData.admissionYear),
-        previous_education: {
+        status: 'submitted',
+        photo_id_url: photoIdUrl,
+        dob_proof_url: dobProofUrl,
+        address_proof_url: addressProofUrl,
+        citizenship_proof_url: citizenshipProofUrl,
+        passport_url: passportUrl,
+      };
+      
+      // Only add previous education if not certificate course
+      if (courseType !== 'certificate') {
+        applicationData.previous_education = {
           highSchool: {
             name: formData.highSchoolName,
             grade: formData.highSchoolGrade
@@ -153,9 +230,8 @@ const PublicAdmissionForm = () => {
             degree: formData.masterDegree,
             gpa: formData.masterGPA
           } : null
-        },
-        status: 'submitted',
-      };
+        };
+      }
 
       const { data, error } = await supabase
         .from('student_applications')
@@ -227,6 +303,13 @@ const PublicAdmissionForm = () => {
                       bachelorDegree: '', bachelorGPA: '', masterUniversity: '',
                       masterDegree: '', masterGPA: '', personalStatement: '',
                       researchInterest: '', workExperience: '',
+                    });
+                    setDocuments({
+                      photoId: null,
+                      addressProof: null,
+                      dobProof: null,
+                      citizenshipProof: null,
+                      passport: null,
                     });
                   }}
                   variant="outline"
@@ -425,30 +508,31 @@ const PublicAdmissionForm = () => {
                     </div>
                   </div>
 
-                  {/* Previous Education - High School (All) */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold border-b pb-2">Previous Education</h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label>High School Name *</Label>
-                        <Input
-                          value={formData.highSchoolName}
-                          onChange={(e) => handleInputChange('highSchoolName', e.target.value)}
-                          required
-                        />
+                  {/* Previous Education - Only for non-certificate courses */}
+                  {courseType !== 'certificate' && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">Previous Education</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label>High School Name *</Label>
+                          <Input
+                            value={formData.highSchoolName}
+                            onChange={(e) => handleInputChange('highSchoolName', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label>High School Grade/GPA *</Label>
+                          <Input
+                            value={formData.highSchoolGrade}
+                            onChange={(e) => handleInputChange('highSchoolGrade', e.target.value)}
+                            required
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label>High School Grade/GPA *</Label>
-                        <Input
-                          value={formData.highSchoolGrade}
-                          onChange={(e) => handleInputChange('highSchoolGrade', e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
 
-                    {/* Bachelor's Degree (PG, PhD, Certificate) */}
-                    {(courseType === 'pg' || courseType === 'phd' || courseType === 'certificate') && (
+                      {/* Bachelor's Degree (PG, PhD) */}
+                      {(courseType === 'pg' || courseType === 'phd') && (
                       <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
                         <div className="md:col-span-2">
                           <h4 className="font-medium mb-2">Bachelor's Degree</h4>
@@ -511,10 +595,101 @@ const PublicAdmissionForm = () => {
                           />
                         </div>
                       </div>
-                    )}
+                     )}
+                     </div>
+                   )}
+
+                  {/* Document Upload Section */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold border-b pb-2">Document Upload</h3>
+                    <p className="text-sm text-muted-foreground">Upload required documents. Maximum file size: 5MB per file.</p>
+                    
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          Photo ID * (Mandatory)
+                        </Label>
+                        <Input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => handleFileChange('photoId', e.target.files?.[0] || null)}
+                          required
+                          className="mt-2"
+                        />
+                        {documents.photoId && (
+                          <p className="text-xs text-green-600 mt-1">✓ {documents.photoId.name}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          Proof of Date of Birth * (Mandatory)
+                        </Label>
+                        <Input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => handleFileChange('dobProof', e.target.files?.[0] || null)}
+                          required
+                          className="mt-2"
+                        />
+                        {documents.dobProof && (
+                          <p className="text-xs text-green-600 mt-1">✓ {documents.dobProof.name}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          Address Proof (Optional)
+                        </Label>
+                        <Input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => handleFileChange('addressProof', e.target.files?.[0] || null)}
+                          className="mt-2"
+                        />
+                        {documents.addressProof && (
+                          <p className="text-xs text-green-600 mt-1">✓ {documents.addressProof.name}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          Proof of Citizenship (Optional)
+                        </Label>
+                        <Input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => handleFileChange('citizenshipProof', e.target.files?.[0] || null)}
+                          className="mt-2"
+                        />
+                        {documents.citizenshipProof && (
+                          <p className="text-xs text-green-600 mt-1">✓ {documents.citizenshipProof.name}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <Upload className="h-4 w-4" />
+                          Passport (Optional)
+                        </Label>
+                        <Input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => handleFileChange('passport', e.target.files?.[0] || null)}
+                          className="mt-2"
+                        />
+                        {documents.passport && (
+                          <p className="text-xs text-green-600 mt-1">✓ {documents.passport.name}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Additional Information */}
+                   {/* Additional Information */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold border-b pb-2">Additional Information</h3>
                     <div>

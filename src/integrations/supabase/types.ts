@@ -1978,6 +1978,7 @@ export type Database = {
         Row: {
           academic_documents: Json | null
           address: string
+          address_proof_url: string | null
           admission_letter_url: string | null
           admission_month: number
           admission_year: number
@@ -1986,9 +1987,11 @@ export type Database = {
           application_fee_paid: boolean | null
           application_number: string
           application_score: number | null
+          citizenship_proof_url: string | null
           course_id: string | null
           created_at: string
           date_of_birth: string
+          dob_proof_url: string | null
           email: string
           emergency_contact: Json | null
           enrollment_date: string | null
@@ -1997,8 +2000,10 @@ export type Database = {
           last_name: string
           nationality: string
           passport_number: string | null
+          passport_url: string | null
           payment_reference: string | null
           phone: string
+          photo_id_url: string | null
           previous_education: Json | null
           review_notes: string | null
           reviewed_at: string | null
@@ -2014,6 +2019,7 @@ export type Database = {
         Insert: {
           academic_documents?: Json | null
           address: string
+          address_proof_url?: string | null
           admission_letter_url?: string | null
           admission_month?: number
           admission_year: number
@@ -2022,9 +2028,11 @@ export type Database = {
           application_fee_paid?: boolean | null
           application_number?: string
           application_score?: number | null
+          citizenship_proof_url?: string | null
           course_id?: string | null
           created_at?: string
           date_of_birth: string
+          dob_proof_url?: string | null
           email: string
           emergency_contact?: Json | null
           enrollment_date?: string | null
@@ -2033,8 +2041,10 @@ export type Database = {
           last_name: string
           nationality: string
           passport_number?: string | null
+          passport_url?: string | null
           payment_reference?: string | null
           phone: string
+          photo_id_url?: string | null
           previous_education?: Json | null
           review_notes?: string | null
           reviewed_at?: string | null
@@ -2050,6 +2060,7 @@ export type Database = {
         Update: {
           academic_documents?: Json | null
           address?: string
+          address_proof_url?: string | null
           admission_letter_url?: string | null
           admission_month?: number
           admission_year?: number
@@ -2058,9 +2069,11 @@ export type Database = {
           application_fee_paid?: boolean | null
           application_number?: string
           application_score?: number | null
+          citizenship_proof_url?: string | null
           course_id?: string | null
           created_at?: string
           date_of_birth?: string
+          dob_proof_url?: string | null
           email?: string
           emergency_contact?: Json | null
           enrollment_date?: string | null
@@ -2069,8 +2082,10 @@ export type Database = {
           last_name?: string
           nationality?: string
           passport_number?: string | null
+          passport_url?: string | null
           payment_reference?: string | null
           phone?: string
+          photo_id_url?: string | null
           previous_education?: Json | null
           review_notes?: string | null
           reviewed_at?: string | null

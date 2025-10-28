@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { Upload } from 'lucide-react';
 import mockDb from '@/database/mockDb';
 import bcrypt from 'bcryptjs';
 import { useAuth } from '@/context/AuthContext';
@@ -24,6 +25,7 @@ const AdmissionForm = () => {
   const { toast } = useToast();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [courseType, setCourseType] = useState('');
   const [formData, setFormData] = useState({
     // Personal Information
     full_name: '',
@@ -44,6 +46,14 @@ const AdmissionForm = () => {
     // Login Credentials
     user_id: '',
     password: ''
+  });
+
+  const [documents, setDocuments] = useState({
+    photoId: null as File | null,
+    addressProof: null as File | null,
+    dobProof: null as File | null,
+    citizenshipProof: null as File | null,
+    passport: null as File | null,
   });
 
   useEffect(() => {
@@ -75,6 +85,10 @@ const AdmissionForm = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (docType: string, file: File | null) => {
+    setDocuments(prev => ({ ...prev, [docType]: file }));
   };
 
   const generateStudentId = () => {
@@ -219,7 +233,13 @@ const AdmissionForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="program">Program *</Label>
-                <Select value={formData.program} onValueChange={(value) => handleInputChange('program', value)}>
+                <Select value={formData.program} onValueChange={(value) => {
+                  handleInputChange('program', value);
+                  const selectedCourse = courses.find(c => c.course_name === value);
+                  if (selectedCourse) {
+                    setCourseType(selectedCourse.degree_type.toLowerCase().includes('certificate') ? 'certificate' : 'other');
+                  }
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select program" />
                   </SelectTrigger>
@@ -254,15 +274,107 @@ const AdmissionForm = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="md:col-span-2">
-                <Label htmlFor="previous_education">Previous Education</Label>
-                <Textarea
-                  id="previous_education"
-                  value={formData.previous_education}
-                  onChange={(e) => handleInputChange('previous_education', e.target.value)}
-                  placeholder="Enter details about previous education, grades, etc."
-                  rows={3}
+              {courseType !== 'certificate' && (
+                <div className="md:col-span-2">
+                  <Label htmlFor="previous_education">Previous Education</Label>
+                  <Textarea
+                    id="previous_education"
+                    value={formData.previous_education}
+                    onChange={(e) => handleInputChange('previous_education', e.target.value)}
+                    placeholder="Enter details about previous education, grades, etc."
+                    rows={3}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Document Upload Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium border-b pb-2">Document Upload</h3>
+            <p className="text-sm text-muted-foreground">Upload required documents. Maximum file size: 5MB per file.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Photo ID * (Mandatory)
+                </Label>
+                <Input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleFileChange('photoId', e.target.files?.[0] || null)}
+                  required
+                  className="mt-2"
                 />
+                {documents.photoId && (
+                  <p className="text-xs text-green-600 mt-1">✓ {documents.photoId.name}</p>
+                )}
+              </div>
+              
+              <div>
+                <Label className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Proof of Date of Birth * (Mandatory)
+                </Label>
+                <Input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleFileChange('dobProof', e.target.files?.[0] || null)}
+                  required
+                  className="mt-2"
+                />
+                {documents.dobProof && (
+                  <p className="text-xs text-green-600 mt-1">✓ {documents.dobProof.name}</p>
+                )}
+              </div>
+              
+              <div>
+                <Label className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Address Proof (Optional)
+                </Label>
+                <Input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleFileChange('addressProof', e.target.files?.[0] || null)}
+                  className="mt-2"
+                />
+                {documents.addressProof && (
+                  <p className="text-xs text-green-600 mt-1">✓ {documents.addressProof.name}</p>
+                )}
+              </div>
+              
+              <div>
+                <Label className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Proof of Citizenship (Optional)
+                </Label>
+                <Input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleFileChange('citizenshipProof', e.target.files?.[0] || null)}
+                  className="mt-2"
+                />
+                {documents.citizenshipProof && (
+                  <p className="text-xs text-green-600 mt-1">✓ {documents.citizenshipProof.name}</p>
+                )}
+              </div>
+              
+              <div>
+                <Label className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Passport (Optional)
+                </Label>
+                <Input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => handleFileChange('passport', e.target.files?.[0] || null)}
+                  className="mt-2"
+                />
+                {documents.passport && (
+                  <p className="text-xs text-green-600 mt-1">✓ {documents.passport.name}</p>
+                )}
               </div>
             </div>
           </div>
