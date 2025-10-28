@@ -287,13 +287,12 @@ const App = () => (
           <Route path="/legal/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/legal/terms-of-use" element={<TermsOfUse />} />
           <Route path="/legal/terms-disclaimer" element={<TermsDisclaimer />} />
-          <Route path="/payment-policy" element={<PaymentPolicy />} />
-          <Route path="/terms" element={<TermsConditions />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/disclaimer" element={<Disclaimer />} />
-          <Route path="/grievance" element={<Grievance />} />
-          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/legal/payment-policy" element={<PaymentPolicy />} />
+          <Route path="/legal/terms-conditions" element={<TermsConditions />} />
+          <Route path="/legal/refund-policy" element={<RefundPolicy />} />
+          <Route path="/legal/disclaimer" element={<Disclaimer />} />
+          <Route path="/legal/grievance" element={<Grievance />} />
+          <Route path="/legal/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/admission-success" element={<AdmissionSuccess />} />
           <Route path="/contact" element={<ContactUs />} />
           
