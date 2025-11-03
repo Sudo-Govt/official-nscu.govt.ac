@@ -8,12 +8,12 @@ const milestones = [
   {
     year: "1891",
     title: "University Founded",
-    description: "Established as Delaware Agricultural College with 12 students and 3 faculty members"
+    description: "Established as Belizeian Agricultural College with 12 students and 3 faculty members"
   },
   {
     year: "1921",
     title: "State University Status",
-    description: "Became the University of Delaware, expanding beyond agricultural education"
+    description: "Became a Belizeian University expanding beyond agricultural education"
   },
   {
     year: "1952",
@@ -39,9 +39,9 @@ const milestones = [
 
 const HistoryMission = () => {
   useSEO({
-    title: "NSCU History & Mission - GCHEA Accredited Global University | Founded 2010",
+    title: "NSCU History & Mission - GCHEA Accredited Global University | Founded 1891",
     description: "Discover NSCU's mission as a GCHEA-accredited international university serving students worldwide through quality distance education. Learn about our history, vision, and core values since 2010.",
-    keywords: "NSCU history, GCHEA accredited university, NSCU mission vision values, international university Belize, NSCU Delaware address, distance education university, global higher education, NSCU founding history",
+    keywords: "NSCU history, GCHEA accredited university, NSCU mission vision values, international university Belize, NSCU address, distance education university, global higher education, NSCU founding history",
     canonical: "https://nscu.govt.ac/about/history-mission",
     structuredData: [
       generateWebPageSchema({
@@ -56,7 +56,7 @@ const HistoryMission = () => {
       ]),
       generateArticleSchema({
         headline: "The History and Mission of New States Continental University",
-        description: "Founded in 2010, NSCU has grown to serve students worldwide through GCHEA-accredited distance education programs.",
+        description: "Founded in 1891, NSCU has grown to serve students worldwide through GCHEA-accredited distance education programs.",
         datePublished: "2010-01-01",
         dateModified: "2025-01-15"
       })
