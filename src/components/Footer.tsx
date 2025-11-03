@@ -211,11 +211,11 @@ const Footer = () => {
         <div className="border-t border-gray-700 pt-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <h3 className="text-xl font-bold mb-4">The New States Continental University Delaware USA</h3>
+              <h3 className="text-xl font-bold mb-4">The New States Continental University Belize</h3>
               <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                The New States Continental University Delaware USA serves as the Delaware headquarters 
+                The New States Continental University serves as the Delaware headquarters 
                 for NSCU's global operations. A world-class research university committed to educating 
-                diverse leaders and expanding the boundaries of human knowledge. NSCU Delaware USA 
+                diverse leaders and expanding the boundaries of human knowledge. NSCU
                 serves as a beacon of academic excellence, innovation, and community engagement.
               </p>
               <div className="flex space-x-4">
@@ -247,7 +247,7 @@ const Footer = () => {
         {/* Bottom Footer */}
         <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-300 text-sm">
-            © 2024 The New States Continental University Delaware USA. All rights reserved.
+            © 2024 The New States Continental University Belize (Managed By NSCU Education LLP. Delaware, USA). All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center md:justify-end space-x-6 mt-4 md:mt-0">
             <Link to="/legal/privacy-policy" className="text-gray-300 hover:text-uw-gold text-sm transition-colors">Privacy Policy</Link>
