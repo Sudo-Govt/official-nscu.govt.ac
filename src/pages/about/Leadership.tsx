@@ -9,7 +9,7 @@ const leaders = [
     image: "https://images.unsplash.com/photo-1494790108755-2616b612b796?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     bio: "Dr. Mitchell brings over 20 years of experience in higher education administration. She holds a Ph.D. in Educational Leadership from Harvard University and has been instrumental in advancing NSCU's research initiatives and global partnerships.",
     achievements: ["Led $500M capital campaign", "Established 15 international partnerships", "Increased research funding by 40%"],
-    email: "president@nscu.edu",
+    email: "president@nscu.govt.ac",
     phone: "(302) 857-1000"
   },
   {
@@ -18,7 +18,7 @@ const leaders = [
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     bio: "Dr. Chen oversees all academic programs and faculty affairs. With a background in engineering and education, he has championed interdisciplinary studies and innovative teaching methods.",
     achievements: ["Launched online learning platform", "Increased graduation rates by 15%", "Implemented faculty excellence program"],
-    email: "provost@nscu.edu",
+    email: "Provost@nscu.govt.ac",
     phone: "(302) 857-1100"
   },
   {
@@ -27,7 +27,7 @@ const leaders = [
     image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     bio: "Dr. Rodriguez leads NSCU's research enterprise, overseeing $2.1 billion in annual research expenditures. She is a renowned scientist with expertise in biotechnology and materials science.",
     achievements: ["Secured $100M NSF grant", "Established 5 research centers", "Published 150+ peer-reviewed papers"],
-    email: "vp-research@nscu.edu",
+    email: "vp-research@nscu.govt.ac",
     phone: "(302) 857-1200"
   },
   {
@@ -36,7 +36,7 @@ const leaders = [
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     bio: "Robert Thompson oversees all aspects of student life, from housing and dining to student organizations and wellness programs. He is passionate about creating an inclusive campus environment.",
     achievements: ["Launched mental health initiative", "Increased student satisfaction by 25%", "Established diversity programs"],
-    email: "vp-students@nscu.edu",
+    email: "vp-students@nscu.govt.ac",
     phone: "(302) 857-1300"
   }
 ];
@@ -102,7 +102,7 @@ const Leadership = () => {
               <p className="text-lg text-gray-700 leading-relaxed">
                 "I am proud to lead an institution that values diversity, promotes inclusion, and 
                 champions the pursuit of knowledge. Together, we are building a brighter future 
-                for Delaware and beyond."
+                for Central America and beyond."
               </p>
             </div>
           </div>
