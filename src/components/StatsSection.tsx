@@ -34,10 +34,10 @@ const StatsSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4">
-            NSCU Delaware USA - Global University Success Stories
+            NSCU - Global University Success Stories
           </h2>
           <p className="text-xl text-gray-200 max-w-3xl mx-auto">
-            As a GCHEA accredited international university, NSCU Delaware USA serves working professionals worldwide 
+            As a GCHEA accredited international university, NSCU serves working professionals worldwide 
             with affordable, flexible degree programs that advance careers.
           </p>
         </div>
