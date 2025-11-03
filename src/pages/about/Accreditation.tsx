@@ -36,7 +36,7 @@ const accreditations = [
     type: "Law School Accreditation",
     status: "Accredited",
     nextReview: "2025",
-    description: "American Bar Association accreditation for Juris Doctor program"
+    description: "Belizeian Bar Association accreditation for Juris Doctor program"
   },
   {
     organization: "CCNE",
