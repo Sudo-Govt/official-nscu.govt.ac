@@ -1,453 +1,136 @@
-
 import PageLayout from '@/components/PageLayout';
-import { Award, CheckCircle, FileText, Calendar } from 'lucide-react';
-
-const accreditations = [
-  {
-    organization: "Middle States Commission on Higher Education (MSCHE)",
-    type: "Institutional Accreditation",
-    status: "Accredited",
-    nextReview: "2029",
-    description: "Comprehensive institutional accreditation covering all degree programs and operations"
-  },
-  {
-    organization: "AACSB International",
-    type: "Business School Accreditation",
-    status: "Accredited",
-    nextReview: "2026",
-    description: "Premier business school accreditation for undergraduate and graduate business programs"
-  },
-  {
-    organization: "ABET",
-    type: "Engineering Accreditation",
-    status: "Accredited",
-    nextReview: "2027",
-    description: "Engineering programs accredited by the Accreditation Board for Engineering and Technology"
-  },
-  {
-    organization: "LCME",
-    type: "Medical School Accreditation",
-    status: "Accredited",
-    nextReview: "2028",
-    description: "Liaison Committee on Medical Education accreditation for Doctor of Medicine program"
-  },
-  {
-    organization: "ABA",
-    type: "Law School Accreditation",
-    status: "Accredited",
-    nextReview: "2025",
-    description: "Belizeian Bar Association accreditation for Juris Doctor program"
-  },
-  {
-    organization: "CCNE",
-    type: "Nursing Accreditation",
-    status: "Accredited",
-    nextReview: "2026",
-    description: "Commission on Collegiate Nursing Education accreditation for nursing programs"
-  },
-  {
-    organization: "GCHEA",
-    type: "Global Higher Education Accreditation",
-    status: "Accredited",
-    nextReview: "2027",
-    description: "Global Commission for Higher Education Accreditation providing international recognition"
-  }
-];
-
-const qualityAssurance = [
-  {
-    title: "Academic Excellence",
-    items: [
-      "Rigorous curriculum standards",
-      "Faculty qualification requirements",
-      "Student learning outcomes assessment",
-      "Continuous program improvement"
-    ]
-  },
-  {
-    title: "Research Integrity",
-    items: [
-      "IRB oversight for human subjects research",
-      "Responsible conduct of research training",
-      "Research data management policies",
-      "Ethics and compliance monitoring"
-    ]
-  },
-  {
-    title: "Student Success",
-    items: [
-      "Comprehensive support services",
-      "Academic advising programs",
-      "Career development resources",
-      "Graduation and employment tracking"
-    ]
-  }
-];
+import { Award, Mail, Phone, MapPin, Globe } from 'lucide-react';
 
 const Accreditation = () => {
   return (
     <PageLayout 
-      title="Accreditation & Quality Assurance" 
-      description="Our commitment to maintaining the highest academic and institutional standards"
+      title="Accreditation and Legal Status" 
+      description="Official recognition and quality assurance framework"
     >
       <section className="py-16">
-        <div className="container mx-auto px-4">
-          {/* Overview */}
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
-            <div className="text-center mb-8">
-              <Award className="h-16 w-16 text-uw-gold mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-uw-purple mb-4">Accreditation Overview</h2>
-              <p className="text-xl text-gray-700 max-w-4xl mx-auto">
-                NSCU-Delaware maintains accreditation from multiple recognized agencies, ensuring our 
-                academic programs meet the highest national standards for quality and excellence.
+        <div className="container mx-auto px-4 max-w-5xl">
+          
+          {/* Main Content */}
+          <div className="bg-card rounded-lg shadow-lg p-8 md:p-12 mb-8 space-y-8">
+            
+            {/* Header Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="bg-primary/10 p-6 rounded-full">
+                <Award className="h-16 w-16 text-primary" />
+              </div>
+            </div>
+
+            {/* Legal Status */}
+            <div className="space-y-4">
+              <p className="text-lg leading-relaxed text-foreground">
+                <strong>New States Continental University (NSCU)</strong> is a legally constituted higher education institution recognized under the authority of the <strong>Ministry of Education, Culture, Science and Technology (MoECST), Government of Belize</strong>, under <strong>License No. U135001</strong>.
               </p>
-            </div>
-          </div>
-
-          {/* Accreditation Details */}
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-uw-purple mb-8 text-center">Current Accreditations</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {accreditations.map((accred, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-lg p-6">
-                  <div className="flex items-start mb-4">
-                    <CheckCircle className="h-6 w-6 text-green-600 mr-3 mt-1 flex-shrink-0" />
-                    <div className="flex-1">
-                      {accred.organization === "GCHEA" ? (
-                        <a 
-                          href="https://gchea.org" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-xl font-bold text-uw-purple mb-2 hover:text-uw-gold transition-colors inline-flex items-center"
-                        >
-                          {accred.organization}
-                          <span className="ml-2">🔗</span>
-                        </a>
-                      ) : (
-                        <h3 className="text-xl font-bold text-uw-purple mb-2">{accred.organization}</h3>
-                      )}
-                      <div className="flex items-center mb-2">
-                        <span className="bg-uw-gold text-uw-dark px-3 py-1 rounded-full text-sm font-semibold mr-3">
-                          {accred.type}
-                        </span>
-                        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                          {accred.status}
-                        </span>
-                      </div>
-                      <p className="text-gray-700 mb-3">{accred.description}</p>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        <span>Next Review: {accred.nextReview}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quality Assurance */}
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold text-uw-purple mb-8 text-center">Quality Assurance Framework</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {qualityAssurance.map((area, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-lg p-6">
-                  <h3 className="text-xl font-bold text-uw-purple mb-4 text-center">{area.title}</h3>
-                  <ul className="space-y-3">
-                    {area.items.map((item, i) => (
-                      <li key={i} className="flex items-start">
-                        <div className="bg-uw-gold rounded-full w-2 h-2 mt-2 mr-3 flex-shrink-0"></div>
-                        <span className="text-gray-700">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Eligibility & Recognition Section */}
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
-            <h2 className="text-3xl font-bold text-uw-purple mb-6 text-center">Student Eligibility & School Certificate Recognition</h2>
-            <div className="mb-8">
-              <h3 className="text-xl font-bold text-uw-purple mb-4">International Qualifications Accepted</h3>
-              <p className="text-gray-700 mb-4">
-                NSCU accepts WISE Certification from{' '}
-                <a 
-                  href="https://wise.weqsc.org" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-uw-gold hover:underline font-semibold"
-                >
-                  Wise.weqsc.org
-                </a>
-                {' '}and any course directly approved by{' '}
-                <a 
-                  href="https://weqsc.org" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-uw-gold hover:underline font-semibold"
-                >
-                  WEQSC
-                </a>
-                .
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">United States</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://www.ged.com" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      GED Testing Service
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.collegeboard.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      College Board (High School Diploma)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.state.gov/education-and-culture/" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      US State Department Recognized Programs
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">United Kingdom</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://www.gov.uk/government/organisations/ofqual" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      Ofqual (A-Levels, GCSEs)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.aqa.org.uk" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      AQA (Assessment & Qualifications Alliance)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.cambridgeinternational.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      Cambridge International Examinations
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.edexcel.com" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      Pearson Edexcel
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">Europe</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://www.ibo.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      International Baccalaureate (IB)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://ec.europa.eu/education/" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      European Baccalaureate
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.abitur.de" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      German Abitur
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.education.gouv.fr" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      French Baccalauréat
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">Asia</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://www.cbse.gov.in" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      CBSE (India)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.cisce.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      ICSE/ISC (India)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.seab.gov.sg" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      Singapore-Cambridge GCE
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.hkeaa.edu.hk" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      HKDSE (Hong Kong)
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">China</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="http://en.moe.gov.cn" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      Gaokao (National College Entrance Exam)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="http://www.neea.edu.cn" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      NEEA (National Education Examinations Authority)
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">Africa</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://www.waec.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      WAEC (West African Examinations Council)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.education.gov.za" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      NSC (South African National Senior Certificate)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.knec.ac.ke" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      KCSE (Kenya Certificate of Secondary Education)
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">International Programs</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://wise.weqsc.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      WISE Certification (WEQSC)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://weqsc.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      WEQSC Approved Courses
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.ibo.org" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      IB Diploma Programme
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">Middle East</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://www.moe.gov.ae" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      UAE Ministry of Education
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.moe.gov.sa" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      Saudi Ministry of Education
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="border rounded-lg p-4">
-                <h4 className="font-bold text-uw-purple mb-3">Australia & Pacific</h4>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <a href="https://www.vcaa.vic.edu.au" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      VCE (Victorian Certificate of Education)
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.nzqa.govt.nz" target="_blank" rel="noopener noreferrer" className="text-uw-gold hover:underline">
-                      NCEA (New Zealand)
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Compliance Information */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-3xl font-bold text-uw-purple mb-6 text-center">Compliance & Reporting</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-bold text-uw-purple mb-4">Annual Reports</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                    <FileText className="h-5 w-5 text-uw-gold mr-3" />
-                    <div>
-                      <span className="font-semibold">Institutional Assessment Report 2024</span>
-                      <p className="text-sm text-gray-600">Comprehensive review of academic programs and services</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                    <FileText className="h-5 w-5 text-uw-gold mr-3" />
-                    <div>
-                      <span className="font-semibold">Student Outcomes Report 2024</span>
-                      <p className="text-sm text-gray-600">Graduation rates, employment, and satisfaction data</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                    <FileText className="h-5 w-5 text-uw-gold mr-3" />
-                    <div>
-                      <span className="font-semibold">Financial Transparency Report 2024</span>
-                      <p className="text-sm text-gray-600">Detailed financial information and accountability</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
               
-              <div>
-                <h3 className="text-xl font-bold text-uw-purple mb-4">Regulatory Compliance</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">Title IX Compliance Program</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">ADA Accessibility Standards</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">FERPA Privacy Protection</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">Clery Act Safety Reporting</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">Financial Aid Compliance</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">Research Ethics Oversight</span>
-                  </li>
-                </ul>
+              <p className="text-lg leading-relaxed text-foreground">
+                The university maintains international academic and operational oversight through <strong>NSCU Higher Education LLP, Delaware, United States</strong>.
+              </p>
+            </div>
+
+            {/* GCHEA Accreditation */}
+            <div className="space-y-4">
+              <p className="text-lg leading-relaxed text-foreground">
+                NSCU is institutionally accredited by the <strong>Global Council for Higher Education Accreditation (GCHEA)</strong>, headquartered in <strong>Switzerland</strong>. GCHEA functions in accordance with internationally accepted principles of quality assurance in higher education, consistent with the frameworks of <strong>INQAAHE</strong> and <strong>UNESCO</strong>.
+              </p>
+            </div>
+
+            {/* Additional Recognition */}
+            <div className="space-y-4">
+              <p className="text-lg leading-relaxed text-foreground">
+                In addition to GCHEA, NSCU maintains academic alignment and recognition through several international frameworks and quality networks, including the <strong>Northern States Academic Accreditation Council (NSAAC)</strong> and the <strong>Association of European Engineering Commission (AEEC)</strong>. These bodies collectively support benchmarking, curriculum evaluation, and quality parity across our degree programs.
+              </p>
+            </div>
+
+            {/* Global Standards */}
+            <div className="space-y-4">
+              <p className="text-lg leading-relaxed text-foreground">
+                All academic programs offered by NSCU are designed to comply with global outcome-based education standards, ensuring compatibility and equivalence with international higher education systems. NSCU currently serves students and academic partners across multiple regions — including <strong>Europe</strong>, <strong>China</strong>, <strong>Australia</strong>, the <strong>Middle East</strong>, <strong>India</strong>, <strong>Africa</strong>, and <strong>South America</strong> — under formal recognition agreements and institutional quality review protocols.
+              </p>
+            </div>
+
+            {/* Verification Note */}
+            <div className="pt-6 border-t border-border">
+              <p className="text-lg leading-relaxed text-foreground mb-6">
+                For institutional verification or document authentication, please contact our Registrar's Office:
+              </p>
+            </div>
+          </div>
+
+          {/* Contact Information Card */}
+          <div className="bg-card rounded-lg shadow-lg p-8 md:p-10 mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6 text-center">Contact Information</h2>
+            
+            <div className="space-y-4 max-w-xl mx-auto">
+              <div className="text-center mb-6">
+                <p className="text-xl font-bold text-foreground">Dr. Alexandre Moreau</p>
+                <p className="text-lg text-muted-foreground">Director of International Admissions</p>
+              </div>
+
+              <div className="flex items-center justify-center gap-3 text-foreground">
+                <Mail className="h-5 w-5 text-primary flex-shrink-0" />
+                <a href="mailto:Dia@nscu.govt.ac" className="text-lg hover:text-primary transition-colors">
+                  Dia@nscu.govt.ac
+                </a>
+              </div>
+
+              <div className="flex items-center justify-center gap-3 text-foreground">
+                <Phone className="h-5 w-5 text-primary flex-shrink-0" />
+                <a href="tel:+13028576060" className="text-lg hover:text-primary transition-colors">
+                  +1 (302) 857-6060 Ext. 104
+                </a>
               </div>
             </div>
           </div>
+
+          {/* University Footer Information */}
+          <div className="bg-primary/5 rounded-lg p-8 md:p-10 border border-primary/10">
+            <div className="text-center space-y-4">
+              <h3 className="text-2xl font-bold text-foreground mb-6">
+                New States Continental University – BELIZE
+              </h3>
+              
+              <p className="text-lg text-foreground font-semibold">
+                Managed by NSCU Higher Education LLP
+              </p>
+              
+              <div className="space-y-3 text-foreground pt-4">
+                <div className="flex items-start justify-center gap-3">
+                  <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                  <p className="text-base">
+                    Corporate Office: 7209 Lancaster Pike, Hockessin, DE 19707, United States of America
+                  </p>
+                </div>
+                
+                <p className="text-base">
+                  <strong>License No.:</strong> U135001 | <strong>Recognized by:</strong> MoECST – Belize
+                </p>
+                
+                <div className="flex items-center justify-center gap-3">
+                  <Globe className="h-5 w-5 text-primary flex-shrink-0" />
+                  <a 
+                    href="https://www.nscu.govt.ac" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-base hover:text-primary transition-colors"
+                  >
+                    www.nscu.govt.ac
+                  </a>
+                </div>
+                
+                <div className="flex items-center justify-center gap-3">
+                  <Phone className="h-5 w-5 text-primary flex-shrink-0" />
+                  <a href="tel:+13028576060" className="text-base hover:text-primary transition-colors">
+                    +1 (302) 857-6060
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
     </PageLayout>
