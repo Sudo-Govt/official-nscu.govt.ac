@@ -99,7 +99,7 @@ interface AlumniDocumentRequest {
   status: string;
   fee: number;
   payment_status: string;
-  created_at: string;
+  requested_at: string;
   profiles?: {
     full_name: string;
     email?: string;
@@ -201,14 +201,17 @@ const AdminDashboard = () => {
       const { data: alumniDocRequestsData } = await supabase
         .from('alumni_document_requests')
         .select(`
-          *,
-          profiles:requester_id (
-            full_name
-          )
+          *
         `)
-        .order('created_at', { ascending: false });
+        .order('requested_at', { ascending: false });
 
-      if (alumniDocRequestsData) setAlumniDocumentRequests(alumniDocRequestsData);
+      // Transform to add empty profiles if needed  
+      const transformedAlumniRequests = alumniDocRequestsData?.map(req => ({
+        ...req,
+        profiles: { full_name: 'Alumni User' }
+      })) || [];
+
+      if (alumniDocRequestsData) setAlumniDocumentRequests(transformedAlumniRequests);
 
       // Fetch alumni support tickets  
       const { data: supportTicketsData } = await supabase

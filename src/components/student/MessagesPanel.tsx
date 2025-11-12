@@ -18,11 +18,6 @@ interface AgentMessage {
   is_read: boolean;
   application: {
     application_number: string;
-    agent: {
-      user: {
-        full_name: string;
-      };
-    };
   };
 }
 
@@ -63,10 +58,7 @@ const MessagesPanel = () => {
         .select(`
           *,
           application:student_applications(
-            application_number,
-            agent:agent_profiles(
-              user:profiles(full_name)
-            )
+            application_number
           )
         `)
         .in('application_id', applicationIds)
@@ -178,7 +170,7 @@ const MessagesPanel = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-foreground">
-                        {message.application?.agent?.user?.full_name || 'Agent'}
+                        Agent
                       </p>
                       <p className="text-sm text-muted-foreground">
                         Application: {message.application?.application_number}

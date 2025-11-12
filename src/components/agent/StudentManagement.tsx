@@ -496,11 +496,21 @@ const AddStudentForm = ({ courses, onSuccess }: { courses: Course[], onSuccess: 
 
       const { error } = await supabase
         .from('student_applications')
-        .insert({
-          ...formData,
-          agent_id: agentProfile.id,
-          date_of_birth: new Date(formData.date_of_birth).toISOString().split('T')[0]
-        });
+        .insert([{
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          full_name: `${formData.first_name} ${formData.last_name}`,
+          email: formData.email,
+          phone: formData.phone,
+          nationality: formData.nationality,
+          passport_number: formData.passport_number,
+          address: formData.address,
+          course_id: formData.course_id,
+          program: formData.course_id,
+          admission_year: formData.admission_year,
+          admission_month: formData.admission_month,
+          agent_id: agentProfile.id
+        }]);
 
       if (error) throw error;
 

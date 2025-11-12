@@ -528,14 +528,15 @@ const DocumentUploadForm = ({ applications, onSuccess }: {
       // Save document record
       const { error: dbError } = await supabase
         .from('student_documents')
-        .insert({
+        .insert([{
           application_id: selectedApplication,
           document_type: finalDocumentType,
           document_name: file.name,
+          file_name: file.name,
           file_path: fileName,
           file_size: file.size,
           mime_type: file.type
-        });
+        }]);
 
       if (dbError) throw dbError;
 

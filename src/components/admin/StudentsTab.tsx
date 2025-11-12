@@ -129,9 +129,16 @@ export const StudentsTab = () => {
         if (authError) throw authError;
         
         // Insert student data
+        const studentId = 'STU' + Date.now();
         const { error: studentError } = await supabase
           .from('students')
-          .insert(formData);
+          .insert([{
+            ...formData,
+            student_id: studentId,
+            enrollment_year: new Date().getFullYear(),
+            program: formData.course_name || 'General',
+            user_id: authData.user.id
+          }]);
         
         if (studentError) throw studentError;
         

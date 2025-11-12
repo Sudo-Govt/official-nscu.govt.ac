@@ -86,6 +86,7 @@ const AlumniDocuments = () => {
         .from('alumni_document_requests')
         .insert([{
           ...requestForm,
+          user_id: user.user_id,
           requester_id: user.user_id
         }]);
 

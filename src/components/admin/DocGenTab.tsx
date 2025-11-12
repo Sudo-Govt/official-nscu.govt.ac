@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Eye, Download, Trash2, FileText, Loader2, Plus, User, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 interface Student {
   id: string;
@@ -94,6 +95,7 @@ const DOC_CATEGORIES = [
 ];
 
 export const DocGenTab = () => {
+  const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [documents, setDocuments] = useState<GeneratedDocument[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -169,10 +171,19 @@ export const DocGenTab = () => {
 
     setIsCreatingStudent(true);
     try {
+      // Generate student_id
+      const studentId = 'STU' + Date.now();
+      
       console.log('Inserting student into database:', newStudent);
       const { data, error } = await supabase
         .from('students')
-        .insert([newStudent])
+        .insert([{
+          ...newStudent,
+          student_id: studentId,
+          enrollment_year: new Date().getFullYear(),
+          program: newStudent.course_name,
+          user_id: user?.user_id || ''
+        }])
         .select()
         .single();
 

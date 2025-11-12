@@ -103,15 +103,15 @@ const PaymentsFinance = () => {
         .from('student_payments')
         .select(`
           *,
-          application:student_applications!student_payments_application_id_fkey(
+          application:student_applications(
             first_name,
             last_name
           ),
-          student:profiles!student_payments_student_id_fkey(
-            full_name
+          student:students(
+            name,
+            user_id
           )
         `)
-        .eq('agent_id', agentProfile.id)
         .order('payment_date', { ascending: false });
 
       if (paymentsError) throw paymentsError;
@@ -122,7 +122,7 @@ const PaymentsFinance = () => {
         student: {
           full_name: p.application 
             ? `${p.application.first_name} ${p.application.last_name}`
-            : p.student?.full_name || 'Unknown'
+            : p.student?.name || 'Unknown'
         }
       })) || [];
 
@@ -206,16 +206,18 @@ const PaymentsFinance = () => {
       // selectedStudentId is actually the application id in this context
       const { error } = await supabase
         .from('student_payments')
-        .insert({
+        .insert([{
           application_id: selectedStudentId,
-          agent_id: agentProfile.id,
+          student_id: selectedStudentId, // Will need to map from application
+          amount: Number(paymentAmount),
           payment_amount: Number(paymentAmount),
           balance_amount: Number(balanceAmount),
           currency: agentCurrency,
           agent_currency: agentCurrency,
           exchange_rate: exchangeRate,
-          created_by: user?.user_id
-        });
+          payment_method: 'bank_transfer',
+          payment_type: 'tuition'
+        }]);
 
       if (error) throw error;
 
