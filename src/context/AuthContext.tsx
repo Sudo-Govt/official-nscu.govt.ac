@@ -46,9 +46,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('user_id', userId)
         .maybeSingle();
 
-      // CRITICAL: Never fall back to profile.role - only use user_roles table
+      // If no role assigned yet (new user), wait for trigger and retry
       if (!userRole) {
-        console.error('No role assigned for user:', userId);
+        console.log('No role found for user, waiting for trigger...', userId);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Retry fetching role
+        const { data: retryRole } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        if (!retryRole) {
+          console.error('No role assigned for user after retry:', userId);
+          setIsLoading(false);
+          return;
+        }
+        
+        const finalRole = retryRole.role;
+        
+        if (profile) {
+          const { data: authUser } = await supabase.auth.getUser();
+          if (authUser.user) {
+            setUser({
+              id: authUser.user.id,
+              user_id: authUser.user.id,
+              email: authUser.user.email!,
+              full_name: profile.full_name,
+              avatar_url: profile.avatar_url,
+              role: finalRole as any
+            });
+          }
+        }
         setIsLoading(false);
         return;
       }
