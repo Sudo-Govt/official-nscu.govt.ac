@@ -9,24 +9,74 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Mail, Lock, Home } from 'lucide-react';
 import { loginSchema } from '@/lib/validationSchemas';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignupMode, setIsSignupMode] = useState(false);
+  const [success, setSuccess] = useState('');
   
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setIsLoading(true);
 
     try {
-      // Validate input using zod schema
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        setIsLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        setError('Password must be at least 6 characters');
+        setIsLoading(false);
+        return;
+      }
+
+      const { data, error: signupError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName
+          },
+          emailRedirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (signupError) throw signupError;
+
+      setSuccess('Account created successfully! You can now sign in.');
+      setIsSignupMode(false);
+      // Clear form
+      setPassword('');
+      setConfirmPassword('');
+      setFullName('');
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during signup');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setIsLoading(true);
+
+    try {
       const validated = loginSchema.parse({ email, password });
       
       const success = await login(validated.email, validated.password);
@@ -70,13 +120,30 @@ const Login = () => {
 
         <Card className="shadow-lg border-0 bg-card/80 backdrop-blur-sm">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl text-center">
+              {isSignupMode ? 'Create Account' : 'Welcome Back'}
+            </CardTitle>
             <CardDescription className="text-center">
-              Enter your credentials to access your account
+              {isSignupMode 
+                ? 'Sign up to access your account' 
+                : 'Enter your credentials to access your account'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={isSignupMode ? handleSignup : handleLogin} className="space-y-4">
+              {isSignupMode && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -122,9 +189,33 @@ const Login = () => {
                 </div>
               </div>
 
+              {isSignupMode && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      className="pl-10"
+                    />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  </div>
+                </div>
+              )}
+
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {success && (
+                <Alert className="border-green-500 bg-green-50 text-green-900">
+                  <AlertDescription>{success}</AlertDescription>
                 </Alert>
               )}
 
@@ -133,9 +224,27 @@ const Login = () => {
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading ? 'Signing in...' : 'Sign In'}
+                {isLoading 
+                  ? (isSignupMode ? 'Creating Account...' : 'Signing in...') 
+                  : (isSignupMode ? 'Sign Up' : 'Sign In')}
               </Button>
             </form>
+
+            <div className="mt-4 text-center">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsSignupMode(!isSignupMode);
+                  setError('');
+                  setSuccess('');
+                }}
+                className="text-sm"
+              >
+                {isSignupMode 
+                  ? 'Already have an account? Sign in' 
+                  : "Don't have an account? Sign up"}
+              </Button>
+            </div>
 
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
