@@ -33,7 +33,8 @@ import {
   DollarSign,
   TrendingUp,
   User,
-  Mail
+  Mail,
+  Key
 } from 'lucide-react';
 import ChangePassword from '@/components/ChangePassword';
 import ApplicationManagement from '@/components/admin/ApplicationManagement';
@@ -51,6 +52,9 @@ import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement'
 import SystemSettings from '@/components/admin/SystemSettings';
 import CourseManagement from '@/components/admin/CourseManagement';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
+import RLSPolicyManager from '@/components/admin/RLSPolicyManager';
+import APIKeysManager from '@/components/admin/APIKeysManager';
+import DatabaseTableBrowser from '@/components/admin/DatabaseTableBrowser';
 
 interface Student {
   id: string;
@@ -726,6 +730,14 @@ const AdminDashboard = () => {
       ]
     },
     {
+      label: "Database",
+      items: [
+        { title: "RLS Policies", icon: Shield, value: "rls-policies", onClick: () => setCurrentTab("rls-policies") },
+        { title: "API Keys", icon: Key, value: "api-keys", onClick: () => setCurrentTab("api-keys") },
+        { title: "Table Browser", icon: Database, value: "table-browser", onClick: () => setCurrentTab("table-browser") },
+      ]
+    },
+    {
       label: "Settings",
       items: [
         { title: "Profile", icon: User, value: "profile", onClick: () => setCurrentTab("profile") },
@@ -1040,6 +1052,9 @@ const AdminDashboard = () => {
       {currentTab === "mail" && <InternalMailSystem />}
       {currentTab === "settings" && <SystemSettings />}
       {currentTab === "courses" && <CourseManagement />}
+      {currentTab === "rls-policies" && <RLSPolicyManager />}
+      {currentTab === "api-keys" && <APIKeysManager />}
+      {currentTab === "table-browser" && <DatabaseTableBrowser />}
 
       {/* Dialogs remain the same */}
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>

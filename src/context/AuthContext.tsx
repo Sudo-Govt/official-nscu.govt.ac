@@ -46,8 +46,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('user_id', userId)
         .maybeSingle();
 
-      // For users without assigned roles, use student as default to allow access
-      const finalRole = userRole?.role || (profile?.role as any) || 'student';
+      // CRITICAL: Never fall back to profile.role - only use user_roles table
+      if (!userRole) {
+        console.error('No role assigned for user:', userId);
+        setIsLoading(false);
+        return;
+      }
+      
+      const finalRole = userRole.role;
       
       if (profile) {
         const { data: authUser } = await supabase.auth.getUser();
@@ -58,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: authUser.user.email!,
             full_name: profile.full_name,
             avatar_url: profile.avatar_url,
-            role: finalRole
+            role: finalRole as any
           });
         }
       }
