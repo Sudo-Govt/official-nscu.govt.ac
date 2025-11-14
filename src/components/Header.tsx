@@ -123,6 +123,7 @@ const Header = () => {
       items: [
         {title: "International Programs", href: "/international/programs"},
         {title: "Collaborations", href: "/international/collaborations"},
+        {title: "NSCU Affiliation", href: "/affiliation/nscu-affiliation"},
         {
           title: "Global Campuses",
           items: [

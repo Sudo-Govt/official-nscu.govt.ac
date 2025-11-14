@@ -127,6 +127,9 @@ import CampusFacilities from "./pages/campus/CampusFacilities";
 import InternationalPrograms from "./pages/international/InternationalPrograms";
 import Collaborations from "./pages/international/Collaborations";
 
+// Affiliation pages
+import NSCUAffiliation from "./pages/affiliation/NSCUAffiliation";
+
 // Campus Life pages
 import GreekLife from "./pages/campus-life/GreekLife";
 import IntramuralsSpecial from "./pages/campus-life/Intramurals";
@@ -271,6 +274,9 @@ const App = () => (
           <Route path="/colleges/full-fledged" element={<FullFledgedColleges />} />
           <Route path="/colleges/offshore" element={<OffshoreColleges />} />
           <Route path="/colleges/study-centers" element={<StudyCenters />} />
+          
+          {/* Affiliation Routes */}
+          <Route path="/affiliation/nscu-affiliation" element={<NSCUAffiliation />} />
           
           {/* Services Routes */}
           <Route path="/services/libraries" element={<Libraries />} />
