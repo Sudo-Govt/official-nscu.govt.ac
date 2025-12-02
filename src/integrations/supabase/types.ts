@@ -736,6 +736,90 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_rate_limits: {
+        Row: {
+          blocked_until: string | null
+          captcha_fail_count: number | null
+          created_at: string | null
+          id: string
+          ip_address: string
+          last_submission_at: string | null
+          submission_count: number | null
+        }
+        Insert: {
+          blocked_until?: string | null
+          captcha_fail_count?: number | null
+          created_at?: string | null
+          id?: string
+          ip_address: string
+          last_submission_at?: string | null
+          submission_count?: number | null
+        }
+        Update: {
+          blocked_until?: string | null
+          captcha_fail_count?: number | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string
+          last_submission_at?: string | null
+          submission_count?: number | null
+        }
+        Relationships: []
+      }
+      contact_submissions: {
+        Row: {
+          captcha_data: Json | null
+          country: string | null
+          created_at: string | null
+          email: string
+          flow: string
+          full_name: string
+          id: string
+          ip_address: string | null
+          isd_code: string
+          message: string | null
+          phone: string
+          status: string | null
+          topics: Json | null
+          type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          captcha_data?: Json | null
+          country?: string | null
+          created_at?: string | null
+          email: string
+          flow: string
+          full_name: string
+          id?: string
+          ip_address?: string | null
+          isd_code: string
+          message?: string | null
+          phone: string
+          status?: string | null
+          topics?: Json | null
+          type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          captcha_data?: Json | null
+          country?: string | null
+          created_at?: string | null
+          email?: string
+          flow?: string
+          full_name?: string
+          id?: string
+          ip_address?: string | null
+          isd_code?: string
+          message?: string | null
+          phone?: string
+          status?: string | null
+          topics?: Json | null
+          type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           available_seats: number

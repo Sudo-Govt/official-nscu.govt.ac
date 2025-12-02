@@ -193,3 +193,71 @@ export const courseSchema = z.object({
     .max(2000, 'Description is too long')
     .optional()
 });
+
+// Contact form validation - Academic
+export const contactAcademicSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(2, 'Full name is required')
+    .max(100, 'Name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes'),
+  
+  isdCode: z.string()
+    .trim()
+    .regex(/^\+\d{1,3}$/, 'Invalid ISD code format (e.g., +1, +91)')
+    .min(2, 'ISD code is required')
+    .max(4, 'ISD code is too long'),
+  
+  phone: z.string()
+    .trim()
+    .regex(/^\d{6,15}$/, 'Phone number must be 6-15 digits'),
+  
+  email: z.string()
+    .trim()
+    .email('Invalid email address')
+    .max(255, 'Email must be less than 255 characters'),
+  
+  country: z.string()
+    .trim()
+    .min(2, 'Country is required')
+    .max(100, 'Country name is too long'),
+  
+  type: z.enum(['On Campus', 'Off Campus', 'Fast Track'], {
+    errorMap: () => ({ message: 'Please select a campus type' })
+  })
+});
+
+// Contact form validation - Non-Academic
+export const contactNonAcademicSchema = z.object({
+  fullName: z.string()
+    .trim()
+    .min(2, 'Full name is required')
+    .max(100, 'Name must be less than 100 characters')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes'),
+  
+  email: z.string()
+    .trim()
+    .email('Invalid email address')
+    .max(255, 'Email must be less than 255 characters'),
+  
+  isdCode: z.string()
+    .trim()
+    .regex(/^\+\d{1,3}$/, 'Invalid ISD code format (e.g., +1, +91)')
+    .min(2, 'ISD code is required')
+    .max(4, 'ISD code is too long'),
+  
+  phone: z.string()
+    .trim()
+    .regex(/^\d{6,15}$/, 'Phone number must be 6-15 digits'),
+  
+  message: z.string()
+    .trim()
+    .max(2500, 'Message must be less than 2500 characters')
+    .optional()
+    .or(z.literal('')),
+  
+  topics: z.array(z.string()).min(1, 'Please select at least one topic'),
+  
+  captchaSum: z.number().int(),
+  captchaDiff: z.number().int()
+});
