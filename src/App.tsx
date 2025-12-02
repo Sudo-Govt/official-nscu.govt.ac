@@ -26,6 +26,7 @@ import Sustainability from "./pages/about/Sustainability";
 import DiversityInclusion from "./pages/about/DiversityInclusion";
 
 // Academic pages
+import PhDPrograms from "./pages/academics/PhDPrograms";
 import SchoolArts from "./pages/academics/SchoolArts";
 import SchoolScience from "./pages/academics/SchoolScience";
 import CollegeEngineering from "./pages/academics/CollegeEngineering";
@@ -187,6 +188,7 @@ const App = () => (
           <Route path="/about/diversity-inclusion" element={<DiversityInclusion />} />
           
           {/* Academic Routes */}
+          <Route path="/academics/phd-programs" element={<PhDPrograms />} />
           <Route path="/academics/school-arts" element={<SchoolArts />} />
           <Route path="/academics/school-science" element={<SchoolScience />} />
           <Route path="/academics/college-engineering" element={<CollegeEngineering />} />
