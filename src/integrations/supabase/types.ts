@@ -47,6 +47,48 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliation_requests: {
+        Row: {
+          created_at: string | null
+          email: string
+          expected_start_date: string
+          full_name: string
+          id: string
+          institution_type: string
+          location: string
+          notes: string | null
+          phone: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          expected_start_date: string
+          full_name: string
+          id?: string
+          institution_type: string
+          location: string
+          notes?: string | null
+          phone: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          expected_start_date?: string
+          full_name?: string
+          id?: string
+          institution_type?: string
+          location?: string
+          notes?: string | null
+          phone?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       agent_commissions: {
         Row: {
           agent_id: string
@@ -1143,6 +1185,45 @@ export type Database = {
           recipient_id?: string
           sender_id?: string
           subject?: string
+        }
+        Relationships: []
+      }
+      phd_applications: {
+        Row: {
+          country: string
+          created_at: string
+          email: string
+          expected_start: string
+          full_name: string
+          id: string
+          phone: string
+          research_interest: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          email: string
+          expected_start: string
+          full_name: string
+          id?: string
+          phone: string
+          research_interest: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          email?: string
+          expected_start?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          research_interest?: string
+          status?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

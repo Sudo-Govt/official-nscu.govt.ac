@@ -44,6 +44,7 @@ const Header = () => {
     {
       title: "Academics",
       items: [
+        {title: "PhD Programs", href: "/academics/phd-programs"},
         {
           title: "Colleges & Schools",
           items: [
