@@ -25,14 +25,9 @@ const AlumniNetworking = () => {
     try {
       const { data, error } = await supabase
         .from('alumni_profiles')
-        .select(`
-          *,
-          profiles:user_id (full_name, email)
-        `)
-        .eq('is_public_profile', true)
-        .eq('allow_networking', true)
+        .select('*')
         .order('graduation_year', { ascending: false })
-        .limit(50);
+        .limit(50) as { data: any[] | null; error: any };
 
       if (error) {
         console.error('Error fetching alumni profiles:', error);

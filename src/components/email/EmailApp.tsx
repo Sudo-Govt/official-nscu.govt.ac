@@ -114,10 +114,10 @@ const EmailApp = () => {
         .from('emails')
         .select('*')
         .eq('user_id', user?.id)
-        .eq('folder_id', folder.id)
+        .eq('folder', folderType)
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(50) as { data: any[] | null; error: any };
 
       if (error) throw error;
       setEmails(data || []);

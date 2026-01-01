@@ -56,6 +56,10 @@
     --uw-purple: 240 42% 33%;
     --uw-gold: 45 93.4% 47.5%;
     --uw-dark: 240 5.9% 10%;
+    
+    /* Gold accent for dashboard */
+    --gold-primary: 45 93% 47%;
+    --gold-light: 45 100% 96%;
   }
 
   .dark {
@@ -107,6 +111,10 @@
     --uw-purple: 240 42% 33%;
     --uw-gold: 45 93.4% 47.5%;
     --uw-dark: 240 5.9% 10%;
+    
+    /* Gold accent for dashboard - dark mode */
+    --gold-primary: 45 93% 52%;
+    --gold-light: 45 30% 20%;
   }
 }
 
