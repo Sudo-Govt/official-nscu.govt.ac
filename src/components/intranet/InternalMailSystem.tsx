@@ -63,21 +63,27 @@ export const InternalMailSystem = () => {
 
   const loadMessages = async () => {
     setLoading(true);
-    let query = supabase
-      .from('internal_messages')
-      .select('*');
+    
+    let messagesData: any[] | null = null;
+    let error: any = null;
 
     if (view === 'inbox') {
-      query = query
+      const result = await supabase
+        .from('internal_messages')
+        .select('*')
         .eq('recipient_id', user?.id)
-        .eq('is_deleted_by_recipient', false);
+        .order('created_at', { ascending: false }) as { data: any[] | null; error: any };
+      messagesData = result.data;
+      error = result.error;
     } else if (view === 'sent') {
-      query = query
+      const result = await supabase
+        .from('internal_messages')
+        .select('*')
         .eq('sender_id', user?.id)
-        .eq('is_deleted_by_sender', false);
+        .order('created_at', { ascending: false }) as { data: any[] | null; error: any };
+      messagesData = result.data;
+      error = result.error;
     }
-
-    const { data: messagesData, error } = await query.order('created_at', { ascending: false });
 
     if (!error && messagesData) {
       // Fetch sender and recipient profiles separately

@@ -73,7 +73,9 @@ export default {
 				},
 				'uw-purple': 'hsl(var(--uw-purple))',
 				'uw-gold': 'hsl(var(--uw-gold))',
-				'uw-dark': 'hsl(var(--uw-dark))'
+				'uw-dark': 'hsl(var(--uw-dark))',
+				'gold-primary': 'hsl(var(--gold-primary))',
+				'gold-light': 'hsl(var(--gold-light))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

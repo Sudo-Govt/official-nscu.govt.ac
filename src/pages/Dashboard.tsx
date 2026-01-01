@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import AdminDashboard from '@/components/dashboards/AdminDashboard';
-import StudentDashboard from '@/components/dashboards/StudentDashboard';
+import StudentDashboardV2 from '@/components/dashboards/StudentDashboardV2';
 import FacultyDashboard from '@/components/dashboards/FacultyDashboard';
 import AdmissionAgentDashboard from '@/components/dashboards/AdmissionAgentDashboard';
 import DelegatorDashboard from '@/components/dashboards/DelegatorDashboard';
@@ -30,7 +30,7 @@ const Dashboard = () => {
       case 'registrar':
         return <AdminDashboard />;
       case 'student':
-        return <StudentDashboard />;
+        return <StudentDashboardV2 />;
       case 'faculty':
         return <FacultyDashboard />;
       case 'admission_agent':

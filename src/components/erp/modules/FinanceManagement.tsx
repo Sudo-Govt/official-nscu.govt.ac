@@ -65,9 +65,8 @@ const FinanceManagement = () => {
   const fetchPendingDues = async () => {
     const { data } = await supabase
       .from('student_applications')
-      .select('*, courses(course_name, fee_structure)')
-      .neq('status', 'paid')
-      .neq('tuition_fee_paid', true);
+      .select('*')
+      .neq('status', 'paid') as { data: any[] | null; error: any };
     if (data) setPendingDues(data);
   };
 
