@@ -55,17 +55,27 @@ const SystemSettings = () => {
         }
           
         case 'full': {
-          // Backup everything
-          const tables = ['students', 'student_applications', 'profiles', 'fee_payments', 
-                         'courses', 'documents', 'announcements', 'agent_profiles'] as const;
+          // Backup everything - exclude sensitive PII from profiles
+          const { data: students } = await supabase.from('students').select('*');
+          const { data: applications } = await supabase.from('student_applications').select('*');
+          const { data: profiles } = await supabase.from('profiles').select('id, user_id, full_name, role, status, created_at, updated_at');
+          const { data: feePayments } = await supabase.from('fee_payments').select('*');
+          const { data: courses } = await supabase.from('courses').select('*');
+          const { data: documents } = await supabase.from('documents').select('*');
+          const { data: announcements } = await supabase.from('announcements').select('*');
+          const { data: agentProfiles } = await supabase.from('agent_profiles').select('*');
           
-          const fullData: Record<string, any> = {};
-          for (const table of tables) {
-            const { data: tableData } = await supabase.from(table).select('*');
-            fullData[table] = tableData;
-          }
-          fullData.timestamp = new Date().toISOString();
-          data = fullData;
+          data = { 
+            students, 
+            student_applications: applications, 
+            profiles, 
+            fee_payments: feePayments,
+            courses,
+            documents,
+            announcements,
+            agent_profiles: agentProfiles,
+            timestamp: new Date().toISOString() 
+          };
           break;
         }
       }
