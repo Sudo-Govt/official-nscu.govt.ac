@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { AddStudentDialog } from './AddStudentDialog';
 
 interface Student {
   id: string;
@@ -30,6 +31,7 @@ export const StudentsTab = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddStudentDialogOpen, setIsAddStudentDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -214,16 +216,21 @@ export const StudentsTab = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Students Management</CardTitle>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Student
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button onClick={() => setIsAddStudentDialogOpen(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add New Student
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) resetForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Quick Add (Existing User)
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>
@@ -334,8 +341,16 @@ export const StudentsTab = () => {
                 </div>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </CardHeader>
+        
+        {/* Add Student Dialog */}
+        <AddStudentDialog 
+          open={isAddStudentDialogOpen}
+          onOpenChange={setIsAddStudentDialogOpen}
+          onSuccess={fetchStudents}
+        />
         <CardContent>
           <Table>
             <TableHeader>
