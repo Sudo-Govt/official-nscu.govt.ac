@@ -43,7 +43,6 @@ interface GeneratedDocument {
 interface UserProfile {
   user_id: string;
   full_name: string;
-  role: string;
 }
 
 interface NewStudent {
@@ -134,7 +133,7 @@ export const DocGenTab = () => {
       const [studentsResponse, documentsResponse, usersResponse] = await Promise.all([
         supabase.from('students').select('*').order('name'),
         supabase.from('documents_generated').select('*').order('created_at', { ascending: false }),
-        supabase.from('profiles').select('user_id, full_name, role').in('role', ['student', 'admission_agent', 'faculty'])
+        supabase.from('profiles').select('user_id, full_name').in('role', ['student', 'admission_agent', 'faculty'])
       ]);
 
       if (studentsResponse.error) throw studentsResponse.error;
@@ -686,7 +685,7 @@ export const DocGenTab = () => {
                                 }}
                               />
                               <Label htmlFor={`${student.id}-user-${user.user_id}`} className="text-xs cursor-pointer">
-                                {user.full_name} ({user.role})
+                                {user.full_name}
                               </Label>
                             </div>
                           ))}

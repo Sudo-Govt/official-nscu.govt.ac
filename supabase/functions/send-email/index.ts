@@ -7,6 +7,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation helper
+function validateEmailId(emailId: unknown): string {
+  if (!emailId || typeof emailId !== 'string') {
+    throw new Error('Invalid emailId: must be a non-empty string');
+  }
+  // UUID format validation
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(emailId)) {
+    throw new Error('Invalid emailId: must be a valid UUID');
+  }
+  return emailId;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -31,7 +44,8 @@ serve(async (req) => {
       throw new Error('No user found');
     }
 
-    const { emailId } = await req.json();
+    const body = await req.json();
+    const emailId = validateEmailId(body.emailId);
 
     // Fetch the email to send
     const { data: email, error: emailError } = await supabaseClient
@@ -44,17 +58,29 @@ serve(async (req) => {
       throw new Error('Email not found');
     }
 
-    // Fetch SMTP settings
-    const { data: smtpSettings, error: smtpError } = await supabaseClient
+    // Use service role to access SMTP settings securely
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Fetch SMTP settings using service role
+    const { data: smtpSettings, error: smtpError } = await serviceClient
       .from('smtp_settings')
-      .select('*')
+      .select('smtp_host, smtp_port, smtp_user, from_email, from_name, use_tls')
       .single();
 
     if (smtpError || !smtpSettings) {
       throw new Error('SMTP settings not configured');
     }
 
-    // Log SMTP settings for debugging
+    // Get encryption key from secrets
+    const smtpPasswordSecret = Deno.env.get('SMTP_PASSWORD');
+    if (!smtpPasswordSecret) {
+      throw new Error('SMTP_PASSWORD secret not configured. Please set it in your backend secrets.');
+    }
+
+    // Log SMTP settings for debugging (without password)
     console.log('Attempting to send email via SMTP:', {
       host: smtpSettings.smtp_host,
       port: smtpSettings.smtp_port,
@@ -70,7 +96,7 @@ serve(async (req) => {
         tls: false, // Start without TLS
         auth: {
           username: smtpSettings.smtp_user,
-          password: smtpSettings.smtp_password,
+          password: smtpPasswordSecret,
         },
       },
     });

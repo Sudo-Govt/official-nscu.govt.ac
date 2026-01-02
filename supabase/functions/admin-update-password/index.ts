@@ -59,9 +59,30 @@ serve(async (req) => {
       )
     }
 
-    if (newPassword.length < 6) {
+    // Validate userId is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (typeof userId !== 'string' || !uuidRegex.test(userId)) {
       return new Response(
-        JSON.stringify({ error: 'Password must be at least 6 characters' }),
+        JSON.stringify({ error: 'Invalid userId format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate password: minimum 8 characters, at least one uppercase, one lowercase, one number
+    if (typeof newPassword !== 'string' || newPassword.length < 8) {
+      return new Response(
+        JSON.stringify({ error: 'Password must be at least 8 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+
+    if (!hasUppercase || !hasLowercase || !hasNumber) {
+      return new Response(
+        JSON.stringify({ error: 'Password must contain at least one uppercase letter, one lowercase letter, and one number' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

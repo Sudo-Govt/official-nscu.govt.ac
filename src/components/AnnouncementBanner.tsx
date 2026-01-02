@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { X, AlertCircle, Info, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import DOMPurify from 'dompurify';
 
 interface Announcement {
   id: string;
@@ -95,7 +96,7 @@ const AnnouncementBanner = () => {
               <AlertDescription>
                 <div
                   className="prose prose-sm max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: announcement.content }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(announcement.content || '') }}
                 />
                 <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
                   <span>
