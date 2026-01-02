@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AlertCircle, Info, CheckCircle, Bell } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import DOMPurify from 'dompurify';
 
 interface Announcement {
   id: string;
@@ -103,7 +104,7 @@ const NotificationSection = () => {
                     </div>
                     <div
                       className="text-muted-foreground text-sm leading-relaxed [&>p]:mb-2 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&>strong]:font-semibold [&>em]:italic"
-                      dangerouslySetInnerHTML={{ __html: announcement.content }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(announcement.content || '') }}
                     />
                     <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2">
                       <span>

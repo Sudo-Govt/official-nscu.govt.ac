@@ -5,6 +5,7 @@ import { ArrowLeft, Reply, Trash2, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import DOMPurify from 'dompurify';
 
 interface Email {
   id: string;
@@ -101,7 +102,7 @@ const EmailViewer = ({ email, onBack, onReply }: EmailViewerProps) => {
         <CardContent>
           <div
             className="prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: email.body }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(email.body || '') }}
           />
         </CardContent>
       </Card>

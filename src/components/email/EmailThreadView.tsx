@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import DOMPurify from 'dompurify';
 import {
   ArrowLeft, Reply, ReplyAll, Forward, Trash2, Archive,
   Star, MoreVertical, Paperclip, Printer
@@ -177,7 +178,7 @@ const EmailThreadView = ({ email, onBack, onReply }: EmailThreadViewProps) => {
             <CardContent className="space-y-4">
               <div 
                 className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: message.body_html || message.body }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message.body_html || message.body || '') }}
               />
 
               {attachments.length > 0 && index === thread.length - 1 && (

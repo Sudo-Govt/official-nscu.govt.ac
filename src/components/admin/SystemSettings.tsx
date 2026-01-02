@@ -46,10 +46,10 @@ const SystemSettings = () => {
         }
           
         case 'dashboard': {
-          // Backup all dashboard/admin data
+          // Backup all dashboard/admin data - exclude sensitive PII from profiles
           const { data: students } = await supabase.from('students').select('*');
           const { data: applications } = await supabase.from('student_applications').select('*');
-          const { data: profiles } = await supabase.from('profiles').select('*');
+          const { data: profiles } = await supabase.from('profiles').select('id, user_id, full_name, role, status, created_at, updated_at');
           data = { students, applications, profiles, timestamp: new Date().toISOString() };
           break;
         }

@@ -7,6 +7,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation helper
+function validateEmailInput(email_id: unknown): string {
+  if (!email_id || typeof email_id !== 'string') {
+    throw new Error('Invalid email_id: must be a non-empty string');
+  }
+  // UUID format validation
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(email_id)) {
+    throw new Error('Invalid email_id: must be a valid UUID');
+  }
+  return email_id;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -24,7 +37,8 @@ serve(async (req) => {
       throw new Error('Not authenticated');
     }
 
-    const { email_id } = await req.json();
+    const body = await req.json();
+    const email_id = validateEmailInput(body.email_id);
 
     // Get email details
     const { data: email, error: emailError } = await supabaseClient
@@ -40,12 +54,49 @@ serve(async (req) => {
     // Get user's email account
     const { data: emailAccount, error: accountError } = await supabaseClient
       .from('email_accounts')
-      .select('*')
+      .select('id, email_address, display_name, encrypted_password')
       .eq('user_id', user.id)
       .single();
 
     if (accountError || !emailAccount) {
       throw new Error('Email account not configured');
+    }
+
+    // Use service role to decrypt the password
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Get encryption key from secrets
+    const encryptionKey = Deno.env.get('EMAIL_ENCRYPTION_KEY');
+    if (!encryptionKey) {
+      console.error('EMAIL_ENCRYPTION_KEY not configured, falling back to encrypted_password if available');
+    }
+
+    // Try to decrypt the password using database function if available
+    let password: string | null = null;
+    
+    if (encryptionKey && emailAccount.encrypted_password) {
+      try {
+        const { data: decryptedData, error: decryptError } = await serviceClient.rpc(
+          'decrypt_email_password',
+          { 
+            account_id: emailAccount.id, 
+            encryption_key: encryptionKey 
+          }
+        );
+        
+        if (!decryptError && decryptedData) {
+          password = decryptedData;
+        }
+      } catch (e) {
+        console.error('Decryption failed, function may not exist:', e);
+      }
+    }
+
+    if (!password) {
+      throw new Error('Email password not available. Please reconfigure your email account.');
     }
 
     console.log('Sending email via SMTP from:', emailAccount.email_address);
@@ -55,10 +106,10 @@ serve(async (req) => {
       connection: {
         hostname: 'mail.nscu.govt.ac',
         port: 587,
-        tls: false, // Start without TLS, will upgrade with STARTTLS
+        tls: false,
         auth: {
           username: emailAccount.email_address,
-          password: emailAccount.email_password,
+          password: password,
         },
       },
     });
@@ -104,28 +155,6 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error sending email:', error);
     
-    // Update email with error
-    const { email_id } = await req.json().catch(() => ({}));
-    if (email_id) {
-      try {
-        const supabaseClient = createClient(
-          Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-          { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
-        );
-        
-        await supabaseClient
-          .from('emails')
-          .update({ 
-            status: 'failed',
-            error_message: error.message 
-          })
-          .eq('id', email_id);
-      } catch (e) {
-        console.error('Failed to update email error status:', e);
-      }
-    }
-
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
