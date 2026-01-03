@@ -41,20 +41,39 @@ Deno.serve(async (req) => {
     }
 
     // Check if requesting user is admin/superadmin
-    const { data: roleData } = await supabaseAdmin
+    const { data: roles, error: rolesError } = await supabaseAdmin
       .from('user_roles')
       .select('role')
-      .eq('user_id', requestingUser.id)
-      .maybeSingle();
+      .eq('user_id', requestingUser.id);
 
-    if (!roleData || !['admin', 'superadmin'].includes(roleData.role)) {
+    if (rolesError) {
+      console.error('Role lookup error:', rolesError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to verify permissions' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const hasAdminAccess = (roles ?? []).some((r) => ['admin', 'superadmin'].includes(r.role));
+
+    if (!hasAdminAccess) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized: Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const { userId } = await req.json();
+    let payload: { userId?: string } = {};
+    try {
+      payload = await req.json();
+    } catch (_e) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = payload.userId;
 
     if (!userId) {
       return new Response(
@@ -62,6 +81,8 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('admin-delete-user request', { requester: requestingUser.id, userId });
 
     // Get the user to check if it's the protected account
     const { data: userToDelete, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(userId);
@@ -106,9 +127,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Error:', message);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
