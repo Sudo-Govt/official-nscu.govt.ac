@@ -85,6 +85,30 @@ const SuperAdminUserManagement = () => {
     }
   };
 
+  // Generate unique 6-digit agent code
+  const generateAgentCode = async (): Promise<string> => {
+    let code: string;
+    let isUnique = false;
+    
+    while (!isUnique) {
+      // Generate 6-digit alphanumeric code
+      code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      // Check if code exists
+      const { data } = await supabase
+        .from('agent_profiles')
+        .select('agent_id')
+        .eq('agent_id', code)
+        .maybeSingle();
+      
+      if (!data) {
+        isUnique = true;
+      }
+    }
+    
+    return code!;
+  };
+
   const createUser = async () => {
     if (!newUser.email || !newUser.password || !newUser.full_name || !newUser.role) {
       toast({
@@ -141,6 +165,12 @@ const SuperAdminUserManagement = () => {
           console.error('Profile update error:', profileError);
         }
 
+        // Delete any existing role first
+        await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', authData.user.id);
+
         // Assign role in user_roles table
         const { error: roleError } = await supabase
           .from('user_roles')
@@ -156,6 +186,53 @@ const SuperAdminUserManagement = () => {
             description: "User created but role assignment failed. Please assign role manually.",
             variant: "destructive"
           });
+        }
+
+        // If this is an admission agent, create agent profile with unique 6-digit code
+        if (newUser.role === 'admission_agent') {
+          const agentCode = await generateAgentCode();
+          
+          const { error: agentError } = await supabase
+            .from('agent_profiles')
+            .insert({
+              user_id: authData.user.id,
+              agent_id: agentCode,
+              contact_info: {
+                email: newUser.email,
+                phone: newUser.phone || '',
+                address: ''
+              },
+              kyc_status: 'pending',
+              commission_rate: 10,
+              total_earnings: 0,
+              preferred_currency: 'USD'
+            });
+
+          if (agentError) {
+            console.error('Agent profile creation error:', agentError);
+            toast({
+              title: "Warning",
+              description: `User created but agent profile creation failed. Agent Code: ${agentCode}`,
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: `Admission Agent created with code: ${agentCode}`,
+            });
+            setNewUser({
+              email: '',
+              password: '',
+              full_name: '',
+              role: 'student',
+              department: '',
+              phone: '',
+              permissions: []
+            });
+            setIsCreateDialogOpen(false);
+            await fetchUsers();
+            return;
+          }
         }
       }
 

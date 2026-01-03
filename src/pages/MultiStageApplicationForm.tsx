@@ -141,6 +141,8 @@ const MultiStageApplicationForm = () => {
   const [loading, setLoading] = useState(false);
   const [courses, setCourses] = useState<Course[]>([]);
   const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
+  const [agentCodeValid, setAgentCodeValid] = useState<boolean | null>(null);
+  const [validatedAgentId, setValidatedAgentId] = useState<string | null>(null);
 
   // Form state
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
@@ -254,6 +256,29 @@ const MultiStageApplicationForm = () => {
 
     if (!error && data) {
       setCourses(data);
+    }
+  };
+
+  // Validate agent code in real-time
+  const validateAgentCode = async (code: string) => {
+    if (!code || code.length < 6) {
+      setAgentCodeValid(null);
+      setValidatedAgentId(null);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('agent_profiles')
+      .select('id, agent_id')
+      .eq('agent_id', code.toUpperCase())
+      .maybeSingle();
+
+    if (!error && data) {
+      setAgentCodeValid(true);
+      setValidatedAgentId(data.id);
+    } else {
+      setAgentCodeValid(false);
+      setValidatedAgentId(null);
     }
   };
 
@@ -377,6 +402,7 @@ const MultiStageApplicationForm = () => {
         course_id: academicInfo.courseId || null,
         program: academicInfo.intendedMajor || academicInfo.programType,
         status: 'submitted',
+        agent_id: validatedAgentId, // Link to agent if valid code was entered
         application_data: JSON.parse(JSON.stringify({
           personalInfo: {
             ...personalInfo,
@@ -393,6 +419,7 @@ const MultiStageApplicationForm = () => {
             reference: paymentInfo.transactionReference,
           },
           documents: uploadedDocs,
+          agentCode: addressInfo.agentCode || null,
         })),
         previous_education: JSON.parse(JSON.stringify({
           highSchool: {
@@ -464,7 +491,12 @@ const MultiStageApplicationForm = () => {
       case 1:
         return <PersonalInfoStep data={personalInfo} setData={setPersonalInfo} />;
       case 2:
-        return <AddressInfoStep data={addressInfo} setData={setAddressInfo} />;
+        return <AddressInfoStep 
+          data={addressInfo} 
+          setData={setAddressInfo} 
+          validateAgentCode={validateAgentCode}
+          agentCodeValid={agentCodeValid}
+        />;
       case 3:
         return <AcademicInfoStep data={academicInfo} setData={setAcademicInfo} courses={courses} />;
       case 4:
@@ -787,7 +819,12 @@ const PersonalInfoStep: React.FC<{ data: PersonalInfo; setData: (data: PersonalI
 };
 
 // Step 2: Address & Background
-const AddressInfoStep: React.FC<{ data: AddressInfo; setData: (data: AddressInfo) => void }> = ({ data, setData }) => {
+const AddressInfoStep: React.FC<{ 
+  data: AddressInfo; 
+  setData: (data: AddressInfo) => void;
+  validateAgentCode: (code: string) => void;
+  agentCodeValid: boolean | null;
+}> = ({ data, setData, validateAgentCode, agentCodeValid }) => {
   const handleSameAddress = (checked: boolean) => {
     if (checked) {
       setData({
@@ -991,14 +1028,27 @@ const AddressInfoStep: React.FC<{ data: AddressInfo; setData: (data: AddressInfo
         </div>
         <div>
           <Label>Admission Agent Code (Optional)</Label>
-          <Input
-            value={data.agentCode}
-            onChange={(e) => setData({ ...data, agentCode: e.target.value })}
-            placeholder="8-10 character code"
-            maxLength={10}
-          />
+          <div className="relative">
+            <Input
+              value={data.agentCode}
+              onChange={(e) => {
+                const code = e.target.value.toUpperCase();
+                setData({ ...data, agentCode: code });
+                validateAgentCode(code);
+              }}
+              placeholder="6-digit agent code"
+              maxLength={6}
+              className={agentCodeValid === true ? 'border-green-500' : agentCodeValid === false ? 'border-destructive' : ''}
+            />
+            {agentCodeValid === true && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 text-sm">✓ Valid</span>
+            )}
+            {agentCodeValid === false && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-destructive text-sm">✗ Invalid</span>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Enter if referred by an agent
+            Enter if referred by an agent (6-character code)
           </p>
         </div>
       </div>
