@@ -70,22 +70,50 @@ const AgentProfile = () => {
     }
   };
 
+  // Generate unique 6-digit agent code
+  const generateAgentCode = async (): Promise<string> => {
+    let code: string;
+    let isUnique = false;
+    
+    while (!isUnique) {
+      // Generate 6-digit alphanumeric code
+      code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      // Check if code exists
+      const { data } = await supabase
+        .from('agent_profiles')
+        .select('agent_id')
+        .eq('agent_id', code)
+        .maybeSingle();
+      
+      if (!data) {
+        isUnique = true;
+      }
+    }
+    
+    return code!;
+  };
+
   const createAgentProfile = async () => {
     if (!user) return;
 
     try {
-      const agentId = `AGT${new Date().getFullYear()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+      const agentCode = await generateAgentCode();
       
       const { data, error } = await supabase
         .from('agent_profiles')
         .insert({
           user_id: user.user_id,
-          agent_id: agentId,
+          agent_id: agentCode,
           contact_info: {
             email: user.email || '',
             phone: '',
             address: ''
-          }
+          },
+          kyc_status: 'pending',
+          commission_rate: 10,
+          total_earnings: 0,
+          preferred_currency: 'USD'
         })
         .select()
         .single();
@@ -173,8 +201,23 @@ const AgentProfile = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>Agent ID</Label>
-                  <Input value={profile.agent_id} disabled className="font-mono" />
+                  <Label>Your Agent Code</Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Input value={profile.agent_id} disabled className="font-mono text-lg font-bold tracking-widest" />
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(profile.agent_id);
+                        toast({ title: "Copied!", description: "Agent code copied to clipboard" });
+                      }}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Share this 6-digit code with students to track referrals
+                  </p>
                 </div>
                 <div>
                   <Label>Full Name</Label>
