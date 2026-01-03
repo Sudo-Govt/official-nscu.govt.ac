@@ -44,14 +44,20 @@ const SuperAdminUserManagement = () => {
   const [newPassword, setNewPassword] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // Protected email that cannot be deleted
-  const PROTECTED_EMAIL = 'sudo@govt.ac';
   const { toast } = useToast();
 
   useEffect(() => {
     fetchUsers();
+    void loadCurrentUser();
   }, []);
+
+  const loadCurrentUser = async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) return;
+    setCurrentUserId(data.user?.id ?? null);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -453,38 +459,36 @@ const SuperAdminUserManagement = () => {
   };
 
   const deleteUser = async (user: UserProfile) => {
+    if (user.user_id === currentUserId) {
+      toast({
+        title: "Error",
+        description: "You cannot delete your own account",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsDeletingUser(true);
-    
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        throw new Error('No active session');
-      }
+      const { error } = await supabase.functions.invoke('admin-delete-user', {
+        body: {
+          userId: user.user_id,
+        },
+      });
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-delete-user`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({
-            userId: user.user_id
-          })
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete user');
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to delete user",
+          variant: "destructive",
+        });
+        return;
       }
 
       toast({
         title: "Success",
-        description: "User deleted successfully"
+        description: "User deleted successfully",
       });
 
       await fetchUsers();
@@ -493,7 +497,7 @@ const SuperAdminUserManagement = () => {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to delete user",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsDeletingUser(false);
@@ -732,8 +736,8 @@ const SuperAdminUserManagement = () => {
                   Edit
                 </Button>
                 
-                {/* Delete button - hidden for protected users */}
-                {user.email !== PROTECTED_EMAIL && user.full_name !== 'Rajvardhan' && (
+                {/* Delete button - hidden for the current (logged-in) user */}
+                {currentUserId && user.user_id !== currentUserId && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button 
