@@ -1,18 +1,37 @@
-
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import PageLayout from '@/components/PageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Search, Filter, Calendar } from 'lucide-react';
+import { BookOpen, Search, Filter, Calendar, GraduationCap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-
+import { supabase } from '@/integrations/supabase/client';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useSEO } from '@/hooks/useSEO';
 
+interface Course {
+  id: string;
+  course_code: string;
+  course_name: string;
+  degree_type: string;
+  college: string;
+  department: string | null;
+  duration_years: number;
+  credit_hours: number | null;
+  eligibility_criteria: string | null;
+  description: string | null;
+  slug: string | null;
+  is_active: boolean;
+}
+
 const CourseCatalog = () => {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string>('All Levels');
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
+
   useSEO({
     title: "Course Catalog - NSCU Belize Academic Courses & Programs",
     description: "Browse NSCU Belize comprehensive course catalog. Find undergraduate and graduate courses across all departments with detailed descriptions, prerequisites, and schedules.",
@@ -23,128 +42,51 @@ const CourseCatalog = () => {
       "@type": "ItemList",
       "name": "NSCU Course Catalog",
       "description": "Complete catalog of academic courses offered at New States Continental University",
-      "numberOfItems": "507",
-      "itemListElement": [
-        {
-          "@type": "Course",
-          "name": "Computer Science Courses",
-          "description": "Comprehensive computer science curriculum",
-          "provider": {
-            "@type": "University",
-            "name": "New States Continental University"
-          }
-        },
-        {
-          "@type": "Course", 
-          "name": "Business Administration Courses",
-          "description": "Business and management course offerings",
-          "provider": {
-            "@type": "University",
-            "name": "New States Continental University"
-          }
-        }
-      ]
+      "numberOfItems": courses.length.toString(),
     }
   });
 
-  const departments = [
-    { code: "ACCT", name: "Accounting", courses: 45 },
-    { code: "BIOL", name: "Biology", courses: 68 },
-    { code: "CHEM", name: "Chemistry", courses: 52 },
-    { code: "COMP", name: "Computer Science", courses: 78 },
-    { code: "ECON", name: "Economics", courses: 38 },
-    { code: "ENGL", name: "English", courses: 85 },
-    { code: "HIST", name: "History", courses: 64 },
-    { code: "MATH", name: "Mathematics", courses: 72 },
-    { code: "PHYS", name: "Physics", courses: 48 },
-    { code: "PSYC", name: "Psychology", courses: 56 }
-  ];
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('is_active', true)
+          .order('course_name');
 
-  const sampleCourses = [
-    {
-      code: "COMP 1010",
-      title: "Introduction to Computer Science",
-      credits: 3,
-      description: "Fundamental concepts of computer science including programming, algorithms, and data structures.",
-      prerequisites: "None",
-      level: "Undergraduate",
-      department: "COMP"
-    },
-    {
-      code: "BIOL 2540",
-      title: "Genetics",
-      credits: 4,
-      description: "Principles of heredity, molecular genetics, and biotechnology applications.",
-      prerequisites: "BIOL 1010, BIOL 1020",
-      level: "Undergraduate",
-      department: "BIOL"
-    },
-    {
-      code: "HIST 3200",
-      title: "Modern European History",
-      credits: 3,
-      description: "European political, social, and cultural developments from 1789 to present.",
-      prerequisites: "6 hours of HIST or consent",
-      level: "Undergraduate",
-      department: "HIST"
-    },
-    {
-      code: "PSYC 6800",
-      title: "Advanced Research Methods",
-      credits: 3,
-      description: "Advanced statistical techniques and research design in psychological research.",
-      prerequisites: "PSYC 3800, Graduate standing",
-      level: "Graduate",
-      department: "PSYC"
-    },
-    {
-      code: "ACCT 2010",
-      title: "Financial Accounting",
-      credits: 3,
-      description: "Introduction to financial accounting principles and practices.",
-      prerequisites: "None",
-      level: "Undergraduate",
-      department: "ACCT"
-    },
-    {
-      code: "MATH 3100",
-      title: "Linear Algebra",
-      credits: 3,
-      description: "Vector spaces, linear transformations, matrices, and eigenvalues.",
-      prerequisites: "MATH 1020",
-      level: "Undergraduate",
-      department: "MATH"
-    },
-    {
-      code: "ENGL 1010",
-      title: "Composition I",
-      credits: 3,
-      description: "Academic writing with emphasis on critical thinking and research.",
-      prerequisites: "None",
-      level: "Undergraduate",
-      department: "ENGL"
-    },
-    {
-      code: "CHEM 5200",
-      title: "Organic Chemistry II",
-      credits: 4,
-      description: "Advanced organic chemistry reactions and mechanisms.",
-      prerequisites: "CHEM 5100, Graduate standing",
-      level: "Graduate",
-      department: "CHEM"
-    }
-  ];
+        if (error) throw error;
+        setCourses(data || []);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  // Get unique departments/colleges for filtering
+  const departments = [...new Set(courses.map(c => c.college))].map(college => ({
+    code: college,
+    name: college,
+    courses: courses.filter(c => c.college === college).length
+  }));
 
   // Filter courses based on search, level, and department
-  const filteredCourses = sampleCourses.filter(course => {
+  const filteredCourses = courses.filter(course => {
     const matchesSearch = searchQuery === '' || 
-      course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.description.toLowerCase().includes(searchQuery.toLowerCase());
+      course.course_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      course.course_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (course.description || '').toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesLevel = selectedLevel === 'All Levels' || course.level === selectedLevel;
+    const level = ['Bachelor', 'Diploma', 'Certificate'].includes(course.degree_type) 
+      ? 'Undergraduate' 
+      : 'Graduate';
+    const matchesLevel = selectedLevel === 'All Levels' || level === selectedLevel;
     
-    const matchesDepartment = !selectedDepartment || course.department === selectedDepartment;
+    const matchesDepartment = !selectedDepartment || course.college === selectedDepartment;
     
     return matchesSearch && matchesLevel && matchesDepartment;
   });
@@ -206,7 +148,7 @@ const CourseCatalog = () => {
               </div>
               {(searchQuery || selectedLevel !== 'All Levels' || selectedDepartment) && (
                 <div className="mt-4 text-sm text-muted-foreground">
-                  Showing {filteredCourses.length} of {sampleCourses.length} courses
+                  Showing {filteredCourses.length} of {courses.length} courses
                   {selectedDepartment && ` in ${selectedDepartment}`}
                 </div>
               )}
@@ -228,36 +170,49 @@ const CourseCatalog = () => {
               </Button>
             )}
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {departments.map((dept, index) => (
-              <Card 
-                key={index} 
-                className={`hover:shadow-lg transition-all cursor-pointer ${
-                  selectedDepartment === dept.code ? 'ring-2 ring-primary shadow-lg' : ''
-                }`}
-                onClick={() => setSelectedDepartment(selectedDepartment === dept.code ? null : dept.code)}
-              >
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{dept.code}</CardTitle>
-                  <CardDescription className="text-sm">{dept.name}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <span className="text-2xl font-bold text-primary">{dept.courses}</span>
-                    <p className="text-xs text-muted-foreground">courses</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {loading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-32" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {departments.map((dept, index) => (
+                <Card 
+                  key={index} 
+                  className={`hover:shadow-lg transition-all cursor-pointer ${
+                    selectedDepartment === dept.code ? 'ring-2 ring-primary shadow-lg' : ''
+                  }`}
+                  onClick={() => setSelectedDepartment(selectedDepartment === dept.code ? null : dept.code)}
+                >
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg truncate">{dept.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center">
+                      <span className="text-2xl font-bold text-primary">{dept.courses}</span>
+                      <p className="text-xs text-muted-foreground">programs</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Sample Course Listings */}
+        {/* Course Listings */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold mb-6">
-            {selectedDepartment || searchQuery || selectedLevel !== 'All Levels' ? 'Filtered Courses' : 'Featured Courses'}
+            {selectedDepartment || searchQuery || selectedLevel !== 'All Levels' ? 'Filtered Programs' : 'All Programs'}
           </h2>
-          {filteredCourses.length === 0 ? (
+          {loading ? (
+            <div className="space-y-6">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-40" />
+              ))}
+            </div>
+          ) : filteredCourses.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <p className="text-muted-foreground">No courses found matching your criteria.</p>
@@ -276,58 +231,72 @@ const CourseCatalog = () => {
             </Card>
           ) : (
             <div className="space-y-6">
-              {filteredCourses.map((course, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl">{course.code}: {course.title}</CardTitle>
-                      <CardDescription className="mt-2">{course.description}</CardDescription>
+              {filteredCourses.map((course) => (
+                <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-xl flex items-center gap-2">
+                          <GraduationCap className="h-5 w-5 text-primary" />
+                          {course.degree_type} in {course.course_name}
+                        </CardTitle>
+                        <CardDescription className="mt-2">
+                          {course.description || `${course.degree_type} program offered by ${course.college}.`}
+                        </CardDescription>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant={['Master', 'PhD'].includes(course.degree_type) ? "default" : "secondary"}>
+                          {course.degree_type}
+                        </Badge>
+                        <p className="text-sm text-muted-foreground mt-1">{course.duration_years} years</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <Badge variant={course.level === "Graduate" ? "default" : "secondary"}>
-                        {course.level}
-                      </Badge>
-                      <p className="text-sm text-gray-600 mt-1">{course.credits} credits</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-4 text-sm text-muted-foreground">
+                        <span>{course.course_code}</span>
+                        <span>{course.credit_hours ? `${course.credit_hours} credits` : ''}</span>
+                        <span>{course.college}</span>
+                      </div>
+                      {course.slug ? (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to={`/programs/${course.slug}`}>View Details</Link>
+                        </Button>
+                      ) : (
+                        <Button variant="outline" size="sm" disabled>
+                          View Details
+                        </Button>
+                      )}
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-sm font-medium">Prerequisites: </span>
-                      <span className="text-sm text-gray-600">{course.prerequisites}</span>
-                    </div>
-                    <Button variant="outline" size="sm">View Details</Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
         </div>
 
         {/* Catalog Information */}
-        <div className="bg-gray-50 rounded-lg p-8">
+        <div className="bg-muted rounded-lg p-8">
           <h2 className="text-3xl font-bold mb-6">Catalog Information</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
-              <BookOpen className="h-12 w-12 mx-auto mb-3 text-uw-purple" />
-              <h3 className="font-semibold mb-2">Total Courses</h3>
-              <p className="text-2xl font-bold text-uw-purple">1,850+</p>
-              <p className="text-sm text-gray-600">Across all disciplines</p>
+              <BookOpen className="h-12 w-12 mx-auto mb-3 text-primary" />
+              <h3 className="font-semibold mb-2">Total Programs</h3>
+              <p className="text-2xl font-bold text-primary">{courses.length}</p>
+              <p className="text-sm text-muted-foreground">Across all disciplines</p>
             </div>
             <div className="text-center">
-              <Calendar className="h-12 w-12 mx-auto mb-3 text-uw-purple" />
+              <Calendar className="h-12 w-12 mx-auto mb-3 text-primary" />
               <h3 className="font-semibold mb-2">Academic Year</h3>
-              <p className="text-2xl font-bold text-uw-purple">2024-25</p>
-              <p className="text-sm text-gray-600">Current catalog edition</p>
+              <p className="text-2xl font-bold text-primary">2025-26</p>
+              <p className="text-sm text-muted-foreground">Current catalog edition</p>
             </div>
             <div className="text-center">
-              <Filter className="h-12 w-12 mx-auto mb-3 text-uw-purple" />
+              <Filter className="h-12 w-12 mx-auto mb-3 text-primary" />
               <h3 className="font-semibold mb-2">Last Updated</h3>
-              <p className="text-2xl font-bold text-uw-purple">Dec 2024</p>
-              <p className="text-sm text-gray-600">Course information updated</p>
+              <p className="text-2xl font-bold text-primary">Jan 2026</p>
+              <p className="text-sm text-muted-foreground">Course information updated</p>
             </div>
           </div>
         </div>

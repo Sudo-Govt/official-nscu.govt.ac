@@ -159,6 +159,7 @@ import BachelorPharmacy from "./pages/programs/BachelorPharmacy";
 import DoctorPharmacy from "./pages/programs/DoctorPharmacy";
 import MasterPharmacy from "./pages/programs/MasterPharmacy";
 import MasterMedicine from "./pages/programs/MasterMedicine";
+import DynamicCoursePage from "./pages/programs/DynamicCoursePage";
 
 const queryClient = new QueryClient();
 
@@ -225,6 +226,7 @@ const App = () => (
           <Route path="/programs/doctor-pharmacy" element={<DoctorPharmacy />} />
           <Route path="/programs/master-pharmacy" element={<MasterPharmacy />} />
           <Route path="/programs/master-medicine" element={<MasterMedicine />} />
+          <Route path="/programs/:slug" element={<DynamicCoursePage />} />
           
           {/* Admissions Routes */}
           <Route path="/admissions/undergraduate" element={<UndergraduateAdmissions />} />

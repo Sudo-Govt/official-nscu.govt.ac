@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Search, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -21,12 +21,46 @@ import { cn } from '@/lib/utils';
 import SearchDialog from './SearchDialog';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+interface FeaturedCourse {
+  title: string;
+  href: string;
+}
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [featuredPrograms, setFeaturedPrograms] = useState<FeaturedCourse[]>([]);
   const { user, logout } = useAuth();
 
+  useEffect(() => {
+    const fetchFeaturedCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('course_name, degree_type, slug')
+          .eq('is_active', true)
+          .eq('featured', true)
+          .order('course_name')
+          .limit(6);
+
+        if (error) throw error;
+
+        const courses = (data || [])
+          .filter(course => course.slug)
+          .map(course => ({
+            title: `${course.degree_type} in ${course.course_name}`,
+            href: `/programs/${course.slug}`
+          }));
+
+        setFeaturedPrograms(courses);
+      } catch (error) {
+        console.error('Error fetching featured courses:', error);
+      }
+    };
+
+    fetchFeaturedCourses();
+  }, []);
   const menuData = [
     {
       title: "About NSCU",
@@ -59,12 +93,10 @@ const Header = () => {
           ]
         },
         {
-          title: "Global Campuses",
-          items: [
-            {title: "Full-Fledged Colleges", href: "/colleges/full-fledged"},
-            {title: "Offshore Colleges", href: "/colleges/offshore"},
-            {title: "Study Centers", href: "/colleges/study-centers"}
-          ]
+          title: "Featured Programs",
+          items: featuredPrograms.length > 0 
+            ? [...featuredPrograms, {title: "View All Programs", href: "/academics/course-catalog"}]
+            : [{title: "View All Programs", href: "/academics/course-catalog"}]
         },
         {
           title: "Academic Resources",
