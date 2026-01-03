@@ -15,7 +15,7 @@ import { Search, Bell, LogOut, Settings, User, ChevronDown } from 'lucide-react'
 interface ModernDashboardLayoutProps {
   children: React.ReactNode;
   title?: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
   notificationCount?: number;
 }
 

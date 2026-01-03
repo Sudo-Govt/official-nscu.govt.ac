@@ -1643,6 +1643,7 @@ export type Database = {
           address: string | null
           cgpa: number | null
           city: string | null
+          course_id: string | null
           course_name: string | null
           created_at: string | null
           dob: string | null
@@ -1659,6 +1660,7 @@ export type Database = {
           state: string | null
           status: string | null
           student_id: string
+          student_type: string | null
           updated_at: string | null
           user_id: string
         }
@@ -1666,6 +1668,7 @@ export type Database = {
           address?: string | null
           cgpa?: number | null
           city?: string | null
+          course_id?: string | null
           course_name?: string | null
           created_at?: string | null
           dob?: string | null
@@ -1682,6 +1685,7 @@ export type Database = {
           state?: string | null
           status?: string | null
           student_id: string
+          student_type?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -1689,6 +1693,7 @@ export type Database = {
           address?: string | null
           cgpa?: number | null
           city?: string | null
+          course_id?: string | null
           course_name?: string | null
           created_at?: string | null
           dob?: string | null
@@ -1705,10 +1710,19 @@ export type Database = {
           state?: string | null
           status?: string | null
           student_id?: string
+          student_type?: string | null
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "students_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_presence: {
         Row: {
