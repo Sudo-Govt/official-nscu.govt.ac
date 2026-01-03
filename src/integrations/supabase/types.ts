@@ -822,54 +822,81 @@ export type Database = {
       }
       courses: {
         Row: {
+          application_deadline: string | null
           available_seats: number
+          brochure_url: string | null
+          career_outcomes: Json | null
           college: string
           course_code: string
           course_name: string
           created_at: string | null
           credit_hours: number
+          curriculum_data: Json | null
           degree_type: string
           department: string
+          description: string | null
           duration_years: number
           eligibility_criteria: string | null
+          faculty_info: Json | null
+          featured: boolean | null
           fee_structure: Json | null
           id: string
           is_active: boolean | null
+          reference_books: Json | null
           seat_capacity: number
+          slug: string | null
           updated_at: string | null
         }
         Insert: {
+          application_deadline?: string | null
           available_seats: number
+          brochure_url?: string | null
+          career_outcomes?: Json | null
           college: string
           course_code: string
           course_name: string
           created_at?: string | null
           credit_hours: number
+          curriculum_data?: Json | null
           degree_type: string
           department: string
+          description?: string | null
           duration_years: number
           eligibility_criteria?: string | null
+          faculty_info?: Json | null
+          featured?: boolean | null
           fee_structure?: Json | null
           id?: string
           is_active?: boolean | null
+          reference_books?: Json | null
           seat_capacity: number
+          slug?: string | null
           updated_at?: string | null
         }
         Update: {
+          application_deadline?: string | null
           available_seats?: number
+          brochure_url?: string | null
+          career_outcomes?: Json | null
           college?: string
           course_code?: string
           course_name?: string
           created_at?: string | null
           credit_hours?: number
+          curriculum_data?: Json | null
           degree_type?: string
           department?: string
+          description?: string | null
           duration_years?: number
           eligibility_criteria?: string | null
+          faculty_info?: Json | null
+          featured?: boolean | null
           fee_structure?: Json | null
           id?: string
           is_active?: boolean | null
+          reference_books?: Json | null
           seat_capacity?: number
+          slug?: string | null
           updated_at?: string | null
         }
         Relationships: []
