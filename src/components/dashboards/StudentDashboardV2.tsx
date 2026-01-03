@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import ModernDashboardLayout from './ModernDashboardLayout';
 import StatCard from '@/components/dashboard/StatCard';
 import QuickActions from '@/components/dashboard/QuickActions';
@@ -11,122 +12,238 @@ import FinancialOverview from '@/components/dashboard/FinancialOverview';
 import DegreeProgress from '@/components/dashboard/DegreeProgress';
 import CalendarWidget from '@/components/dashboard/CalendarWidget';
 import NotificationsPanel from '@/components/dashboard/NotificationsPanel';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, BookOpen, ClipboardList, Award } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+interface StudentData {
+  id: string;
+  student_id: string;
+  name: string;
+  course_name: string;
+  course_id: string | null;
+  program: string;
+  specialization: string;
+  enrollment_year: number;
+  student_type: 'current' | 'alumni';
+  cgpa: number;
+  status: string;
+}
+
+interface CourseInfo {
+  id: string;
+  course_name: string;
+  course_code: string;
+  college: string;
+  department: string;
+  degree_type: string;
+  duration_years: number;
+  credit_hours: number;
+}
 
 const StudentDashboardV2 = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [studentData, setStudentData] = useState<StudentData | null>(null);
+  const [courseInfo, setCourseInfo] = useState<CourseInfo | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - in production, this would come from Supabase
+  useEffect(() => {
+    if (user?.id) {
+      fetchStudentData();
+    }
+  }, [user?.id]);
+
+  const fetchStudentData = async () => {
+    try {
+      // Fetch student record
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('*')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (studentError) {
+        console.error('Error fetching student:', studentError);
+      }
+
+      if (student) {
+        setStudentData(student as StudentData);
+        
+        // Fetch course details if course_id exists
+        if (student.course_id) {
+          const { data: course, error: courseError } = await supabase
+            .from('courses')
+            .select('*')
+            .eq('id', student.course_id)
+            .maybeSingle();
+
+          if (!courseError && course) {
+            setCourseInfo(course as CourseInfo);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isAlumni = studentData?.student_type === 'alumni';
+
+  // Course-specific mock data (in production, filter based on course_id)
   const stats = {
     currentSemester: 'Fall 2026',
     weekOfSemester: 8,
     totalWeeks: 16,
     enrolledCourses: 5,
-    totalCredits: 15,
-    pendingAssignments: 3,
-    dueThisWeek: 2,
-    cumulativeGPA: 3.67,
+    totalCredits: courseInfo?.credit_hours || 15,
+    pendingAssignments: isAlumni ? 0 : 3,
+    dueThisWeek: isAlumni ? 0 : 2,
+    cumulativeGPA: studentData?.cgpa || 3.67,
   };
 
-  const courses = [
-    {
-      code: 'CS 301',
-      name: 'Data Structures & Algorithms',
-      credits: 3,
-      professor: 'Dr. Smith',
-      progress: 65,
-      nextClass: 'Mon 10:00 AM',
-    },
-    {
-      code: 'MATH 201',
-      name: 'Linear Algebra',
-      credits: 4,
-      professor: 'Dr. Johnson',
-      progress: 72,
-      nextClass: 'Tue 2:00 PM',
-    },
-    {
-      code: 'ENG 102',
-      name: 'Technical Writing',
-      credits: 3,
-      professor: 'Prof. Williams',
-      progress: 80,
-      nextClass: 'Wed 11:00 AM',
-    },
-    {
-      code: 'PHYS 101',
-      name: 'Physics I',
-      credits: 4,
-      professor: 'Dr. Brown',
-      progress: 55,
-      nextClass: 'Thu 9:00 AM',
-    },
-  ];
+  // Define course type
+  type CourseItem = {
+    code: string;
+    name: string;
+    credits: number;
+    professor: string;
+    progress: number;
+    nextClass: string;
+  };
 
-  const grades = [
-    { course: 'Data Structures & Algorithms', code: 'CS 301', grade: 'A', score: 92, credits: 3 },
-    { course: 'Linear Algebra', code: 'MATH 201', grade: 'B+', score: 87, credits: 4 },
-    { course: 'Technical Writing', code: 'ENG 102', grade: 'A-', score: 90, credits: 3 },
-    { course: 'Physics I', code: 'PHYS 101', grade: 'B', score: 83, credits: 4 },
-  ];
+  // Course-specific courses (filtered by program/department)
+  const getCourseSpecificCourses = (): CourseItem[] => {
+    const department = courseInfo?.department || studentData?.program || 'General';
+    
+    const coursesByDepartment: Record<string, CourseItem[]> = {
+      'Computer Science': [
+        { code: 'CS 301', name: 'Data Structures & Algorithms', credits: 3, professor: 'Dr. Smith', progress: 65, nextClass: 'Mon 10:00 AM' },
+        { code: 'CS 302', name: 'Database Systems', credits: 3, professor: 'Dr. Johnson', progress: 72, nextClass: 'Tue 2:00 PM' },
+        { code: 'CS 401', name: 'Machine Learning', credits: 3, professor: 'Prof. Williams', progress: 80, nextClass: 'Wed 11:00 AM' },
+        { code: 'CS 350', name: 'Operating Systems', credits: 4, professor: 'Dr. Brown', progress: 55, nextClass: 'Thu 9:00 AM' },
+      ],
+      'Business Administration': [
+        { code: 'BUS 301', name: 'Strategic Management', credits: 3, professor: 'Dr. Miller', progress: 65, nextClass: 'Mon 10:00 AM' },
+        { code: 'BUS 302', name: 'Financial Accounting', credits: 3, professor: 'Dr. Davis', progress: 72, nextClass: 'Tue 2:00 PM' },
+        { code: 'BUS 401', name: 'Marketing Analytics', credits: 3, professor: 'Prof. Wilson', progress: 80, nextClass: 'Wed 11:00 AM' },
+        { code: 'BUS 350', name: 'Business Law', credits: 3, professor: 'Dr. Garcia', progress: 55, nextClass: 'Thu 9:00 AM' },
+      ],
+      'Engineering': [
+        { code: 'ENG 301', name: 'Thermodynamics', credits: 4, professor: 'Dr. Lee', progress: 65, nextClass: 'Mon 10:00 AM' },
+        { code: 'ENG 302', name: 'Fluid Mechanics', credits: 4, professor: 'Dr. Chen', progress: 72, nextClass: 'Tue 2:00 PM' },
+        { code: 'ENG 401', name: 'Control Systems', credits: 3, professor: 'Prof. Patel', progress: 80, nextClass: 'Wed 11:00 AM' },
+        { code: 'ENG 350', name: 'Materials Science', credits: 3, professor: 'Dr. Kim', progress: 55, nextClass: 'Thu 9:00 AM' },
+      ],
+    };
 
-  const assignments = [
+    return coursesByDepartment[department] || [
+      { code: 'GEN 301', name: 'Core Subject 1', credits: 3, professor: 'Dr. Smith', progress: 65, nextClass: 'Mon 10:00 AM' },
+      { code: 'GEN 302', name: 'Core Subject 2', credits: 3, professor: 'Dr. Johnson', progress: 72, nextClass: 'Tue 2:00 PM' },
+      { code: 'GEN 401', name: 'Advanced Topic', credits: 3, professor: 'Prof. Williams', progress: 80, nextClass: 'Wed 11:00 AM' },
+      { code: 'GEN 350', name: 'Elective Course', credits: 3, professor: 'Dr. Brown', progress: 55, nextClass: 'Thu 9:00 AM' },
+    ];
+  };
+
+  const courses = getCourseSpecificCourses();
+
+  // Course-specific library resources
+  const getLibraryResources = () => {
+    const department = courseInfo?.department || studentData?.program || 'General';
+    
+    const libraryByDepartment: Record<string, { title: string; type: string; available: boolean }[]> = {
+      'Computer Science': [
+        { title: 'Introduction to Algorithms (CLRS)', type: 'Textbook', available: true },
+        { title: 'Clean Code by Robert Martin', type: 'Reference', available: true },
+        { title: 'Design Patterns: Elements of Reusable OO Software', type: 'Reference', available: false },
+        { title: 'IEEE Digital Library Access', type: 'Database', available: true },
+      ],
+      'Business Administration': [
+        { title: 'Principles of Corporate Finance', type: 'Textbook', available: true },
+        { title: 'Good to Great by Jim Collins', type: 'Reference', available: true },
+        { title: 'Harvard Business Review Collection', type: 'Journal', available: true },
+        { title: 'Bloomberg Terminal Access', type: 'Database', available: false },
+      ],
+      'Engineering': [
+        { title: 'Engineering Mechanics: Statics', type: 'Textbook', available: true },
+        { title: 'Fundamentals of Thermodynamics', type: 'Textbook', available: true },
+        { title: 'ASME Digital Collection', type: 'Journal', available: true },
+        { title: 'MATLAB Software License', type: 'Software', available: true },
+      ],
+    };
+
+    return libraryByDepartment[department] || [
+      { title: 'General Reference Book 1', type: 'Textbook', available: true },
+      { title: 'Academic Journal Access', type: 'Journal', available: true },
+      { title: 'Research Database', type: 'Database', available: true },
+    ];
+  };
+
+  const grades = courses.map((course, i) => ({
+    course: course.name,
+    code: course.code,
+    grade: ['A', 'B+', 'A-', 'B'][i % 4],
+    score: [92, 87, 90, 83][i % 4],
+    credits: course.credits,
+  }));
+
+  const assignments = isAlumni ? [] : [
     {
       id: '1',
-      title: 'Algorithm Analysis Report',
-      course: 'CS 301',
+      title: `${courses[0]?.code || 'CS 301'} - Analysis Report`,
+      course: courses[0]?.code || 'CS 301',
       dueDate: 'Tomorrow, 11:59 PM',
       priority: 'high' as const,
       status: 'pending' as const,
     },
     {
       id: '2',
-      title: 'Matrix Operations Problem Set',
-      course: 'MATH 201',
+      title: `${courses[1]?.code || 'CS 302'} - Problem Set`,
+      course: courses[1]?.code || 'CS 302',
       dueDate: 'Jan 5, 2026',
       priority: 'medium' as const,
       status: 'pending' as const,
     },
     {
       id: '3',
-      title: 'Lab Report: Mechanics',
-      course: 'PHYS 101',
+      title: `${courses[2]?.code || 'CS 401'} - Lab Report`,
+      course: courses[2]?.code || 'CS 401',
       dueDate: 'Jan 7, 2026',
       priority: 'medium' as const,
       status: 'submitted' as const,
     },
   ];
 
-  const schedule = [
-    { id: '1', title: 'CS 301 - Lecture', time: '10:00 AM - 11:30 AM', type: 'class' as const, location: 'Room 201' },
-    { id: '2', title: 'Study Group - Algorithms', time: '2:00 PM - 3:30 PM', type: 'meeting' as const, location: 'Library' },
-    { id: '3', title: 'Office Hours - Dr. Smith', time: '4:00 PM - 5:00 PM', type: 'meeting' as const, location: 'CS Building' },
+  const schedule = isAlumni ? [] : [
+    { id: '1', title: `${courses[0]?.code} - Lecture`, time: '10:00 AM - 11:30 AM', type: 'class' as const, location: 'Room 201' },
+    { id: '2', title: 'Study Group', time: '2:00 PM - 3:30 PM', type: 'meeting' as const, location: 'Library' },
+    { id: '3', title: 'Office Hours', time: '4:00 PM - 5:00 PM', type: 'meeting' as const, location: 'Faculty Building' },
   ];
 
   const notifications = [
     {
       id: '1',
-      title: 'Assignment Due',
-      message: 'Algorithm Analysis Report is due tomorrow at 11:59 PM',
-      type: 'warning' as const,
+      title: isAlumni ? 'Alumni Event' : 'Assignment Due',
+      message: isAlumni ? 'Annual alumni meetup scheduled for next month' : `${courses[0]?.name} report due tomorrow`,
+      type: isAlumni ? 'info' as const : 'warning' as const,
       time: '2 hours ago',
       isRead: false,
     },
     {
       id: '2',
-      title: 'Grade Posted',
-      message: 'Your grade for PHYS 101 Quiz 3 has been posted',
+      title: isAlumni ? 'Job Opportunity' : 'Grade Posted',
+      message: isAlumni ? 'New job posting matching your profile' : `Your grade for ${courses[1]?.code} has been posted`,
       type: 'success' as const,
       time: '5 hours ago',
       isRead: false,
     },
     {
       id: '3',
-      title: 'Course Announcement',
-      message: 'MATH 201 class cancelled for Friday',
+      title: isAlumni ? 'Network Update' : 'Course Announcement',
+      message: isAlumni ? 'A colleague from your batch is now connected' : `${courses[2]?.code} class cancelled for Friday`,
       type: 'info' as const,
       time: '1 day ago',
       isRead: true,
@@ -147,39 +264,88 @@ const StudentDashboardV2 = () => {
     });
   };
 
+  const libraryResources = getLibraryResources();
+
   return (
     <ModernDashboardLayout
-      title="Welcome back"
-      subtitle="Here's what's happening with your academics today"
+      title={`Welcome back${studentData?.name ? `, ${studentData.name.split(' ')[0]}` : ''}`}
+      subtitle={
+        <div className="flex items-center gap-2">
+          <span>
+            {isAlumni 
+              ? `Alumni - Class of ${studentData?.enrollment_year || 'N/A'}`
+              : `${studentData?.program || 'Student'} - ${courseInfo?.college || 'University'}`
+            }
+          </span>
+          <Badge variant={isAlumni ? 'secondary' : 'default'}>
+            {isAlumni ? 'Alumni' : 'Current Student'}
+          </Badge>
+        </div>
+      }
       notificationCount={notifications.filter((n) => !n.isRead).length}
     >
       <div className="space-y-6">
+        {/* Course Info Banner */}
+        {courseInfo && (
+          <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-3">
+                  <GraduationCap className="h-8 w-8 text-primary" />
+                  <div>
+                    <h3 className="font-semibold text-lg">{courseInfo.course_name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {courseInfo.course_code} • {courseInfo.degree_type} • {courseInfo.department}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Duration:</span>{' '}
+                    <span className="font-medium">{courseInfo.duration_years} years</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Credits:</span>{' '}
+                    <span className="font-medium">{courseInfo.credit_hours}</span>
+                  </div>
+                  {studentData?.specialization && (
+                    <div>
+                      <span className="text-muted-foreground">Specialization:</span>{' '}
+                      <span className="font-medium">{studentData.specialization}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            title="Current Semester"
-            value={stats.currentSemester}
-            subtitle={`Week ${stats.weekOfSemester} of ${stats.totalWeeks}`}
+            title={isAlumni ? "Graduation Year" : "Current Semester"}
+            value={isAlumni ? (studentData?.enrollment_year ? studentData.enrollment_year + (courseInfo?.duration_years || 4) : 'N/A').toString() : stats.currentSemester}
+            subtitle={isAlumni ? studentData?.program : `Week ${stats.weekOfSemester} of ${stats.totalWeeks}`}
             icon={Calendar}
             variant="gold"
           />
           <StatCard
-            title="Enrolled Courses"
+            title={isAlumni ? "Completed Courses" : "Enrolled Courses"}
             value={stats.enrolledCourses}
             subtitle={`${stats.totalCredits} credits`}
             icon={BookOpen}
             trend={{ value: 12, isPositive: true }}
           />
           <StatCard
-            title="Pending Assignments"
-            value={stats.pendingAssignments}
-            subtitle={`${stats.dueThisWeek} due this week`}
-            icon={ClipboardList}
+            title={isAlumni ? "Alumni Network" : "Pending Assignments"}
+            value={isAlumni ? 1250 : stats.pendingAssignments}
+            subtitle={isAlumni ? "Connected alumni" : `${stats.dueThisWeek} due this week`}
+            icon={isAlumni ? Users : ClipboardList}
           />
           <StatCard
-            title="Cumulative GPA"
+            title={isAlumni ? "Final CGPA" : "Cumulative GPA"}
             value={stats.cumulativeGPA.toFixed(2)}
-            subtitle="Dean's List"
+            subtitle={isAlumni ? "Graduated with Honors" : "Dean's List"}
             icon={Award}
             trend={{ value: 5, isPositive: true }}
           />
@@ -195,7 +361,13 @@ const StudentDashboardV2 = () => {
             {/* My Courses */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">My Courses</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  {isAlumni ? 'Completed Courses' : 'My Courses'}
+                </CardTitle>
+                <CardDescription>
+                  {courseInfo?.department ? `${courseInfo.department} Department` : studentData?.program || 'Your enrolled courses'}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -203,6 +375,7 @@ const StudentDashboardV2 = () => {
                     <CourseCard
                       key={course.code}
                       {...course}
+                      progress={isAlumni ? 100 : course.progress}
                       onClick={() => handleCourseClick(course.code)}
                     />
                   ))}
@@ -210,8 +383,36 @@ const StudentDashboardV2 = () => {
               </CardContent>
             </Card>
 
-            {/* Assignments */}
-            <AssignmentList assignments={assignments} />
+            {/* Library Resources - Course Specific */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Library className="h-5 w-5" />
+                  Library Resources
+                </CardTitle>
+                <CardDescription>
+                  Resources for {courseInfo?.course_name || studentData?.program || 'your program'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {libraryResources.map((resource, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <p className="font-medium">{resource.title}</p>
+                        <p className="text-sm text-muted-foreground">{resource.type}</p>
+                      </div>
+                      <Badge variant={resource.available ? 'default' : 'secondary'}>
+                        {resource.available ? 'Available' : 'In Use'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Assignments - only for current students */}
+            {!isAlumni && <AssignmentList assignments={assignments} />}
 
             {/* Grades */}
             <GradeCard grades={grades} />
@@ -219,11 +420,11 @@ const StudentDashboardV2 = () => {
 
           {/* Right Column - Calendar, GPA, Notifications */}
           <div className="space-y-6">
-            <CalendarWidget date={new Date()} schedule={schedule} />
+            {!isAlumni && <CalendarWidget date={new Date()} schedule={schedule} />}
             <GPAOverview
               cumulativeGPA={stats.cumulativeGPA}
-              semesterGPA={3.72}
-              creditsEarned={96}
+              semesterGPA={isAlumni ? stats.cumulativeGPA : 3.72}
+              creditsEarned={isAlumni ? 120 : 96}
               creditsRequired={120}
               isDeansList={true}
             />
@@ -238,19 +439,21 @@ const StudentDashboardV2 = () => {
 
         {/* Bottom Row - Financial & Degree Progress */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <FinancialOverview
-            totalDue={15000}
-            amountPaid={10500}
-            dueDate="Feb 15, 2026"
-            hasFinancialAid={true}
-            mealPlanBalance={450}
-            printCredits={25}
-          />
+          {!isAlumni && (
+            <FinancialOverview
+              totalDue={15000}
+              amountPaid={10500}
+              dueDate="Feb 15, 2026"
+              hasFinancialAid={true}
+              mealPlanBalance={450}
+              printCredits={25}
+            />
+          )}
           <DegreeProgress
-            totalCreditsEarned={96}
+            totalCreditsEarned={isAlumni ? 120 : 96}
             totalCreditsRequired={120}
-            expectedGraduation="May 2027"
-            categories={degreeCategories}
+            expectedGraduation={isAlumni ? `Graduated ${(studentData?.enrollment_year || 2022) + (courseInfo?.duration_years || 4)}` : 'May 2027'}
+            categories={degreeCategories.map(cat => isAlumni ? { ...cat, earned: cat.required } : cat)}
           />
         </div>
       </div>

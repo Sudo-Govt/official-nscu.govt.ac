@@ -41,9 +41,11 @@ export const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
     father_name: '',
     mother_name: '',
     address: '',
+    course_id: '',
     course_name: '',
     specialization: '',
     enrollment_year: new Date().getFullYear().toString(),
+    student_type: 'current' as 'current' | 'alumni',
   });
 
   useEffect(() => {
@@ -110,10 +112,12 @@ export const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
           father_name: formData.father_name,
           mother_name: formData.mother_name,
           address: formData.address,
+          course_id: formData.course_id || null,
           course_name: formData.course_name,
           specialization: formData.specialization,
           enrollment_year: parseInt(formData.enrollment_year),
-          program: formData.course_name
+          program: formData.course_name,
+          student_type: formData.student_type
         }
       });
 
@@ -135,9 +139,11 @@ export const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
         father_name: '',
         mother_name: '',
         address: '',
+        course_id: '',
         course_name: '',
         specialization: '',
         enrollment_year: new Date().getFullYear().toString(),
+        student_type: 'current',
       });
 
       onOpenChange(false);
@@ -279,27 +285,60 @@ export const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
             </div>
           </div>
 
+          {/* Student Type Section */}
+          <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+            <h3 className="font-semibold text-sm uppercase text-muted-foreground">Student Status</h3>
+            <div>
+              <Label htmlFor="student_type">Student Type *</Label>
+              <Select 
+                value={formData.student_type} 
+                onValueChange={(value: 'current' | 'alumni') => setFormData({ ...formData, student_type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select student type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="current">Current Student</SelectItem>
+                  <SelectItem value="alumni">Alumni</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Select whether this is a currently enrolled student or an alumni
+              </p>
+            </div>
+          </div>
+
           {/* Academic Information Section */}
           <div className="space-y-4">
             <h3 className="font-semibold text-sm uppercase text-muted-foreground">Academic Information</h3>
             <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="course_name">Course/Program</Label>
+              <div className="md:col-span-2">
+                <Label htmlFor="course_name">Course/Program *</Label>
                 <Select 
-                  value={formData.course_name} 
-                  onValueChange={(value) => setFormData({ ...formData, course_name: value })}
+                  value={formData.course_id} 
+                  onValueChange={(value) => {
+                    const selectedCourse = courses.find(c => c.id === value);
+                    setFormData({ 
+                      ...formData, 
+                      course_id: value,
+                      course_name: selectedCourse?.course_name || ''
+                    });
+                  }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select course" />
+                    <SelectValue placeholder="Select course/program" />
                   </SelectTrigger>
                   <SelectContent>
                     {courses.map((course) => (
-                      <SelectItem key={course.id} value={course.course_name}>
-                        {course.course_name} - {course.college}
+                      <SelectItem key={course.id} value={course.id}>
+                        {course.course_code} - {course.course_name} ({course.college})
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Student's dashboard will show content specific to this course
+                </p>
               </div>
               <div>
                 <Label htmlFor="specialization">Specialization</Label>
@@ -307,6 +346,7 @@ export const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
                   id="specialization"
                   value={formData.specialization}
                   onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                  placeholder="e.g., Machine Learning, Finance"
                 />
               </div>
               <div>
@@ -319,7 +359,7 @@ export const AddStudentDialog: React.FC<AddStudentDialogProps> = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {[0, 1, 2].map((offset) => {
+                    {[-5, -4, -3, -2, -1, 0, 1, 2].map((offset) => {
                       const year = new Date().getFullYear() + offset;
                       return (
                         <SelectItem key={year} value={year.toString()}>

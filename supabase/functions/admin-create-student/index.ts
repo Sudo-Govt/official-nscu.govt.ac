@@ -53,10 +53,12 @@ serve(async (req) => {
       father_name,
       mother_name,
       address,
+      course_id,
       course_name,
       specialization,
       enrollment_year,
-      program
+      program,
+      student_type
     } = requestData;
 
     // Validate required fields
@@ -130,11 +132,13 @@ serve(async (req) => {
         father_name,
         mother_name,
         address,
+        course_id: course_id || null,
         course_name,
         specialization,
         program: program || course_name || 'General',
         enrollment_year: enrollment_year || new Date().getFullYear(),
         status: 'active',
+        student_type: student_type || 'current',
         exam_format: 'Semester',
         cgpa: 0
       })
