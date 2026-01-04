@@ -25,7 +25,11 @@ interface UserProfile {
   metadata?: any;
 }
 
-const SuperAdminUserManagement = () => {
+interface SuperAdminUserManagementProps {
+  filterRole?: string;
+}
+
+const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps) => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [newUser, setNewUser] = useState({
@@ -509,7 +513,7 @@ const SuperAdminUserManagement = () => {
     user.user_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ).filter(user => !filterRole || user.role === filterRole);
 
   const availablePermissions = [
     'view_all_applications',
@@ -530,8 +534,14 @@ const SuperAdminUserManagement = () => {
               <Users className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-2xl">User Management</CardTitle>
-              <CardDescription className="text-base">Manage system users, roles, and permissions</CardDescription>
+              <CardTitle className="text-2xl">
+                {filterRole === 'admission_agent' ? 'Agent Management' : 'User Management'}
+              </CardTitle>
+              <CardDescription className="text-base">
+                {filterRole === 'admission_agent' 
+                  ? 'Manage admission agents and their permissions' 
+                  : 'Manage system users, roles, and permissions'}
+              </CardDescription>
             </div>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
