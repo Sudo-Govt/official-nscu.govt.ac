@@ -102,6 +102,48 @@ const PageManager = () => {
     }
   };
 
+  const createNavigationItem = async (title: string, slug: string) => {
+    // Check if nav item already exists for this slug
+    const { data: existing } = await supabase
+      .from("site_navigation")
+      .select("id")
+      .eq("href", `/page/${slug}`)
+      .single();
+
+    if (existing) return; // Navigation item already exists
+
+    // Get max position for new item
+    const { data: maxPos } = await supabase
+      .from("site_navigation")
+      .select("position")
+      .order("position", { ascending: false })
+      .limit(1)
+      .single();
+
+    const { error } = await supabase.from("site_navigation").insert({
+      title,
+      href: `/page/${slug}`,
+      menu_location: "main",
+      is_active: false, // Start as hidden, admin can enable
+      position: (maxPos?.position || 0) + 1,
+    });
+
+    if (error) {
+      console.error("Failed to create navigation item:", error);
+    }
+  };
+
+  const deleteNavigationItem = async (slug: string) => {
+    const { error } = await supabase
+      .from("site_navigation")
+      .delete()
+      .eq("href", `/page/${slug}`);
+
+    if (error) {
+      console.error("Failed to delete navigation item:", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -125,7 +167,10 @@ const PageManager = () => {
       } else {
         const { error } = await supabase.from("cms_pages").insert(payload);
         if (error) throw error;
-        toast.success("Page created");
+        
+        // Auto-create navigation item for new page
+        await createNavigationItem(formData.title, payload.slug);
+        toast.success("Page and navigation item created");
       }
 
       setDialogOpen(false);
@@ -137,11 +182,18 @@ const PageManager = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this page and all its content blocks?")) return;
+    const page = pages.find((p) => p.id === id);
+    if (!confirm("Delete this page, all its content blocks, and the navigation item?")) return;
     try {
       const { error } = await supabase.from("cms_pages").delete().eq("id", id);
       if (error) throw error;
-      toast.success("Page deleted");
+      
+      // Also delete the associated navigation item
+      if (page) {
+        await deleteNavigationItem(page.slug);
+      }
+      
+      toast.success("Page and navigation item deleted");
       fetchData();
     } catch (error: any) {
       toast.error("Failed to delete: " + error.message);
