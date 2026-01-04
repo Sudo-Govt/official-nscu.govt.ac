@@ -48,6 +48,13 @@ interface Course {
   reference_books: any[];
   career_outcomes: any[];
   fee_structure: FeeStructure | null;
+  navigation_parent_id: string | null;
+}
+
+interface NavLocation {
+  id: string;
+  title: string;
+  href: string | null;
 }
 
 const COURSE_MODES = [
@@ -64,10 +71,12 @@ const CourseManagement = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [navLocations, setNavLocations] = useState<NavLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [csvUploading, setCsvUploading] = useState(false);
+  const [navigationParentId, setNavigationParentId] = useState<string>('');
 
   // Form state - Basic
   const [courseCode, setCourseCode] = useState('');
@@ -121,7 +130,27 @@ const CourseManagement = () => {
 
   useEffect(() => {
     fetchCourses();
+    fetchNavLocations();
   }, []);
+
+  const fetchNavLocations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_navigation')
+        .select('id, title, href')
+        .order('title');
+
+      if (error) throw error;
+      setNavLocations((data || []) as NavLocation[]);
+    } catch (error) {
+      console.error('Error fetching nav locations:', error);
+    }
+  };
+
+  const getDefaultNavLocationId = () => {
+    const courseCatalog = navLocations.find(n => n.href === '/academics/course-catalog');
+    return courseCatalog?.id || '';
+  };
 
   const fetchCourses = async () => {
     try {
@@ -162,6 +191,7 @@ const CourseManagement = () => {
     setCareerOutcomes('');
     setReferenceBooks('');
     setFeeStructure({});
+    setNavigationParentId(getDefaultNavLocationId());
   };
 
   const handleOpenDialog = (course?: Course) => {
@@ -183,6 +213,7 @@ const CourseManagement = () => {
       setCareerOutcomes(Array.isArray(course.career_outcomes) ? course.career_outcomes.join('\n') : '');
       setReferenceBooks(Array.isArray(course.reference_books) ? course.reference_books.join('\n') : '');
       setFeeStructure(course.fee_structure || {});
+      setNavigationParentId(course.navigation_parent_id || getDefaultNavLocationId());
     } else {
       setEditingCourse(null);
       resetForm();
@@ -237,7 +268,8 @@ const CourseManagement = () => {
         application_deadline: applicationDeadline || null,
         career_outcomes: careerOutcomes ? careerOutcomes.split('\n').filter(c => c.trim()) : [],
         reference_books: referenceBooks ? referenceBooks.split('\n').filter(b => b.trim()) : [],
-        fee_structure: Object.keys(cleanedFees).length > 0 ? cleanedFees : null
+        fee_structure: Object.keys(cleanedFees).length > 0 ? cleanedFees : null,
+        navigation_parent_id: navigationParentId || null
       };
 
       if (editingCourse) {
@@ -740,6 +772,25 @@ const CourseManagement = () => {
                             onChange={(e) => setSeatCapacity(e.target.value)}
                           />
                         </div>
+                      </div>
+
+                      <div>
+                        <Label>Navigation Location</Label>
+                        <Select value={navigationParentId} onValueChange={setNavigationParentId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select navigation location" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {navLocations.map((nav) => (
+                              <SelectItem key={nav.id} value={nav.id}>
+                                {nav.title} {nav.href && `(${nav.href})`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Default: Academics → Course Catalog
+                        </p>
                       </div>
 
                       <div className="flex items-center justify-between p-4 border rounded-lg">
