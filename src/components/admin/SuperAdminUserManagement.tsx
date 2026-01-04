@@ -379,7 +379,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
       email: '',
       password: '',
       full_name: '',
-      role: 'student',
+      role: filterRole || 'student',
       department: '',
       phone: '',
       permissions: []
@@ -548,16 +548,16 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
             <DialogTrigger asChild>
               <Button onClick={handleAddUser} className="h-12">
                 <UserPlus className="h-5 w-5 mr-2" />
-                Add User
+                {filterRole === 'admission_agent' ? 'Add Agent' : 'Add User'}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
-                  {editingUser ? 'Edit User' : 'Create New User'}
+                  {editingUser ? 'Edit User' : filterRole === 'admission_agent' ? 'Create New Agent' : 'Create New User'}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingUser ? 'Update user information and permissions' : 'Add a new user to the system with specific roles and permissions'}
+                  {editingUser ? 'Update user information and permissions' : filterRole === 'admission_agent' ? 'Add a new admission agent to the system' : 'Add a new user to the system with specific roles and permissions'}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-6 py-4">
@@ -600,22 +600,31 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="role">Role *</Label>
-                    <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="student">Student</SelectItem>
-                        <SelectItem value="faculty">Faculty</SelectItem>
-                        <SelectItem value="superadmin">Superadmin</SelectItem>
-                        <SelectItem value="admission_agent">Admission Agent</SelectItem>
-                        <SelectItem value="alumni">Alumni</SelectItem>
-                        <SelectItem value="staff">Staff</SelectItem>
-                        <SelectItem value="accounts">Accounts</SelectItem>
-                        <SelectItem value="registrar">Registrar</SelectItem>
-                        <SelectItem value="auditor">Auditor</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {filterRole ? (
+                      <Input
+                        id="role"
+                        value={filterRole === 'admission_agent' ? 'Admission Agent' : filterRole}
+                        disabled
+                        className="bg-muted"
+                      />
+                    ) : (
+                      <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="student">Student</SelectItem>
+                          <SelectItem value="faculty">Faculty</SelectItem>
+                          <SelectItem value="superadmin">Superadmin</SelectItem>
+                          <SelectItem value="admission_agent">Admission Agent</SelectItem>
+                          <SelectItem value="alumni">Alumni</SelectItem>
+                          <SelectItem value="staff">Staff</SelectItem>
+                          <SelectItem value="accounts">Accounts</SelectItem>
+                          <SelectItem value="registrar">Registrar</SelectItem>
+                          <SelectItem value="auditor">Auditor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                 </div>
 
