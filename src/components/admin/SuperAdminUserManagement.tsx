@@ -131,150 +131,62 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
       toast({
         title: "Error",
         description: "Please fill in all required fields",
-        variant: "destructive"
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newUser.password.length < 8) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 8 characters",
+        variant: "destructive",
       });
       return;
     }
 
     try {
-      // Create user in auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: newUser.email,
-        password: newUser.password,
-        options: {
-          data: {
-            full_name: newUser.full_name,
-            role: newUser.role
-          }
-        }
+      const { data, error } = await supabase.functions.invoke('admin-create-user', {
+        body: {
+          email: newUser.email,
+          password: newUser.password,
+          full_name: newUser.full_name,
+          role: newUser.role,
+          department: newUser.department,
+          phone: newUser.phone,
+        },
       });
 
-      if (authError) {
-        if (authError.message.includes('User already registered')) {
-          toast({
-            title: "Error",
-            description: "A user with this email already exists",
-            variant: "destructive"
-          });
-        } else {
-          throw authError;
-        }
-        return;
-      }
+      if (error) throw error;
 
-      // Update profile with additional info and assign role
-      if (authData.user) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for trigger
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            department: newUser.department,
-            phone: newUser.phone,
-            metadata: {
-              permissions: newUser.permissions,
-              created_by: 'superadmin'
-            }
-          })
-          .eq('user_id', authData.user.id);
-
-        if (profileError) {
-          console.error('Profile update error:', profileError);
-        }
-
-        // Delete any existing role first
-        await supabase
-          .from('user_roles')
-          .delete()
-          .eq('user_id', authData.user.id);
-
-        // Assign role in user_roles table
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({
-            user_id: authData.user.id,
-            role: newUser.role as any
-          });
-
-        if (roleError) {
-          console.error('Role assignment error:', roleError);
-          toast({
-            title: "Warning",
-            description: "User created but role assignment failed. Please assign role manually.",
-            variant: "destructive"
-          });
-        }
-
-        // If this is an admission agent, create agent profile with unique 6-digit code
-        if (newUser.role === 'admission_agent') {
-          const agentCode = await generateAgentCode();
-          
-          const { error: agentError } = await supabase
-            .from('agent_profiles')
-            .insert({
-              user_id: authData.user.id,
-              agent_id: agentCode,
-              contact_info: {
-                email: newUser.email,
-                phone: newUser.phone || '',
-                address: ''
-              },
-              kyc_status: 'pending',
-              commission_rate: 10,
-              total_earnings: 0,
-              preferred_currency: 'USD'
-            });
-
-          if (agentError) {
-            console.error('Agent profile creation error:', agentError);
-            toast({
-              title: "Warning",
-              description: `User created but agent profile creation failed. Agent Code: ${agentCode}`,
-              variant: "destructive"
-            });
-          } else {
-            toast({
-              title: "Success",
-              description: `Admission Agent created with code: ${agentCode}`,
-            });
-            setNewUser({
-              email: '',
-              password: '',
-              full_name: '',
-              role: 'student',
-              department: '',
-              phone: '',
-              permissions: []
-            });
-            setIsCreateDialogOpen(false);
-            await fetchUsers();
-            return;
-          }
-        }
-      }
+      const createdRole = (data as any)?.role ?? newUser.role;
+      const agentCode = (data as any)?.agent_code as string | null | undefined;
 
       toast({
         title: "Success",
-        description: "User created successfully"
+        description: agentCode
+          ? `User created as ${getRoleDisplayName(createdRole)} (Agent Code: ${agentCode})`
+          : `User created as ${getRoleDisplayName(createdRole)}`,
       });
-      
+
       setNewUser({
         email: '',
         password: '',
         full_name: '',
-        role: 'student',
+        role: filterRole || 'student',
         department: '',
         phone: '',
-        permissions: []
+        permissions: [],
       });
+
       setIsCreateDialogOpen(false);
       await fetchUsers();
     } catch (error) {
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: "Failed to create user",
-        variant: "destructive"
+        description: error instanceof Error ? error.message : "Failed to create user",
+        variant: "destructive",
       });
     }
   };
