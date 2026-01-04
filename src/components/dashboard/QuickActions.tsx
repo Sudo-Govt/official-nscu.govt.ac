@@ -22,6 +22,7 @@ interface QuickAction {
 
 interface QuickActionsProps {
   actions?: QuickAction[];
+  disabled?: boolean;
 }
 
 const defaultActions: QuickAction[] = [
@@ -35,10 +36,18 @@ const defaultActions: QuickAction[] = [
   { label: 'Get Help', icon: HelpCircle },
 ];
 
-const QuickActions: React.FC<QuickActionsProps> = ({ actions = defaultActions }) => {
+const QuickActions: React.FC<QuickActionsProps> = ({ actions = defaultActions, disabled = false }) => {
   const { toast } = useToast();
 
   const handleClick = (action: QuickAction) => {
+    if (disabled) {
+      toast({
+        title: 'View Only Mode',
+        description: 'This is a test account. Actions are disabled.',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (action.onClick) {
       action.onClick();
     } else {
@@ -62,7 +71,8 @@ const QuickActions: React.FC<QuickActionsProps> = ({ actions = defaultActions })
               <Button
                 key={action.label}
                 variant="outline"
-                className="h-auto py-4 flex-col gap-2 hover:bg-gold-light hover:border-gold-primary hover:text-gold-primary transition-all"
+                disabled={disabled}
+                className="h-auto py-4 flex-col gap-2 hover:bg-gold-light hover:border-gold-primary hover:text-gold-primary transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 onClick={() => handleClick(action)}
               >
                 <Icon className="h-5 w-5" />

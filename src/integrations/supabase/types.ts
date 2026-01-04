@@ -1344,6 +1344,7 @@ export type Database = {
           created_at: string | null
           full_name: string
           id: string
+          is_test_account: boolean | null
           metadata: Json | null
           phone: string | null
           role: string | null
@@ -1356,6 +1357,7 @@ export type Database = {
           created_at?: string | null
           full_name: string
           id?: string
+          is_test_account?: boolean | null
           metadata?: Json | null
           phone?: string | null
           role?: string | null
@@ -1368,6 +1370,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string
           id?: string
+          is_test_account?: boolean | null
           metadata?: Json | null
           phone?: string | null
           role?: string | null
