@@ -670,16 +670,45 @@ const CourseManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* Quick Add Section */}
+      <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <Plus className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Add a New Course</h3>
+                <p className="text-muted-foreground text-sm">
+                  Manually add courses or import via CSV. Courses appear on the website automatically.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import CSV
+              </Button>
+              <Button onClick={() => handleOpenDialog()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Course Manually
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5" />
-                Course Management
+                Current Courses ({courses.length})
               </CardTitle>
               <CardDescription>
-                Manage all courses. Courses added here automatically appear on the website.
+                View and manage all courses in the database. Click any row action to edit.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
