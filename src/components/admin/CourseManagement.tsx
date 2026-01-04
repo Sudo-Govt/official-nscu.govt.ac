@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, BookOpen, Eye, Star, Upload, Download, FileSpreadsheet } from 'lucide-react';
+import { Plus, Edit, Trash2, BookOpen, Eye, Star, Upload, Download, FileSpreadsheet, Code } from 'lucide-react';
 
 interface FeeStructure {
   [key: string]: number | undefined;
@@ -77,6 +77,12 @@ const CourseManagement = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [csvUploading, setCsvUploading] = useState(false);
   const [navigationParentId, setNavigationParentId] = useState<string>('');
+  
+  // JSON Editor state
+  const [jsonEditorOpen, setJsonEditorOpen] = useState(false);
+  const [jsonEditingCourse, setJsonEditingCourse] = useState<Course | null>(null);
+  const [jsonContent, setJsonContent] = useState('');
+  const [jsonError, setJsonError] = useState<string | null>(null);
 
   // Form state - Basic
   const [courseCode, setCourseCode] = useState('');
@@ -395,6 +401,63 @@ const CourseManagement = () => {
       toast({
         title: "Preview unavailable",
         description: "This course doesn't have a URL slug yet. Please edit and save the course.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // JSON Editor functions
+  const openJsonEditor = (course: Course) => {
+    setJsonEditingCourse(course);
+    setJsonContent(JSON.stringify(course, null, 2));
+    setJsonError(null);
+    setJsonEditorOpen(true);
+  };
+
+  const validateAndFormatJson = (content: string) => {
+    try {
+      const parsed = JSON.parse(content);
+      setJsonError(null);
+      return parsed;
+    } catch (e: any) {
+      setJsonError(`Invalid JSON: ${e.message}`);
+      return null;
+    }
+  };
+
+  const handleJsonSave = async () => {
+    const parsed = validateAndFormatJson(jsonContent);
+    if (!parsed || !jsonEditingCourse) return;
+
+    // Ensure critical fields are preserved
+    if (!parsed.id || parsed.id !== jsonEditingCourse.id) {
+      setJsonError("Cannot modify the course ID");
+      return;
+    }
+
+    try {
+      const { id, created_at, ...updateData } = parsed;
+      
+      const { error } = await supabase
+        .from('courses')
+        .update(updateData)
+        .eq('id', jsonEditingCourse.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Course updated via JSON editor"
+      });
+
+      setJsonEditorOpen(false);
+      setJsonEditingCourse(null);
+      fetchCourses();
+    } catch (error: any) {
+      console.error('Error saving course JSON:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update course",
         variant: "destructive"
       });
     }
@@ -988,6 +1051,14 @@ const CourseManagement = () => {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => openJsonEditor(course)}
+                            title="Edit JSON"
+                          >
+                            <Code className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => toggleCourseStatus(course.id, course.is_active)}
                           >
                             {course.is_active ? 'Deactivate' : 'Activate'}
@@ -1010,6 +1081,67 @@ const CourseManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* JSON Editor Dialog */}
+      <Dialog open={jsonEditorOpen} onOpenChange={setJsonEditorOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Code className="h-5 w-5" />
+              Edit Course JSON
+            </DialogTitle>
+            <DialogDescription>
+              Edit the raw JSON data for "{jsonEditingCourse?.course_name}". Be careful with field names and data types.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {jsonError && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                {jsonError}
+              </div>
+            )}
+            
+            <Textarea
+              value={jsonContent}
+              onChange={(e) => {
+                setJsonContent(e.target.value);
+                setJsonError(null);
+              }}
+              className="font-mono text-sm min-h-[400px] resize-none"
+              placeholder="Course JSON data..."
+            />
+            
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Tip: Do not modify the "id" field. Changes are saved immediately.</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  try {
+                    const formatted = JSON.stringify(JSON.parse(jsonContent), null, 2);
+                    setJsonContent(formatted);
+                    setJsonError(null);
+                  } catch (e: any) {
+                    setJsonError(`Invalid JSON: ${e.message}`);
+                  }
+                }}
+              >
+                Format JSON
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setJsonEditorOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleJsonSave} disabled={!!jsonError}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
