@@ -83,6 +83,63 @@ const NavigationManager = () => {
     }
   };
 
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  };
+
+  const createCmsPage = async (title: string, href: string | null) => {
+    // Only create page for internal links (starting with / or no href)
+    const slug = href?.startsWith("/page/") 
+      ? href.replace("/page/", "") 
+      : href?.startsWith("/") 
+        ? href.slice(1) 
+        : generateSlug(title);
+    
+    // Check if page already exists
+    const { data: existing } = await supabase
+      .from("cms_pages")
+      .select("id")
+      .eq("slug", slug)
+      .single();
+    
+    if (existing) return; // Page already exists
+
+    const { error } = await supabase.from("cms_pages").insert({
+      title,
+      slug,
+      status: "draft",
+      page_type: "standard",
+      meta_title: title,
+      meta_description: `${title} - NSCU University`,
+    });
+    
+    if (error) {
+      console.error("Failed to create CMS page:", error);
+    }
+  };
+
+  const deleteCmsPage = async (href: string | null, title: string) => {
+    if (!href) return;
+    
+    const slug = href.startsWith("/page/") 
+      ? href.replace("/page/", "") 
+      : href.startsWith("/") 
+        ? href.slice(1) 
+        : generateSlug(title);
+    
+    const { error } = await supabase
+      .from("cms_pages")
+      .delete()
+      .eq("slug", slug);
+    
+    if (error) {
+      console.error("Failed to delete CMS page:", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -104,11 +161,18 @@ const NavigationManager = () => {
         if (error) throw error;
         toast.success("Navigation item updated");
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("site_navigation")
-          .insert(payload);
+          .insert(payload)
+          .select()
+          .single();
         if (error) throw error;
-        toast.success("Navigation item created");
+        
+        // Auto-create CMS page for new navigation item
+        if (!formData.href?.startsWith("http")) {
+          await createCmsPage(formData.title, formData.href || `/page/${generateSlug(formData.title)}`);
+        }
+        toast.success("Navigation item and page created");
       }
 
       setDialogOpen(false);
@@ -120,14 +184,29 @@ const NavigationManager = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this navigation item?")) return;
+    const item = navItems.find((n) => n.id === id);
+    const hasChildren = navItems.some((n) => n.parent_id === id);
+    
+    const confirmMsg = hasChildren 
+      ? "This will delete this navigation item and its associated page. Child items will become orphaned. Continue?"
+      : "Delete this navigation item and its associated page?";
+    
+    if (!confirm(confirmMsg)) return;
+    
     try {
+      // Delete the navigation item
       const { error } = await supabase
         .from("site_navigation")
         .delete()
         .eq("id", id);
       if (error) throw error;
-      toast.success("Navigation item deleted");
+      
+      // Also delete the associated CMS page
+      if (item && !item.href?.startsWith("http")) {
+        await deleteCmsPage(item.href, item.title);
+      }
+      
+      toast.success("Navigation item and page deleted");
       fetchNavItems();
     } catch (error: any) {
       toast.error("Failed to delete: " + error.message);
