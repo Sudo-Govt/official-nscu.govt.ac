@@ -8,11 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  Globe, Server, Bell, Clock, TrendingUp
+  Globe, Server, Bell, Clock, TrendingUp, BookOpen
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 import AuditLogsModule from '@/components/transparency/AuditLogsModule';
+import CourseManagement from '@/components/admin/CourseManagement';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 import { useToast } from '@/hooks/use-toast';
 
@@ -110,9 +111,10 @@ const SuperAdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-7 w-full max-w-4xl mb-6">
+          <TabsList className="grid grid-cols-8 w-full max-w-5xl mb-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">Users & Roles</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="admissions">Admissions</TabsTrigger>
             <TabsTrigger value="finance">Finance</TabsTrigger>
             <TabsTrigger value="compliance">Compliance</TabsTrigger>
@@ -234,6 +236,10 @@ const SuperAdminDashboard = () => {
 
           <TabsContent value="users">
             <SuperAdminUserManagement />
+          </TabsContent>
+
+          <TabsContent value="content">
+            <CourseManagement />
           </TabsContent>
 
           <TabsContent value="admissions">
