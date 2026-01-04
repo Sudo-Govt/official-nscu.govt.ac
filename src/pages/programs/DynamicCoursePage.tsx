@@ -8,8 +8,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
-import { GraduationCap, Download, FileText, Clock, Users, BookOpen, Briefcase, Calendar } from 'lucide-react';
+import { GraduationCap, Download, FileText, Clock, Users, BookOpen, Briefcase, Calendar, DollarSign, MapPin, Laptop, Building2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+
+interface FeeStructure {
+  [key: string]: number | undefined;
+  delaware_campus?: number;
+  belize_campus?: number;
+  online?: number;
+  hybrid?: number;
+  offshore_campus?: number;
+  distance?: number;
+  fast_mode?: number;
+}
 
 interface Course {
   id: string;
@@ -33,7 +44,18 @@ interface Course {
   reference_books: any[];
   career_outcomes: any[];
   faculty_info: any[];
+  fee_structure: FeeStructure | null;
 }
+
+const COURSE_MODE_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
+  delaware_campus: { label: 'Delaware Campus', icon: <Building2 className="h-4 w-4" /> },
+  belize_campus: { label: 'Belize Campus', icon: <MapPin className="h-4 w-4" /> },
+  online: { label: 'Online', icon: <Laptop className="h-4 w-4" /> },
+  hybrid: { label: 'Hybrid', icon: <Building2 className="h-4 w-4" /> },
+  offshore_campus: { label: 'Offshore Campus', icon: <MapPin className="h-4 w-4" /> },
+  distance: { label: 'Distance Learning', icon: <Laptop className="h-4 w-4" /> },
+  fast_mode: { label: 'Fast Mode', icon: <Clock className="h-4 w-4" /> },
+};
 
 const DynamicCoursePage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -106,6 +128,8 @@ const DynamicCoursePage = () => {
   const careerOutcomes = Array.isArray(course.career_outcomes) ? course.career_outcomes : [];
   const referenceBooks = Array.isArray(course.reference_books) ? course.reference_books : [];
   const facultyInfo = Array.isArray(course.faculty_info) ? course.faculty_info : [];
+  const feeStructure = course.fee_structure || {};
+  const availableModes = Object.entries(feeStructure).filter(([_, fee]) => fee !== undefined && fee !== null);
 
   return (
     <PageLayout 
@@ -189,6 +213,43 @@ const DynamicCoursePage = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Fee Structure Section */}
+        {availableModes.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-6">Program Fees by Delivery Mode</h2>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <DollarSign className="h-5 w-5 mr-2" />
+                  Tuition & Fees
+                </CardTitle>
+                <CardDescription>
+                  Choose the delivery mode that best fits your learning style and location
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {availableModes.map(([mode, fee]) => {
+                    const modeInfo = COURSE_MODE_LABELS[mode] || { label: mode, icon: <Building2 className="h-4 w-4" /> };
+                    return (
+                      <div key={mode} className="p-4 bg-muted rounded-lg border hover:border-primary transition-colors">
+                        <div className="flex items-center gap-2 mb-2 text-primary">
+                          {modeInfo.icon}
+                          <span className="font-medium">{modeInfo.label}</span>
+                        </div>
+                        <p className="text-2xl font-bold">
+                          ${(fee as number).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">per program</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Curriculum Section */}
         {curriculum.length > 0 && (
