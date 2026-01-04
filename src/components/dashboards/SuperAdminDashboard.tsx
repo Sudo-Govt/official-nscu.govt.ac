@@ -7,13 +7,14 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 import AuditLogsModule from '@/components/transparency/AuditLogsModule';
 import CourseManagement from '@/components/admin/CourseManagement';
 import DashboardLayout from '@/components/DashboardLayout';
+import SiteEditor from '@/components/admin/SiteEditor';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
@@ -84,6 +85,7 @@ const SuperAdminDashboard = () => {
       label: 'Main',
       items: [
         { title: 'Overview', icon: LayoutDashboard, value: 'overview', onClick: () => setActiveTab('overview') },
+        { title: 'Site Editor', icon: Globe, value: 'site-editor', onClick: () => setActiveTab('site-editor') },
         { title: 'Users & Roles', icon: Users, value: 'users', onClick: () => setActiveTab('users') },
         { title: 'Content', icon: BookOpen, value: 'content', onClick: () => setActiveTab('content') },
       ]
@@ -221,6 +223,9 @@ const SuperAdminDashboard = () => {
             </Card>
           </div>
         );
+
+      case 'site-editor':
+        return <SiteEditor />;
 
       case 'users':
         return <SuperAdminUserManagement />;

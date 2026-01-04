@@ -736,6 +736,136 @@ export type Database = {
         }
         Relationships: []
       }
+      cms_content_blocks: {
+        Row: {
+          block_key: string | null
+          block_type: string
+          content: Json | null
+          created_at: string | null
+          custom_css: string | null
+          id: string
+          is_active: boolean | null
+          page_id: string | null
+          position: number
+          updated_at: string | null
+        }
+        Insert: {
+          block_key?: string | null
+          block_type: string
+          content?: Json | null
+          created_at?: string | null
+          custom_css?: string | null
+          id?: string
+          is_active?: boolean | null
+          page_id?: string | null
+          position?: number
+          updated_at?: string | null
+        }
+        Update: {
+          block_key?: string | null
+          block_type?: string
+          content?: Json | null
+          created_at?: string | null
+          custom_css?: string | null
+          id?: string
+          is_active?: boolean | null
+          page_id?: string | null
+          position?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_content_blocks_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "cms_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_pages: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          page_type: string
+          slug: string
+          status: string
+          template_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          page_type?: string
+          slug: string
+          status?: string
+          template_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          page_type?: string
+          slug?: string
+          status?: string
+          template_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_pages_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "cms_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_templates: {
+        Row: {
+          created_at: string | null
+          default_blocks: Json | null
+          description: string | null
+          id: string
+          layout_structure: Json | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          default_blocks?: Json | null
+          description?: string | null
+          id?: string
+          layout_structure?: Json | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          default_blocks?: Json | null
+          description?: string | null
+          id?: string
+          layout_structure?: Json | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contact_rate_limits: {
         Row: {
           blocked_until: string | null
@@ -1403,6 +1533,53 @@ export type Database = {
           role?: string
         }
         Relationships: []
+      }
+      site_navigation: {
+        Row: {
+          created_at: string | null
+          href: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          menu_location: string
+          parent_id: string | null
+          position: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          href?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          menu_location?: string
+          parent_id?: string | null
+          position?: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          href?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          menu_location?: string
+          parent_id?: string | null
+          position?: number
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_navigation_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "site_navigation"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       smtp_settings: {
         Row: {
