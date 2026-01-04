@@ -1377,6 +1377,30 @@ export type Database = {
         }
         Relationships: []
       }
+      role_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission_action: string
+          permission_category: string
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission_action: string
+          permission_category: string
+          role: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission_action?: string
+          permission_category?: string
+          role?: string
+        }
+        Relationships: []
+      }
       smtp_settings: {
         Row: {
           created_at: string | null
@@ -1804,6 +1828,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_permission: {
+        Args: { _action: string; _category: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
@@ -1821,6 +1849,14 @@ export type Database = {
         | "registrar"
         | "auditor"
         | "delegator"
+        | "platform_admin"
+        | "hr_admin"
+        | "compliance_admin"
+        | "admission_admin"
+        | "admission_staff"
+        | "master_agent"
+        | "support"
+        | "marketing_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1961,6 +1997,14 @@ export const Constants = {
         "registrar",
         "auditor",
         "delegator",
+        "platform_admin",
+        "hr_admin",
+        "compliance_admin",
+        "admission_admin",
+        "admission_staff",
+        "master_agent",
+        "support",
+        "marketing_admin",
       ],
     },
   },

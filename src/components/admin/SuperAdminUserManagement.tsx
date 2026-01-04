@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Pencil, Search, Shield, Users, Key, Trash2 } from 'lucide-react';
+import { UserPlus, Pencil, Search, Shield, Users, Key, Trash2, Info } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
+import { ROLE_DEFINITIONS, getRolesByCategory, getRoleDisplayName, getRoleDescription, CATEGORY_LABELS } from '@/lib/roles';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UserProfile {
   id: string;
@@ -515,15 +517,8 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   ).filter(user => !filterRole || user.role === filterRole);
 
-  const availablePermissions = [
-    'view_all_applications',
-    'approve_applications',
-    'manage_finances',
-    'send_messages',
-    'access_reports',
-    'manage_courses',
-    'bulk_operations'
-  ];
+  // Role categories for grouped display
+  const roleCategories = getRolesByCategory();
 
   return (
     <Card className="h-full">
@@ -603,7 +598,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                     {filterRole ? (
                       <Input
                         id="role"
-                        value={filterRole === 'admission_agent' ? 'Admission Agent' : filterRole}
+                        value={getRoleDisplayName(filterRole)}
                         disabled
                         className="bg-muted"
                       />
@@ -612,21 +607,50 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                         <SelectTrigger>
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="student">Student</SelectItem>
-                          <SelectItem value="faculty">Faculty</SelectItem>
-                          <SelectItem value="superadmin">Superadmin</SelectItem>
-                          <SelectItem value="admission_agent">Admission Agent</SelectItem>
-                          <SelectItem value="alumni">Alumni</SelectItem>
-                          <SelectItem value="staff">Staff</SelectItem>
-                          <SelectItem value="accounts">Accounts</SelectItem>
-                          <SelectItem value="registrar">Registrar</SelectItem>
-                          <SelectItem value="auditor">Auditor</SelectItem>
+                        <SelectContent className="max-h-80">
+                          {Object.entries(roleCategories).map(([category, roles]) => (
+                            roles.length > 0 && (
+                              <SelectGroup key={category}>
+                                <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                  {CATEGORY_LABELS[category]}
+                                </SelectLabel>
+                                {roles.map((role) => (
+                                  <SelectItem key={role.id} value={role.id}>
+                                    <div className="flex items-center gap-2">
+                                      <span>{role.name}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )
+                          ))}
                         </SelectContent>
                       </Select>
                     )}
                   </div>
                 </div>
+
+                {/* Role Description */}
+                {newUser.role && ROLE_DEFINITIONS[newUser.role] && (
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <div className="flex items-start gap-3">
+                      <Info className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="font-medium text-sm">{getRoleDisplayName(newUser.role)}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {getRoleDescription(newUser.role)}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5 mt-3">
+                          {Object.entries(ROLE_DEFINITIONS[newUser.role].permissions).map(([category, actions]) => (
+                            <Badge key={category} variant="secondary" className="text-xs">
+                              {category}: {(actions as string[]).join(', ')}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -649,36 +673,11 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Label>Special Permissions</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {availablePermissions.map((permission) => (
-                      <div key={permission} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id={permission}
-                          checked={newUser.permissions.includes(permission)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setNewUser({
-                                ...newUser,
-                                permissions: [...newUser.permissions, permission]
-                              });
-                            } else {
-                              setNewUser({
-                                ...newUser,
-                                permissions: newUser.permissions.filter(p => p !== permission)
-                              });
-                            }
-                          }}
-                          className="rounded"
-                        />
-                        <Label htmlFor={permission} className="text-sm font-normal">
-                          {permission.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
+                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" />
+                    Permissions are automatically assigned based on the selected role. No manual permission selection is required.
+                  </p>
                 </div>
               </div>
               <div className="flex justify-end gap-3">
@@ -710,17 +709,20 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
               <div className="flex-1">
                 <div className="flex items-center gap-4 mb-2">
                   <h3 className="font-semibold text-lg">{user.full_name}</h3>
-                  <Badge variant={user.status === 'active' ? "default" : "secondary"} className="font-medium">
-                    {user.role.replace('_', ' ').toUpperCase()}
-                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant={user.status === 'active' ? "default" : "secondary"} className="font-medium cursor-help">
+                          {getRoleDisplayName(user.role)}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <p className="text-sm">{getRoleDescription(user.role)}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   {user.status !== 'active' && (
                     <Badge variant="destructive">INACTIVE</Badge>
-                  )}
-                  {user.metadata?.permissions?.length > 0 && (
-                    <Badge variant="outline" className="gap-1">
-                      <Shield className="h-3 w-3" />
-                      Special Permissions
-                    </Badge>
                   )}
                 </div>
                 <div className="flex flex-col gap-1 text-sm text-muted-foreground">
