@@ -48,6 +48,7 @@ const StudentDashboardV2 = () => {
   const [studentData, setStudentData] = useState<StudentData | null>(null);
   const [courseInfo, setCourseInfo] = useState<CourseInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isTestAccount, setIsTestAccount] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -57,6 +58,17 @@ const StudentDashboardV2 = () => {
 
   const fetchStudentData = async () => {
     try {
+      // Check if this is a test account
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_test_account')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (profile?.is_test_account) {
+        setIsTestAccount(true);
+      }
+
       // Fetch student record
       const { data: student, error: studentError } = await supabase
         .from('students')
@@ -280,11 +292,28 @@ const StudentDashboardV2 = () => {
           <Badge variant={isAlumni ? 'secondary' : 'default'}>
             {isAlumni ? 'Alumni' : 'Current Student'}
           </Badge>
+          {isTestAccount && (
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-400">
+              Test Account - View Only
+            </Badge>
+          )}
         </div>
       }
       notificationCount={notifications.filter((n) => !n.isRead).length}
     >
       <div className="space-y-6">
+        {/* Test Account Banner */}
+        {isTestAccount && (
+          <Card className="bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
+            <CardContent className="py-3">
+              <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
+                <span className="font-medium">🔒 Test Account</span>
+                <span className="text-sm">This account is for payment gateway testing only. All action buttons are disabled.</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Course Info Banner */}
         {courseInfo && (
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
@@ -352,7 +381,7 @@ const StudentDashboardV2 = () => {
         </div>
 
         {/* Quick Actions */}
-        <QuickActions />
+        <QuickActions disabled={isTestAccount} />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
