@@ -59,6 +59,7 @@ interface CmsTemplate {
   id: string;
   name: string;
   description: string | null;
+  default_blocks: any;
 }
 
 const PageManager = () => {
@@ -87,7 +88,7 @@ const PageManager = () => {
     try {
       const [pagesRes, templatesRes] = await Promise.all([
         supabase.from("cms_pages").select("*").order("updated_at", { ascending: false }),
-        supabase.from("cms_templates").select("*"),
+        supabase.from("cms_templates").select("id, name, description, default_blocks"),
       ]);
 
       if (pagesRes.error) throw pagesRes.error;
@@ -165,12 +166,41 @@ const PageManager = () => {
         if (error) throw error;
         toast.success("Page updated");
       } else {
-        const { error } = await supabase.from("cms_pages").insert(payload);
+        // Create the page first
+        const { data: newPage, error } = await supabase
+          .from("cms_pages")
+          .insert(payload)
+          .select()
+          .single();
         if (error) throw error;
+        
+        // If a template is selected, create content blocks from template
+        if (formData.template_id && newPage) {
+          const template = templates.find(t => t.id === formData.template_id);
+          if (template && Array.isArray(template.default_blocks)) {
+            const blocksToCreate = template.default_blocks.map((block: any) => ({
+              page_id: newPage.id,
+              block_type: block.block_type,
+              block_key: block.block_key || null,
+              position: block.position || 0,
+              content: block.content || {},
+              is_active: true,
+            }));
+            
+            if (blocksToCreate.length > 0) {
+              const { error: blockError } = await supabase
+                .from("cms_content_blocks")
+                .insert(blocksToCreate);
+              if (blockError) {
+                console.error("Failed to create template blocks:", blockError);
+              }
+            }
+          }
+        }
         
         // Auto-create navigation item for new page
         await createNavigationItem(formData.title, payload.slug);
-        toast.success("Page and navigation item created");
+        toast.success("Page created with template content blocks");
       }
 
       setDialogOpen(false);
