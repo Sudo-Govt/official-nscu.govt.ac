@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Navigation, FileText, Layout, Settings } from "lucide-react";
+import { Navigation, FileText, Layout, Settings, GraduationCap } from "lucide-react";
 import NavigationManager from "./NavigationManager";
 import PageManager from "./PageManager";
 import TemplateManager from "./TemplateManager";
+import CourseImportExport from "./CourseImportExport";
 
 const SiteEditor = () => {
   const [activeTab, setActiveTab] = useState("navigation");
@@ -18,7 +19,7 @@ const SiteEditor = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+        <TabsList className="grid w-full grid-cols-5 lg:w-[750px]">
           <TabsTrigger value="navigation" className="flex items-center gap-2">
             <Navigation className="h-4 w-4" />
             <span className="hidden sm:inline">Navigation</span>
@@ -26,6 +27,10 @@ const SiteEditor = () => {
           <TabsTrigger value="pages" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             <span className="hidden sm:inline">Pages</span>
+          </TabsTrigger>
+          <TabsTrigger value="courses" className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4" />
+            <span className="hidden sm:inline">Courses</span>
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2">
             <Layout className="h-4 w-4" />
@@ -43,6 +48,10 @@ const SiteEditor = () => {
 
         <TabsContent value="pages" className="mt-6">
           <PageManager />
+        </TabsContent>
+
+        <TabsContent value="courses" className="mt-6">
+          <CourseImportExport />
         </TabsContent>
 
         <TabsContent value="templates" className="mt-6">
