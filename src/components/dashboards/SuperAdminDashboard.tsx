@@ -4,21 +4,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  Globe, Server, Bell, Clock, TrendingUp, BookOpen
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 import AuditLogsModule from '@/components/transparency/AuditLogsModule';
 import CourseManagement from '@/components/admin/CourseManagement';
-import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
+import DashboardLayout from '@/components/DashboardLayout';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
@@ -38,7 +37,6 @@ const SuperAdminDashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      // Fetch user counts by role
       const { data: roles } = await supabase.from('user_roles').select('role');
       const roleCounts: Record<string, number> = {};
       roles?.forEach(r => {
@@ -46,14 +44,9 @@ const SuperAdminDashboard = () => {
       });
       setUsersByRole(roleCounts);
 
-      // Fetch total users
       const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-
-      // Fetch revenue from payments
       const { data: payments } = await supabase.from('student_payments').select('amount').eq('payment_status', 'completed');
       const totalRevenue = payments?.reduce((sum, p) => sum + (p.amount || 0), 0) || 0;
-
-      // Fetch pending applications
       const { count: pendingActions } = await supabase.from('student_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending');
 
       setStats({
@@ -86,43 +79,37 @@ const SuperAdminDashboard = () => {
     });
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-card border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-destructive" />
-            <div>
-              <h1 className="text-xl font-bold">Super Admin Console</h1>
-              <p className="text-sm text-muted-foreground">System Control Center</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Badge variant="destructive" className="flex items-center gap-1">
-              <Shield className="h-3 w-3" />
-              SUPER ADMIN
-            </Badge>
-            <span className="text-sm font-medium">{user?.full_name}</span>
-            <Button variant="outline" size="sm" onClick={logout}>Logout</Button>
-          </div>
-        </div>
-      </header>
+  const menuGroups = [
+    {
+      label: 'Main',
+      items: [
+        { title: 'Overview', icon: LayoutDashboard, value: 'overview', onClick: () => setActiveTab('overview') },
+        { title: 'Users & Roles', icon: Users, value: 'users', onClick: () => setActiveTab('users') },
+        { title: 'Content', icon: BookOpen, value: 'content', onClick: () => setActiveTab('content') },
+      ]
+    },
+    {
+      label: 'Operations',
+      items: [
+        { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
+        { title: 'Finance', icon: DollarSign, value: 'finance', onClick: () => setActiveTab('finance') },
+        { title: 'Compliance', icon: ClipboardCheck, value: 'compliance', onClick: () => setActiveTab('compliance') },
+      ]
+    },
+    {
+      label: 'System',
+      items: [
+        { title: 'System Logs', icon: FileText, value: 'logs', onClick: () => setActiveTab('logs') },
+        { title: 'Settings', icon: Settings, value: 'settings', onClick: () => setActiveTab('settings') },
+      ]
+    }
+  ];
 
-      <div className="container mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-8 w-full max-w-5xl mb-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="users">Users & Roles</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="admissions">Admissions</TabsTrigger>
-            <TabsTrigger value="finance">Finance</TabsTrigger>
-            <TabsTrigger value="compliance">Compliance</TabsTrigger>
-            <TabsTrigger value="logs">System Logs</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="space-y-6">
             {/* Emergency Controls */}
             <Card className="border-destructive/50 bg-destructive/5">
               <CardHeader className="pb-3">
@@ -232,87 +219,100 @@ const SuperAdminDashboard = () => {
                 </Button>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
+        );
 
-          <TabsContent value="users">
-            <SuperAdminUserManagement />
-          </TabsContent>
+      case 'users':
+        return <SuperAdminUserManagement />;
 
-          <TabsContent value="content">
-            <CourseManagement />
-          </TabsContent>
+      case 'content':
+        return <CourseManagement />;
 
-          <TabsContent value="admissions">
-            <Card>
-              <CardHeader>
-                <CardTitle>Global Admissions Control</CardTitle>
-                <CardDescription>Manage all admissions across the platform</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Admissions management interface</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+      case 'admissions':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Global Admissions Control</CardTitle>
+              <CardDescription>Manage all admissions across the platform</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Admissions management interface</p>
+            </CardContent>
+          </Card>
+        );
 
-          <TabsContent value="finance">
-            <Card>
-              <CardHeader>
-                <CardTitle>Global Finance Control</CardTitle>
-                <CardDescription>Financial oversight and controls</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">Total Revenue</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">Override Controls</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button variant="outline" size="sm">Financial Override</Button>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">Blockchain Verification</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Button variant="outline" size="sm">Verify Records</Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+      case 'finance':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Global Finance Control</CardTitle>
+              <CardDescription>Financial oversight and controls</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Total Revenue</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Override Controls</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" size="sm">Financial Override</Button>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Blockchain Verification</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" size="sm">Verify Records</Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
-          <TabsContent value="compliance">
-            <Card>
-              <CardHeader>
-                <CardTitle>Compliance Oversight</CardTitle>
-                <CardDescription>System-wide compliance and security</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Compliance management interface</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+      case 'compliance':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Compliance Oversight</CardTitle>
+              <CardDescription>System-wide compliance and security</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Compliance management interface</p>
+            </CardContent>
+          </Card>
+        );
 
-          <TabsContent value="logs">
-            <AuditLogsModule />
-          </TabsContent>
+      case 'logs':
+        return <AuditLogsModule />;
 
-          <TabsContent value="settings">
-            <SystemSettings />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+      case 'settings':
+        return <SystemSettings />;
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <DashboardLayout
+      title="Super Admin Console"
+      subtitle="System Control Center"
+      userBadge="SUPER ADMIN"
+      menuGroups={menuGroups}
+      activeTab={activeTab}
+    >
+      {renderContent()}
+    </DashboardLayout>
   );
 };
 
