@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Download, FileSpreadsheet, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Upload, Download, FileSpreadsheet, RefreshCw, CheckCircle2, AlertCircle, GraduationCap } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 interface FeeStructure {
@@ -41,6 +41,7 @@ interface Course {
   career_outcomes: any[];
   reference_books: any[];
   fee_structure: FeeStructure | null;
+  navigation_parent_id: string | null;
 }
 
 const CourseImportExport = () => {
@@ -397,6 +398,22 @@ const CourseImportExport = () => {
 
   return (
     <div className="space-y-6">
+      {/* Default Location Info */}
+      <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+        <div className="flex items-start gap-3">
+          <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+            <GraduationCap className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-medium text-foreground">Default Course Location</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              All courses are automatically placed under <strong>Academics → Course Catalog</strong>. 
+              This can be changed for individual courses in the Course Management section.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Export/Import Cards */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Export Card */}

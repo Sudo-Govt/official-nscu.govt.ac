@@ -972,6 +972,7 @@ export type Database = {
           fee_structure: Json | null
           id: string
           is_active: boolean | null
+          navigation_parent_id: string | null
           reference_books: Json | null
           seat_capacity: number
           slug: string | null
@@ -998,6 +999,7 @@ export type Database = {
           fee_structure?: Json | null
           id?: string
           is_active?: boolean | null
+          navigation_parent_id?: string | null
           reference_books?: Json | null
           seat_capacity: number
           slug?: string | null
@@ -1024,12 +1026,21 @@ export type Database = {
           fee_structure?: Json | null
           id?: string
           is_active?: boolean | null
+          navigation_parent_id?: string | null
           reference_books?: Json | null
           seat_capacity?: number
           slug?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_navigation_parent_id_fkey"
+            columns: ["navigation_parent_id"]
+            isOneToOne: false
+            referencedRelation: "site_navigation"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -2008,6 +2019,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_course_catalog_nav_id: { Args: never; Returns: string }
       has_permission: {
         Args: { _action: string; _category: string; _user_id: string }
         Returns: boolean
