@@ -160,6 +160,7 @@ import DoctorPharmacy from "./pages/programs/DoctorPharmacy";
 import MasterPharmacy from "./pages/programs/MasterPharmacy";
 import MasterMedicine from "./pages/programs/MasterMedicine";
 import DynamicCoursePage from "./pages/programs/DynamicCoursePage";
+import DynamicPage from "./pages/DynamicPage";
 
 const queryClient = new QueryClient();
 
@@ -332,6 +333,9 @@ const App = () => (
           <Route path="/transparency/financial-statements" element={<FinancialStatements />} />
           <Route path="/transparency/accreditation" element={<AccreditationCompliance />} />
           <Route path="/dashboard/transparency" element={<TransparencyDashboard />} />
+          
+          {/* Dynamic CMS Pages - catches any slug not matched above */}
+          <Route path="/page/:slug" element={<DynamicPage />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
