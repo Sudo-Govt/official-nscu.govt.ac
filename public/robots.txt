@@ -6,3 +6,15 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 Disallow: /private/
+Disallow: /dashboard
+Disallow: /login
+
+# Noindex user management & core sections
+Disallow: /user-management/
+Disallow: /users/
+Disallow: /core/
+Disallow: /verification/
+Disallow: /verify/
+
+# Sitemap location
+Sitemap: https://nscu.govt.ac/sitemap.xml
