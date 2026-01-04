@@ -27,10 +27,29 @@ interface FeaturedCourse {
   href: string;
 }
 
+interface NavItem {
+  id: string;
+  parent_id: string | null;
+  title: string;
+  href: string | null;
+  position: number;
+  is_active: boolean;
+  menu_location: string;
+  icon: string | null;
+}
+
+interface MenuItem {
+  title: string;
+  href?: string;
+  items?: MenuItem[];
+}
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [featuredPrograms, setFeaturedPrograms] = useState<FeaturedCourse[]>([]);
+  const [dynamicNav, setDynamicNav] = useState<NavItem[]>([]);
+  const [useDynamicNav, setUseDynamicNav] = useState(false);
   const { user, logout } = useAuth();
 
   useEffect(() => {
@@ -59,9 +78,62 @@ const Header = () => {
       }
     };
 
+    const fetchDynamicNavigation = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('site_navigation')
+          .select('*')
+          .eq('is_active', true)
+          .eq('menu_location', 'main')
+          .order('position');
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          setDynamicNav(data);
+          setUseDynamicNav(true);
+        }
+      } catch (error) {
+        console.error('Error fetching navigation:', error);
+      }
+    };
+
     fetchFeaturedCourses();
+    fetchDynamicNavigation();
   }, []);
-  const menuData = [
+
+  // Build dynamic menu structure from flat nav items
+  const buildMenuFromNav = (navItems: NavItem[]): MenuItem[] => {
+    const rootItems = navItems.filter(n => !n.parent_id);
+    
+    const buildChildren = (parentId: string): MenuItem[] => {
+      return navItems
+        .filter(n => n.parent_id === parentId)
+        .sort((a, b) => a.position - b.position)
+        .map(item => {
+          const children = buildChildren(item.id);
+          return {
+            title: item.title,
+            href: item.href || undefined,
+            items: children.length > 0 ? children : undefined
+          };
+        });
+    };
+
+    return rootItems
+      .sort((a, b) => a.position - b.position)
+      .map(item => {
+        const children = buildChildren(item.id);
+        return {
+          title: item.title,
+          href: item.href || undefined,
+          items: children.length > 0 ? children : undefined
+        };
+      });
+  };
+
+  // Fallback hardcoded menu data
+  const hardcodedMenuData: MenuItem[] = [
     {
       title: "About NSCU",
       items: [
@@ -180,6 +252,9 @@ const Header = () => {
       ]
     }
   ];
+
+  // Use dynamic nav if available, otherwise fallback to hardcoded
+  const menuData = useDynamicNav ? buildMenuFromNav(dynamicNav) : hardcodedMenuData;
 
   return (
     <header className="bg-background shadow-sm border-b sticky top-0 z-50">
