@@ -8,7 +8,7 @@ interface User {
   email: string;
   full_name: string;
   avatar_url?: string;
-  role: 'admin' | 'student' | 'faculty' | 'admission_agent' | 'finance' | 'superadmin' | 'alumni' | 'staff' | 'accounts' | 'registrar' | 'auditor' | 'delegator';
+  role: 'admin' | 'student' | 'faculty' | 'admission_agent' | 'finance' | 'superadmin' | 'alumni' | 'staff' | 'accounts' | 'registrar' | 'auditor' | 'delegator' | 'platform_admin' | 'hr_admin' | 'compliance_admin' | 'admission_admin' | 'admission_staff' | 'master_agent' | 'support' | 'marketing_admin';
 }
 
 interface AuthContextType {
