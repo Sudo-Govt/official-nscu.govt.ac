@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Download, FileSpreadsheet, RefreshCw, CheckCircle2, AlertCircle, GraduationCap } from 'lucide-react';
+import { Upload, Download, FileSpreadsheet, RefreshCw, CheckCircle2, AlertCircle, GraduationCap, Code, Trash2, ChevronDown } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 interface FeeStructure {
   [key: string]: number | undefined;
@@ -52,6 +54,13 @@ const CourseImportExport = () => {
   const [csvUploading, setCsvUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [importResults, setImportResults] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
+  const [displayCount, setDisplayCount] = useState(10);
+  
+  // JSON Editor state
+  const [jsonEditorOpen, setJsonEditorOpen] = useState(false);
+  const [jsonEditingCourse, setJsonEditingCourse] = useState<Course | null>(null);
+  const [jsonContent, setJsonContent] = useState('');
+  const [jsonError, setJsonError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCourses();
@@ -77,6 +86,93 @@ const CourseImportExport = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // JSON Editor functions
+  const openJsonEditor = (course: Course) => {
+    setJsonEditingCourse(course);
+    setJsonContent(JSON.stringify(course, null, 2));
+    setJsonError(null);
+    setJsonEditorOpen(true);
+  };
+
+  const validateAndFormatJson = (content: string) => {
+    try {
+      const parsed = JSON.parse(content);
+      setJsonError(null);
+      return parsed;
+    } catch (e: any) {
+      setJsonError(`Invalid JSON: ${e.message}`);
+      return null;
+    }
+  };
+
+  const handleJsonSave = async () => {
+    const parsed = validateAndFormatJson(jsonContent);
+    if (!parsed || !jsonEditingCourse) return;
+
+    if (!parsed.id || parsed.id !== jsonEditingCourse.id) {
+      setJsonError("Cannot modify the course ID");
+      return;
+    }
+
+    try {
+      const { id, created_at, ...updateData } = parsed;
+      
+      const { error } = await supabase
+        .from('courses')
+        .update(updateData)
+        .eq('id', jsonEditingCourse.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Course updated successfully"
+      });
+
+      setJsonEditorOpen(false);
+      setJsonEditingCourse(null);
+      fetchCourses();
+    } catch (error: any) {
+      console.error('Error saving course JSON:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update course",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm('Are you sure you want to delete this course?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', courseId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Course deleted successfully"
+      });
+
+      fetchCourses();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete course",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const loadMore = () => {
+    setDisplayCount(prev => Math.min(prev + 10, courses.length));
   };
 
   const generateSlug = (name: string, degree: string): string => {
@@ -547,10 +643,11 @@ const CourseImportExport = () => {
                     <TableHead>College</TableHead>
                     <TableHead>Duration</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {courses.slice(0, 10).map((course) => (
+                  {courses.slice(0, displayCount).map((course) => (
                     <TableRow key={course.id}>
                       <TableCell className="font-mono">{course.course_code}</TableCell>
                       <TableCell className="font-medium">{course.course_name}</TableCell>
@@ -564,19 +661,117 @@ const CourseImportExport = () => {
                           {course.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openJsonEditor(course)}
+                            title="Edit JSON"
+                          >
+                            <Code className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteCourse(course.id)}
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-              {courses.length > 10 && (
-                <p className="text-sm text-muted-foreground text-center mt-4">
-                  Showing 10 of {courses.length} courses. Export to see all.
+              
+              {/* Load More / Show All */}
+              <div className="flex flex-col items-center gap-2 mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Showing {Math.min(displayCount, courses.length)} of {courses.length} courses
                 </p>
-              )}
+                {displayCount < courses.length && (
+                  <Button variant="outline" onClick={loadMore}>
+                    <ChevronDown className="h-4 w-4 mr-2" />
+                    Load More ({courses.length - displayCount} remaining)
+                  </Button>
+                )}
+                {displayCount < courses.length && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setDisplayCount(courses.length)}
+                  >
+                    Show All
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* JSON Editor Dialog */}
+      <Dialog open={jsonEditorOpen} onOpenChange={setJsonEditorOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Code className="h-5 w-5" />
+              Edit Course JSON
+            </DialogTitle>
+            <DialogDescription>
+              Edit the raw JSON data for "{jsonEditingCourse?.course_name}". Be careful with field names and data types.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {jsonError && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                {jsonError}
+              </div>
+            )}
+            
+            <Textarea
+              value={jsonContent}
+              onChange={(e) => {
+                setJsonContent(e.target.value);
+                setJsonError(null);
+              }}
+              className="font-mono text-sm min-h-[400px] resize-none"
+              placeholder="Course JSON data..."
+            />
+            
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Tip: Do not modify the "id" field. Changes are saved immediately.</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  try {
+                    const formatted = JSON.stringify(JSON.parse(jsonContent), null, 2);
+                    setJsonContent(formatted);
+                    setJsonError(null);
+                  } catch (e: any) {
+                    setJsonError(`Invalid JSON: ${e.message}`);
+                  }
+                }}
+              >
+                Format JSON
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setJsonEditorOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleJsonSave} disabled={!!jsonError}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
