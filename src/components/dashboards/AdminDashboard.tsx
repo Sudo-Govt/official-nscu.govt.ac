@@ -724,6 +724,7 @@ const AdminDashboard = () => {
       items: [
         { title: "Document Gen", icon: Upload, value: "docgen", onClick: () => setCurrentTab("docgen") },
         { title: "User Management", icon: Shield, value: "user-management", onClick: () => setCurrentTab("user-management") },
+        { title: "Agents", icon: UserPlus, value: "agents", onClick: () => setCurrentTab("agents") },
         { title: "Documents", icon: FileText, value: "documents", onClick: () => setCurrentTab("documents") },
         { title: "Announcements", icon: Bell, value: "announcements", onClick: () => setCurrentTab("announcements") },
         { title: "Courses", icon: BookOpen, value: "courses", onClick: () => setCurrentTab("courses") },
@@ -1055,6 +1056,7 @@ const AdminDashboard = () => {
       {currentTab === "rls-policies" && <RLSPolicyManager />}
       {currentTab === "api-keys" && <APIKeysManager />}
       {currentTab === "table-browser" && <DatabaseTableBrowser />}
+      {currentTab === "agents" && <SuperAdminUserManagement filterRole="admission_agent" />}
 
       {/* Dialogs remain the same */}
       <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
