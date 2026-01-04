@@ -5,10 +5,11 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Download, FileSpreadsheet, RefreshCw, CheckCircle2, AlertCircle, GraduationCap, Code, Trash2, ChevronDown } from 'lucide-react';
+import { Upload, Download, FileSpreadsheet, RefreshCw, CheckCircle2, AlertCircle, GraduationCap, Code, Trash2, ChevronDown, Plus, Edit } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { CourseFormDialog, type CourseRecord } from '@/components/admin/courses/CourseFormDialog';
 
 interface FeeStructure {
   [key: string]: number | undefined;
@@ -55,7 +56,11 @@ const CourseImportExport = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [importResults, setImportResults] = useState<{ success: number; failed: number; errors: string[] } | null>(null);
   const [displayCount, setDisplayCount] = useState(10);
-  
+
+  // Manual add/edit dialog
+  const [courseFormOpen, setCourseFormOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<CourseRecord | null>(null);
+
   // JSON Editor state
   const [jsonEditorOpen, setJsonEditorOpen] = useState(false);
   const [jsonEditingCourse, setJsonEditingCourse] = useState<Course | null>(null);
@@ -65,6 +70,11 @@ const CourseImportExport = () => {
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  const openCourseForm = (course?: Course) => {
+    setEditingCourse((course || null) as unknown as CourseRecord | null);
+    setCourseFormOpen(true);
+  };
 
   const fetchCourses = async () => {
     try {
@@ -503,12 +513,33 @@ const CourseImportExport = () => {
           <div>
             <h3 className="font-medium text-foreground">Default Course Location</h3>
             <p className="text-sm text-muted-foreground mt-1">
-              All courses are automatically placed under <strong>Academics → Course Catalog</strong>. 
+              All courses are automatically placed under <strong>Academics → Course Catalog</strong>.
               This can be changed for individual courses in the Course Management section.
             </p>
           </div>
         </div>
       </div>
+
+      {/* Manual Add */}
+      <Card className="border-dashed border-2 border-primary/30 bg-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <Plus className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Add a Course Manually</h3>
+                <p className="text-muted-foreground text-sm">Use this if CSV import fails or for one-off edits.</p>
+              </div>
+            </div>
+            <Button onClick={() => openCourseForm()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Course
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Export/Import Cards */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -666,6 +697,14 @@ const CourseImportExport = () => {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => openCourseForm(course)}
+                            title="Edit"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => openJsonEditor(course)}
                             title="Edit JSON"
                           >
@@ -711,6 +750,17 @@ const CourseImportExport = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Manual Add/Edit Dialog */}
+      <CourseFormDialog
+        open={courseFormOpen}
+        onOpenChange={(open) => {
+          setCourseFormOpen(open);
+          if (!open) setEditingCourse(null);
+        }}
+        course={editingCourse}
+        onSaved={fetchCourses}
+      />
 
       {/* JSON Editor Dialog */}
       <Dialog open={jsonEditorOpen} onOpenChange={setJsonEditorOpen}>
