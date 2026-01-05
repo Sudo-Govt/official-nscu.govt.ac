@@ -207,12 +207,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
         .from('profiles')
         .update({
           full_name: newUser.full_name,
-          department: newUser.department,
-          phone: newUser.phone,
-          metadata: {
-            ...editingUser.metadata,
-            permissions: newUser.permissions
-          }
+          phone: newUser.phone
         })
         .eq('id', editingUser.id);
 
