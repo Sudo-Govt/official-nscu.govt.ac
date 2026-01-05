@@ -108,6 +108,7 @@ import Disclaimer from "./pages/legal/Disclaimer";
 import Grievance from "./pages/legal/Grievance";
 import ShippingPolicy from "./pages/legal/ShippingPolicy";
 import AdmissionSuccess from "./pages/AdmissionSuccess";
+import PaymentSuccess from "./pages/PaymentSuccess";
 import ContactUs from "./pages/ContactUs";
 
 // Portal pages
@@ -307,6 +308,7 @@ const App = () => (
           <Route path="/legal/grievance" element={<Grievance />} />
           <Route path="/legal/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/admission-success" element={<AdmissionSuccess />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/contact" element={<ContactUs />} />
           
           {/* Campus Life Routes */}

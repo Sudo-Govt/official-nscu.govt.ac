@@ -1724,6 +1724,7 @@ export type Database = {
           application_data: Json | null
           application_number: string | null
           application_score: number | null
+          approved_fee: number | null
           course_id: string | null
           created_at: string | null
           email: string
@@ -1732,6 +1733,9 @@ export type Database = {
           id: string
           last_name: string | null
           nationality: string | null
+          payment_code: string | null
+          payment_completed_at: string | null
+          payment_status: string | null
           phone: string | null
           previous_education: Json | null
           program: string
@@ -1751,6 +1755,7 @@ export type Database = {
           application_data?: Json | null
           application_number?: string | null
           application_score?: number | null
+          approved_fee?: number | null
           course_id?: string | null
           created_at?: string | null
           email: string
@@ -1759,6 +1764,9 @@ export type Database = {
           id?: string
           last_name?: string | null
           nationality?: string | null
+          payment_code?: string | null
+          payment_completed_at?: string | null
+          payment_status?: string | null
           phone?: string | null
           previous_education?: Json | null
           program: string
@@ -1778,6 +1786,7 @@ export type Database = {
           application_data?: Json | null
           application_number?: string | null
           application_score?: number | null
+          approved_fee?: number | null
           course_id?: string | null
           created_at?: string | null
           email?: string
@@ -1786,6 +1795,9 @@ export type Database = {
           id?: string
           last_name?: string | null
           nationality?: string | null
+          payment_code?: string | null
+          payment_completed_at?: string | null
+          payment_status?: string | null
           phone?: string | null
           previous_education?: Json | null
           program?: string
@@ -2103,6 +2115,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_payment_code: { Args: never; Returns: string }
       get_course_catalog_nav_id: { Args: never; Returns: string }
       has_permission: {
         Args: { _action: string; _category: string; _user_id: string }
