@@ -10,6 +10,7 @@ import { Eye, EyeOff, Mail, Lock, Home } from 'lucide-react';
 import { loginSchema } from '@/lib/validationSchemas';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import MFAVerify from '@/components/auth/MFAVerify';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignupMode, setIsSignupMode] = useState(false);
   const [success, setSuccess] = useState('');
+  const [showMFAVerify, setShowMFAVerify] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -79,9 +81,18 @@ const Login = () => {
     try {
       const validated = loginSchema.parse({ email, password });
       
-      const success = await login(validated.email, validated.password);
-      if (success) {
-        navigate('/dashboard');
+      const loginSuccess = await login(validated.email, validated.password);
+      if (loginSuccess) {
+        // Check if MFA is required
+        const { data: assuranceLevel } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        
+        if (assuranceLevel?.currentLevel === 'aal1' && assuranceLevel?.nextLevel === 'aal2') {
+          // User has 2FA enabled, show verification screen
+          setShowMFAVerify(true);
+        } else {
+          // No 2FA required, proceed to dashboard
+          navigate('/dashboard');
+        }
       } else {
         setError('Invalid credentials. Please check your email and password.');
       }
@@ -95,6 +106,21 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  const handleMFASuccess = () => {
+    setShowMFAVerify(false);
+    navigate('/dashboard');
+  };
+
+  const handleMFACancel = async () => {
+    await supabase.auth.signOut();
+    setShowMFAVerify(false);
+  };
+
+  // Show MFA verification screen if required
+  if (showMFAVerify) {
+    return <MFAVerify onSuccess={handleMFASuccess} onCancel={handleMFACancel} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 flex items-center justify-center p-4">
