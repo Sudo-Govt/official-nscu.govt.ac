@@ -286,6 +286,54 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_resources: {
+        Row: {
+          category: string
+          content: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_active: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       alumni_chapters: {
         Row: {
           contact_email: string | null
@@ -1006,6 +1054,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           navigation_parent_id: string | null
+          payment_link: string | null
           reference_books: Json | null
           seat_capacity: number
           slug: string | null
@@ -1033,6 +1082,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           navigation_parent_id?: string | null
+          payment_link?: string | null
           reference_books?: Json | null
           seat_capacity: number
           slug?: string | null
@@ -1060,6 +1110,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           navigation_parent_id?: string | null
+          payment_link?: string | null
           reference_books?: Json | null
           seat_capacity?: number
           slug?: string | null

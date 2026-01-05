@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
@@ -15,6 +15,7 @@ import AuditLogsModule from '@/components/transparency/AuditLogsModule';
 import CourseManagement from '@/components/admin/CourseManagement';
 import DashboardLayout from '@/components/DashboardLayout';
 import SiteEditor from '@/components/admin/SiteEditor';
+import AgentResourcesManager from '@/components/admin/AgentResourcesManager';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
@@ -94,6 +95,7 @@ const SuperAdminDashboard = () => {
       label: 'Operations',
       items: [
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
+        { title: 'Agent Resources', icon: Briefcase, value: 'agent-resources', onClick: () => setActiveTab('agent-resources') },
         { title: 'Finance', icon: DollarSign, value: 'finance', onClick: () => setActiveTab('finance') },
         { title: 'Compliance', icon: ClipboardCheck, value: 'compliance', onClick: () => setActiveTab('compliance') },
       ]
@@ -232,6 +234,9 @@ const SuperAdminDashboard = () => {
 
       case 'content':
         return <CourseManagement />;
+
+      case 'agent-resources':
+        return <AgentResourcesManager />;
 
       case 'admissions':
         return (
