@@ -504,7 +504,16 @@ const MultiStageApplicationForm = () => {
       case 5:
         return <AdditionalInfoStep data={additionalInfo} setData={setAdditionalInfo} />;
       case 6:
-        return <PaymentStep data={paymentInfo} setData={setPaymentInfo} />;
+        return (
+          <PaymentStep 
+            data={paymentInfo} 
+            setData={setPaymentInfo}
+            courseId={academicInfo.courseId}
+            studentName={`${personalInfo.firstName} ${personalInfo.lastName}`}
+            studentEmail={personalInfo.email}
+            studentPhone={personalInfo.contactNumber}
+          />
+        );
       default:
         return null;
     }
@@ -1570,7 +1579,91 @@ const AdditionalInfoStep: React.FC<{ data: AdditionalInfo; setData: (data: Addit
 };
 
 // Step 6: Payment
-const PaymentStep: React.FC<{ data: PaymentInfo; setData: (data: PaymentInfo) => void }> = ({ data, setData }) => {
+const PaymentStep: React.FC<{ 
+  data: PaymentInfo; 
+  setData: (data: PaymentInfo) => void;
+  courseId?: string;
+  studentName?: string;
+  studentEmail?: string;
+  studentPhone?: string;
+}> = ({ data, setData, courseId, studentName, studentEmail, studentPhone }) => {
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+  const [courseFee, setCourseFee] = useState<number | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (courseId) {
+      fetchCourseFee();
+    }
+  }, [courseId]);
+
+  const fetchCourseFee = async () => {
+    if (!courseId) return;
+    
+    const { data: courseData, error } = await supabase
+      .from('courses')
+      .select('fee_structure, payment_link')
+      .eq('id', courseId)
+      .single();
+
+    if (!error && courseData?.fee_structure) {
+      // Get the first available fee
+      const fees = courseData.fee_structure as Record<string, number>;
+      const firstFee = Object.values(fees).find(f => typeof f === 'number' && f > 0);
+      if (firstFee) setCourseFee(firstFee);
+    }
+  };
+
+  const handleRazorpayPayment = async () => {
+    if (!courseFee || !studentEmail || !studentName) {
+      toast({
+        title: "Missing Information",
+        description: "Please complete all previous steps before payment",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoadingPayment(true);
+
+    try {
+      const { data: result, error } = await supabase.functions.invoke('create-razorpay-payment', {
+        body: {
+          amount: courseFee,
+          currency: 'INR',
+          description: 'Course Application Fee',
+          customer_name: studentName,
+          customer_email: studentEmail,
+          customer_phone: studentPhone,
+          course_id: courseId,
+          callback_url: `${window.location.origin}/admission-success`
+        }
+      });
+
+      if (error) throw error;
+
+      if (result?.payment_link_url) {
+        // Open Razorpay payment link in new tab
+        window.open(result.payment_link_url, '_blank');
+        setData({ ...data, transactionReference: result.payment_link_id });
+        
+        toast({
+          title: "Payment Link Generated",
+          description: "Complete your payment in the new tab. Enter the transaction ID after payment.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Error",
+        description: error.message || "Failed to create payment link",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingPayment(false);
+    }
+  };
+
   const applicationFee = {
     USD: 75,
     EUR: 70,
@@ -1582,6 +1675,14 @@ const PaymentStep: React.FC<{ data: PaymentInfo; setData: (data: PaymentInfo) =>
 
   return (
     <div className="space-y-6">
+      {courseFee && (
+        <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+          <h4 className="font-semibold mb-2">Course Fee</h4>
+          <div className="text-2xl font-bold text-primary">₹{courseFee.toLocaleString()}</div>
+          <p className="text-sm text-muted-foreground mt-1">Based on selected course</p>
+        </div>
+      )}
+
       <div className="bg-muted/50 p-4 rounded-lg">
         <h4 className="font-semibold mb-2">Application Fee</h4>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -1600,15 +1701,39 @@ const PaymentStep: React.FC<{ data: PaymentInfo; setData: (data: PaymentInfo) =>
             <SelectValue placeholder="Select payment method" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="razorpay">Razorpay (Recommended)</SelectItem>
             <SelectItem value="credit_card">Credit/Debit Card</SelectItem>
             <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
             <SelectItem value="paypal">PayPal</SelectItem>
-            <SelectItem value="stripe">Stripe</SelectItem>
-            <SelectItem value="flutterwave">Flutterwave (Africa)</SelectItem>
-            <SelectItem value="razorpay">Razorpay (Asia)</SelectItem>
           </SelectContent>
         </Select>
       </div>
+
+      {data.paymentMethod === 'razorpay' && (
+        <div className="space-y-4">
+          <Button 
+            type="button"
+            onClick={handleRazorpayPayment}
+            disabled={isLoadingPayment}
+            className="w-full h-12 text-lg"
+          >
+            {isLoadingPayment ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Generating Payment Link...
+              </>
+            ) : (
+              <>
+                <CreditCard className="h-5 w-5 mr-2" />
+                Pay Now with Razorpay
+              </>
+            )}
+          </Button>
+          <p className="text-sm text-muted-foreground text-center">
+            You'll be redirected to a secure Razorpay payment page
+          </p>
+        </div>
+      )}
 
       {data.paymentMethod === 'bank_transfer' && (
         <div className="bg-muted/50 p-4 rounded-lg space-y-2">

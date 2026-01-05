@@ -118,10 +118,16 @@ export const ChatPanel = () => {
         is_online: isOnline,
         last_seen: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+      }, { 
+        onConflict: 'user_id',
+        ignoreDuplicates: false 
       });
 
     if (error) {
-      console.error('Error updating presence:', error);
+      // Silently ignore duplicate key errors as they're expected during concurrent updates
+      if (error.code !== '23505') {
+        console.error('Error updating presence:', error);
+      }
     }
   };
 

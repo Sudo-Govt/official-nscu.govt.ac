@@ -494,6 +494,10 @@ const AddStudentForm = ({ courses, onSuccess }: { courses: Course[], onSuccess: 
 
       if (!agentProfile) throw new Error('Agent profile not found');
 
+      // Get the selected course name for program field
+      const selectedCourse = courses.find(c => c.id === formData.course_id);
+      const programName = selectedCourse?.course_name || 'Unknown Program';
+
       const { error } = await supabase
         .from('student_applications')
         .insert([{
@@ -506,7 +510,7 @@ const AddStudentForm = ({ courses, onSuccess }: { courses: Course[], onSuccess: 
           passport_number: formData.passport_number,
           address: formData.address,
           course_id: formData.course_id,
-          program: formData.course_id,
+          program: programName,
           admission_year: formData.admission_year,
           admission_month: formData.admission_month,
           agent_id: agentProfile.id

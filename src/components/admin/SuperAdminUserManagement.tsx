@@ -6,11 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGr
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Pencil, Search, Shield, Users, Key, Trash2, Info } from 'lucide-react';
+import { UserPlus, Pencil, Search, Shield, Users, Key, Trash2, Info, Mail, DollarSign } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROLE_DEFINITIONS, getRolesByCategory, getRoleDisplayName, getRoleDescription, CATEGORY_LABELS } from '@/lib/roles';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -25,6 +25,15 @@ interface UserProfile {
   department?: string;
   phone?: string;
   metadata?: any;
+}
+
+interface AgentProfile {
+  id: string;
+  user_id: string;
+  agent_id: string | null;
+  commission_rate: number;
+  agency_name: string | null;
+  status: string;
 }
 
 interface SuperAdminUserManagementProps {
@@ -51,6 +60,15 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  
+  // Enhanced edit state
+  const [editDialogTab, setEditDialogTab] = useState('basic');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [agentProfile, setAgentProfile] = useState<AgentProfile | null>(null);
+  const [editCommissionRate, setEditCommissionRate] = useState('');
+  const [editAgencyName, setEditAgencyName] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { toast } = useToast();
 
@@ -67,7 +85,6 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 
   const fetchUsers = async () => {
     try {
-      // Fetch all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -75,17 +92,14 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 
       if (profilesError) throw profilesError;
 
-      // Fetch all user roles
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
       if (rolesError) throw rolesError;
 
-      // Create a map of user_id to role
       const rolesMap = new Map(userRoles?.map(ur => [ur.user_id, ur.role]) || []);
       
-      // Combine profiles with their roles from user_roles table, fallback to profile.role
       const usersWithRoles = profiles?.map(profile => ({
         ...profile,
         role: rolesMap.get(profile.user_id) || profile.role
@@ -102,28 +116,20 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     }
   };
 
-  // Generate unique 6-digit agent code
-  const generateAgentCode = async (): Promise<string> => {
-    let code: string;
-    let isUnique = false;
-    
-    while (!isUnique) {
-      // Generate 6-digit alphanumeric code
-      code = Math.random().toString(36).substring(2, 8).toUpperCase();
-      
-      // Check if code exists
-      const { data } = await supabase
+  const fetchAgentProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
         .from('agent_profiles')
-        .select('agent_id')
-        .eq('agent_id', code)
+        .select('*')
+        .eq('user_id', userId)
         .maybeSingle();
-      
-      if (!data) {
-        isUnique = true;
-      }
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching agent profile:', error);
+      return null;
     }
-    
-    return code!;
   };
 
   const createUser = async () => {
@@ -193,6 +199,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 
   const updateUser = async () => {
     if (!editingUser) return;
+    setIsUpdating(true);
 
     try {
       // Update profile
@@ -212,13 +219,11 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
       if (profileError) throw profileError;
 
       // Update role in user_roles table
-      // First delete existing role
       await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', editingUser.user_id);
 
-      // Then insert new role
       const { error: roleError } = await supabase
         .from('user_roles')
         .insert({
@@ -228,6 +233,72 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 
       if (roleError) throw roleError;
 
+      // Update email if changed
+      if (editEmail && editEmail !== editingUser.email) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const { error: emailError } = await supabase.functions.invoke('admin-update-email', {
+            body: { userId: editingUser.user_id, newEmail: editEmail }
+          });
+          if (emailError) {
+            toast({
+              title: "Warning",
+              description: "Profile updated but email change failed: " + emailError.message,
+              variant: "destructive"
+            });
+          }
+        }
+      }
+
+      // Update password if provided
+      if (editPassword && editPassword.length >= 6) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const response = await fetch(
+            `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/admin-update-password`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`
+              },
+              body: JSON.stringify({
+                userId: editingUser.user_id,
+                newPassword: editPassword
+              })
+            }
+          );
+          if (!response.ok) {
+            const result = await response.json();
+            toast({
+              title: "Warning",
+              description: "Profile updated but password change failed: " + (result.error || 'Unknown error'),
+              variant: "destructive"
+            });
+          }
+        }
+      }
+
+      // Update agent profile if applicable
+      if (agentProfile && (editCommissionRate || editAgencyName)) {
+        const updates: any = {};
+        if (editCommissionRate) updates.commission_rate = parseFloat(editCommissionRate);
+        if (editAgencyName !== undefined) updates.agency_name = editAgencyName || null;
+
+        const { error: agentError } = await supabase
+          .from('agent_profiles')
+          .update(updates)
+          .eq('id', agentProfile.id);
+
+        if (agentError) {
+          toast({
+            title: "Warning",
+            description: "Profile updated but agent details failed to update",
+            variant: "destructive"
+          });
+        }
+      }
+
       toast({
         title: "Success",
         description: "User updated successfully"
@@ -235,6 +306,11 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 
       setEditingUser(null);
       setIsCreateDialogOpen(false);
+      setAgentProfile(null);
+      setEditEmail('');
+      setEditPassword('');
+      setEditCommissionRate('');
+      setEditAgencyName('');
       await fetchUsers();
     } catch (error) {
       console.error('Error updating user:', error);
@@ -243,6 +319,8 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
         description: "Failed to update user",
         variant: "destructive"
       });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -273,7 +351,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     }
   };
 
-  const handleEditUser = (user: UserProfile) => {
+  const handleEditUser = async (user: UserProfile) => {
     setEditingUser(user);
     setNewUser({
       email: '',
@@ -284,6 +362,22 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
       phone: user.phone || '',
       permissions: user.metadata?.permissions || []
     });
+    setEditEmail('');
+    setEditPassword('');
+    setEditDialogTab('basic');
+
+    // Fetch agent profile if user is an agent
+    if (user.role === 'admission_agent' || user.role === 'master_agent') {
+      const profile = await fetchAgentProfile(user.user_id);
+      setAgentProfile(profile);
+      setEditCommissionRate(profile?.commission_rate?.toString() || '10');
+      setEditAgencyName(profile?.agency_name || '');
+    } else {
+      setAgentProfile(null);
+      setEditCommissionRate('');
+      setEditAgencyName('');
+    }
+
     setIsCreateDialogOpen(true);
   };
 
@@ -298,6 +392,12 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
       phone: '',
       permissions: []
     });
+    setAgentProfile(null);
+    setEditEmail('');
+    setEditPassword('');
+    setEditCommissionRate('');
+    setEditAgencyName('');
+    setEditDialogTab('basic');
     setIsCreateDialogOpen(true);
   };
 
@@ -336,7 +436,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
       }
 
       const response = await fetch(
-        'https://jywejigatlsdytnppgnc.supabase.co/functions/v1/admin-update-password',
+        `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/admin-update-password`,
         {
           method: 'POST',
           headers: {
@@ -429,8 +529,8 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   ).filter(user => !filterRole || user.role === filterRole);
 
-  // Role categories for grouped display
   const roleCategories = getRolesByCategory();
+  const isAgentRole = editingUser && (editingUser.role === 'admission_agent' || editingUser.role === 'master_agent');
 
   return (
     <Card className="h-full">
@@ -458,18 +558,192 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                 {filterRole === 'admission_agent' ? 'Add Agent' : 'Add User'}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
                   {editingUser ? 'Edit User' : filterRole === 'admission_agent' ? 'Create New Agent' : 'Create New User'}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingUser ? 'Update user information and permissions' : filterRole === 'admission_agent' ? 'Add a new admission agent to the system' : 'Add a new user to the system with specific roles and permissions'}
+                  {editingUser ? 'Update user information, credentials, and permissions' : filterRole === 'admission_agent' ? 'Add a new admission agent to the system' : 'Add a new user to the system with specific roles and permissions'}
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-6 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {!editingUser && (
+
+              {editingUser ? (
+                <Tabs value={editDialogTab} onValueChange={setEditDialogTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                    <TabsTrigger value="credentials">Credentials</TabsTrigger>
+                    {isAgentRole && <TabsTrigger value="agent">Agent Settings</TabsTrigger>}
+                  </TabsList>
+
+                  <TabsContent value="basic" className="space-y-4 py-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="full_name">Full Name *</Label>
+                        <Input
+                          id="full_name"
+                          value={newUser.full_name}
+                          onChange={(e) => setNewUser({...newUser, full_name: e.target.value})}
+                          placeholder="John Doe"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="role">Role *</Label>
+                        {filterRole ? (
+                          <Input
+                            id="role"
+                            value={getRoleDisplayName(filterRole)}
+                            disabled
+                            className="bg-muted"
+                          />
+                        ) : (
+                          <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select role" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-80">
+                              {Object.entries(roleCategories).map(([category, roles]) => (
+                                roles.length > 0 && (
+                                  <SelectGroup key={category}>
+                                    <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                      {CATEGORY_LABELS[category]}
+                                    </SelectLabel>
+                                    {roles.map((role) => (
+                                      <SelectItem key={role.id} value={role.id}>
+                                        <div className="flex items-center gap-2">
+                                          <span>{role.name}</span>
+                                        </div>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectGroup>
+                                )
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="department">Department</Label>
+                        <Input
+                          id="department"
+                          value={newUser.department}
+                          onChange={(e) => setNewUser({...newUser, department: e.target.value})}
+                          placeholder="Computer Science"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone</Label>
+                        <Input
+                          id="phone"
+                          value={newUser.phone}
+                          onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
+                          placeholder="+1234567890"
+                        />
+                      </div>
+                    </div>
+
+                    {newUser.role && ROLE_DEFINITIONS[newUser.role] && (
+                      <div className="p-4 bg-muted/50 rounded-lg border">
+                        <div className="flex items-start gap-3">
+                          <Info className="h-5 w-5 text-primary mt-0.5" />
+                          <div>
+                            <p className="font-medium text-sm">{getRoleDisplayName(newUser.role)}</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {getRoleDescription(newUser.role)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="credentials" className="space-y-4 py-4">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="editEmail" className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          New Email Address
+                        </Label>
+                        <Input
+                          id="editEmail"
+                          type="email"
+                          value={editEmail}
+                          onChange={(e) => setEditEmail(e.target.value)}
+                          placeholder="Leave empty to keep current email"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Leave empty if you don't want to change the email
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="editPassword" className="flex items-center gap-2">
+                          <Key className="h-4 w-4" />
+                          New Password
+                        </Label>
+                        <Input
+                          id="editPassword"
+                          type="password"
+                          value={editPassword}
+                          onChange={(e) => setEditPassword(e.target.value)}
+                          placeholder="Leave empty to keep current password"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Minimum 6 characters. Leave empty if you don't want to change the password
+                        </p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {isAgentRole && (
+                    <TabsContent value="agent" className="space-y-4 py-4">
+                      <div className="space-y-4">
+                        {agentProfile && (
+                          <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                            <p className="text-sm font-medium">Agent Code: <span className="font-mono">{agentProfile.agent_id || 'Not assigned'}</span></p>
+                          </div>
+                        )}
+
+                        <div className="space-y-2">
+                          <Label htmlFor="commissionRate" className="flex items-center gap-2">
+                            <DollarSign className="h-4 w-4" />
+                            Commission Rate (%)
+                          </Label>
+                          <Input
+                            id="commissionRate"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.5"
+                            value={editCommissionRate}
+                            onChange={(e) => setEditCommissionRate(e.target.value)}
+                            placeholder="10"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Percentage commission on successful student enrollments
+                          </p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="agencyName">Agency Name</Label>
+                          <Input
+                            id="agencyName"
+                            value={editAgencyName}
+                            onChange={(e) => setEditAgencyName(e.target.value)}
+                            placeholder="e.g., Global Education Partners"
+                          />
+                        </div>
+                      </div>
+                    </TabsContent>
+                  )}
+                </Tabs>
+              ) : (
+                // Create new user form
+                <div className="space-y-6 py-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email *</Label>
                       <Input
@@ -480,8 +754,6 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                         placeholder="user@example.com"
                       />
                     </div>
-                  )}
-                  {!editingUser && (
                     <div className="space-y-2">
                       <Label htmlFor="password">Password *</Label>
                       <Input
@@ -492,112 +764,112 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                         placeholder="Secure password"
                       />
                     </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name *</Label>
-                    <Input
-                      id="full_name"
-                      value={newUser.full_name}
-                      onChange={(e) => setNewUser({...newUser, full_name: e.target.value})}
-                      placeholder="John Doe"
-                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Role *</Label>
-                    {filterRole ? (
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="full_name">Full Name *</Label>
                       <Input
-                        id="role"
-                        value={getRoleDisplayName(filterRole)}
-                        disabled
-                        className="bg-muted"
+                        id="full_name"
+                        value={newUser.full_name}
+                        onChange={(e) => setNewUser({...newUser, full_name: e.target.value})}
+                        placeholder="John Doe"
                       />
-                    ) : (
-                      <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-80">
-                          {Object.entries(roleCategories).map(([category, roles]) => (
-                            roles.length > 0 && (
-                              <SelectGroup key={category}>
-                                <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                  {CATEGORY_LABELS[category]}
-                                </SelectLabel>
-                                {roles.map((role) => (
-                                  <SelectItem key={role.id} value={role.id}>
-                                    <div className="flex items-center gap-2">
-                                      <span>{role.name}</span>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            )
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">Role *</Label>
+                      {filterRole ? (
+                        <Input
+                          id="role"
+                          value={getRoleDisplayName(filterRole)}
+                          disabled
+                          className="bg-muted"
+                        />
+                      ) : (
+                        <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-80">
+                            {Object.entries(roleCategories).map(([category, roles]) => (
+                              roles.length > 0 && (
+                                <SelectGroup key={category}>
+                                  <SelectLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                    {CATEGORY_LABELS[category]}
+                                  </SelectLabel>
+                                  {roles.map((role) => (
+                                    <SelectItem key={role.id} value={role.id}>
+                                      <div className="flex items-center gap-2">
+                                        <span>{role.name}</span>
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              )
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* Role Description */}
-                {newUser.role && ROLE_DEFINITIONS[newUser.role] && (
-                  <div className="p-4 bg-muted/50 rounded-lg border">
-                    <div className="flex items-start gap-3">
-                      <Info className="h-5 w-5 text-primary mt-0.5" />
-                      <div>
-                        <p className="font-medium text-sm">{getRoleDisplayName(newUser.role)}</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {getRoleDescription(newUser.role)}
-                        </p>
-                        <div className="flex flex-wrap gap-1.5 mt-3">
-                          {Object.entries(ROLE_DEFINITIONS[newUser.role].permissions).map(([category, actions]) => (
-                            <Badge key={category} variant="secondary" className="text-xs">
-                              {category}: {(actions as string[]).join(', ')}
-                            </Badge>
-                          ))}
+                  {newUser.role && ROLE_DEFINITIONS[newUser.role] && (
+                    <div className="p-4 bg-muted/50 rounded-lg border">
+                      <div className="flex items-start gap-3">
+                        <Info className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium text-sm">{getRoleDisplayName(newUser.role)}</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {getRoleDescription(newUser.role)}
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 mt-3">
+                            {Object.entries(ROLE_DEFINITIONS[newUser.role].permissions).map(([category, actions]) => (
+                              <Badge key={category} variant="secondary" className="text-xs">
+                                {category}: {(actions as string[]).join(', ')}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
-                    <Input
-                      id="department"
-                      value={newUser.department}
-                      onChange={(e) => setNewUser({...newUser, department: e.target.value})}
-                      placeholder="Computer Science"
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Department</Label>
+                      <Input
+                        id="department"
+                        value={newUser.department}
+                        onChange={(e) => setNewUser({...newUser, department: e.target.value})}
+                        placeholder="Computer Science"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={newUser.phone}
+                        onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
+                        placeholder="+1234567890"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={newUser.phone}
-                      onChange={(e) => setNewUser({...newUser, phone: e.target.value})}
-                      placeholder="+1234567890"
-                    />
+
+                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-primary" />
+                      Permissions are automatically assigned based on the selected role.
+                    </p>
                   </div>
                 </div>
+              )}
 
-                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                  <p className="text-sm text-muted-foreground flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-primary" />
-                    Permissions are automatically assigned based on the selected role. No manual permission selection is required.
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-4">
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={editingUser ? updateUser : createUser}>
-                  {editingUser ? 'Update User' : 'Create User'}
+                <Button onClick={editingUser ? updateUser : createUser} disabled={isUpdating}>
+                  {isUpdating ? 'Updating...' : editingUser ? 'Update User' : 'Create User'}
                 </Button>
               </div>
             </DialogContent>
@@ -669,7 +941,6 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                   Edit
                 </Button>
                 
-                {/* Delete button - hidden for the current (logged-in) user */}
                 {currentUserId && user.user_id !== currentUserId && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
