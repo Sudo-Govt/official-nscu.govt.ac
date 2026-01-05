@@ -168,10 +168,10 @@ const StudentManagement = () => {
         body: {
           amount,
           currency: 'INR',
-          student_name: `${application.first_name} ${application.last_name}`,
-          student_email: application.email,
-          student_phone: application.phone || '',
-          course_name: application.course?.course_name || 'Application Fee',
+          customer_name: `${application.first_name} ${application.last_name}`,
+          customer_email: application.email,
+          customer_phone: application.phone || '',
+          course_id: courses.find(c => c.course_name === application.course?.course_name)?.id,
           application_id: application.id,
           description: `Application fee for ${application.course?.course_name || 'admission'}`
         }
@@ -181,16 +181,16 @@ const StudentManagement = () => {
       
       const paymentData = response.data;
       
-      if (paymentData.short_url) {
+      if (paymentData.payment_link_url) {
         // Copy to clipboard
-        await navigator.clipboard.writeText(paymentData.short_url);
+        await navigator.clipboard.writeText(paymentData.payment_link_url);
         toast({
           title: "Payment Link Created",
           description: "Payment link copied to clipboard! Share with the student."
         });
         
         // Optionally open in new tab
-        window.open(paymentData.short_url, '_blank');
+        window.open(paymentData.payment_link_url, '_blank');
       } else {
         throw new Error('No payment link received');
       }
