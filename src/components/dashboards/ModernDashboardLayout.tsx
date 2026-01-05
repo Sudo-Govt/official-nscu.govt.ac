@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, Bell, LogOut, Settings, User, ChevronDown } from 'lucide-react';
+import { Search, Bell, LogOut, Settings, User, ChevronDown, Shield } from 'lucide-react';
+import SecuritySettings from '@/components/auth/SecuritySettings';
 
 interface ModernDashboardLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({
   notificationCount = 0,
 }) => {
   const { user, logout } = useAuth();
+  const [showSecuritySettings, setShowSecuritySettings] = useState(false);
 
   const getInitials = (name: string) => {
     return name
@@ -91,6 +93,10 @@ const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({
                     <Settings className="h-4 w-4 mr-2" />
                     Settings
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowSecuritySettings(true)}>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Security
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout} className="text-destructive">
                     <LogOut className="h-4 w-4 mr-2" />
@@ -107,6 +113,12 @@ const ModernDashboardLayout: React.FC<ModernDashboardLayoutProps> = ({
       <main className="container mx-auto px-4 py-6">
         {children}
       </main>
+
+      {/* Security Settings Dialog */}
+      <SecuritySettings 
+        open={showSecuritySettings} 
+        onOpenChange={setShowSecuritySettings} 
+      />
     </div>
   );
 };
