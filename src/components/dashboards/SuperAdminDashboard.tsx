@@ -16,6 +16,7 @@ import CourseManagement from '@/components/admin/CourseManagement';
 import DashboardLayout from '@/components/DashboardLayout';
 import SiteEditor from '@/components/admin/SiteEditor';
 import AgentResourcesManager from '@/components/admin/AgentResourcesManager';
+import ApplicationManagement from '@/components/admin/ApplicationManagement';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
@@ -239,17 +240,7 @@ const SuperAdminDashboard = () => {
         return <AgentResourcesManager />;
 
       case 'admissions':
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Global Admissions Control</CardTitle>
-              <CardDescription>Manage all admissions across the platform</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Admissions management interface</p>
-            </CardContent>
-          </Card>
-        );
+        return <ApplicationManagement />;
 
       case 'finance':
         return (
