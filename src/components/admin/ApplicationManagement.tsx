@@ -62,7 +62,7 @@ const ApplicationManagement = () => {
         .select(`
           *,
           course:courses(course_name, degree_type, college),
-          agent_profiles!inner(agent_id, contact_info)
+          agent_profiles(agent_id, contact_info)
         `)
         .order('created_at', { ascending: false });
 
@@ -85,6 +85,7 @@ const ApplicationManagement = () => {
       case 'accepted': return 'default';
       case 'enrolled': return 'default';
       case 'submitted': return 'secondary';
+      case 'pending': return 'secondary';
       case 'in_review': return 'outline';
       case 'on_hold': return 'outline';
       case 'rejected': return 'destructive';
@@ -278,6 +279,7 @@ const ApplicationManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="submitted">Submitted</SelectItem>
                   <SelectItem value="in_review">In Review</SelectItem>
                   <SelectItem value="on_hold">On Hold</SelectItem>

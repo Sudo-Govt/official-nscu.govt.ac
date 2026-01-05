@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar, Trash2, MessageSquare } from 'lucide-react';
+import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar, Trash2, MessageSquare, CreditCard, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import MessageDialog from './MessageDialog';
 
@@ -54,6 +54,7 @@ const StudentManagement = () => {
   const [showAddStudent, setShowAddStudent] = useState(false);
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<StudentApplication | null>(null);
+  const [generatingPaymentLink, setGeneratingPaymentLink] = useState<string | null>(null);
 
   useEffect(() => {
     fetchApplications();
@@ -144,11 +145,73 @@ const StudentManagement = () => {
     setShowMessageDialog(true);
   };
 
+  const handleGeneratePaymentLink = async (application: StudentApplication) => {
+    setGeneratingPaymentLink(application.id);
+    
+    try {
+      // Find the course to get fee structure
+      const course = courses.find(c => c.course_name === application.course?.course_name);
+      const feeStructure = course?.fee_structure;
+      
+      // Calculate application fee - try to extract from fee_structure or use default
+      let amount = 5000; // Default application fee in INR (50 USD equivalent)
+      if (feeStructure && typeof feeStructure === 'object') {
+        const fees = feeStructure as Record<string, any>;
+        if (fees.application_fee) {
+          amount = parseFloat(fees.application_fee);
+        } else if (fees.applicationFee) {
+          amount = parseFloat(fees.applicationFee);
+        }
+      }
+
+      const response = await supabase.functions.invoke('create-razorpay-payment', {
+        body: {
+          amount,
+          currency: 'INR',
+          student_name: `${application.first_name} ${application.last_name}`,
+          student_email: application.email,
+          student_phone: application.phone || '',
+          course_name: application.course?.course_name || 'Application Fee',
+          application_id: application.id,
+          description: `Application fee for ${application.course?.course_name || 'admission'}`
+        }
+      });
+
+      if (response.error) throw response.error;
+      
+      const paymentData = response.data;
+      
+      if (paymentData.short_url) {
+        // Copy to clipboard
+        await navigator.clipboard.writeText(paymentData.short_url);
+        toast({
+          title: "Payment Link Created",
+          description: "Payment link copied to clipboard! Share with the student."
+        });
+        
+        // Optionally open in new tab
+        window.open(paymentData.short_url, '_blank');
+      } else {
+        throw new Error('No payment link received');
+      }
+    } catch (error: any) {
+      console.error('Error generating payment link:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate payment link. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingPaymentLink(null);
+    }
+  };
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'accepted': return 'default';
       case 'enrolled': return 'default';
       case 'submitted': return 'secondary';
+      case 'pending': return 'secondary';
       case 'in_review': return 'outline';
       case 'rejected': return 'destructive';
       default: return 'secondary';
@@ -243,6 +306,7 @@ const StudentManagement = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="submitted">Submitted</SelectItem>
                       <SelectItem value="in_review">In Review</SelectItem>
                       <SelectItem value="accepted">Accepted</SelectItem>
@@ -303,28 +367,46 @@ const StudentManagement = () => {
                       </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" title="View">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" title="Edit">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" title="Documents">
                               <FileText className="h-4 w-4" />
                             </Button>
                             <Button 
                               size="sm" 
                               variant="outline"
                               onClick={() => handleSendMessage(app)}
+                              title="Send Message"
                             >
                               <MessageSquare className="h-4 w-4" />
                             </Button>
+                            {(app.status === 'pending' || app.status === 'accepted') && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleGeneratePaymentLink(app)}
+                                disabled={generatingPaymentLink === app.id}
+                                title="Generate Payment Link"
+                                className="text-green-600 hover:text-green-700"
+                              >
+                                {generatingPaymentLink === app.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CreditCard className="h-4 w-4" />
+                                )}
+                              </Button>
+                            )}
                             {(app.status !== 'accepted' && app.status !== 'enrolled') && (
                               <Button 
                                 size="sm" 
                                 variant="outline" 
                                 onClick={() => handleDeleteApplication(app.id)}
                                 className="text-destructive hover:text-destructive"
+                                title="Delete"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
