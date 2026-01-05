@@ -80,13 +80,7 @@ serve(async (req) => {
       throw new Error('SMTP_PASSWORD secret not configured. Please set it in your backend secrets.');
     }
 
-    // Log SMTP settings for debugging (without password)
-    console.log('Attempting to send email via SMTP:', {
-      host: smtpSettings.smtp_host,
-      port: smtpSettings.smtp_port,
-      user: smtpSettings.smtp_user,
-      tls: smtpSettings.use_tls,
-    });
+    // Sending email via SMTP (no sensitive data logged)
 
     // Send email using SMTP with proper STARTTLS configuration
     const client = new SMTPClient({
@@ -112,12 +106,11 @@ serve(async (req) => {
         html: email.body,
       });
 
-      console.log('Email sent successfully to:', email.to_email);
+      // Email sent successfully
       await client.close();
-    } catch (smtpError) {
-      console.error('SMTP send error:', smtpError);
+    } catch (smtpError: unknown) {
       await client.close();
-      throw new Error(`SMTP Error: ${smtpError.message}`);
+      throw new Error(`SMTP Error: ${smtpError instanceof Error ? smtpError.message : 'Unknown error'}`);
     }
 
     // Update email status
@@ -141,11 +134,9 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error) {
-    console.error('Error sending email:', error);
-
+  } catch (error: unknown) {
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
