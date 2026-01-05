@@ -70,9 +70,6 @@ serve(async (req) => {
 
     // Get encryption key from secrets
     const encryptionKey = Deno.env.get('EMAIL_ENCRYPTION_KEY');
-    if (!encryptionKey) {
-      console.error('EMAIL_ENCRYPTION_KEY not configured, falling back to encrypted_password if available');
-    }
 
     // Try to decrypt the password using database function if available
     let password: string | null = null;
@@ -90,16 +87,14 @@ serve(async (req) => {
         if (!decryptError && decryptedData) {
           password = decryptedData;
         }
-      } catch (e) {
-        console.error('Decryption failed, function may not exist:', e);
+      } catch {
+        // Decryption failed, function may not exist
       }
     }
 
     if (!password) {
       throw new Error('Email password not available. Please reconfigure your email account.');
     }
-
-    console.log('Sending email via SMTP from:', emailAccount.email_address);
 
     // Send email using SMTP
     const client = new SMTPClient({
@@ -125,12 +120,11 @@ serve(async (req) => {
         html: email.body_html || email.body,
       });
 
-      console.log('Email sent successfully to:', email.to_email);
+      // Email sent successfully
       await client.close();
-    } catch (smtpError) {
-      console.error('SMTP send error:', smtpError);
+    } catch (smtpError: unknown) {
       await client.close();
-      throw new Error(`SMTP Error: ${smtpError.message}`);
+      throw new Error(`SMTP Error: ${smtpError instanceof Error ? smtpError.message : 'Unknown error'}`);
     }
 
     // Update email status
@@ -145,18 +139,14 @@ serve(async (req) => {
 
     if (updateError) throw updateError;
 
-    console.log('Email sent successfully via SMTP');
-
     return new Response(
       JSON.stringify({ success: true, message: 'Email sent successfully via SMTP' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
-    console.error('Error sending email:', error);
-    
+  } catch (error: unknown) {
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

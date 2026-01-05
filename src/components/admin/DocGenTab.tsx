@@ -144,7 +144,7 @@ export const DocGenTab = () => {
       setDocuments(documentsResponse.data || []);
       setUsers(usersResponse.data || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      // Error handled via toast
       toast({
         title: "Error",
         description: "Failed to fetch data",
@@ -156,7 +156,6 @@ export const DocGenTab = () => {
   };
 
   const createStudent = async () => {
-    console.log('Create student clicked', newStudent);
     if (!newStudent.name || !newStudent.father_name || !newStudent.mother_name || 
         !newStudent.dob || !newStudent.address || !newStudent.course_name || 
         !newStudent.specialization) {
@@ -172,8 +171,6 @@ export const DocGenTab = () => {
     try {
       // Generate student_id
       const studentId = 'STU' + Date.now();
-      
-      console.log('Inserting student into database:', newStudent);
       const { data, error } = await supabase
         .from('students')
         .insert([{
@@ -187,11 +184,9 @@ export const DocGenTab = () => {
         .single();
 
       if (error) {
-        console.error('Database error:', error);
         throw error;
       }
 
-      console.log('Student created successfully:', data);
       toast({
         title: "Success",
         description: "Student created successfully"
@@ -210,8 +205,7 @@ export const DocGenTab = () => {
       });
       setShowCreateStudent(false);
       fetchData();
-    } catch (error) {
-      console.error('Error creating student:', error);
+    } catch {
       toast({
         title: "Error",
         description: "Failed to create student",
@@ -256,9 +250,7 @@ export const DocGenTab = () => {
   };
 
   const generateDocuments = async (studentId: string) => {
-    console.log('Generate documents clicked for student:', studentId);
     const docTypes = selectedDocs[studentId];
-    console.log('Selected document types:', docTypes);
     
     if (!docTypes || docTypes.length === 0) {
       toast({
@@ -281,13 +273,11 @@ export const DocGenTab = () => {
           is_public: false
         }
       };
-      console.log('Calling generate-document function with:', requestBody);
       
       const { data, error } = await supabase.functions.invoke('generate-document', {
         body: requestBody
       });
 
-      console.log('Function response:', { data, error });
       if (error) throw error;
 
       if (data.success) {
@@ -300,8 +290,7 @@ export const DocGenTab = () => {
       } else {
         throw new Error(data.error || 'Unknown error occurred');
       }
-    } catch (error) {
-      console.error('Error generating documents:', error);
+    } catch {
       toast({
         title: "Error",
         description: "Failed to generate documents",
@@ -350,8 +339,7 @@ export const DocGenTab = () => {
         title: "Success",
         description: "Document downloaded successfully"
       });
-    } catch (error) {
-      console.error('Error downloading document:', error);
+    } catch {
       toast({
         title: "Error",
         description: "Failed to download document. Please try again.",
@@ -376,8 +364,7 @@ export const DocGenTab = () => {
         description: "Document deleted successfully"
       });
       fetchData();
-    } catch (error) {
-      console.error('Error deleting document:', error);
+    } catch {
       toast({
         title: "Error",
         description: "Failed to delete document",

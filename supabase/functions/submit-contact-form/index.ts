@@ -24,7 +24,7 @@ serve(async (req) => {
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    console.log('Contact form submission from IP:', ip);
+    // Rate limit check
 
     // Check rate limiting
     const { data: rateLimit, error: rateLimitError } = await supabaseClient
@@ -37,7 +37,6 @@ serve(async (req) => {
 
     // Check if IP is blocked
     if (rateLimit?.blocked_until && new Date(rateLimit.blocked_until) > now) {
-      console.log('IP blocked:', ip);
       return new Response(
         JSON.stringify({ 
           error: 'Too many failed attempts. Please try again later.',
@@ -53,7 +52,6 @@ serve(async (req) => {
       const lastSubmission = new Date(rateLimit.last_submission_at);
 
       if (rateLimit.submission_count >= 5 && lastSubmission > hourAgo) {
-        console.log('Rate limit exceeded for IP:', ip);
         return new Response(
           JSON.stringify({ error: 'Too many submissions. Please try again in an hour.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -89,8 +87,6 @@ serve(async (req) => {
       const correctDiff = c - d;
 
       if (sumAnswer !== correctSum || diffAnswer !== correctDiff) {
-        console.log('Captcha failed for IP:', ip);
-        
         // Increment captcha fail count
         const newFailCount = (rateLimit?.captcha_fail_count || 0) + 1;
         
@@ -155,11 +151,10 @@ serve(async (req) => {
       .single();
 
     if (insertError) {
-      console.error('Error inserting submission:', insertError);
       throw insertError;
     }
 
-    console.log('Contact submission created:', submission.id);
+    // Log submission ID for tracking (non-sensitive)
 
     // Send email notification to dia@nscu.govt.ac
     const emailSubject = flow === 'academic' 
@@ -177,13 +172,9 @@ serve(async (req) => {
       ${country ? `<p><strong>Country:</strong> ${country}</p>` : ''}
       ${message ? `<p><strong>Message:</strong><br>${message.replace(/\n/g, '<br>')}</p>` : ''}
       <p><strong>Submitted At:</strong> ${new Date().toLocaleString()}</p>
-      <p><strong>IP Address:</strong> ${ip}</p>
     `;
 
     // Note: Email sending would require configuring SMTP or using a service like Resend
-    // For now, we'll log that an email should be sent
-    console.log('Email notification should be sent to dia@nscu.govt.ac');
-    console.log('Subject:', emailSubject);
 
     return new Response(
       JSON.stringify({ 
@@ -199,12 +190,10 @@ serve(async (req) => {
       }
     );
 
-  } catch (error: any) {
-    console.error('Error in submit-contact-form:', error);
+  } catch (error: unknown) {
     return new Response(
       JSON.stringify({ 
-        error: 'Submission failed. Try again or contact support@nscu.edu',
-        details: error.message 
+        error: 'Submission failed. Try again or contact support@nscu.edu'
       }),
       { 
         status: 500, 
