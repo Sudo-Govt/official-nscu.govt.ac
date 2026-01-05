@@ -26,6 +26,9 @@ interface StudentApplication {
   admission_month: number;
   created_at: string;
   review_notes?: string;
+  approved_fee?: number;
+  payment_status?: string;
+  payment_code?: string;
   course: {
     course_name: string;
     degree_type: string;
@@ -46,6 +49,7 @@ const ApplicationManagement = () => {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<StudentApplication | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
+  const [approvedFee, setApprovedFee] = useState<string>('1500');
   const [reviewAction, setReviewAction] = useState<'accept' | 'reject' | 'hold'>('accept');
   const [documentsDialogOpen, setDocumentsDialogOpen] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
@@ -102,6 +106,7 @@ const ApplicationManagement = () => {
   const handleReviewApplication = (application: StudentApplication) => {
     setSelectedApplication(application);
     setReviewNotes(application.review_notes || '');
+    setApprovedFee(application.approved_fee?.toString() || '1500');
     setReviewDialogOpen(true);
   };
 
@@ -110,27 +115,38 @@ const ApplicationManagement = () => {
 
     try {
       const newStatus = reviewAction === 'accept' ? 'accepted' : reviewAction === 'reject' ? 'rejected' : 'on_hold';
+      const feeAmount = parseFloat(approvedFee) || 1500;
       
+      const updateData: Record<string, any> = {
+        status: newStatus,
+        review_notes: reviewNotes,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: (await supabase.auth.getUser()).data.user?.id
+      };
+
+      // Only set approved_fee when accepting
+      if (reviewAction === 'accept') {
+        updateData.approved_fee = feeAmount;
+      }
+
       const { error } = await supabase
         .from('student_applications')
-        .update({
-          status: newStatus,
-          review_notes: reviewNotes,
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: (await supabase.auth.getUser()).data.user?.id
-        })
+        .update(updateData)
         .eq('id', selectedApplication.id);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: `Application ${reviewAction}ed successfully`
+        description: reviewAction === 'accept' 
+          ? `Application approved with fee $${feeAmount} USD` 
+          : `Application ${reviewAction}ed successfully`
       });
 
       setReviewDialogOpen(false);
       setSelectedApplication(null);
       setReviewNotes('');
+      setApprovedFee('1500');
       fetchApplications();
     } catch (error) {
       console.error('Error reviewing application:', error);
@@ -301,6 +317,7 @@ const ApplicationManagement = () => {
                 <TableHead>Agent</TableHead>
                 <TableHead>Intake</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Payment</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -341,6 +358,27 @@ const ApplicationManagement = () => {
                     <Badge variant={getStatusBadgeVariant(app.status)}>
                       {getStatusLabel(app.status)}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {app.payment_status === 'completed' ? (
+                      <div className="space-y-1">
+                        <Badge className="bg-green-500 hover:bg-green-600 text-white">
+                          Payment Successful
+                        </Badge>
+                        {app.payment_code && (
+                          <div className="text-xs font-mono text-muted-foreground">
+                            {app.payment_code}
+                          </div>
+                        )}
+                      </div>
+                    ) : app.approved_fee ? (
+                      <div className="text-sm">
+                        <span className="font-medium">${app.approved_fee}</span>
+                        <span className="text-muted-foreground ml-1">USD</span>
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     {format(new Date(app.created_at), 'MMM dd, yyyy')}
@@ -427,6 +465,23 @@ const ApplicationManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              {reviewAction === 'accept' && (
+                <div>
+                  <Label>Application Fee (USD)</Label>
+                  <Input
+                    type="number"
+                    value={approvedFee}
+                    onChange={(e) => setApprovedFee(e.target.value)}
+                    placeholder="1500"
+                    min="0"
+                    step="100"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This fee will be used when the agent generates the payment link
+                  </p>
+                </div>
+              )}
 
               <div>
                 <Label>Review Notes</Label>

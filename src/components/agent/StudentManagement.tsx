@@ -27,6 +27,9 @@ interface StudentApplication {
   admission_year: number;
   admission_month: number;
   created_at: string;
+  approved_fee?: number;
+  payment_status?: string;
+  payment_code?: string;
   course: {
     course_name: string;
     degree_type: string;
@@ -146,31 +149,26 @@ const StudentManagement = () => {
   };
 
   const handleGeneratePaymentLink = async (application: StudentApplication) => {
+    // Check if application has been approved with a fee
+    if (!application.approved_fee) {
+      toast({
+        title: "Cannot Generate Payment Link",
+        description: "This application must be approved by admin first with a set fee amount.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setGeneratingPaymentLink(application.id);
     
     try {
-      // Find the course to get fee structure
       const course = courses.find(c => c.course_name === application.course?.course_name);
-      const feeStructure = course?.fee_structure;
       
-      // Calculate application fee from course fee_structure or use default $1500 USD
-      let amount = 1500; // Default application fee in USD
-      if (feeStructure && typeof feeStructure === 'object') {
-        const fees = feeStructure as Record<string, any>;
-        // Try different fee field names that might be in the structure
-        if (fees.application_fee_usd) {
-          amount = parseFloat(fees.application_fee_usd);
-        } else if (fees.applicationFee) {
-          amount = parseFloat(fees.applicationFee);
-        } else if (fees.application_fee) {
-          amount = parseFloat(fees.application_fee);
-        } else if (fees.tuition_usd) {
-          amount = parseFloat(fees.tuition_usd);
-        } else if (fees.Online) {
-          // If using delivery mode based fees, use Online as reference
-          amount = parseFloat(fees.Online);
-        }
-      }
+      // Use the approved_fee set by super admin
+      const amount = application.approved_fee;
+      
+      // Build callback URL for payment success
+      const callbackUrl = `${window.location.origin}/payment-success?application_id=${application.id}`;
 
       const response = await supabase.functions.invoke('create-razorpay-payment', {
         body: {
@@ -181,7 +179,8 @@ const StudentManagement = () => {
           customer_phone: application.phone || '',
           course_id: course?.id,
           application_id: application.id,
-          description: `Application fee for ${application.course?.course_name || 'admission'}`
+          description: `Application fee for ${application.course?.course_name || 'admission'}`,
+          callback_url: callbackUrl
         }
       });
 
@@ -190,14 +189,12 @@ const StudentManagement = () => {
       const paymentData = response.data;
       
       if (paymentData.payment_link_url) {
-        // Copy to clipboard
         await navigator.clipboard.writeText(paymentData.payment_link_url);
         toast({
           title: "Payment Link Created",
-          description: "Payment link copied to clipboard! Share with the student."
+          description: `Payment link for $${amount} USD copied to clipboard!`
         });
         
-        // Optionally open in new tab
         window.open(paymentData.payment_link_url, '_blank');
       } else {
         throw new Error('No payment link received');
@@ -333,9 +330,10 @@ const StudentManagement = () => {
                     <TableHead>Student Name</TableHead>
                     <TableHead>Course</TableHead>
                     <TableHead>Intake</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Payment</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -371,6 +369,27 @@ const StudentManagement = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        {app.payment_status === 'completed' ? (
+                          <div className="space-y-1">
+                            <Badge className="bg-green-500 hover:bg-green-600 text-white">
+                              Payment Successful
+                            </Badge>
+                            {app.payment_code && (
+                              <div className="text-xs font-mono text-muted-foreground">
+                                {app.payment_code}
+                              </div>
+                            )}
+                          </div>
+                        ) : app.approved_fee ? (
+                          <div className="text-sm">
+                            <span className="font-medium">${app.approved_fee}</span>
+                            <span className="text-muted-foreground ml-1">pending</span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">Awaiting approval</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         {format(new Date(app.created_at), 'MMM dd, yyyy')}
                       </TableCell>
                         <TableCell>
@@ -392,13 +411,13 @@ const StudentManagement = () => {
                             >
                               <MessageSquare className="h-4 w-4" />
                             </Button>
-                            {(app.status === 'pending' || app.status === 'accepted') && (
+                            {app.status === 'accepted' && app.approved_fee && app.payment_status !== 'completed' && (
                               <Button 
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleGeneratePaymentLink(app)}
                                 disabled={generatingPaymentLink === app.id}
-                                title="Generate Payment Link"
+                                title={`Generate Payment Link ($${app.approved_fee} USD)`}
                                 className="text-green-600 hover:text-green-700"
                               >
                                 {generatingPaymentLink === app.id ? (
