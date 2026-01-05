@@ -153,25 +153,33 @@ const StudentManagement = () => {
       const course = courses.find(c => c.course_name === application.course?.course_name);
       const feeStructure = course?.fee_structure;
       
-      // Calculate application fee - try to extract from fee_structure or use default
-      let amount = 5000; // Default application fee in INR (50 USD equivalent)
+      // Calculate application fee from course fee_structure or use default $1500 USD
+      let amount = 1500; // Default application fee in USD
       if (feeStructure && typeof feeStructure === 'object') {
         const fees = feeStructure as Record<string, any>;
-        if (fees.application_fee) {
-          amount = parseFloat(fees.application_fee);
+        // Try different fee field names that might be in the structure
+        if (fees.application_fee_usd) {
+          amount = parseFloat(fees.application_fee_usd);
         } else if (fees.applicationFee) {
           amount = parseFloat(fees.applicationFee);
+        } else if (fees.application_fee) {
+          amount = parseFloat(fees.application_fee);
+        } else if (fees.tuition_usd) {
+          amount = parseFloat(fees.tuition_usd);
+        } else if (fees.Online) {
+          // If using delivery mode based fees, use Online as reference
+          amount = parseFloat(fees.Online);
         }
       }
 
       const response = await supabase.functions.invoke('create-razorpay-payment', {
         body: {
           amount,
-          currency: 'INR',
+          currency: 'USD',
           customer_name: `${application.first_name} ${application.last_name}`,
           customer_email: application.email,
           customer_phone: application.phone || '',
-          course_id: courses.find(c => c.course_name === application.course?.course_name)?.id,
+          course_id: course?.id,
           application_id: application.id,
           description: `Application fee for ${application.course?.course_name || 'admission'}`
         }
