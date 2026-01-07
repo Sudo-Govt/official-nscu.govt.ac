@@ -402,7 +402,7 @@ const MultiStageApplicationForm = () => {
         course_id: academicInfo.courseId || null,
         program: academicInfo.intendedMajor || academicInfo.programType,
         status: 'submitted',
-        agent_id: validatedAgentId, // Link to agent if valid code was entered
+        agent_id: validatedAgentId,
         application_data: JSON.parse(JSON.stringify({
           personalInfo: {
             ...personalInfo,
@@ -438,20 +438,29 @@ const MultiStageApplicationForm = () => {
         })),
       };
 
-      const { error } = await supabase
+      // Insert application first to get the ID
+      const { data: insertedApp, error } = await supabase
         .from('student_applications')
-        .insert([applicationData]);
+        .insert([applicationData])
+        .select('id')
+        .single();
 
       if (error) throw error;
 
+      const applicationId = insertedApp.id;
+
       clearDraft();
 
-      toast({
-        title: "Application Submitted!",
-        description: `Your application number is: ${appNumber}`,
-      });
-
-      navigate('/admission-success', { state: { applicationNumber: appNumber } });
+      // If Razorpay payment method is selected and transaction reference exists, redirect to success
+      if (paymentInfo.paymentMethod === 'razorpay' && paymentInfo.transactionReference) {
+        navigate(`/payment-success?application_id=${applicationId}`);
+      } else {
+        toast({
+          title: "Application Submitted!",
+          description: `Your application number is: ${appNumber}`,
+        });
+        navigate('/admission-success', { state: { applicationNumber: appNumber } });
+      }
 
     } catch (error: any) {
       toast({
@@ -1627,16 +1636,18 @@ const PaymentStep: React.FC<{
     setIsLoadingPayment(true);
 
     try {
+      // Note: For direct applications, the application must be created first
+      // The payment link should redirect to payment-success with the application_id
       const { data: result, error } = await supabase.functions.invoke('create-razorpay-payment', {
         body: {
           amount: courseFee,
-          currency: 'INR',
+          currency: 'USD',
           description: 'Course Application Fee',
           customer_name: studentName,
           customer_email: studentEmail,
           customer_phone: studentPhone,
           course_id: courseId,
-          callback_url: `${window.location.origin}/admission-success`
+          callback_url: `${window.location.origin}/payment-success`
         }
       });
 

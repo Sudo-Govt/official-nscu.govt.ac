@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Filter, Eye, Edit, Trash2, CheckCircle, XCircle, FileText, Download } from 'lucide-react';
+import { Search, Filter, Eye, Edit, Trash2, CheckCircle, XCircle, FileText, Download, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface StudentApplication {
@@ -54,6 +54,7 @@ const ApplicationManagement = () => {
   const [documentsDialogOpen, setDocumentsDialogOpen] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [downloadingInvoice, setDownloadingInvoice] = useState<string | null>(null);
 
   useEffect(() => {
     fetchApplications();
@@ -244,6 +245,41 @@ const ApplicationManagement = () => {
     }
   };
 
+  const handleDownloadInvoice = async (application: StudentApplication) => {
+    setDownloadingInvoice(application.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice', {
+        body: { application_id: application.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.invoice_html) {
+        // Create a new window and print the invoice
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(data.invoice_html);
+          printWindow.document.close();
+          printWindow.focus();
+          
+          toast({
+            title: "Invoice Generated",
+            description: `Invoice for ${data.student_name} opened in new tab. Use Print (Ctrl+P) to save as PDF.`
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('Error generating invoice:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate invoice",
+        variant: "destructive"
+      });
+    } finally {
+      setDownloadingInvoice(null);
+    }
+  };
+
   const filteredApplications = applications.filter(app => {
     const matchesSearch = 
       app.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -385,13 +421,14 @@ const ApplicationManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" title="View">
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
                         onClick={() => handleReviewApplication(app)}
+                        title="Review"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -399,14 +436,32 @@ const ApplicationManagement = () => {
                         size="sm" 
                         variant="outline"
                         onClick={() => handleViewDocuments(app)}
+                        title="Documents"
                       >
                         <FileText className="h-4 w-4" />
                       </Button>
+                      {app.payment_status === 'completed' && (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleDownloadInvoice(app)}
+                          disabled={downloadingInvoice === app.id}
+                          title="Download Invoice"
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          {downloadingInvoice === app.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Download className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
                       <Button 
                         size="sm" 
                         variant="outline" 
                         onClick={() => handleDeleteApplication(app.id)}
                         className="text-destructive hover:text-destructive"
+                        title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

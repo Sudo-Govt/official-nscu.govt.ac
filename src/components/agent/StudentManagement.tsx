@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar, Trash2, MessageSquare, CreditCard, Loader2 } from 'lucide-react';
+import { UserPlus, Search, Filter, Upload, Eye, Edit, FileText, Calendar, Trash2, MessageSquare, CreditCard, Loader2, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import MessageDialog from './MessageDialog';
 
@@ -58,6 +58,7 @@ const StudentManagement = () => {
   const [showMessageDialog, setShowMessageDialog] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<StudentApplication | null>(null);
   const [generatingPaymentLink, setGeneratingPaymentLink] = useState<string | null>(null);
+  const [downloadingInvoice, setDownloadingInvoice] = useState<string | null>(null);
 
   useEffect(() => {
     fetchApplications();
@@ -208,6 +209,40 @@ const StudentManagement = () => {
       });
     } finally {
       setGeneratingPaymentLink(null);
+    }
+  };
+
+  const handleDownloadInvoice = async (application: StudentApplication) => {
+    setDownloadingInvoice(application.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice', {
+        body: { application_id: application.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.invoice_html) {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(data.invoice_html);
+          printWindow.document.close();
+          printWindow.focus();
+          
+          toast({
+            title: "Invoice Generated",
+            description: `Invoice for ${data.student_name} opened in new tab. Use Print (Ctrl+P) to save as PDF.`
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('Error generating invoice:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate invoice",
+        variant: "destructive"
+      });
+    } finally {
+      setDownloadingInvoice(null);
     }
   };
 
@@ -424,6 +459,22 @@ const StudentManagement = () => {
                                   <Loader2 className="h-4 w-4 animate-spin" />
                                 ) : (
                                   <CreditCard className="h-4 w-4" />
+                                )}
+                              </Button>
+                            )}
+                            {app.payment_status === 'completed' && (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleDownloadInvoice(app)}
+                                disabled={downloadingInvoice === app.id}
+                                title="Download Invoice"
+                                className="text-green-600 hover:text-green-700"
+                              >
+                                {downloadingInvoice === app.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Download className="h-4 w-4" />
                                 )}
                               </Button>
                             )}
