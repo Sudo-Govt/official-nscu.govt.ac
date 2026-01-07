@@ -267,10 +267,18 @@ const PublicAdmissionForm = () => {
     >
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold mb-4">Application Form</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold mb-4">Quick Application Form</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-4">
             Begin your application to NSCU. Select your program type and complete the form below.
           </p>
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-sm text-primary font-medium">
+              💡 For complete applications with online payment, use our{' '}
+              <a href="/apply/full" className="underline font-bold hover:text-primary/80">
+                Full Application Form
+              </a>
+            </p>
+          </div>
         </div>
 
         <Card className="max-w-4xl mx-auto">
