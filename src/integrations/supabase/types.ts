@@ -1488,6 +1488,157 @@ export type Database = {
           },
         ]
       }
+      form_submission_comments: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_internal: boolean | null
+          message: string
+          submission_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          message: string
+          submission_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          message?: string
+          submission_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submission_comments_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "form_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_submissions: {
+        Row: {
+          attachments: Json | null
+          created_at: string | null
+          form_data: Json
+          form_id: string
+          id: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["submission_status"]
+          submitted_at: string | null
+          tracking_number: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string | null
+          form_data?: Json
+          form_id: string
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_at?: string | null
+          tracking_number: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string | null
+          form_data?: Json
+          form_id?: string
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          submitted_at?: string | null
+          tracking_number?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "form_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_templates: {
+        Row: {
+          access_level: Database["public"]["Enums"]["form_access_level"]
+          category: Database["public"]["Enums"]["form_category"]
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          estimated_time: string | null
+          fields: Json
+          icon: string | null
+          id: string
+          is_popular: boolean | null
+          required_documents: string[] | null
+          settings: Json | null
+          slug: string
+          sort_order: number | null
+          status: Database["public"]["Enums"]["form_status"]
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level?: Database["public"]["Enums"]["form_access_level"]
+          category: Database["public"]["Enums"]["form_category"]
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          estimated_time?: string | null
+          fields?: Json
+          icon?: string | null
+          id?: string
+          is_popular?: boolean | null
+          required_documents?: string[] | null
+          settings?: Json | null
+          slug: string
+          sort_order?: number | null
+          status?: Database["public"]["Enums"]["form_status"]
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["form_access_level"]
+          category?: Database["public"]["Enums"]["form_category"]
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          estimated_time?: string | null
+          fields?: Json
+          icon?: string | null
+          id?: string
+          is_popular?: boolean | null
+          required_documents?: string[] | null
+          settings?: Json | null
+          slug?: string
+          sort_order?: number | null
+          status?: Database["public"]["Enums"]["form_status"]
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       internal_messages: {
         Row: {
           body: string
@@ -2146,6 +2297,38 @@ export type Database = {
         | "master_agent"
         | "support"
         | "marketing_admin"
+      form_access_level:
+        | "public"
+        | "student"
+        | "faculty"
+        | "staff"
+        | "admin"
+        | "all_authenticated"
+      form_category:
+        | "admission"
+        | "partnership"
+        | "visitor"
+        | "inquiry"
+        | "academic"
+        | "student_services"
+        | "financial"
+        | "hostel"
+        | "library"
+        | "facilities"
+        | "events"
+        | "lost_found"
+        | "health_safety"
+        | "complaints"
+        | "hr"
+      form_status: "draft" | "published" | "archived"
+      submission_status:
+        | "draft"
+        | "pending"
+        | "in_review"
+        | "approved"
+        | "rejected"
+        | "requires_action"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2294,6 +2477,41 @@ export const Constants = {
         "master_agent",
         "support",
         "marketing_admin",
+      ],
+      form_access_level: [
+        "public",
+        "student",
+        "faculty",
+        "staff",
+        "admin",
+        "all_authenticated",
+      ],
+      form_category: [
+        "admission",
+        "partnership",
+        "visitor",
+        "inquiry",
+        "academic",
+        "student_services",
+        "financial",
+        "hostel",
+        "library",
+        "facilities",
+        "events",
+        "lost_found",
+        "health_safety",
+        "complaints",
+        "hr",
+      ],
+      form_status: ["draft", "published", "archived"],
+      submission_status: [
+        "draft",
+        "pending",
+        "in_review",
+        "approved",
+        "rejected",
+        "requires_action",
+        "cancelled",
       ],
     },
   },
