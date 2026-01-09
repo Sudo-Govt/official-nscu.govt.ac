@@ -36,8 +36,8 @@ const facts = [
   {
     icon: Calendar,
     title: "Founded",
-    value: "1891",
-    description: "133+ years of academic excellence"
+    value: "1897",
+    description: "127+ years of academic excellence since Belize City"
   }
 ];
 

@@ -111,6 +111,11 @@ import AdmissionSuccess from "./pages/AdmissionSuccess";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ContactUs from "./pages/ContactUs";
 
+// Forms pages
+import FormsPortal from "./pages/forms/FormsPortal";
+import FormSubmission from "./pages/forms/FormSubmission";
+import MySubmissions from "./pages/forms/MySubmissions";
+
 // Portal pages
 import MyNSCU from "./pages/portal/MyNSCU";
 
@@ -310,6 +315,11 @@ const App = () => (
           <Route path="/admission-success" element={<AdmissionSuccess />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/contact" element={<ContactUs />} />
+          
+          {/* Forms Routes */}
+          <Route path="/forms" element={<FormsPortal />} />
+          <Route path="/forms/my-submissions" element={<MySubmissions />} />
+          <Route path="/forms/:slug" element={<FormSubmission />} />
           
           {/* Campus Life Routes */}
           <Route path="/campus-life/greek-life" element={<GreekLife />} />

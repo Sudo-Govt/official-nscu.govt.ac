@@ -191,6 +191,13 @@ const Header = () => {
       ]
     },
     {
+      title: "Forms",
+      items: [
+        {title: "All Forms", href: "/forms"},
+        {title: "My Submissions", href: "/forms/my-submissions"}
+      ]
+    },
+    {
       title: "Student Experience",
       items: [
         {
