@@ -63,7 +63,7 @@ const PhDPrograms = () => {
               Start Your Doctoral Journey
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Partner with a historic American university established in 1891 and launch your research career with world-class mentorship
+              Partner with a historic university established in 1897 in Belize City and launch your research career with world-class mentorship
             </p>
             <Button size="lg" className="gap-2" asChild>
               <a href="#apply">
@@ -85,7 +85,7 @@ const PhDPrograms = () => {
             </CardHeader>
             <CardContent className="prose prose-lg max-w-none dark:prose-invert">
               <p className="text-lg leading-relaxed">
-                Established in 1891, NSCU has grown from a pioneering American institution into a global force in higher education. 
+                Established in 1897 in Belize City, NSCU has grown from a pioneering institution into a global force in higher education. 
                 With unmatched expertise in AI, Quantum Computing, Space Science, and Medical Innovation, NSCU is now expanding its 
                 academic reach across continents. We are building the next generation of research centers and future-ready institutions—and 
                 we invite visionary scholars, researchers, and innovators to join us in shaping the world's most powerful education movement.

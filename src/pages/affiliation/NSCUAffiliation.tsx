@@ -108,7 +108,7 @@ const NSCUAffiliation = () => {
     'High-earning education business with low investment and strong annual returns.',
     'Minimum infrastructure requirements with maximum growth opportunity.',
     'Complete academic support: curriculum, exams, documentation, degrees.',
-    'Global brand and 1891 American legacy for instant credibility.',
+    'Global brand and 1897 legacy for instant credibility.',
     'Start admissions within 30–45 days.',
     'Hassle-free LMS/ERP-enabled operations.',
     'Wide range of UG, PG, diploma, and professional programs.',
@@ -122,7 +122,7 @@ const NSCUAffiliation = () => {
   return (
     <PageLayout
       title="NSCU Affiliation Program"
-      description="Partner with a historic American university established in 1891 and launch your own world-class institution"
+      description="Partner with a historic university established in 1897 and launch your own world-class institution"
     >
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
@@ -130,13 +130,13 @@ const NSCUAffiliation = () => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-6 py-2 mb-6">
               <Award className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold text-primary">Since 1891</span>
+              <span className="text-sm font-semibold text-primary">Since 1897</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
               Start Your Own College – NSCU Global Affiliation Program
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8">
-              Partner with a historic American university established in 1891 and launch your own world-class institution.
+              Partner with a historic university established in 1897 in Belize City and launch your own world-class institution.
             </p>
             <Button size="lg" className="text-lg px-8 py-6" onClick={() => document.getElementById('application-form')?.scrollIntoView({ behavior: 'smooth' })}>
               <Building2 className="mr-2 h-5 w-5" />
@@ -153,7 +153,7 @@ const NSCUAffiliation = () => {
             <Card className="border-2 border-primary/20">
               <CardContent className="pt-6">
                 <p className="text-lg leading-relaxed text-foreground">
-                  Established in 1891, NSCU has grown from a pioneering American institution into a global force in higher education. With unmatched expertise in AI, Quantum Computing, Space Science, and Medical Innovation, NSCU is now expanding its academic reign across continents. We are building the next generation of colleges, research centers, and future-ready institutions—and we invite visionary leaders, educators, and entrepreneurs to join us in shaping the world&apos;s most powerful education movement.
+                  Established in 1897 in Belize City, NSCU has grown from a pioneering institution into a global force in higher education. With unmatched expertise in AI, Quantum Computing, Space Science, and Medical Innovation, NSCU is now expanding its academic reign across continents. We are building the next generation of colleges, research centers, and future-ready institutions—and we invite visionary leaders, educators, and entrepreneurs to join us in shaping the world&apos;s most powerful education movement.
                 </p>
               </CardContent>
             </Card>
@@ -234,7 +234,7 @@ const NSCUAffiliation = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    1891 American legacy with WES & Immigration-friendly credentials
+                    1897 legacy with WES & Immigration-friendly credentials
                   </p>
                 </CardContent>
               </Card>

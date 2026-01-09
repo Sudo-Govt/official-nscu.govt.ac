@@ -6,42 +6,42 @@ import { generateWebPageSchema, generateBreadcrumbSchema, generateArticleSchema 
 
 const milestones = [
   {
-    year: "1891",
+    year: "1897",
     title: "University Founded",
-    description: "Established as Belizeian Agricultural College with 12 students and 3 faculty members"
+    description: "Established in Belize City as a pioneering educational institution serving the Caribbean region"
   },
   {
-    year: "1921",
-    title: "State University Status",
-    description: "Became a Belizeian University expanding beyond agricultural education"
+    year: "1925",
+    title: "Academic Expansion",
+    description: "Expanded curriculum to include liberal arts and sciences programs"
   },
   {
-    year: "1952",
-    title: "Research University",
-    description: "Gained Research I classification and established graduate programs"
+    year: "1971",
+    title: "Formal University Status",
+    description: "Officially chartered as New States Continental University with full degree-granting authority"
   },
   {
-    year: "1978",
-    title: "NSCU System Formation",
-    description: "Joined the New States Continental University system as flagship campus"
+    year: "1985",
+    title: "Research Development",
+    description: "Established graduate programs and research centers across multiple disciplines"
   },
   {
     year: "2010",
     title: "Global Campus Initiative",
-    description: "Launched international partnerships and study abroad programs"
+    description: "Launched international partnerships and distance education programs worldwide"
   },
   {
     year: "2020",
-    title: "Innovation Hub",
-    description: "Opened state-of-the-art research facilities and startup incubator"
+    title: "Digital Transformation",
+    description: "Expanded online learning infrastructure and GCHEA accreditation recognition"
   }
 ];
 
 const HistoryMission = () => {
   useSEO({
-    title: "NSCU History & Mission - GCHEA Accredited Global University | Founded 1891",
-    description: "Discover NSCU's mission as a GCHEA-accredited international university serving students worldwide through quality distance education. Learn about our history, vision, and core values since 2010.",
-    keywords: "NSCU history, GCHEA accredited university, NSCU mission vision values, international university Belize, NSCU address, distance education university, global higher education, NSCU founding history",
+    title: "NSCU History & Mission - GCHEA Accredited Global University | Founded 1897",
+    description: "Discover NSCU's mission as a GCHEA-accredited international university serving students worldwide through quality distance education. Learn about our history since 1897 in Belize City.",
+    keywords: "NSCU history, GCHEA accredited university, NSCU mission vision values, international university Belize, NSCU address, distance education university, global higher education, NSCU founding history 1897",
     canonical: "https://nscu.govt.ac/about/history-mission",
     structuredData: [
       generateWebPageSchema({
@@ -56,9 +56,9 @@ const HistoryMission = () => {
       ]),
       generateArticleSchema({
         headline: "The History and Mission of New States Continental University",
-        description: "Founded in 1891, NSCU has grown to serve students worldwide through GCHEA-accredited distance education programs.",
-        datePublished: "2010-01-01",
-        dateModified: "2025-01-15"
+        description: "Founded in 1897 in Belize City, NSCU has grown to serve students worldwide through GCHEA-accredited distance education programs.",
+        datePublished: "1897-01-01",
+        dateModified: "2024-01-15"
       })
     ]
   });
