@@ -12,9 +12,11 @@ import FinancialOverview from '@/components/dashboard/FinancialOverview';
 import DegreeProgress from '@/components/dashboard/DegreeProgress';
 import CalendarWidget from '@/components/dashboard/CalendarWidget';
 import NotificationsPanel from '@/components/dashboard/NotificationsPanel';
+import FormsSection from '@/components/dashboard/FormsSection';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
@@ -104,7 +106,7 @@ const StudentDashboardV2 = () => {
   };
 
   const isAlumni = studentData?.student_type === 'alumni';
-
+  const [activeTab, setActiveTab] = useState('overview');
   // Course-specific mock data (in production, filter based on course_id)
   const stats = {
     currentSemester: 'Fall 2026',
@@ -314,6 +316,20 @@ const StudentDashboardV2 = () => {
           </Card>
         )}
 
+        {/* Navigation Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="forms" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Forms
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="mt-6 space-y-6">
         {/* Course Info Banner */}
         {courseInfo && (
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
@@ -485,6 +501,12 @@ const StudentDashboardV2 = () => {
             categories={degreeCategories.map(cat => isAlumni ? { ...cat, earned: cat.required } : cat)}
           />
         </div>
+          </TabsContent>
+
+          <TabsContent value="forms" className="mt-6">
+            <FormsSection />
+          </TabsContent>
+        </Tabs>
       </div>
     </ModernDashboardLayout>
   );

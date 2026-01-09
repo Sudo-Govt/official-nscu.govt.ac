@@ -187,14 +187,14 @@ const Header = () => {
         {title: "International Admissions", href: "/admissions/international"},
         {title: "Transfer Admissions", href: "/admissions/transfer"},
         {title: "Financial Aid", href: "/admissions/financial-aid"},
-        {title: "Campus Tours", href: "/admissions/tours"}
-      ]
-    },
-    {
-      title: "Forms",
-      items: [
-        {title: "All Forms", href: "/forms"},
-        {title: "My Submissions", href: "/forms/my-submissions"}
+        {title: "Campus Tours", href: "/admissions/tours"},
+        {
+          title: "Forms Portal",
+          items: [
+            {title: "All Forms", href: "/forms"},
+            {title: "Track Submission", href: "/forms/my-submissions"}
+          ]
+        }
       ]
     },
     {
