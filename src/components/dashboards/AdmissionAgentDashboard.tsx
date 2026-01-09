@@ -21,6 +21,7 @@ import CommunicationsHub from '@/components/agent/CommunicationsHub';
 import ReportsAnalytics from '@/components/agent/ReportsAnalytics';
 import SupportResources from '@/components/agent/SupportResources';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
+import FormsSection from '@/components/dashboard/FormsSection';
 
 interface AgentProfile {
   id: string;
@@ -225,10 +226,11 @@ const AdmissionAgentDashboard = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 gap-1">
+          <TabsList className="grid w-full grid-cols-10 gap-1">
             <TabsTrigger value="overview" className="text-xs">Overview</TabsTrigger>
             <TabsTrigger value="profile" className="text-xs">Profile</TabsTrigger>
             <TabsTrigger value="students" className="text-xs">Students</TabsTrigger>
+            <TabsTrigger value="forms" className="text-xs">Forms</TabsTrigger>
             <TabsTrigger value="documents" className="text-xs">Documents</TabsTrigger>
             <TabsTrigger value="payments" className="text-xs">Payments</TabsTrigger>
             <TabsTrigger value="communications" className="text-xs">Messages</TabsTrigger>
@@ -472,6 +474,10 @@ const AdmissionAgentDashboard = () => {
 
           <TabsContent value="students">
             <StudentManagement />
+          </TabsContent>
+
+          <TabsContent value="forms">
+            <FormsSection />
           </TabsContent>
 
           <TabsContent value="documents">

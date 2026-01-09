@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Headphones, MessageSquare, Clock, CheckCircle, AlertCircle,
-  BookOpen, ArrowUpRight
+  BookOpen, ArrowUpRight, FileText
 } from 'lucide-react';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
+import FormsSection from '@/components/dashboard/FormsSection';
 
 const SupportDashboard = () => {
   const { user, logout } = useAuth();
@@ -74,8 +75,9 @@ const SupportDashboard = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 w-full max-w-lg mb-6">
+          <TabsList className="grid grid-cols-5 w-full max-w-2xl mb-6">
             <TabsTrigger value="overview">Tickets</TabsTrigger>
+            <TabsTrigger value="forms">Forms</TabsTrigger>
             <TabsTrigger value="users">User Lookup</TabsTrigger>
             <TabsTrigger value="kb">Knowledge Base</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
@@ -156,6 +158,10 @@ const SupportDashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="forms">
+            <FormsSection />
           </TabsContent>
 
           <TabsContent value="users">
