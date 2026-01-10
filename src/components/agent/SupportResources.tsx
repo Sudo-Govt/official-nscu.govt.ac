@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,109 +8,50 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { HelpCircle, FileText, Download, BookOpen, Video, MessageCircle, Send } from 'lucide-react';
+import { HelpCircle, FileText, Download, BookOpen, Video, MessageCircle, Send, Loader2 } from 'lucide-react';
 
-const faqs = [
-  {
-    question: "How do I onboard a new student?",
-    answer: "To onboard a new student, go to the Students tab and click 'Add New Student'. Fill in all required information including personal details, course selection, and intake dates. Make sure to collect all necessary documents before submission."
-  },
-  {
-    question: "What documents are required for admission?",
-    answer: "Required documents include: Passport copy, Academic transcripts, Diploma/certificates, Recommendation letters, Personal statement, Language proficiency certificates (IELTS/TOEFL), and Financial proof of funds."
-  },
-  {
-    question: "How is commission calculated?",
-    answer: "Commission is calculated based on the fee structure of the enrolled course. Your commission rate is shown in your profile. Commission is paid once the student completes fee payment and enrollment is confirmed."
-  },
-  {
-    question: "When will I receive my commission payment?",
-    answer: "Commissions are paid monthly on the 15th. You must reach the minimum payout threshold of $100. You can track your pending and paid commissions in the Finance tab."
-  },
-  {
-    question: "What is the application review process?",
-    answer: "Applications go through: 1) Document verification, 2) Academic review, 3) Administrative approval, 4) Fee payment, 5) Final enrollment. You'll be notified at each stage via the communications hub."
-  },
-  {
-    question: "How do I verify document authenticity?",
-    answer: "All uploaded documents go through AI-powered verification. High-risk documents are flagged for manual review. You can view verification status in the Documents tab."
-  },
-  {
-    question: "Can I bulk upload student applications?",
-    answer: "Yes, use the Bulk Upload feature in the Students tab. Download our CSV template, fill in the student details, and upload the file. The system will process all applications in batch."
-  },
-  {
-    question: "How do I communicate with students?",
-    answer: "Use the Communications Hub to send emails, WhatsApp messages, or internal notifications. You can use pre-configured templates for common scenarios like offer letters and payment reminders."
-  }
-];
-
-const resources = [
-  {
-    title: "Agent Handbook 2025",
-    description: "Complete guide for admission agents",
-    type: "PDF",
-    size: "2.5 MB"
-  },
-  {
-    title: "Course Prospectus",
-    description: "Detailed information about all programs",
-    type: "PDF",
-    size: "5.1 MB"
-  },
-  {
-    title: "Admission Policy Guidelines",
-    description: "Latest admission policies and procedures",
-    type: "PDF",
-    size: "1.8 MB"
-  },
-  {
-    title: "Marketing Materials Kit",
-    description: "Brochures, flyers, and promotional content",
-    type: "ZIP",
-    size: "12.3 MB"
-  },
-  {
-    title: "Document Checklist Template",
-    description: "Template for tracking student documents",
-    type: "XLSX",
-    size: "0.5 MB"
-  },
-  {
-    title: "Fee Structure 2025",
-    description: "Complete fee breakdown for all courses",
-    type: "PDF",
-    size: "0.8 MB"
-  }
-];
-
-const trainingVideos = [
-  {
-    title: "Getting Started as an Agent",
-    duration: "15:30",
-    description: "Introduction to the platform and basic operations"
-  },
-  {
-    title: "Student Application Process",
-    duration: "22:45",
-    description: "Step-by-step guide to creating applications"
-  },
-  {
-    title: "Document Management Best Practices",
-    duration: "18:20",
-    description: "How to handle and verify student documents"
-  },
-  {
-    title: "Commission Structure Explained",
-    duration: "12:15",
-    description: "Understanding your earnings and payments"
-  }
-];
+interface AgentResource {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  file_path: string | null;
+  file_name: string | null;
+  file_size: number | null;
+  file_type: string | null;
+  content: string | null;
+  is_active: boolean;
+  created_at: string;
+}
 
 const SupportResources = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+  const [resources, setResources] = useState<AgentResource[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  const fetchResources = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('agent_resources')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setResources(data || []);
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmitTicket = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,10 +61,50 @@ const SupportResources = () => {
     });
   };
 
+  const downloadFile = async (filePath: string, fileName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('agent-resources')
+        .download(filePath);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download file",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // Filter resources by category
+  const faqs = resources.filter(r => r.category === 'faq');
+  const trainingMaterials = resources.filter(r => r.category === 'training' || r.category === 'guide');
+  const videos = resources.filter(r => r.category === 'video');
+  const otherResources = resources.filter(r => r.category === 'other' || !['faq', 'training', 'guide', 'video'].includes(r.category));
+
   const filteredFaqs = faqs.filter(faq => 
-    faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
+    faq.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    faq.content?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    faq.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const allDownloadableResources = [...trainingMaterials, ...otherResources].filter(r => r.file_path);
 
   return (
     <div className="space-y-6">
@@ -165,21 +146,29 @@ const SupportResources = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
 
-              <Accordion type="single" collapsible className="w-full">
-                {filteredFaqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground">
-                      {faq.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : (
+                <Accordion type="single" collapsible className="w-full">
+                  {filteredFaqs.map((faq, index) => (
+                    <AccordionItem key={faq.id} value={`item-${index}`}>
+                      <AccordionTrigger className="text-left">{faq.title}</AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground">
+                        {faq.content || faq.description || 'No content available.'}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
 
-              {filteredFaqs.length === 0 && (
+              {!loading && filteredFaqs.length === 0 && (
                 <div className="text-center py-8">
                   <HelpCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No FAQs match your search</p>
+                  <p className="text-muted-foreground">
+                    {faqs.length === 0 ? 'No FAQs available yet. Check back later.' : 'No FAQs match your search'}
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -193,30 +182,49 @@ const SupportResources = () => {
               <CardDescription>Essential documents and marketing materials</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {resources.map((resource, index) => (
-                  <Card key={index}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg">{resource.title}</CardTitle>
-                          <CardDescription className="text-sm">{resource.description}</CardDescription>
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : allDownloadableResources.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {allDownloadableResources.map((resource) => (
+                    <Card key={resource.id}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-lg">{resource.title}</CardTitle>
+                            <CardDescription className="text-sm">{resource.description}</CardDescription>
+                          </div>
+                          <Badge variant="secondary">
+                            {resource.file_type?.split('/').pop()?.toUpperCase() || 'FILE'}
+                          </Badge>
                         </div>
-                        <Badge variant="secondary">{resource.type}</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">{resource.size}</span>
-                        <Button size="sm" variant="outline">
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">
+                            {formatFileSize(resource.file_size)}
+                          </span>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => downloadFile(resource.file_path!, resource.file_name!)}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No downloadable resources available yet.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -224,27 +232,49 @@ const SupportResources = () => {
         <TabsContent value="training" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Training Videos</CardTitle>
-              <CardDescription>Step-by-step video tutorials</CardDescription>
+              <CardTitle>Training Videos & Materials</CardTitle>
+              <CardDescription>Step-by-step tutorials and guides</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {trainingVideos.map((video, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-                        <Video className="h-6 w-6 text-muted-foreground" />
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              ) : videos.length > 0 ? (
+                <div className="space-y-4">
+                  {videos.map((video) => (
+                    <div key={video.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+                          <Video className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <div className="font-medium">{video.title}</div>
+                          <div className="text-sm text-muted-foreground">{video.description}</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="font-medium">{video.title}</div>
-                        <div className="text-sm text-muted-foreground">{video.description}</div>
-                        <div className="text-xs text-muted-foreground mt-1">Duration: {video.duration}</div>
-                      </div>
+                      {video.file_path ? (
+                        <Button 
+                          variant="outline"
+                          onClick={() => downloadFile(video.file_path!, video.file_name!)}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                      ) : video.content ? (
+                        <Button variant="outline" onClick={() => window.open(video.content!, '_blank')}>
+                          Watch
+                        </Button>
+                      ) : null}
                     </div>
-                    <Button variant="outline">Watch</Button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Video className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No training videos available yet.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
