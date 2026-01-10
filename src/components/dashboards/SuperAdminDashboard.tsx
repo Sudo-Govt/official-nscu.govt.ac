@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
@@ -18,6 +18,8 @@ import SiteEditor from '@/components/admin/SiteEditor';
 import AgentResourcesManager from '@/components/admin/AgentResourcesManager';
 import ApplicationManagement from '@/components/admin/ApplicationManagement';
 import FormsManagement from '@/components/admin/FormsManagement';
+import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
+import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
@@ -98,6 +100,8 @@ const SuperAdminDashboard = () => {
       items: [
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
         { title: 'Forms', icon: ClipboardList, value: 'forms', onClick: () => setActiveTab('forms') },
+        { title: 'Documents', icon: FolderOpen, value: 'documents', onClick: () => setActiveTab('documents') },
+        { title: 'Messaging', icon: MessageSquare, value: 'messaging', onClick: () => setActiveTab('messaging') },
         { title: 'Agent Resources', icon: Briefcase, value: 'agent-resources', onClick: () => setActiveTab('agent-resources') },
         { title: 'Finance', icon: DollarSign, value: 'finance', onClick: () => setActiveTab('finance') },
         { title: 'Compliance', icon: ClipboardCheck, value: 'compliance', onClick: () => setActiveTab('compliance') },
@@ -246,6 +250,12 @@ const SuperAdminDashboard = () => {
 
       case 'forms':
         return <FormsManagement />;
+
+      case 'documents':
+        return <AdminDocumentManagement />;
+
+      case 'messaging':
+        return <AdminMessagingSystem />;
 
       case 'finance':
         return (

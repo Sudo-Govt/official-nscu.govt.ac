@@ -78,9 +78,8 @@ const PaymentsFinance = () => {
       // Fetch students from applications added by this agent
       const { data: studentsData, error: studentsError } = await supabase
         .from('student_applications')
-        .select('id, first_name, last_name, email, student_id')
-        .eq('agent_id', agentProfile.id)
-        .eq('status', 'submitted');
+        .select('id, first_name, last_name, email')
+        .eq('agent_id', agentProfile.id);
 
       if (studentsError) {
         console.error('Error fetching students:', studentsError);

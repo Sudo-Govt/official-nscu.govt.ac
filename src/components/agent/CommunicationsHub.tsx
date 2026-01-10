@@ -314,22 +314,94 @@ const CommunicationsHub = () => {
 };
 
 const ComposeMessageForm = ({ onSuccess }: { onSuccess: () => void }) => {
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('email');
+  const [applications, setApplications] = useState<any[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchApplications = async () => {
+      if (!user) return;
+      
+      const { data: agentProfile } = await supabase
+        .from('agent_profiles')
+        .select('id')
+        .eq('user_id', user.user_id)
+        .single();
+      
+      if (agentProfile) {
+        const { data } = await supabase
+          .from('student_applications')
+          .select('id, first_name, last_name, application_number')
+          .eq('agent_id', agentProfile.id)
+          .order('created_at', { ascending: false });
+        
+        setApplications(data || []);
+      }
+    };
+    fetchApplications();
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Message Sent",
-      description: "Your message has been delivered successfully"
-    });
-    onSuccess();
+    if (!subject.trim() || !message.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data: agentProfile } = await supabase
+        .from('agent_profiles')
+        .select('id')
+        .eq('user_id', user?.user_id)
+        .single();
+
+      const { error } = await supabase
+        .from('agent_communications')
+        .insert({
+          agent_id: agentProfile?.id,
+          application_id: selectedApplication || null,
+          subject,
+          message,
+          message_type: messageType,
+          sender_type: 'agent',
+          priority: 'normal',
+          is_read: false
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Message Sent",
+        description: "Your message has been delivered successfully"
+      });
+      onSuccess();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label>Message Type</Label>
-        <Select defaultValue="email">
+        <Select value={messageType} onValueChange={setMessageType}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -343,33 +415,47 @@ const ComposeMessageForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
       <div>
         <Label>To (Student Application)</Label>
-        <Select>
+        <Select value={selectedApplication} onValueChange={setSelectedApplication}>
           <SelectTrigger>
             <SelectValue placeholder="Select student" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Students</SelectItem>
+            <SelectItem value="">All Students</SelectItem>
+            {applications.map((app) => (
+              <SelectItem key={app.id} value={app.id}>
+                {app.first_name} {app.last_name} ({app.application_number})
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
       <div>
         <Label>Subject</Label>
-        <Input placeholder="Message subject" />
+        <Input 
+          placeholder="Message subject" 
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
       </div>
 
       <div>
         <Label>Message</Label>
-        <Textarea placeholder="Type your message here..." rows={6} />
+        <Textarea 
+          placeholder="Type your message here..." 
+          rows={6}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
       </div>
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onSuccess}>
           Cancel
         </Button>
-        <Button type="submit">
+        <Button type="submit" disabled={loading}>
           <Send className="h-4 w-4 mr-2" />
-          Send Message
+          {loading ? 'Sending...' : 'Send Message'}
         </Button>
       </div>
     </form>

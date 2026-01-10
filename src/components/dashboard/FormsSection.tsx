@@ -74,8 +74,8 @@ const FormsSection = () => {
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        // Fetch forms based on user's role access level
-        const accessLevels: ('public' | 'student' | 'faculty' | 'staff' | 'admin' | 'all_authenticated')[] = ['all_authenticated'];
+        // Fetch forms based on user's role access level - always include 'public'
+        const accessLevels: ('public' | 'student' | 'faculty' | 'staff' | 'admin' | 'all_authenticated')[] = ['public', 'all_authenticated'];
         if (user?.role === 'student' || user?.role === 'alumni') {
           accessLevels.push('student');
         }
@@ -84,6 +84,10 @@ const FormsSection = () => {
         }
         if (user?.role === 'staff' || user?.role === 'admin' || user?.role === 'superadmin') {
           accessLevels.push('staff', 'admin');
+        }
+        // Agents should also see public forms
+        if (user?.role === 'admission_agent' || user?.role === 'master_agent') {
+          accessLevels.push('staff');
         }
 
         const { data, error } = await supabase
