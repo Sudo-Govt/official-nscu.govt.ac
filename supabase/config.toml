@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-invoice]
 verify_jwt = false
+
+[functions.send-email-resend]
+verify_jwt = false
