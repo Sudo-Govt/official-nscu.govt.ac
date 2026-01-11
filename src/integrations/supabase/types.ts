@@ -1325,6 +1325,33 @@ export type Database = {
         }
         Relationships: []
       }
+      email_labels: {
+        Row: {
+          color: string
+          created_at: string | null
+          icon: string | null
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_messages: {
         Row: {
           account_id: string | null
@@ -1375,10 +1402,78 @@ export type Database = {
           },
         ]
       }
+      email_signatures: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          body: string
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_system: boolean | null
+          name: string
+          subject: string
+          updated_at: string | null
+        }
+        Insert: {
+          body: string
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_system?: boolean | null
+          name: string
+          subject: string
+          updated_at?: string | null
+        }
+        Update: {
+          body?: string
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_system?: boolean | null
+          name?: string
+          subject?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       emails: {
         Row: {
           attachments: Json | null
+          bcc: string | null
           body: string | null
+          cc: string | null
           created_at: string | null
           email_type: string | null
           folder: string | null
@@ -1391,16 +1486,23 @@ export type Database = {
           is_deleted: boolean | null
           is_read: boolean | null
           is_starred: boolean | null
+          labels: Json | null
+          priority: string | null
           received_at: string | null
+          reply_to_id: string | null
+          scheduled_at: string | null
           sent_at: string | null
           status: string | null
           subject: string
+          thread_id: string | null
           to_email: string
           user_id: string
         }
         Insert: {
           attachments?: Json | null
+          bcc?: string | null
           body?: string | null
+          cc?: string | null
           created_at?: string | null
           email_type?: string | null
           folder?: string | null
@@ -1413,16 +1515,23 @@ export type Database = {
           is_deleted?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
+          labels?: Json | null
+          priority?: string | null
           received_at?: string | null
+          reply_to_id?: string | null
+          scheduled_at?: string | null
           sent_at?: string | null
           status?: string | null
           subject: string
+          thread_id?: string | null
           to_email: string
           user_id: string
         }
         Update: {
           attachments?: Json | null
+          bcc?: string | null
           body?: string | null
+          cc?: string | null
           created_at?: string | null
           email_type?: string | null
           folder?: string | null
@@ -1435,14 +1544,27 @@ export type Database = {
           is_deleted?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
+          labels?: Json | null
+          priority?: string | null
           received_at?: string | null
+          reply_to_id?: string | null
+          scheduled_at?: string | null
           sent_at?: string | null
           status?: string | null
           subject?: string
+          thread_id?: string | null
           to_email?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "emails_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fee_payments: {
         Row: {

@@ -167,6 +167,7 @@ import MasterPharmacy from "./pages/programs/MasterPharmacy";
 import MasterMedicine from "./pages/programs/MasterMedicine";
 import DynamicCoursePage from "./pages/programs/DynamicCoursePage";
 import DynamicPage from "./pages/DynamicPage";
+import Email from "./pages/Email";
 
 const queryClient = new QueryClient();
 
@@ -180,6 +181,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/email" element={<Email />} />
           
           {/* Home Routes */}
           <Route path="/home/welcome" element={<WelcomeMessage />} />
