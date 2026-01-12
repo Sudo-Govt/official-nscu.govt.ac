@@ -790,6 +790,99 @@ export type Database = {
         }
         Relationships: []
       }
+      channel_messages: {
+        Row: {
+          channel_id: string | null
+          created_at: string | null
+          document_references: Json | null
+          id: string
+          is_deleted: boolean | null
+          is_edited: boolean | null
+          message: string
+          reactions: Json | null
+          reply_to_id: string | null
+          sender_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          channel_id?: string | null
+          created_at?: string | null
+          document_references?: Json | null
+          id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          message: string
+          reactions?: Json | null
+          reply_to_id?: string | null
+          sender_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          channel_id?: string | null
+          created_at?: string | null
+          document_references?: Json | null
+          id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
+          message?: string
+          reactions?: Json | null
+          reply_to_id?: string | null
+          sender_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "chat_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_channels: {
+        Row: {
+          channel_type: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_archived: boolean | null
+          members: string[] | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          channel_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          members?: string[] | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          channel_type?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean | null
+          members?: string[] | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           created_at: string | null
@@ -1761,41 +1854,147 @@ export type Database = {
         }
         Relationships: []
       }
-      internal_messages: {
+      internal_labels: {
         Row: {
-          body: string
+          color: string | null
           created_at: string | null
           id: string
-          is_archived: boolean | null
-          is_read: boolean | null
-          is_starred: boolean | null
-          recipient_id: string
-          sender_id: string
-          subject: string
+          name: string
+          user_id: string
         }
         Insert: {
-          body: string
+          color?: string | null
           created_at?: string | null
           id?: string
-          is_archived?: boolean | null
-          is_read?: boolean | null
-          is_starred?: boolean | null
-          recipient_id: string
-          sender_id: string
-          subject: string
+          name: string
+          user_id: string
         }
         Update: {
-          body?: string
+          color?: string | null
           created_at?: string | null
           id?: string
-          is_archived?: boolean | null
-          is_read?: boolean | null
-          is_starred?: boolean | null
-          recipient_id?: string
-          sender_id?: string
-          subject?: string
+          name?: string
+          user_id?: string
         }
         Relationships: []
+      }
+      internal_message_attachments: {
+        Row: {
+          created_at: string | null
+          document_id: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_system_document: boolean | null
+          message_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_id?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_system_document?: boolean | null
+          message_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          document_id?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_system_document?: boolean | null
+          message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_message_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "internal_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      internal_messages: {
+        Row: {
+          bcc: string[] | null
+          body: string
+          cc: string[] | null
+          created_at: string | null
+          document_references: Json | null
+          folder: string | null
+          id: string
+          is_archived: boolean | null
+          is_draft: boolean | null
+          is_read: boolean | null
+          is_starred: boolean | null
+          labels: Json | null
+          priority: string | null
+          recipient_id: string
+          reply_to_id: string | null
+          scheduled_at: string | null
+          sender_id: string
+          subject: string
+          thread_id: string | null
+        }
+        Insert: {
+          bcc?: string[] | null
+          body: string
+          cc?: string[] | null
+          created_at?: string | null
+          document_references?: Json | null
+          folder?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_draft?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          labels?: Json | null
+          priority?: string | null
+          recipient_id: string
+          reply_to_id?: string | null
+          scheduled_at?: string | null
+          sender_id: string
+          subject: string
+          thread_id?: string | null
+        }
+        Update: {
+          bcc?: string[] | null
+          body?: string
+          cc?: string[] | null
+          created_at?: string | null
+          document_references?: Json | null
+          folder?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_draft?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          labels?: Json | null
+          priority?: string | null
+          recipient_id?: string
+          reply_to_id?: string | null
+          scheduled_at?: string | null
+          sender_id?: string
+          subject?: string
+          thread_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internal_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "internal_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       phd_applications: {
         Row: {
@@ -2334,6 +2533,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_identities: {
+        Row: {
+          created_at: string | null
+          department: string | null
+          display_name: string | null
+          id: string
+          internal_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          department?: string | null
+          display_name?: string | null
+          id?: string
+          internal_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          department?: string | null
+          display_name?: string | null
+          id?: string
+          internal_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_presence: {
         Row: {
