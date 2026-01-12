@@ -47,7 +47,7 @@ const handler = async (req: Request): Promise<Response> => {
       cc,
       bcc,
       from_name = "NSCU University",
-      from_email = "noreply@nscu.edu.bz",
+      from_email = "noreply@nscu.govt.ac",
       reply_to,
       attachments,
       save_to_db = true,

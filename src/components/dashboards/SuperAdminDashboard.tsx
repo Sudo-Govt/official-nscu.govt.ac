@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
@@ -20,6 +20,7 @@ import ApplicationManagement from '@/components/admin/ApplicationManagement';
 import FormsManagement from '@/components/admin/FormsManagement';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
+import AdminEmailManagement from '@/components/admin/AdminEmailManagement';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
@@ -98,6 +99,7 @@ const SuperAdminDashboard = () => {
     {
       label: 'Operations',
       items: [
+        { title: 'Email', icon: Mail, value: 'email', onClick: () => setActiveTab('email') },
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
         { title: 'Forms', icon: ClipboardList, value: 'forms', onClick: () => setActiveTab('forms') },
         { title: 'Documents', icon: FolderOpen, value: 'documents', onClick: () => setActiveTab('documents') },
@@ -244,6 +246,9 @@ const SuperAdminDashboard = () => {
 
       case 'agent-resources':
         return <AgentResourcesManager />;
+
+      case 'email':
+        return <AdminEmailManagement />;
 
       case 'admissions':
         return <ApplicationManagement />;

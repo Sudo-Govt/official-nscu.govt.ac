@@ -13,10 +13,11 @@ import DegreeProgress from '@/components/dashboard/DegreeProgress';
 import CalendarWidget from '@/components/dashboard/CalendarWidget';
 import NotificationsPanel from '@/components/dashboard/NotificationsPanel';
 import FormsSection from '@/components/dashboard/FormsSection';
+import EmailAppModern from '@/components/email/EmailAppModern';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
@@ -323,6 +324,10 @@ const StudentDashboardV2 = () => {
               <LayoutDashboard className="h-4 w-4" />
               Overview
             </TabsTrigger>
+            <TabsTrigger value="mail" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Mail
+            </TabsTrigger>
             <TabsTrigger value="forms" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Forms
@@ -501,6 +506,10 @@ const StudentDashboardV2 = () => {
             categories={degreeCategories.map(cat => isAlumni ? { ...cat, earned: cat.required } : cat)}
           />
         </div>
+          </TabsContent>
+
+          <TabsContent value="mail" className="mt-6">
+            <EmailAppModern />
           </TabsContent>
 
           <TabsContent value="forms" className="mt-6">
