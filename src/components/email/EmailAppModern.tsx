@@ -41,7 +41,11 @@ export interface EmailFolder {
   color: string;
 }
 
-const EmailAppModern = () => {
+interface EmailAppModernProps {
+  adminUserId?: string; // If provided, admin is accessing this user's email
+}
+
+const EmailAppModern = ({ adminUserId }: EmailAppModernProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
@@ -52,6 +56,9 @@ const EmailAppModern = () => {
   const [replyTo, setReplyTo] = useState<Email | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [emailAccount, setEmailAccount] = useState<any>(null);
+  
+  // Use adminUserId if provided (admin accessing user's email), otherwise use current user
+  const targetUserId = adminUserId || user?.id;
 
   const folders: EmailFolder[] = [
     { id: 'inbox', name: 'Inbox', type: 'inbox', unread_count: 0, color: '#3b82f6' },
@@ -63,18 +70,19 @@ const EmailAppModern = () => {
   ];
 
   useEffect(() => {
-    if (user) {
+    if (targetUserId) {
       loadEmailAccount();
       loadEmails();
       setupRealtimeSubscription();
     }
-  }, [user, selectedFolder]);
+  }, [targetUserId, selectedFolder]);
 
   const loadEmailAccount = async () => {
+    if (!targetUserId) return;
     const { data } = await supabase
       .from('email_accounts')
       .select('*')
-      .eq('user_id', user?.id)
+      .eq('user_id', targetUserId)
       .eq('is_active', true)
       .single();
     
@@ -82,6 +90,7 @@ const EmailAppModern = () => {
   };
 
   const setupRealtimeSubscription = () => {
+    if (!targetUserId) return;
     const channel = supabase
       .channel('emails-changes')
       .on(
@@ -90,7 +99,7 @@ const EmailAppModern = () => {
           event: '*',
           schema: 'public',
           table: 'emails',
-          filter: `user_id=eq.${user?.id}`,
+          filter: `user_id=eq.${targetUserId}`,
         },
         () => {
           loadEmails();
@@ -104,13 +113,13 @@ const EmailAppModern = () => {
   };
 
   const loadEmails = async () => {
-    if (!user) return;
+    if (!targetUserId) return;
     setLoading(true);
 
     let query = supabase
       .from('emails')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', targetUserId)
       .eq('is_deleted', selectedFolder === 'trash')
       .order('created_at', { ascending: false });
 
