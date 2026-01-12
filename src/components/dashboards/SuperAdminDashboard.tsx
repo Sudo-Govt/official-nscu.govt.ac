@@ -20,7 +20,7 @@ import ApplicationManagement from '@/components/admin/ApplicationManagement';
 import FormsManagement from '@/components/admin/FormsManagement';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
-import AdminEmailManagement from '@/components/admin/AdminEmailManagement';
+import { InternalMessagingApp } from '@/components/messaging';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
@@ -248,7 +248,7 @@ const SuperAdminDashboard = () => {
         return <AgentResourcesManager />;
 
       case 'email':
-        return <AdminEmailManagement />;
+        return <InternalMessagingApp />;
 
       case 'admissions':
         return <ApplicationManagement />;

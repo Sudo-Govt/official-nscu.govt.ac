@@ -13,11 +13,11 @@ import DegreeProgress from '@/components/dashboard/DegreeProgress';
 import CalendarWidget from '@/components/dashboard/CalendarWidget';
 import NotificationsPanel from '@/components/dashboard/NotificationsPanel';
 import FormsSection from '@/components/dashboard/FormsSection';
-import EmailAppModern from '@/components/email/EmailAppModern';
+import { InternalMessagingApp, InstantChat } from '@/components/messaging';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, Mail } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
