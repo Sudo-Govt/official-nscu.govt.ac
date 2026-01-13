@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Users, Calendar, LogOut, User, Mail } from 'lucide-react';
+import { BookOpen, Users, Calendar, LogOut, User, Mail, MessageSquare } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import ChangePassword from '@/components/ChangePassword';
 import DashboardLayout from '@/components/DashboardLayout';
-import EmailAppModern from '@/components/email/EmailAppModern';
+import { InternalMessagingApp, InstantChat } from '@/components/messaging';
 
 const FacultyDashboard = () => {
   const { user } = useAuth();
@@ -123,7 +123,7 @@ const FacultyDashboard = () => {
       )}
 
       {activeTab === "password" && <ChangePassword />}
-      {activeTab === "mail" && <EmailAppModern />}
+      {activeTab === "mail" && <InternalMessagingApp />}
     </DashboardLayout>
   );
 };
