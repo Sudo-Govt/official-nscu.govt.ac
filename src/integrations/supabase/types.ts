@@ -1996,6 +1996,173 @@ export type Database = {
           },
         ]
       }
+      job_applications: {
+        Row: {
+          certifications: string[] | null
+          created_at: string | null
+          current_address: string
+          date_of_birth: string
+          education: Json | null
+          email: string
+          experience: Json | null
+          full_name: string
+          gender: string | null
+          id: string
+          identification_number: string | null
+          job_id: string
+          languages_known: Json | null
+          nationality: string
+          permanent_address: string | null
+          phone: string
+          preferred_work_mode: string | null
+          resume_filename: string | null
+          resume_path: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          software_tools: string[] | null
+          status: string | null
+          technical_skills: string[] | null
+          tracking_number: string
+          updated_at: string | null
+          willing_to_relocate: boolean | null
+          willing_to_travel: boolean | null
+          working_hours_availability: string | null
+        }
+        Insert: {
+          certifications?: string[] | null
+          created_at?: string | null
+          current_address: string
+          date_of_birth: string
+          education?: Json | null
+          email: string
+          experience?: Json | null
+          full_name: string
+          gender?: string | null
+          id?: string
+          identification_number?: string | null
+          job_id: string
+          languages_known?: Json | null
+          nationality: string
+          permanent_address?: string | null
+          phone: string
+          preferred_work_mode?: string | null
+          resume_filename?: string | null
+          resume_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          software_tools?: string[] | null
+          status?: string | null
+          technical_skills?: string[] | null
+          tracking_number: string
+          updated_at?: string | null
+          willing_to_relocate?: boolean | null
+          willing_to_travel?: boolean | null
+          working_hours_availability?: string | null
+        }
+        Update: {
+          certifications?: string[] | null
+          created_at?: string | null
+          current_address?: string
+          date_of_birth?: string
+          education?: Json | null
+          email?: string
+          experience?: Json | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          identification_number?: string | null
+          job_id?: string
+          languages_known?: Json | null
+          nationality?: string
+          permanent_address?: string | null
+          phone?: string
+          preferred_work_mode?: string | null
+          resume_filename?: string | null
+          resume_path?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          software_tools?: string[] | null
+          status?: string | null
+          technical_skills?: string[] | null
+          tracking_number?: string
+          updated_at?: string | null
+          willing_to_relocate?: boolean | null
+          willing_to_travel?: boolean | null
+          working_hours_availability?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_postings: {
+        Row: {
+          benefits: string[] | null
+          created_at: string | null
+          created_by: string | null
+          department: string | null
+          description: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          job_type: string
+          location: string | null
+          requirements: string[] | null
+          salary_currency: string | null
+          salary_max: number | null
+          salary_min: number | null
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          benefits?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          department?: string | null
+          description: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_type: string
+          location?: string | null
+          requirements?: string[] | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          benefits?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          department?: string | null
+          description?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_type?: string
+          location?: string | null
+          requirements?: string[] | null
+          salary_currency?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       phd_applications: {
         Row: {
           country: string

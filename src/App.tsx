@@ -167,7 +167,11 @@ import MasterPharmacy from "./pages/programs/MasterPharmacy";
 import MasterMedicine from "./pages/programs/MasterMedicine";
 import DynamicCoursePage from "./pages/programs/DynamicCoursePage";
 import DynamicPage from "./pages/DynamicPage";
-import Email from "./pages/Email";
+
+// Job pages
+import CareersPage from "./pages/careers/CareersPage";
+import JobDetailPage from "./pages/careers/JobDetailPage";
+import JobApplicationForm from "./pages/careers/JobApplicationForm";
 
 const queryClient = new QueryClient();
 
@@ -181,7 +185,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/email" element={<Email />} />
+            
+            {/* Career Routes */}
+            <Route path="/careers" element={<CareersPage />} />
+            <Route path="/careers/:slug" element={<JobDetailPage />} />
+            <Route path="/careers/:slug/apply" element={<JobApplicationForm />} />
           
           {/* Home Routes */}
           <Route path="/home/welcome" element={<WelcomeMessage />} />

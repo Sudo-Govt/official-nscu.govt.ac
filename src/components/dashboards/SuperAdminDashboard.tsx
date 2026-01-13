@@ -20,6 +20,7 @@ import ApplicationManagement from '@/components/admin/ApplicationManagement';
 import FormsManagement from '@/components/admin/FormsManagement';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
+import JobManagement from '@/components/admin/JobManagement';
 import { InternalMessagingApp } from '@/components/messaging';
 import { useToast } from '@/hooks/use-toast';
 
@@ -100,6 +101,7 @@ const SuperAdminDashboard = () => {
       label: 'Operations',
       items: [
         { title: 'Email', icon: Mail, value: 'email', onClick: () => setActiveTab('email') },
+        { title: 'Jobs', icon: Briefcase, value: 'jobs', onClick: () => setActiveTab('jobs') },
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
         { title: 'Forms', icon: ClipboardList, value: 'forms', onClick: () => setActiveTab('forms') },
         { title: 'Documents', icon: FolderOpen, value: 'documents', onClick: () => setActiveTab('documents') },
@@ -252,6 +254,9 @@ const SuperAdminDashboard = () => {
 
       case 'admissions':
         return <ApplicationManagement />;
+
+      case 'jobs':
+        return <JobManagement />;
 
       case 'forms':
         return <FormsManagement />;

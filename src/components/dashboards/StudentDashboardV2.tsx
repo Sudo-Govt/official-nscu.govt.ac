@@ -17,7 +17,7 @@ import { InternalMessagingApp, InstantChat } from '@/components/messaging';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
@@ -509,7 +509,7 @@ const StudentDashboardV2 = () => {
           </TabsContent>
 
           <TabsContent value="mail" className="mt-6">
-            <EmailAppModern />
+            <InternalMessagingApp />
           </TabsContent>
 
           <TabsContent value="forms" className="mt-6">
