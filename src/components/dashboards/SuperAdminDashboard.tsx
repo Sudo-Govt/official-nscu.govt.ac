@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
@@ -15,7 +15,7 @@ import AuditLogsModule from '@/components/transparency/AuditLogsModule';
 import CourseManagement from '@/components/admin/CourseManagement';
 import DashboardLayout from '@/components/DashboardLayout';
 import SiteEditor from '@/components/admin/SiteEditor';
-import AgentResourcesManager from '@/components/admin/AgentResourcesManager';
+import ResourcesManager from '@/components/admin/ResourcesManager';
 import ApplicationManagement from '@/components/admin/ApplicationManagement';
 import FormsManagement from '@/components/admin/FormsManagement';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
@@ -107,6 +107,7 @@ const SuperAdminDashboard = () => {
         { title: 'Documents', icon: FolderOpen, value: 'documents', onClick: () => setActiveTab('documents') },
         { title: 'Messaging', icon: MessageSquare, value: 'messaging', onClick: () => setActiveTab('messaging') },
         { title: 'Agent Resources', icon: Briefcase, value: 'agent-resources', onClick: () => setActiveTab('agent-resources') },
+        { title: 'Student Resources', icon: UserCheck, value: 'student-resources', onClick: () => setActiveTab('student-resources') },
         { title: 'Finance', icon: DollarSign, value: 'finance', onClick: () => setActiveTab('finance') },
         { title: 'Compliance', icon: ClipboardCheck, value: 'compliance', onClick: () => setActiveTab('compliance') },
       ]
@@ -247,7 +248,10 @@ const SuperAdminDashboard = () => {
         return <CourseManagement />;
 
       case 'agent-resources':
-        return <AgentResourcesManager />;
+        return <ResourcesManager resourceType="agent" />;
+
+      case 'student-resources':
+        return <ResourcesManager resourceType="student" />;
 
       case 'email':
         return <InternalMessagingApp />;
