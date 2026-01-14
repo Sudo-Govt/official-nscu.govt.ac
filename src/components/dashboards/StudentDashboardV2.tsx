@@ -14,10 +14,11 @@ import CalendarWidget from '@/components/dashboard/CalendarWidget';
 import NotificationsPanel from '@/components/dashboard/NotificationsPanel';
 import FormsSection from '@/components/dashboard/FormsSection';
 import { InternalMessagingApp, InstantChat } from '@/components/messaging';
+import StudentResourcesView from '@/components/student/StudentResourcesView';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
@@ -332,6 +333,10 @@ const StudentDashboardV2 = () => {
               <FileText className="h-4 w-4" />
               Forms
             </TabsTrigger>
+            <TabsTrigger value="resources" className="flex items-center gap-2">
+              <HelpCircle className="h-4 w-4" />
+              Resources
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6 space-y-6">
@@ -514,6 +519,10 @@ const StudentDashboardV2 = () => {
 
           <TabsContent value="forms" className="mt-6">
             <FormsSection />
+          </TabsContent>
+
+          <TabsContent value="resources" className="mt-6">
+            <StudentResourcesView />
           </TabsContent>
         </Tabs>
       </div>

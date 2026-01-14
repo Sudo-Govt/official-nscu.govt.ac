@@ -299,6 +299,8 @@ export type Database = {
           file_type: string | null
           id: string
           is_active: boolean | null
+          target_type: string
+          target_user_ids: string[] | null
           title: string
           updated_at: string | null
         }
@@ -314,6 +316,8 @@ export type Database = {
           file_type?: string | null
           id?: string
           is_active?: boolean | null
+          target_type?: string
+          target_user_ids?: string[] | null
           title: string
           updated_at?: string | null
         }
@@ -329,6 +333,8 @@ export type Database = {
           file_type?: string | null
           id?: string
           is_active?: boolean | null
+          target_type?: string
+          target_user_ids?: string[] | null
           title?: string
           updated_at?: string | null
         }
@@ -2614,6 +2620,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_resources: {
+        Row: {
+          category: string
+          content: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_active: boolean | null
+          target_type: string
+          target_user_ids: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_type?: string
+          target_user_ids?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_type?: string
+          target_user_ids?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       students: {
         Row: {
