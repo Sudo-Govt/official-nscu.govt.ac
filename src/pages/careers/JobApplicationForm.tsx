@@ -174,6 +174,7 @@ const JobApplicationForm = () => {
 
       // Submit application
       const { error } = await supabase.from('job_applications').insert([{
+        tracking_number: `JOB-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
         job_id: jobId,
         full_name: formData.fullName,
         date_of_birth: formData.dateOfBirth,
