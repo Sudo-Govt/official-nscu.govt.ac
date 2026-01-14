@@ -117,22 +117,55 @@ const ResourcesManager: React.FC<ResourcesManagerProps> = ({ resourceType }) => 
 
     setLoadingUsers(true);
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_id, full_name, role')
-        .or(`full_name.ilike.%${query}%`)
-        .in('role', roleFilter)
-        .limit(20);
+      let users: UserOption[] = [];
 
-      if (error) throw error;
+      if (resourceType === 'student') {
+        // Search in students table for students
+        const { data, error } = await supabase
+          .from('students')
+          .select('id, user_id, name, student_id, program')
+          .ilike('name', `%${query}%`)
+          .limit(20);
 
-      // Also get email from auth if possible (via user_id lookup in a join would be better)
-      const users: UserOption[] = (data || []).map(p => ({
-        id: p.user_id,
-        name: p.full_name || 'Unknown',
-        email: '', // Email not directly available from profiles
-        role: p.role || resourceType,
-      }));
+        if (error) throw error;
+
+        users = (data || []).map(s => ({
+          id: s.user_id || s.id,
+          name: s.name || 'Unknown',
+          email: s.student_id || '',
+          role: s.program || 'Student',
+        }));
+      } else {
+        // Search in agent_profiles joined with profiles for agents
+        const { data: agentData, error: agentError } = await supabase
+          .from('agent_profiles')
+          .select('id, user_id, agency_name, agent_id')
+          .limit(50);
+
+        if (agentError) throw agentError;
+
+        // Get profiles for these agents
+        const userIds = (agentData || []).map(a => a.user_id);
+        if (userIds.length > 0) {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('user_id, full_name')
+            .in('user_id', userIds)
+            .ilike('full_name', `%${query}%`);
+
+          if (profileError) throw profileError;
+
+          users = (profileData || []).map(p => {
+            const agent = agentData?.find(a => a.user_id === p.user_id);
+            return {
+              id: p.user_id,
+              name: p.full_name || 'Unknown',
+              email: agent?.agent_id || '',
+              role: agent?.agency_name || 'Agent',
+            };
+          });
+        }
+      }
 
       setAvailableUsers(users.filter(u => !selectedUsers.some(s => s.id === u.id)));
     } catch (error) {
@@ -140,7 +173,7 @@ const ResourcesManager: React.FC<ResourcesManagerProps> = ({ resourceType }) => 
     } finally {
       setLoadingUsers(false);
     }
-  }, [selectedUsers, roleFilter, resourceType]);
+  }, [selectedUsers, resourceType]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
