@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog
 } from 'lucide-react';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
@@ -22,6 +22,7 @@ import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement'
 import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
 import JobManagement from '@/components/admin/JobManagement';
 import { InternalMessagingApp } from '@/components/messaging';
+import StudentDataManagement from '@/components/admin/StudentDataManagement';
 import { useToast } from '@/hooks/use-toast';
 
 const SuperAdminDashboard = () => {
@@ -100,6 +101,7 @@ const SuperAdminDashboard = () => {
     {
       label: 'Operations',
       items: [
+        { title: 'Student Management', icon: UserCog, value: 'student-management', onClick: () => setActiveTab('student-management') },
         { title: 'Email', icon: Mail, value: 'email', onClick: () => setActiveTab('email') },
         { title: 'Jobs', icon: Briefcase, value: 'jobs', onClick: () => setActiveTab('jobs') },
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
@@ -246,6 +248,9 @@ const SuperAdminDashboard = () => {
 
       case 'content':
         return <CourseManagement />;
+
+      case 'student-management':
+        return <StudentDataManagement />;
 
       case 'agent-resources':
         return <ResourcesManager resourceType="agent" />;
