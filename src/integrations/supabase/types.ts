@@ -2471,6 +2471,62 @@ export type Database = {
           },
         ]
       }
+      student_dashboard_data: {
+        Row: {
+          assignments: Json | null
+          courses: Json | null
+          created_at: string
+          degree_progress: Json | null
+          financial_data: Json | null
+          gpa_data: Json | null
+          grades: Json | null
+          id: string
+          library_resources: Json | null
+          quick_actions_config: Json | null
+          schedule: Json | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          assignments?: Json | null
+          courses?: Json | null
+          created_at?: string
+          degree_progress?: Json | null
+          financial_data?: Json | null
+          gpa_data?: Json | null
+          grades?: Json | null
+          id?: string
+          library_resources?: Json | null
+          quick_actions_config?: Json | null
+          schedule?: Json | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          assignments?: Json | null
+          courses?: Json | null
+          created_at?: string
+          degree_progress?: Json | null
+          financial_data?: Json | null
+          gpa_data?: Json | null
+          grades?: Json | null
+          id?: string
+          library_resources?: Json | null
+          quick_actions_config?: Json | null
+          schedule?: Json | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_dashboard_data_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_documents: {
         Row: {
           ai_fraud_score: number | null
