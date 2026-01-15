@@ -163,10 +163,17 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
         },
       });
 
-      if (error) throw error;
+      // Check for error in response data (edge function returns error in body)
+      if (error) {
+        throw new Error(error.message || 'Failed to create user');
+      }
+      
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
-      const createdRole = (data as any)?.role ?? newUser.role;
-      const agentCode = (data as any)?.agent_code as string | null | undefined;
+      const createdRole = data?.role ?? newUser.role;
+      const agentCode = data?.agent_code as string | null | undefined;
 
       toast({
         title: "Success",
@@ -187,11 +194,19 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 
       setIsCreateDialogOpen(false);
       await fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating user:', error);
+      const errorMessage = error?.message || "Failed to create user";
+      
+      // Provide user-friendly messages for common errors
+      let displayMessage = errorMessage;
+      if (errorMessage.includes('already been registered')) {
+        displayMessage = "A user with this email address already exists. Please use a different email.";
+      }
+      
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create user",
+        description: displayMessage,
         variant: "destructive",
       });
     }
