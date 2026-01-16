@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart
 } from 'lucide-react';
+import AlumniManagement from '@/components/admin/AlumniManagement';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 import AuditLogsModule from '@/components/transparency/AuditLogsModule';
@@ -102,6 +103,7 @@ const SuperAdminDashboard = () => {
       label: 'Operations',
       items: [
         { title: 'Student Management', icon: UserCog, value: 'student-management', onClick: () => setActiveTab('student-management') },
+        { title: 'Alumni Management', icon: Heart, value: 'alumni-management', onClick: () => setActiveTab('alumni-management') },
         { title: 'Email', icon: Mail, value: 'email', onClick: () => setActiveTab('email') },
         { title: 'Jobs', icon: Briefcase, value: 'jobs', onClick: () => setActiveTab('jobs') },
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
@@ -251,6 +253,9 @@ const SuperAdminDashboard = () => {
 
       case 'student-management':
         return <StudentDataManagement />;
+
+      case 'alumni-management':
+        return <AlumniManagement />;
 
       case 'agent-resources':
         return <ResourcesManager resourceType="agent" />;

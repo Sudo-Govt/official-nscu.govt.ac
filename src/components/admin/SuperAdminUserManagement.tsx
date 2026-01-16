@@ -499,16 +499,33 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     setIsDeletingUser(true);
 
     try {
-      const { error } = await supabase.functions.invoke('admin-delete-user', {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
         body: {
           userId: user.user_id,
         },
       });
 
       if (error) {
+        // Try to parse error message from response
+        let errorMessage = error.message || "Failed to delete user";
+        try {
+          const parsed = JSON.parse(error.message);
+          if (parsed.error) errorMessage = parsed.error;
+        } catch {}
+        
         toast({
           title: "Error",
-          description: error.message || "Failed to delete user",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Also check if response contains error
+      if (data?.error) {
+        toast({
+          title: "Error",
+          description: data.error,
           variant: "destructive",
         });
         return;

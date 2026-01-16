@@ -373,6 +373,54 @@ export type Database = {
         }
         Relationships: []
       }
+      alumni_chat_presence: {
+        Row: {
+          id: string
+          is_online: boolean
+          last_seen: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_online?: boolean
+          last_seen?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_online?: boolean
+          last_seen?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      alumni_chat_room: {
+        Row: {
+          created_at: string
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          message: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          message: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          message?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       alumni_credentials: {
         Row: {
           created_at: string | null
@@ -403,6 +451,45 @@ export type Database = {
           id?: string
           issued_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      alumni_cta_buttons: {
+        Row: {
+          action_type: string
+          action_value: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_active: boolean
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_type?: string
+          action_value: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string
+          action_value?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          sort_order?: number
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -529,6 +616,39 @@ export type Database = {
           mentor_id?: string
           program_name?: string
           status?: string | null
+        }
+        Relationships: []
+      }
+      alumni_private_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_deleted_by_recipient: boolean
+          is_deleted_by_sender: boolean
+          is_read: boolean
+          message: string
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_deleted_by_recipient?: boolean
+          is_deleted_by_sender?: boolean
+          is_read?: boolean
+          message: string
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_deleted_by_recipient?: boolean
+          is_deleted_by_sender?: boolean
+          is_read?: boolean
+          message?: string
+          recipient_id?: string
+          sender_id?: string
         }
         Relationships: []
       }
