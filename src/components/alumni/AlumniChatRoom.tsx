@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Send, Users, Circle, MessageSquare, X } from 'lucide-react';
+import { Send, Users, Circle, MessageSquare, X, Minimize2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
@@ -36,6 +33,11 @@ interface PrivateMessage {
   sender_name?: string;
 }
 
+interface ActiveDM {
+  user: OnlineUser;
+  minimized: boolean;
+}
+
 const AlumniChatRoom = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -43,12 +45,12 @@ const AlumniChatRoom = () => {
   const [newMessage, setNewMessage] = useState('');
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
-  const [selectedDMUser, setSelectedDMUser] = useState<OnlineUser | null>(null);
-  const [privateMessages, setPrivateMessages] = useState<PrivateMessage[]>([]);
-  const [dmMessage, setDmMessage] = useState('');
+  const [activeDMs, setActiveDMs] = useState<ActiveDM[]>([]);
+  const [dmMessages, setDmMessages] = useState<Record<string, PrivateMessage[]>>({});
+  const [dmInputs, setDmInputs] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const dmEndRef = useRef<HTMLDivElement>(null);
+  const dmEndRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     fetchMessages();
@@ -88,7 +90,11 @@ const AlumniChatRoom = () => {
       }, (payload) => {
         const newDM = payload.new as PrivateMessage;
         if (newDM.recipient_id === user?.id || newDM.sender_id === user?.id) {
-          setPrivateMessages(prev => [...prev, newDM]);
+          const otherUserId = newDM.sender_id === user?.id ? newDM.recipient_id : newDM.sender_id;
+          setDmMessages(prev => ({
+            ...prev,
+            [otherUserId]: [...(prev[otherUserId] || []), newDM]
+          }));
         }
       })
       .subscribe();
@@ -116,14 +122,11 @@ const AlumniChatRoom = () => {
   }, [messages]);
 
   useEffect(() => {
-    dmEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [privateMessages]);
-
-  useEffect(() => {
-    if (selectedDMUser) {
-      fetchPrivateMessages(selectedDMUser.user_id);
-    }
-  }, [selectedDMUser]);
+    // Scroll DM windows when new messages arrive
+    Object.keys(dmMessages).forEach(userId => {
+      dmEndRefs.current[userId]?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }, [dmMessages]);
 
   const fetchMessages = async () => {
     try {
@@ -221,7 +224,7 @@ const AlumniChatRoom = () => {
         .eq('recipient_id', user.id)
         .eq('sender_id', otherUserId);
 
-      setPrivateMessages(data || []);
+      setDmMessages(prev => ({ ...prev, [otherUserId]: data || [] }));
     } catch (error) {
       console.error('Error fetching private messages:', error);
     }
@@ -249,19 +252,20 @@ const AlumniChatRoom = () => {
     }
   };
 
-  const sendPrivateMessage = async () => {
-    if (!dmMessage.trim() || !user?.id || !selectedDMUser) return;
+  const sendPrivateMessage = async (recipientId: string) => {
+    const message = dmInputs[recipientId];
+    if (!message?.trim() || !user?.id) return;
     try {
       const { error } = await supabase
         .from('alumni_private_messages')
         .insert({
           sender_id: user.id,
-          recipient_id: selectedDMUser.user_id,
-          message: dmMessage.trim()
+          recipient_id: recipientId,
+          message: message.trim()
         });
 
       if (error) throw error;
-      setDmMessage('');
+      setDmInputs(prev => ({ ...prev, [recipientId]: '' }));
     } catch (error) {
       console.error('Error sending private message:', error);
       toast({
@@ -272,203 +276,222 @@ const AlumniChatRoom = () => {
     }
   };
 
+  const openDM = (targetUser: OnlineUser) => {
+    if (targetUser.user_id === user?.id) return;
+    if (!activeDMs.find(dm => dm.user.user_id === targetUser.user_id)) {
+      setActiveDMs([...activeDMs, { user: targetUser, minimized: false }]);
+      fetchPrivateMessages(targetUser.user_id);
+    }
+  };
+
+  const closeDM = (userId: string) => {
+    setActiveDMs(activeDMs.filter(dm => dm.user.user_id !== userId));
+  };
+
+  const toggleMinimizeDM = (userId: string) => {
+    setActiveDMs(activeDMs.map(dm =>
+      dm.user.user_id === userId ? { ...dm, minimized: !dm.minimized } : dm
+    ));
+  };
+
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+  const handleKeyPress = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter') {
+      action();
     }
-    return date.toLocaleDateString();
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64">Loading chat room...</div>;
+    return (
+      <div className="min-h-[400px] flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg">
+        <div className="text-white text-xl font-bold animate-pulse">Loading Yahoo! Messenger...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-200px)]">
-      {/* Main Chat Room - Yahoo Messenger 2000 Style */}
-      <div className="lg:col-span-3">
-        <Card className="h-full flex flex-col bg-gradient-to-b from-blue-100 to-blue-50 dark:from-blue-950 dark:to-blue-900 border-2 border-blue-300 dark:border-blue-700">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg py-2 px-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-bold">
-              <MessageSquare className="h-5 w-5" />
-              🎓 Alumni Chat Room
-              <Badge variant="secondary" className="ml-auto bg-yellow-400 text-black">
-                {onlineUsers.length} online
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-            {/* Messages Area */}
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-2">
-                {messages.map((msg, idx) => {
-                  const isOwnMessage = msg.user_id === user?.id;
-                  const showDate = idx === 0 || formatDate(msg.created_at) !== formatDate(messages[idx - 1].created_at);
-                  
-                  return (
-                    <React.Fragment key={msg.id}>
-                      {showDate && (
-                        <div className="text-center text-xs text-muted-foreground py-2">
-                          --- {formatDate(msg.created_at)} ---
-                        </div>
-                      )}
-                      <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] p-2 rounded ${
-                          isOwnMessage 
-                            ? 'bg-blue-500 text-white' 
-                            : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600'
-                        }`}>
-                          <div className="flex items-baseline gap-2">
-                            <span className={`text-xs font-bold ${isOwnMessage ? 'text-blue-100' : 'text-blue-600 dark:text-blue-400'}`}>
-                              {msg.user_name}
-                            </span>
-                            <span className={`text-xs ${isOwnMessage ? 'text-blue-200' : 'text-muted-foreground'}`}>
-                              {formatTime(msg.created_at)}
-                            </span>
-                          </div>
-                          <p className="text-sm mt-1 break-words">{msg.message}</p>
-                        </div>
-                      </div>
-                    </React.Fragment>
-                  );
-                })}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
+    <div className="h-[calc(100vh-280px)] flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border-4 border-yellow-400">
+      {/* Header - Yahoo Messenger Style */}
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-2 shadow-lg flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-6 w-6" />
+          <h1 className="text-xl font-bold" style={{ fontFamily: 'Arial Black, sans-serif' }}>
+            Yahoo! Messenger
+          </h1>
+          <span className="text-yellow-300 text-sm">Alumni Edition</span>
+        </div>
+        <div className="text-sm bg-white/20 px-3 py-1 rounded-full">
+          Logged in as: <span className="font-bold">{userNames[user?.id || ''] || 'Alumni'}</span>
+        </div>
+      </div>
 
-            {/* Message Input */}
-            <div className="p-3 bg-gray-100 dark:bg-gray-800 border-t-2 border-blue-300 dark:border-blue-700">
-              <div className="flex gap-2">
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your message..."
-                  className="flex-1 border-2 border-blue-300 dark:border-blue-600"
-                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                />
-                <Button 
-                  onClick={sendMessage}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+      <div className="flex-1 flex overflow-hidden">
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col bg-white dark:bg-gray-800">
+          {/* Room Header */}
+          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 p-2 font-bold border-b-2 border-gray-400 text-black flex items-center justify-between">
+            <span>🎓 Alumni Lobby</span>
+            <span className="text-sm bg-white/50 px-2 py-0.5 rounded">
+              {messages.length} messages
+            </span>
+          </div>
+          
+          {/* Messages Area */}
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-1">
+              {messages.map((msg) => {
+                const isOwnMessage = msg.user_id === user?.id;
+                return (
+                  <div key={msg.id} className="text-sm">
+                    <span 
+                      className={`font-bold cursor-pointer hover:underline ${
+                        isOwnMessage ? 'text-purple-600' : 'text-blue-600'
+                      }`}
+                      onClick={() => {
+                        const targetUser = onlineUsers.find(u => u.user_id === msg.user_id);
+                        if (targetUser) openDM(targetUser);
+                      }}
+                    >
+                      {msg.user_name}
+                    </span>
+                    <span className="text-gray-500 text-xs ml-2">{formatTime(msg.created_at)}</span>
+                    <div className="ml-2 text-gray-800 dark:text-gray-200">{msg.message}</div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          {/* Message Input */}
+          <div className="border-t-2 border-gray-300 dark:border-gray-600 p-2 flex gap-2 bg-gray-100 dark:bg-gray-700">
+            <Input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={(e) => handleKeyPress(e, sendMessage)}
+              placeholder="Type a message..."
+              className="flex-1 border-2 border-gray-300 dark:border-gray-500"
+            />
+            <Button
+              onClick={sendMessage}
+              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
+            >
+              <Send className="h-4 w-4" /> Send
+            </Button>
+          </div>
+        </div>
+
+        {/* Users Sidebar */}
+        <div className="w-48 bg-gray-200 dark:bg-gray-800 border-l-2 border-gray-400 flex flex-col">
+          <div className="bg-blue-700 text-white p-2 font-bold text-sm flex items-center gap-2">
+            <Users className="h-4 w-4" /> Users ({onlineUsers.length})
+          </div>
+          <ScrollArea className="flex-1">
+            <div className="p-1">
+              {onlineUsers.map((onlineUser) => (
+                <div
+                  key={onlineUser.user_id}
+                  onClick={() => openDM(onlineUser)}
+                  className={`p-2 text-sm border-b border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 flex items-center gap-2 ${
+                    onlineUser.user_id === user?.id ? 'font-bold text-purple-600' : ''
+                  }`}
                 >
-                  <Send className="h-4 w-4" />
-                </Button>
+                  <Circle className="h-2 w-2 fill-green-500 text-green-500" />
+                  <span className="truncate">
+                    {onlineUser.user_id === user?.id ? `${onlineUser.user_name} (You)` : onlineUser.user_name}
+                  </span>
+                </div>
+              ))}
+              {onlineUsers.length === 0 && (
+                <div className="p-4 text-xs text-gray-500 text-center">
+                  No users online
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+      </div>
+
+      {/* Floating DM Windows - Yahoo Messenger Style */}
+      <div className="fixed bottom-0 right-4 flex gap-2 z-50">
+        {activeDMs.map(dm => (
+          <div
+            key={dm.user.user_id}
+            className="bg-white dark:bg-gray-800 border-2 border-gray-400 rounded-t-lg shadow-2xl flex flex-col"
+            style={{ 
+              width: '320px',
+              height: dm.minimized ? '36px' : '400px',
+              transition: 'height 0.2s ease-in-out'
+            }}
+          >
+            {/* DM Header */}
+            <div 
+              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-2 flex items-center justify-between cursor-pointer rounded-t"
+              onClick={() => toggleMinimizeDM(dm.user.user_id)}
+            >
+              <span className="font-bold text-sm flex items-center gap-1">
+                💬 {dm.user.user_name}
+              </span>
+              <div className="flex gap-1">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); toggleMinimizeDM(dm.user.user_id); }}
+                  className="hover:bg-white/20 p-1 rounded"
+                >
+                  <Minimize2 className="h-3 w-3" />
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); closeDM(dm.user.user_id); }}
+                  className="hover:bg-white/20 p-1 rounded"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Online Users Sidebar */}
-      <div className="lg:col-span-1">
-        <Card className="h-full flex flex-col bg-gradient-to-b from-yellow-100 to-yellow-50 dark:from-yellow-950 dark:to-yellow-900 border-2 border-yellow-400 dark:border-yellow-700">
-          <CardHeader className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-2 px-4 rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 text-sm font-bold">
-              <Users className="h-4 w-4" />
-              Who's Online
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 p-2 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="space-y-1">
-                {onlineUsers.map((onlineUser) => (
-                  <div
-                    key={onlineUser.user_id}
-                    className={`flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-800 transition-colors ${
-                      onlineUser.user_id === user?.id ? 'bg-yellow-200 dark:bg-yellow-800' : ''
-                    }`}
-                    onClick={() => {
-                      if (onlineUser.user_id !== user?.id) {
-                        setSelectedDMUser(onlineUser);
-                      }
-                    }}
-                  >
-                    <Circle className="h-3 w-3 fill-green-500 text-green-500" />
-                    <span className="text-sm font-medium truncate">
-                      {onlineUser.user_name}
-                      {onlineUser.user_id === user?.id && ' (You)'}
-                    </span>
-                  </div>
-                ))}
-                {onlineUsers.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">
-                    No one else is online
-                  </p>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Private Message Dialog */}
-      {selectedDMUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md h-[500px] flex flex-col bg-gradient-to-b from-purple-100 to-purple-50 dark:from-purple-950 dark:to-purple-900 border-2 border-purple-400 dark:border-purple-700">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-t-lg flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-sm font-bold">
-                💬 DM with {selectedDMUser.user_name}
-              </CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setSelectedDMUser(null)}
-                className="text-white hover:bg-white/20"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-              <ScrollArea className="flex-1 p-4">
-                <div className="space-y-2">
-                  {privateMessages.map((dm) => {
-                    const isSent = dm.sender_id === user?.id;
-                    return (
-                      <div key={dm.id} className={`flex ${isSent ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] p-2 rounded ${
-                          isSent 
-                            ? 'bg-purple-500 text-white' 
-                            : 'bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600'
-                        }`}>
-                          <p className="text-sm break-words">{dm.message}</p>
-                          <span className={`text-xs ${isSent ? 'text-purple-200' : 'text-muted-foreground'}`}>
-                            {formatTime(dm.created_at)}
-                          </span>
-                        </div>
+            {/* DM Content */}
+            {!dm.minimized && (
+              <>
+                <ScrollArea className="flex-1 p-2 bg-gray-50 dark:bg-gray-900">
+                  <div className="space-y-1">
+                    {(dmMessages[dm.user.user_id] || []).map(msg => (
+                      <div key={msg.id} className="text-sm">
+                        <span className={`font-bold ${msg.sender_id === user?.id ? 'text-purple-600' : 'text-blue-600'}`}>
+                          {msg.sender_id === user?.id ? 'You' : dm.user.user_name}
+                        </span>
+                        <span className="text-gray-500 text-xs ml-1">{formatTime(msg.created_at)}</span>
+                        <div className="ml-2 text-gray-800 dark:text-gray-200">{msg.message}</div>
                       </div>
-                    );
-                  })}
-                  <div ref={dmEndRef} />
-                </div>
-              </ScrollArea>
-              <div className="p-3 bg-gray-100 dark:bg-gray-800 border-t-2 border-purple-300 dark:border-purple-700">
-                <div className="flex gap-2">
+                    ))}
+                    <div ref={el => dmEndRefs.current[dm.user.user_id] = el} />
+                  </div>
+                </ScrollArea>
+                <div className="border-t-2 border-gray-300 dark:border-gray-600 p-2 flex gap-1 bg-gray-100 dark:bg-gray-700">
                   <Input
-                    value={dmMessage}
-                    onChange={(e) => setDmMessage(e.target.value)}
-                    placeholder="Type a private message..."
-                    className="flex-1 border-2 border-purple-300 dark:border-purple-600"
-                    onKeyPress={(e) => e.key === 'Enter' && sendPrivateMessage()}
+                    type="text"
+                    value={dmInputs[dm.user.user_id] || ''}
+                    onChange={(e) => setDmInputs({ ...dmInputs, [dm.user.user_id]: e.target.value })}
+                    onKeyPress={(e) => handleKeyPress(e, () => sendPrivateMessage(dm.user.user_id))}
+                    placeholder="Type a message..."
+                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm h-8"
                   />
-                  <Button 
-                    onClick={sendPrivateMessage}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  <Button
+                    onClick={() => sendPrivateMessage(dm.user.user_id)}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 h-8"
                   >
-                    <Send className="h-4 w-4" />
+                    Send
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+              </>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
