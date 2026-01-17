@@ -151,11 +151,11 @@ const EmergencyAlerts = () => {
               <div>
                 <h3 className="text-xl font-bold text-uw-purple mb-4">Important Links</h3>
                 <ul className="space-y-2">
-                  <li><a href="#" className="text-uw-gold hover:underline">Campus Safety Handbook</a></li>
-                  <li><a href="#" className="text-uw-gold hover:underline">Emergency Evacuation Maps</a></li>
-                  <li><a href="#" className="text-uw-gold hover:underline">Weather Closure Policies</a></li>
-                  <li><a href="#" className="text-uw-gold hover:underline">Mental Health Resources</a></li>
-                  <li><a href="#" className="text-uw-gold hover:underline">Title IX Information</a></li>
+                  <li><a href="/resources/campus-safety" className="text-uw-gold hover:underline">Campus Safety Handbook</a></li>
+                  <li><a href="/campus/facilities" className="text-uw-gold hover:underline">Emergency Evacuation Maps</a></li>
+                  <li><a href="/resources/academic-policies" className="text-uw-gold hover:underline">Weather Closure Policies</a></li>
+                  <li><a href="/student-life/health-wellness" className="text-uw-gold hover:underline">Mental Health Resources</a></li>
+                  <li><a href="/resources/title-ix" className="text-uw-gold hover:underline">Title IX Information</a></li>
                 </ul>
               </div>
               <div>

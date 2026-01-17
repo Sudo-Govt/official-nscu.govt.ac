@@ -114,19 +114,19 @@ const UniversityNews = () => {
                 <div className="bg-white rounded-lg shadow-lg p-6">
                   <h3 className="text-xl font-bold text-uw-purple mb-4">Quick Links</h3>
                   <div className="space-y-3">
-                    <a href="#" className="block text-gray-600 hover:text-uw-gold transition-colors">
+                    <a href="/academics/academic-calendar" className="block text-gray-600 hover:text-uw-gold transition-colors">
                       • Campus Calendar
                     </a>
-                    <a href="#" className="block text-gray-600 hover:text-uw-gold transition-colors">
+                    <a href="/news/press-releases" className="block text-gray-600 hover:text-uw-gold transition-colors">
                       • Press Releases
                     </a>
-                    <a href="#" className="block text-gray-600 hover:text-uw-gold transition-colors">
+                    <a href="/faculty/directory" className="block text-gray-600 hover:text-uw-gold transition-colors">
                       • Faculty Spotlights
                     </a>
-                    <a href="#" className="block text-gray-600 hover:text-uw-gold transition-colors">
+                    <a href="/student-life/student-organizations" className="block text-gray-600 hover:text-uw-gold transition-colors">
                       • Student Achievements
                     </a>
-                    <a href="#" className="block text-gray-600 hover:text-uw-gold transition-colors">
+                    <a href="/alumni/events" className="block text-gray-600 hover:text-uw-gold transition-colors">
                       • Alumni News
                     </a>
                   </div>
