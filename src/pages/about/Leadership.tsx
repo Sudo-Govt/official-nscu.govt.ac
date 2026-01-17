@@ -183,7 +183,7 @@ const Leadership = () => {
                 The Board of Trustees provides governance and strategic oversight for the university,
                 ensuring accountability and advancing our mission of excellence.
               </p>
-              <a href="#" className="text-uw-purple hover:text-uw-gold font-semibold">
+              <a href="/about/history-mission" className="text-uw-purple hover:text-uw-gold font-semibold">
                 View Complete Board Membership →
               </a>
             </div>
