@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import jsPDF from 'jspdf';
 import { 
   DollarSign, 
   Receipt, 
@@ -22,6 +21,17 @@ import {
   CheckCircle,
   Trash2
 } from 'lucide-react';
+
+// Helper function to open printable HTML in new window
+const openPrintableDocument = (htmlContent: string, title: string) => {
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.document.title = title;
+  }
+  return printWindow;
+};
 
 const FinanceManagement = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -279,361 +289,256 @@ const FinanceManagement = () => {
   };
 
   const generateReceiptPDF = (receipt: any) => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>NSCU Payment Receipt</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+          .header { background: #2980b9; color: white; text-align: center; padding: 20px; margin: -20px -20px 20px -20px; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0 0 0; }
+          .title { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; }
+          .details { margin: 20px 0; }
+          .row { display: flex; margin: 8px 0; }
+          .label { font-weight: bold; width: 150px; }
+          .amount-box { background: #f0f0f0; padding: 15px; margin: 20px 0; display: flex; justify-content: space-between; align-items: center; }
+          .amount-label { font-weight: bold; font-size: 16px; }
+          .amount-value { font-size: 20px; font-weight: bold; }
+          .footer { border-top: 1px solid #ccc; margin-top: 40px; padding-top: 15px; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>NSCU</h1>
+          <p>New States Continental University</p>
+        </div>
+        <div class="title">PAYMENT RECEIPT</div>
+        <div class="details">
+          <div class="row"><span class="label">Receipt Number:</span><span>${receipt.id.substring(0, 8).toUpperCase()}</span></div>
+          <div class="row"><span class="label">Date:</span><span>${new Date(receipt.payment_date).toLocaleDateString()}</span></div>
+          <div class="row"><span class="label">Student Name:</span><span>${receipt.student_name}</span></div>
+          <div class="row"><span class="label">Payment Method:</span><span>${receipt.payment_method || 'N/A'}</span></div>
+        </div>
+        <div class="amount-box">
+          <span class="amount-label">Amount Paid:</span>
+          <span class="amount-value">$${parseFloat(receipt.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        </div>
+        <div class="footer">
+          <p>New States Continental University</p>
+          <p>123 University Avenue, Campus City, ST 12345</p>
+          <p>Phone: (555) 123-4567 | Email: finance@nscu.edu</p>
+          <p>Website: www.nscu.edu</p>
+        </div>
+      </body>
+      </html>
+    `;
     
-    // Header with NSCU branding
-    doc.setFillColor(41, 128, 185);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
-    
-    // Receipt title
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT RECEIPT', pageWidth / 2, 55, { align: 'center' });
-    
-    // Receipt details
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    
-    const leftMargin = 20;
-    let yPosition = 75;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Receipt Number:', leftMargin, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.text(receipt.id.substring(0, 8).toUpperCase(), leftMargin + 50, yPosition);
-    
-    yPosition += 10;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Date:', leftMargin, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.text(new Date(receipt.payment_date).toLocaleDateString(), leftMargin + 50, yPosition);
-    
-    yPosition += 15;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Student Name:', leftMargin, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.text(receipt.student_name, leftMargin + 50, yPosition);
-    
-    yPosition += 10;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Payment Method:', leftMargin, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.text(receipt.payment_method || 'N/A', leftMargin + 50, yPosition);
-    
-    yPosition += 20;
-    
-    // Amount box
-    doc.setFillColor(240, 240, 240);
-    doc.rect(leftMargin, yPosition, pageWidth - 40, 25, 'F');
-    
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Amount Paid:', leftMargin + 5, yPosition + 15);
-    doc.setFontSize(16);
-    doc.text(`$${parseFloat(receipt.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageWidth - leftMargin - 5, yPosition + 15, { align: 'right' });
-    
-    // Footer with contact information
-    const footerY = pageHeight - 40;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, footerY, pageWidth - 20, footerY);
-    
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    
-    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
-    doc.text('123 University Avenue, Campus City, ST 12345', pageWidth / 2, footerY + 13, { align: 'center' });
-    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 18, { align: 'center' });
-    doc.text('Website: www.nscu.edu', pageWidth / 2, footerY + 23, { align: 'center' });
-    
-    // Save the PDF
-    doc.save(`NSCU_Receipt_${receipt.id.substring(0, 8)}.pdf`);
+    openPrintableDocument(htmlContent, `NSCU_Receipt_${receipt.id.substring(0, 8)}`);
     
     toast({
       title: "Success",
-      description: "Receipt downloaded successfully"
+      description: "Receipt opened in new tab. Use Print (Ctrl+P) to save as PDF."
     });
   };
 
   const generateMonthlyRevenueReport = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
+    const paymentsRows = feePayments.slice(0, 15).map(payment => `
+      <tr>
+        <td>${new Date(payment.payment_date).toLocaleDateString()}</td>
+        <td>${payment.student_name.substring(0, 20)}</td>
+        <td>${payment.payment_method || 'N/A'}</td>
+        <td style="text-align: right;">$${parseFloat(payment.amount).toLocaleString()}</td>
+      </tr>
+    `).join('');
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>NSCU Monthly Revenue Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+          .header { background: #2980b9; color: white; text-align: center; padding: 20px; margin: -20px -20px 20px -20px; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0 0 0; }
+          .title { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; }
+          .generated { text-align: center; color: #666; margin-bottom: 20px; }
+          .summary { margin: 20px 0; }
+          .summary h3 { margin-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th { background: #f0f0f0; padding: 8px; text-align: left; font-size: 12px; }
+          td { padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 12px; }
+          .footer { border-top: 1px solid #ccc; margin-top: 40px; padding-top: 15px; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>NSCU</h1>
+          <p>New States Continental University</p>
+        </div>
+        <div class="title">MONTHLY REVENUE REPORT</div>
+        <div class="generated">Generated: ${new Date().toLocaleDateString()}</div>
+        <div class="summary">
+          <h3>Revenue Summary</h3>
+          <p>Total Revenue: $${totalRevenue.toLocaleString()}</p>
+          <p>Total Payments: ${feePayments.length}</p>
+          <p>Collection Rate: ${collectionRate}%</p>
+        </div>
+        <h3>Recent Payments</h3>
+        <table>
+          <thead><tr><th>Date</th><th>Student</th><th>Method</th><th style="text-align: right;">Amount</th></tr></thead>
+          <tbody>${paymentsRows}</tbody>
+        </table>
+        <div class="footer">
+          <p>New States Continental University</p>
+          <p>Phone: (555) 123-4567 | Email: finance@nscu.edu</p>
+        </div>
+      </body>
+      </html>
+    `;
     
-    // Header
-    doc.setFillColor(41, 128, 185);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
-    
-    // Report title
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('MONTHLY REVENUE REPORT', pageWidth / 2, 55, { align: 'center' });
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
-    
-    // Summary
-    const leftMargin = 20;
-    let yPosition = 85;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Revenue Summary', leftMargin, yPosition);
-    
-    yPosition += 10;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total Revenue: $${totalRevenue.toLocaleString()}`, leftMargin, yPosition);
-    yPosition += 8;
-    doc.text(`Total Payments: ${feePayments.length}`, leftMargin, yPosition);
-    yPosition += 8;
-    doc.text(`Collection Rate: ${collectionRate}%`, leftMargin, yPosition);
-    
-    // Payments table
-    yPosition += 20;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Recent Payments', leftMargin, yPosition);
-    yPosition += 10;
-    
-    // Table headers
-    doc.setFillColor(240, 240, 240);
-    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
-    doc.setFontSize(9);
-    doc.text('Date', leftMargin + 2, yPosition);
-    doc.text('Student', leftMargin + 35, yPosition);
-    doc.text('Method', leftMargin + 95, yPosition);
-    doc.text('Amount', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-    
-    yPosition += 8;
-    doc.setFont('helvetica', 'normal');
-    
-    feePayments.slice(0, 15).forEach((payment, index) => {
-      if (yPosition > pageHeight - 50) return;
-      
-      const date = new Date(payment.payment_date).toLocaleDateString();
-      doc.text(date, leftMargin + 2, yPosition);
-      doc.text(payment.student_name.substring(0, 20), leftMargin + 35, yPosition);
-      doc.text(payment.payment_method || 'N/A', leftMargin + 95, yPosition);
-      doc.text(`$${parseFloat(payment.amount).toLocaleString()}`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-      
-      yPosition += 7;
-    });
-    
-    // Footer
-    const footerY = pageHeight - 40;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, footerY, pageWidth - 20, footerY);
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
-    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
-    
-    doc.save(`NSCU_Monthly_Revenue_${new Date().toISOString().split('T')[0]}.pdf`);
-    toast({ title: "Success", description: "Monthly revenue report downloaded" });
+    openPrintableDocument(htmlContent, `NSCU_Monthly_Revenue_${new Date().toISOString().split('T')[0]}`);
+    toast({ title: "Success", description: "Monthly revenue report opened. Use Print (Ctrl+P) to save as PDF." });
   };
 
   const generateOutstandingDuesReport = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    
-    // Header
-    doc.setFillColor(41, 128, 185);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
-    
-    // Report title
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('OUTSTANDING DUES REPORT', pageWidth / 2, 55, { align: 'center' });
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
-    
-    // Summary
-    const leftMargin = 20;
-    let yPosition = 85;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Summary', leftMargin, yPosition);
-    
-    yPosition += 10;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total Pending: $${totalPending.toLocaleString()}`, leftMargin, yPosition);
-    yPosition += 8;
-    doc.text(`Students with Dues: ${pendingDues.length}`, leftMargin, yPosition);
-    
-    // Dues table
-    yPosition += 20;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Pending Dues Details', leftMargin, yPosition);
-    yPosition += 10;
-    
-    // Table headers
-    doc.setFillColor(240, 240, 240);
-    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
-    doc.setFontSize(9);
-    doc.text('Application', leftMargin + 2, yPosition);
-    doc.text('Student', leftMargin + 40, yPosition);
-    doc.text('Total', leftMargin + 95, yPosition);
-    doc.text('Paid', leftMargin + 125, yPosition);
-    doc.text('Pending', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-    
-    yPosition += 8;
-    doc.setFont('helvetica', 'normal');
-    
-    pendingDues.slice(0, 15).forEach((due) => {
-      if (yPosition > pageHeight - 50) return;
-      
+    const duesRows = pendingDues.slice(0, 15).map(due => {
       const totalFee = due.courses?.fee_structure?.total || 0;
       const paidAmount = due.application_fee_paid ? (due.application_fee_amount || 0) : 0;
       const pending = totalFee - paidAmount;
-      
-      doc.text(due.application_number.substring(0, 10), leftMargin + 2, yPosition);
-      doc.text(`${due.first_name} ${due.last_name}`.substring(0, 18), leftMargin + 40, yPosition);
-      doc.text(`$${totalFee.toLocaleString()}`, leftMargin + 95, yPosition);
-      doc.text(`$${paidAmount.toLocaleString()}`, leftMargin + 125, yPosition);
-      doc.text(`$${pending.toLocaleString()}`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-      
-      yPosition += 7;
-    });
+      return `
+        <tr>
+          <td>${due.application_number.substring(0, 10)}</td>
+          <td>${`${due.first_name} ${due.last_name}`.substring(0, 18)}</td>
+          <td>$${totalFee.toLocaleString()}</td>
+          <td>$${paidAmount.toLocaleString()}</td>
+          <td style="text-align: right;">$${pending.toLocaleString()}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>NSCU Outstanding Dues Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+          .header { background: #2980b9; color: white; text-align: center; padding: 20px; margin: -20px -20px 20px -20px; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0 0 0; }
+          .title { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; }
+          .generated { text-align: center; color: #666; margin-bottom: 20px; }
+          .summary { margin: 20px 0; }
+          .summary h3 { margin-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th { background: #f0f0f0; padding: 8px; text-align: left; font-size: 12px; }
+          td { padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 12px; }
+          .footer { border-top: 1px solid #ccc; margin-top: 40px; padding-top: 15px; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>NSCU</h1>
+          <p>New States Continental University</p>
+        </div>
+        <div class="title">OUTSTANDING DUES REPORT</div>
+        <div class="generated">Generated: ${new Date().toLocaleDateString()}</div>
+        <div class="summary">
+          <h3>Summary</h3>
+          <p>Total Pending: $${totalPending.toLocaleString()}</p>
+          <p>Students with Dues: ${pendingDues.length}</p>
+        </div>
+        <h3>Pending Dues Details</h3>
+        <table>
+          <thead><tr><th>Application</th><th>Student</th><th>Total</th><th>Paid</th><th style="text-align: right;">Pending</th></tr></thead>
+          <tbody>${duesRows}</tbody>
+        </table>
+        <div class="footer">
+          <p>New States Continental University</p>
+          <p>Phone: (555) 123-4567 | Email: finance@nscu.edu</p>
+        </div>
+      </body>
+      </html>
+    `;
     
-    // Footer
-    const footerY = pageHeight - 40;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, footerY, pageWidth - 20, footerY);
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
-    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
-    
-    doc.save(`NSCU_Outstanding_Dues_${new Date().toISOString().split('T')[0]}.pdf`);
-    toast({ title: "Success", description: "Outstanding dues report downloaded" });
+    openPrintableDocument(htmlContent, `NSCU_Outstanding_Dues_${new Date().toISOString().split('T')[0]}`);
+    toast({ title: "Success", description: "Outstanding dues report opened. Use Print (Ctrl+P) to save as PDF." });
   };
 
   const generateScholarshipReport = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    
     const scholarships = feePayments.filter(p => p.transaction_type === 'scholarship');
     const totalScholarships = scholarships.reduce((sum, s) => sum + parseFloat(s.amount), 0);
     
-    // Header
-    doc.setFillColor(41, 128, 185);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
-    
-    // Report title
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SCHOLARSHIP DISTRIBUTION REPORT', pageWidth / 2, 55, { align: 'center' });
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
-    
-    // Summary
-    const leftMargin = 20;
-    let yPosition = 85;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Summary', leftMargin, yPosition);
-    
-    yPosition += 10;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total Scholarships Distributed: $${totalScholarships.toLocaleString()}`, leftMargin, yPosition);
-    yPosition += 8;
-    doc.text(`Number of Recipients: ${scholarships.length}`, leftMargin, yPosition);
-    
-    // Scholarships table
-    yPosition += 20;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Scholarship Details', leftMargin, yPosition);
-    yPosition += 10;
-    
-    // Table headers
-    doc.setFillColor(240, 240, 240);
-    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
-    doc.setFontSize(9);
-    doc.text('Date', leftMargin + 2, yPosition);
-    doc.text('Student', leftMargin + 35, yPosition);
-    doc.text('Type', leftMargin + 95, yPosition);
-    doc.text('Amount', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-    
-    yPosition += 8;
-    doc.setFont('helvetica', 'normal');
-    
-    scholarships.slice(0, 15).forEach((scholarship) => {
-      if (yPosition > pageHeight - 50) return;
-      
+    const scholarshipRows = scholarships.slice(0, 15).map(scholarship => {
       const date = new Date(scholarship.payment_date).toLocaleDateString();
       const type = scholarship.notes?.split(':')[1]?.split(',')[0]?.trim() || 'N/A';
-      
-      doc.text(date, leftMargin + 2, yPosition);
-      doc.text(scholarship.student_name.substring(0, 20), leftMargin + 35, yPosition);
-      doc.text(type.substring(0, 15), leftMargin + 95, yPosition);
-      doc.text(`$${parseFloat(scholarship.amount).toLocaleString()}`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-      
-      yPosition += 7;
-    });
+      return `
+        <tr>
+          <td>${date}</td>
+          <td>${scholarship.student_name.substring(0, 20)}</td>
+          <td>${type.substring(0, 15)}</td>
+          <td style="text-align: right;">$${parseFloat(scholarship.amount).toLocaleString()}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>NSCU Scholarship Distribution Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+          .header { background: #2980b9; color: white; text-align: center; padding: 20px; margin: -20px -20px 20px -20px; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0 0 0; }
+          .title { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; }
+          .generated { text-align: center; color: #666; margin-bottom: 20px; }
+          .summary { margin: 20px 0; }
+          .summary h3 { margin-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th { background: #f0f0f0; padding: 8px; text-align: left; font-size: 12px; }
+          td { padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 12px; }
+          .footer { border-top: 1px solid #ccc; margin-top: 40px; padding-top: 15px; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>NSCU</h1>
+          <p>New States Continental University</p>
+        </div>
+        <div class="title">SCHOLARSHIP DISTRIBUTION REPORT</div>
+        <div class="generated">Generated: ${new Date().toLocaleDateString()}</div>
+        <div class="summary">
+          <h3>Summary</h3>
+          <p>Total Scholarships Distributed: $${totalScholarships.toLocaleString()}</p>
+          <p>Number of Recipients: ${scholarships.length}</p>
+        </div>
+        <h3>Scholarship Details</h3>
+        <table>
+          <thead><tr><th>Date</th><th>Student</th><th>Type</th><th style="text-align: right;">Amount</th></tr></thead>
+          <tbody>${scholarshipRows}</tbody>
+        </table>
+        <div class="footer">
+          <p>New States Continental University</p>
+          <p>Phone: (555) 123-4567 | Email: finance@nscu.edu</p>
+        </div>
+      </body>
+      </html>
+    `;
     
-    // Footer
-    const footerY = pageHeight - 40;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, footerY, pageWidth - 20, footerY);
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
-    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
-    
-    doc.save(`NSCU_Scholarship_Distribution_${new Date().toISOString().split('T')[0]}.pdf`);
-    toast({ title: "Success", description: "Scholarship distribution report downloaded" });
+    openPrintableDocument(htmlContent, `NSCU_Scholarship_Distribution_${new Date().toISOString().split('T')[0]}`);
+    toast({ title: "Success", description: "Scholarship distribution report opened. Use Print (Ctrl+P) to save as PDF." });
   };
 
   const generatePaymentMethodsReport = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    
     // Calculate payment method stats
     const methodStats: { [key: string]: { count: number; total: number } } = {};
     feePayments.forEach(payment => {
@@ -645,69 +550,59 @@ const FinanceManagement = () => {
       methodStats[method].total += parseFloat(payment.amount);
     });
     
-    // Header
-    doc.setFillColor(41, 128, 185);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.setFont('helvetica', 'bold');
-    doc.text('NSCU', pageWidth / 2, 20, { align: 'center' });
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text('New States Continental University', pageWidth / 2, 30, { align: 'center' });
+    const methodRows = Object.entries(methodStats).map(([method, stats]) => {
+      const percentage = totalRevenue > 0 ? ((stats.total / totalRevenue) * 100).toFixed(1) : '0';
+      return `
+        <tr>
+          <td>${method}</td>
+          <td>${stats.count}</td>
+          <td>$${stats.total.toLocaleString()}</td>
+          <td style="text-align: right;">${percentage}%</td>
+        </tr>
+      `;
+    }).join('');
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>NSCU Payment Methods Analysis</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+          .header { background: #2980b9; color: white; text-align: center; padding: 20px; margin: -20px -20px 20px -20px; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0 0 0; }
+          .title { text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0; }
+          .generated { text-align: center; color: #666; margin-bottom: 20px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th { background: #f0f0f0; padding: 8px; text-align: left; font-size: 12px; }
+          td { padding: 6px 8px; border-bottom: 1px solid #eee; font-size: 12px; }
+          .footer { border-top: 1px solid #ccc; margin-top: 40px; padding-top: 15px; text-align: center; font-size: 12px; color: #666; }
+          @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>NSCU</h1>
+          <p>New States Continental University</p>
+        </div>
+        <div class="title">PAYMENT METHODS ANALYSIS</div>
+        <div class="generated">Generated: ${new Date().toLocaleDateString()}</div>
+        <h3>Payment Method Breakdown</h3>
+        <table>
+          <thead><tr><th>Payment Method</th><th>Transactions</th><th>Total Amount</th><th style="text-align: right;">Percentage</th></tr></thead>
+          <tbody>${methodRows}</tbody>
+        </table>
+        <div class="footer">
+          <p>New States Continental University</p>
+          <p>Phone: (555) 123-4567 | Email: finance@nscu.edu</p>
+        </div>
+      </body>
+      </html>
+    `;
     
-    // Report title
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT METHODS ANALYSIS', pageWidth / 2, 55, { align: 'center' });
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth / 2, 65, { align: 'center' });
-    
-    // Summary
-    const leftMargin = 20;
-    let yPosition = 85;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Payment Method Breakdown', leftMargin, yPosition);
-    yPosition += 15;
-    
-    // Method stats table
-    doc.setFillColor(240, 240, 240);
-    doc.rect(leftMargin, yPosition - 5, pageWidth - 40, 10, 'F');
-    doc.setFontSize(9);
-    doc.text('Payment Method', leftMargin + 2, yPosition);
-    doc.text('Transactions', leftMargin + 80, yPosition);
-    doc.text('Total Amount', leftMargin + 125, yPosition);
-    doc.text('Percentage', pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-    
-    yPosition += 8;
-    doc.setFont('helvetica', 'normal');
-    
-    Object.entries(methodStats).forEach(([method, stats]) => {
-      const percentage = ((stats.total / totalRevenue) * 100).toFixed(1);
-      
-      doc.text(method, leftMargin + 2, yPosition);
-      doc.text(stats.count.toString(), leftMargin + 80, yPosition);
-      doc.text(`$${stats.total.toLocaleString()}`, leftMargin + 125, yPosition);
-      doc.text(`${percentage}%`, pageWidth - leftMargin - 2, yPosition, { align: 'right' });
-      
-      yPosition += 7;
-    });
-    
-    // Footer
-    const footerY = pageHeight - 40;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, footerY, pageWidth - 20, footerY);
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('New States Continental University', pageWidth / 2, footerY + 8, { align: 'center' });
-    doc.text('Phone: (555) 123-4567 | Email: finance@nscu.edu', pageWidth / 2, footerY + 13, { align: 'center' });
-    
-    doc.save(`NSCU_Payment_Methods_Analysis_${new Date().toISOString().split('T')[0]}.pdf`);
-    toast({ title: "Success", description: "Payment methods analysis downloaded" });
+    openPrintableDocument(htmlContent, `NSCU_Payment_Methods_Analysis_${new Date().toISOString().split('T')[0]}`);
+    toast({ title: "Success", description: "Payment methods analysis opened. Use Print (Ctrl+P) to save as PDF." });
   };
 
   const renderDialogContent = () => {

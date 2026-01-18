@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -963,7 +964,7 @@ const AdminDashboard = () => {
                       </div>
                       <div 
                         className="prose prose-sm max-w-none mb-3"
-                        dangerouslySetInnerHTML={{ __html: announcement.content }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(announcement.content || '') }}
                       />
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span>Created: {new Date(announcement.created_at).toLocaleDateString()}</span>
