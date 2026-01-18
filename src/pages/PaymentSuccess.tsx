@@ -17,7 +17,6 @@ const PaymentSuccess = () => {
 
   const applicationId = searchParams.get('application_id');
   const razorpayPaymentId = searchParams.get('razorpay_payment_id');
-  const razorpayPaymentLinkId = searchParams.get('razorpay_payment_link_id');
   const razorpayPaymentLinkStatus = searchParams.get('razorpay_payment_link_status');
 
   useEffect(() => {
@@ -29,60 +28,32 @@ const PaymentSuccess = () => {
       }
 
       try {
-        // First, fetch the application to check current status
-        const { data: application, error: fetchError } = await supabase
-          .from('student_applications')
-          .select(`
-            id,
-            first_name,
-            last_name,
-            payment_status,
-            payment_code,
-            course:courses(course_name)
-          `)
-          .eq('id', applicationId)
-          .single();
+        // Call the secure edge function to confirm payment
+        // This uses service role on the server to update payment status
+        const { data, error: fnError } = await supabase.functions.invoke('confirm-payment', {
+          body: {
+            application_id: applicationId,
+            razorpay_payment_id: razorpayPaymentId,
+            razorpay_payment_link_status: razorpayPaymentLinkStatus,
+          },
+        });
 
-        if (fetchError) throw fetchError;
-
-        if (!application) {
-          setError('Application not found.');
+        if (fnError) {
+          console.error('Payment confirmation error:', fnError);
+          setError('Failed to process payment confirmation. Please contact support.');
           setLoading(false);
           return;
         }
 
-        setStudentName(`${application.first_name} ${application.last_name}`);
-        setCourseName((application.course as any)?.course_name || 'N/A');
-
-        // If payment already completed, show existing code
-        if (application.payment_status === 'completed' && application.payment_code) {
-          setPaymentCode(application.payment_code);
+        if (data?.error) {
+          setError(data.error);
           setLoading(false);
           return;
         }
 
-        // Generate new payment code and update application
-        const { data: codeData, error: codeError } = await supabase
-          .rpc('generate_payment_code');
-
-        if (codeError) throw codeError;
-
-        const newPaymentCode = codeData as string;
-
-        // Update application with payment details
-        const { error: updateError } = await supabase
-          .from('student_applications')
-          .update({
-            payment_status: 'completed',
-            payment_code: newPaymentCode,
-            payment_completed_at: new Date().toISOString(),
-            status: 'enrolled' // Auto-enroll after payment
-          })
-          .eq('id', applicationId);
-
-        if (updateError) throw updateError;
-
-        setPaymentCode(newPaymentCode);
+        setPaymentCode(data.payment_code);
+        setStudentName(data.student_name);
+        setCourseName(data.course_name);
       } catch (err: any) {
         console.error('Error processing payment:', err);
         setError('Failed to process payment confirmation. Please contact support.');
@@ -92,7 +63,7 @@ const PaymentSuccess = () => {
     };
 
     processPayment();
-  }, [applicationId]);
+  }, [applicationId, razorpayPaymentId, razorpayPaymentLinkStatus]);
 
   const handleCopyCode = async () => {
     if (paymentCode) {
