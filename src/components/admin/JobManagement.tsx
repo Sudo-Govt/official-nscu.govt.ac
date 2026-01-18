@@ -53,6 +53,20 @@ interface JobApplication {
   technical_skills: string[] | null;
   nationality: string;
   preferred_work_mode: string | null;
+  // Additional fields
+  date_of_birth: string | null;
+  gender: string | null;
+  current_address: string | null;
+  permanent_address: string | null;
+  identification_number: string | null;
+  software_tools: string[] | null;
+  languages_known: any;
+  certifications: string[] | null;
+  willing_to_relocate: boolean | null;
+  willing_to_travel: boolean | null;
+  working_hours_availability: string | null;
+  review_notes: string | null;
+  reviewed_at: string | null;
 }
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ComponentType<any> }> = {
@@ -73,6 +87,7 @@ const JobManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
   const [selectedApplication, setSelectedApplication] = useState<JobApplication | null>(null);
+  const [viewingApplication, setViewingApplication] = useState<JobApplication | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Form state for job creation/editing
@@ -567,7 +582,10 @@ const JobManagement = () => {
                             <span className="text-muted-foreground text-xs">N/A</span>
                           )}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right flex items-center gap-2 justify-end">
+                          <Button size="sm" variant="outline" onClick={() => setViewingApplication(app)}>
+                            <Eye className="h-4 w-4 mr-1" /> View
+                          </Button>
                           <Select value={app.status} onValueChange={v => handleUpdateApplicationStatus(app.id, v)}>
                             <SelectTrigger className="w-32">
                               <SelectValue />
@@ -591,6 +609,210 @@ const JobManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* View Application Details Dialog */}
+      <Dialog open={!!viewingApplication} onOpenChange={(open) => { if (!open) setViewingApplication(null); }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Application Details - {viewingApplication?.tracking_number}
+            </DialogTitle>
+            <DialogDescription>
+              Complete application for {getJobTitle(viewingApplication?.job_id || '')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {viewingApplication && (
+            <div className="space-y-6 py-4">
+              {/* Status Badge */}
+              <div className="flex items-center justify-between">
+                <Badge variant={statusConfig[viewingApplication.status]?.variant || 'secondary'} className="text-sm">
+                  {statusConfig[viewingApplication.status]?.label || viewingApplication.status}
+                </Badge>
+                <span className="text-sm text-muted-foreground">
+                  Applied: {format(new Date(viewingApplication.created_at), 'PPP')}
+                </span>
+              </div>
+
+              <Separator />
+
+              {/* Personal Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div><span className="text-muted-foreground">Full Name:</span> <strong>{viewingApplication.full_name}</strong></div>
+                  <div><span className="text-muted-foreground">Email:</span> <strong>{viewingApplication.email}</strong></div>
+                  <div><span className="text-muted-foreground">Phone:</span> <strong>{viewingApplication.phone}</strong></div>
+                  <div><span className="text-muted-foreground">Date of Birth:</span> <strong>{viewingApplication.date_of_birth || 'N/A'}</strong></div>
+                  <div><span className="text-muted-foreground">Gender:</span> <strong>{viewingApplication.gender || 'N/A'}</strong></div>
+                  <div><span className="text-muted-foreground">Nationality:</span> <strong>{viewingApplication.nationality || 'N/A'}</strong></div>
+                  <div><span className="text-muted-foreground">ID Number:</span> <strong>{viewingApplication.identification_number || 'N/A'}</strong></div>
+                </div>
+                <div className="mt-3 text-sm">
+                  <div><span className="text-muted-foreground">Current Address:</span></div>
+                  <p className="mt-1">{viewingApplication.current_address || 'N/A'}</p>
+                </div>
+                {viewingApplication.permanent_address && (
+                  <div className="mt-3 text-sm">
+                    <div><span className="text-muted-foreground">Permanent Address:</span></div>
+                    <p className="mt-1">{viewingApplication.permanent_address}</p>
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Education */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Education</h3>
+                {viewingApplication.education && Array.isArray(viewingApplication.education) && viewingApplication.education.length > 0 ? (
+                  <div className="space-y-3">
+                    {viewingApplication.education.map((edu: any, idx: number) => (
+                      <Card key={idx} className="p-3">
+                        <div className="font-medium">{edu.degree || edu.qualification}</div>
+                        <div className="text-sm text-muted-foreground">{edu.institution || edu.school}</div>
+                        <div className="text-sm">
+                          {edu.field_of_study && <span>{edu.field_of_study} • </span>}
+                          {edu.year_of_completion || edu.graduation_year || edu.year}
+                          {edu.grade && <span> • Grade: {edu.grade}</span>}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No education details provided</p>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Work Experience */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Work Experience</h3>
+                {viewingApplication.experience && Array.isArray(viewingApplication.experience) && viewingApplication.experience.length > 0 ? (
+                  <div className="space-y-3">
+                    {viewingApplication.experience.map((exp: any, idx: number) => (
+                      <Card key={idx} className="p-3">
+                        <div className="font-medium">{exp.job_title || exp.position || exp.title}</div>
+                        <div className="text-sm text-muted-foreground">{exp.company || exp.employer}</div>
+                        <div className="text-sm">
+                          {exp.start_date || exp.from} - {exp.end_date || exp.to || 'Present'}
+                          {exp.location && <span> • {exp.location}</span>}
+                        </div>
+                        {exp.responsibilities && (
+                          <p className="text-sm mt-2">{exp.responsibilities}</p>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No work experience provided</p>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Skills & Qualifications */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Skills & Qualifications</h3>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Technical Skills:</span>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {viewingApplication.technical_skills?.length ? 
+                        viewingApplication.technical_skills.map((skill, i) => (
+                          <Badge key={i} variant="secondary">{skill}</Badge>
+                        )) : <span className="text-sm text-muted-foreground">None listed</span>
+                      }
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Software Tools:</span>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {viewingApplication.software_tools?.length ? 
+                        viewingApplication.software_tools.map((tool, i) => (
+                          <Badge key={i} variant="outline">{tool}</Badge>
+                        )) : <span className="text-sm text-muted-foreground">None listed</span>
+                      }
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Certifications:</span>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {viewingApplication.certifications?.length ? 
+                        viewingApplication.certifications.map((cert, i) => (
+                          <Badge key={i} variant="outline">{cert}</Badge>
+                        )) : <span className="text-sm text-muted-foreground">None listed</span>
+                      }
+                    </div>
+                  </div>
+                  {viewingApplication.languages_known && Array.isArray(viewingApplication.languages_known) && viewingApplication.languages_known.length > 0 && (
+                    <div>
+                      <span className="text-sm text-muted-foreground">Languages:</span>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {viewingApplication.languages_known.map((lang: any, i: number) => (
+                          <Badge key={i} variant="secondary">
+                            {lang.name || lang.language} {lang.proficiency && `(${lang.proficiency})`}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Availability & Preferences */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Availability & Preferences</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div><span className="text-muted-foreground">Preferred Work Mode:</span> <strong className="capitalize">{viewingApplication.preferred_work_mode?.replace('-', ' ') || 'N/A'}</strong></div>
+                  <div><span className="text-muted-foreground">Working Hours:</span> <strong>{viewingApplication.working_hours_availability || 'N/A'}</strong></div>
+                  <div><span className="text-muted-foreground">Willing to Relocate:</span> <strong>{viewingApplication.willing_to_relocate ? 'Yes' : 'No'}</strong></div>
+                  <div><span className="text-muted-foreground">Willing to Travel:</span> <strong>{viewingApplication.willing_to_travel ? 'Yes' : 'No'}</strong></div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Resume */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Resume</h3>
+                {viewingApplication.resume_path ? (
+                  <Button variant="outline" onClick={() => handleDownloadResume(viewingApplication.resume_path!, viewingApplication.resume_filename || 'resume.pdf')}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Resume ({viewingApplication.resume_filename})
+                  </Button>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No resume uploaded</p>
+                )}
+              </div>
+
+              {/* Review Notes */}
+              {viewingApplication.review_notes && (
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Review Notes</h3>
+                    <p className="text-sm">{viewingApplication.review_notes}</p>
+                    {viewingApplication.reviewed_at && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Reviewed on: {format(new Date(viewingApplication.reviewed_at), 'PPP')}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 mt-4">
+            <Button variant="outline" onClick={() => setViewingApplication(null)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
