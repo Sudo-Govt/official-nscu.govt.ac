@@ -307,49 +307,46 @@ const AlumniChatRoom = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[400px] flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg">
-        <div className="text-white text-xl font-bold animate-pulse">Loading Yahoo! Messenger...</div>
+      <div className="min-h-[300px] flex items-center justify-center bg-background border rounded-lg">
+        <div className="text-foreground text-lg font-medium animate-pulse">Loading Chat...</div>
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-280px)] flex flex-col bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden border-4 border-yellow-400">
-      {/* Header - Yahoo Messenger Style */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-2 shadow-lg flex items-center justify-between">
+    <div className="h-[400px] flex flex-col bg-background rounded-lg overflow-hidden border">
+      {/* Header */}
+      <div className="bg-foreground text-background p-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <MessageSquare className="h-6 w-6" />
-          <h1 className="text-xl font-bold" style={{ fontFamily: 'Arial Black, sans-serif' }}>
-            Yahoo! Messenger
-          </h1>
-          <span className="text-yellow-300 text-sm">Alumni Edition</span>
+          <MessageSquare className="h-5 w-5" />
+          <h1 className="text-lg font-semibold">Alumni Chat</h1>
         </div>
-        <div className="text-sm bg-white/20 px-3 py-1 rounded-full">
-          Logged in as: <span className="font-bold">{userNames[user?.id || ''] || 'Alumni'}</span>
+        <div className="text-sm opacity-80">
+          {userNames[user?.id || ''] || 'Alumni'}
         </div>
       </div>
 
       <div className="flex-1 flex overflow-hidden">
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-gray-800">
+        <div className="flex-1 flex flex-col">
           {/* Room Header */}
-          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 p-2 font-bold border-b-2 border-gray-400 text-black flex items-center justify-between">
+          <div className="bg-muted p-2 font-medium border-b text-foreground flex items-center justify-between text-sm">
             <span>🎓 Alumni Lobby</span>
-            <span className="text-sm bg-white/50 px-2 py-0.5 rounded">
+            <span className="text-xs text-muted-foreground">
               {messages.length} messages
             </span>
           </div>
           
           {/* Messages Area */}
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-3">
             <div className="space-y-1">
               {messages.map((msg) => {
                 const isOwnMessage = msg.user_id === user?.id;
                 return (
                   <div key={msg.id} className="text-sm">
                     <span 
-                      className={`font-bold cursor-pointer hover:underline ${
-                        isOwnMessage ? 'text-purple-600' : 'text-blue-600'
+                      className={`font-semibold cursor-pointer hover:underline ${
+                        isOwnMessage ? 'text-foreground' : 'text-muted-foreground'
                       }`}
                       onClick={() => {
                         const targetUser = onlineUsers.find(u => u.user_id === msg.user_id);
@@ -358,8 +355,8 @@ const AlumniChatRoom = () => {
                     >
                       {msg.user_name}
                     </span>
-                    <span className="text-gray-500 text-xs ml-2">{formatTime(msg.created_at)}</span>
-                    <div className="ml-2 text-gray-800 dark:text-gray-200">{msg.message}</div>
+                    <span className="text-muted-foreground text-xs ml-2">{formatTime(msg.created_at)}</span>
+                    <div className="ml-2 text-foreground">{msg.message}</div>
                   </div>
                 );
               })}
@@ -368,28 +365,25 @@ const AlumniChatRoom = () => {
           </ScrollArea>
 
           {/* Message Input */}
-          <div className="border-t-2 border-gray-300 dark:border-gray-600 p-2 flex gap-2 bg-gray-100 dark:bg-gray-700">
+          <div className="border-t p-2 flex gap-2 bg-muted">
             <Input
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={(e) => handleKeyPress(e, sendMessage)}
               placeholder="Type a message..."
-              className="flex-1 border-2 border-gray-300 dark:border-gray-500"
+              className="flex-1"
             />
-            <Button
-              onClick={sendMessage}
-              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2"
-            >
-              <Send className="h-4 w-4" /> Send
+            <Button onClick={sendMessage} size="sm">
+              <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         {/* Users Sidebar */}
-        <div className="w-48 bg-gray-200 dark:bg-gray-800 border-l-2 border-gray-400 flex flex-col">
-          <div className="bg-blue-700 text-white p-2 font-bold text-sm flex items-center gap-2">
-            <Users className="h-4 w-4" /> Users ({onlineUsers.length})
+        <div className="w-40 bg-muted border-l flex flex-col">
+          <div className="bg-foreground text-background p-2 font-medium text-xs flex items-center gap-2">
+            <Users className="h-3 w-3" /> Online ({onlineUsers.length})
           </div>
           <ScrollArea className="flex-1">
             <div className="p-1">
@@ -397,18 +391,18 @@ const AlumniChatRoom = () => {
                 <div
                   key={onlineUser.user_id}
                   onClick={() => openDM(onlineUser)}
-                  className={`p-2 text-sm border-b border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 flex items-center gap-2 ${
-                    onlineUser.user_id === user?.id ? 'font-bold text-purple-600' : ''
+                  className={`p-1.5 text-xs border-b cursor-pointer hover:bg-background flex items-center gap-1.5 ${
+                    onlineUser.user_id === user?.id ? 'font-semibold' : ''
                   }`}
                 >
-                  <Circle className="h-2 w-2 fill-green-500 text-green-500" />
-                  <span className="truncate">
+                  <Circle className="h-1.5 w-1.5 fill-green-500 text-green-500" />
+                  <span className="truncate text-foreground">
                     {onlineUser.user_id === user?.id ? `${onlineUser.user_name} (You)` : onlineUser.user_name}
                   </span>
                 </div>
               ))}
               {onlineUsers.length === 0 && (
-                <div className="p-4 text-xs text-gray-500 text-center">
+                <div className="p-3 text-xs text-muted-foreground text-center">
                   No users online
                 </div>
               )}
@@ -417,36 +411,36 @@ const AlumniChatRoom = () => {
         </div>
       </div>
 
-      {/* Floating DM Windows - Yahoo Messenger Style */}
+      {/* Floating DM Windows */}
       <div className="fixed bottom-0 right-4 flex gap-2 z-50">
         {activeDMs.map(dm => (
           <div
             key={dm.user.user_id}
-            className="bg-white dark:bg-gray-800 border-2 border-gray-400 rounded-t-lg shadow-2xl flex flex-col"
+            className="bg-background border rounded-t-lg shadow-lg flex flex-col"
             style={{ 
-              width: '320px',
-              height: dm.minimized ? '36px' : '400px',
+              width: '260px',
+              height: dm.minimized ? '32px' : '280px',
               transition: 'height 0.2s ease-in-out'
             }}
           >
             {/* DM Header */}
             <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-2 flex items-center justify-between cursor-pointer rounded-t"
+              className="bg-foreground text-background p-1.5 flex items-center justify-between cursor-pointer rounded-t"
               onClick={() => toggleMinimizeDM(dm.user.user_id)}
             >
-              <span className="font-bold text-sm flex items-center gap-1">
+              <span className="font-medium text-xs flex items-center gap-1">
                 💬 {dm.user.user_name}
               </span>
-              <div className="flex gap-1">
+              <div className="flex gap-0.5">
                 <button 
                   onClick={(e) => { e.stopPropagation(); toggleMinimizeDM(dm.user.user_id); }}
-                  className="hover:bg-white/20 p-1 rounded"
+                  className="hover:bg-background/20 p-0.5 rounded"
                 >
                   <Minimize2 className="h-3 w-3" />
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); closeDM(dm.user.user_id); }}
-                  className="hover:bg-white/20 p-1 rounded"
+                  className="hover:bg-background/20 p-0.5 rounded"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -456,35 +450,35 @@ const AlumniChatRoom = () => {
             {/* DM Content */}
             {!dm.minimized && (
               <>
-                <ScrollArea className="flex-1 p-2 bg-gray-50 dark:bg-gray-900">
+                <ScrollArea className="flex-1 p-2">
                   <div className="space-y-1">
                     {(dmMessages[dm.user.user_id] || []).map(msg => (
-                      <div key={msg.id} className="text-sm">
-                        <span className={`font-bold ${msg.sender_id === user?.id ? 'text-purple-600' : 'text-blue-600'}`}>
+                      <div key={msg.id} className="text-xs">
+                        <span className={`font-semibold ${msg.sender_id === user?.id ? 'text-foreground' : 'text-muted-foreground'}`}>
                           {msg.sender_id === user?.id ? 'You' : dm.user.user_name}
                         </span>
-                        <span className="text-gray-500 text-xs ml-1">{formatTime(msg.created_at)}</span>
-                        <div className="ml-2 text-gray-800 dark:text-gray-200">{msg.message}</div>
+                        <span className="text-muted-foreground text-xs ml-1">{formatTime(msg.created_at)}</span>
+                        <div className="ml-2 text-foreground">{msg.message}</div>
                       </div>
                     ))}
                     <div ref={el => dmEndRefs.current[dm.user.user_id] = el} />
                   </div>
                 </ScrollArea>
-                <div className="border-t-2 border-gray-300 dark:border-gray-600 p-2 flex gap-1 bg-gray-100 dark:bg-gray-700">
+                <div className="border-t p-1.5 flex gap-1 bg-muted">
                   <Input
                     type="text"
                     value={dmInputs[dm.user.user_id] || ''}
                     onChange={(e) => setDmInputs({ ...dmInputs, [dm.user.user_id]: e.target.value })}
                     onKeyPress={(e) => handleKeyPress(e, () => sendPrivateMessage(dm.user.user_id))}
-                    placeholder="Type a message..."
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm h-8"
+                    placeholder="Message..."
+                    className="flex-1 text-xs h-7"
                   />
                   <Button
                     onClick={() => sendPrivateMessage(dm.user.user_id)}
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 h-8"
+                    className="h-7 px-2"
                   >
-                    Send
+                    <Send className="h-3 w-3" />
                   </Button>
                 </div>
               </>
