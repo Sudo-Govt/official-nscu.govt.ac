@@ -47,6 +47,339 @@ export type Database = {
         }
         Relationships: []
       }
+      academic_courses: {
+        Row: {
+          course_code: string
+          created_at: string | null
+          duration_months: number
+          end_date: string | null
+          enrollment_status: string | null
+          faculty_id: string
+          id: string
+          is_active: boolean | null
+          is_visible_on_website: boolean | null
+          long_description: string | null
+          name: string
+          short_description: string | null
+          slug: string | null
+          start_date: string | null
+          thumbnail_image_url: string | null
+          total_credits: number
+          updated_at: string | null
+        }
+        Insert: {
+          course_code: string
+          created_at?: string | null
+          duration_months?: number
+          end_date?: string | null
+          enrollment_status?: string | null
+          faculty_id: string
+          id?: string
+          is_active?: boolean | null
+          is_visible_on_website?: boolean | null
+          long_description?: string | null
+          name: string
+          short_description?: string | null
+          slug?: string | null
+          start_date?: string | null
+          thumbnail_image_url?: string | null
+          total_credits?: number
+          updated_at?: string | null
+        }
+        Update: {
+          course_code?: string
+          created_at?: string | null
+          duration_months?: number
+          end_date?: string | null
+          enrollment_status?: string | null
+          faculty_id?: string
+          id?: string
+          is_active?: boolean | null
+          is_visible_on_website?: boolean | null
+          long_description?: string | null
+          name?: string
+          short_description?: string | null
+          slug?: string | null
+          start_date?: string | null
+          thumbnail_image_url?: string | null
+          total_credits?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_courses_faculty_id_fkey"
+            columns: ["faculty_id"]
+            isOneToOne: false
+            referencedRelation: "academic_faculties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_departments: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      academic_faculties: {
+        Row: {
+          code: string
+          created_at: string | null
+          department_id: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          department_id: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          department_id?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_faculties_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "academic_departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_lessons: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          estimated_duration_minutes: number | null
+          id: string
+          is_active: boolean | null
+          lesson_code: string
+          name: string
+          order_index: number | null
+          topic_id: string
+          updated_at: string | null
+          video_url: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          lesson_code: string
+          name: string
+          order_index?: number | null
+          topic_id: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          is_active?: boolean | null
+          lesson_code?: string
+          name?: string
+          order_index?: number | null
+          topic_id?: string
+          updated_at?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_lessons_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "academic_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_students: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          email: string
+          enrollment_date: string | null
+          enrollment_number: string
+          id: string
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          email: string
+          enrollment_date?: string | null
+          enrollment_number: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          email?: string
+          enrollment_date?: string | null
+          enrollment_number?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_students_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academic_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_subjects: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          credits: number | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_index: number | null
+          semester: number | null
+          subject_code: string
+          updated_at: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          credits?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_index?: number | null
+          semester?: number | null
+          subject_code: string
+          updated_at?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          credits?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_index?: number | null
+          semester?: number | null
+          subject_code?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_subjects_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academic_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_topics: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_index: number | null
+          subject_id: string
+          topic_code: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_index?: number | null
+          subject_id: string
+          topic_code: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_index?: number | null
+          subject_id?: string
+          topic_code?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_topics_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "academic_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliation_requests: {
         Row: {
           created_at: string | null
@@ -1250,6 +1583,45 @@ export type Database = {
         }
         Relationships: []
       }
+      course_books: {
+        Row: {
+          book_id: string
+          course_id: string
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+        }
+        Insert: {
+          book_id: string
+          course_id: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+        }
+        Update: {
+          book_id?: string
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_books_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "library_books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_books_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academic_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           application_deadline: string | null
@@ -2289,6 +2661,54 @@ export type Database = {
         }
         Relationships: []
       }
+      library_books: {
+        Row: {
+          author: string | null
+          book_code: string
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          isbn: string | null
+          publication_year: number | null
+          publisher: string | null
+          title: string
+          updated_at: string | null
+          volume: string | null
+        }
+        Insert: {
+          author?: string | null
+          book_code: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          isbn?: string | null
+          publication_year?: number | null
+          publisher?: string | null
+          title: string
+          updated_at?: string | null
+          volume?: string | null
+        }
+        Update: {
+          author?: string | null
+          book_code?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          isbn?: string | null
+          publication_year?: number | null
+          publisher?: string | null
+          title?: string
+          updated_at?: string | null
+          volume?: string | null
+        }
+        Relationships: []
+      }
       phd_applications: {
         Row: {
           country: string
@@ -2793,6 +3213,57 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_progress: {
+        Row: {
+          completion_date: string | null
+          created_at: string | null
+          id: string
+          is_completed: boolean | null
+          last_accessed_at: string | null
+          lesson_id: string
+          progress_percentage: number | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          completion_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          last_accessed_at?: string | null
+          lesson_id: string
+          progress_percentage?: number | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          completion_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          last_accessed_at?: string | null
+          lesson_id?: string
+          progress_percentage?: number | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "academic_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "academic_students"
             referencedColumns: ["id"]
           },
         ]
