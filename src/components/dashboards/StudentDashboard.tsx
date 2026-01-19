@@ -11,6 +11,7 @@ import mockDb from '@/database/mockDb';
 import ChangePassword from '@/components/ChangePassword';
 import DashboardLayout from '@/components/DashboardLayout';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
+import StudentCourseProgress from './StudentCourseProgress';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -119,6 +120,7 @@ const StudentDashboard = () => {
       label: "Academic",
       items: [
         { title: "Overview", icon: Trophy, value: "overview", onClick: () => setCurrentTab("overview") },
+        { title: "My Courses", icon: GraduationCap, value: "my-courses", onClick: () => setCurrentTab("my-courses") },
         { title: "Courses", icon: BookOpen, value: "courses", onClick: () => setCurrentTab("courses") },
         { title: "Academics", icon: GraduationCap, value: "academics", onClick: () => setCurrentTab("academics") },
         { title: "Fees", icon: CreditCard, value: "fees", onClick: () => setCurrentTab("fees") },
@@ -156,6 +158,11 @@ const StudentDashboard = () => {
       menuGroups={menuGroups}
       activeTab={currentTab}
     >
+      {/* My Courses Tab - Academic Progress */}
+      {currentTab === "my-courses" && user && (
+        <StudentCourseProgress userId={user.user_id} />
+      )}
+
       {/* Content based on active tab */}
       {currentTab === "overview" && (
         <div className="space-y-8">

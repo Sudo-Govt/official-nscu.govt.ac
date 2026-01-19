@@ -38,7 +38,7 @@ export function useDepartments() {
   }, [toast]);
 
   const create = useCallback(async (item: Partial<Department>) => {
-    const { data: result, error } = await supabase.from('academic_departments').insert([item]).select().single();
+    const { data: result, error } = await supabase.from('academic_departments').insert([item as any]).select().single();
     if (error) throw error;
     setData(prev => [result as Department, ...prev]);
     toast({ title: 'Success', description: 'Created successfully' });
@@ -95,7 +95,7 @@ export function useFaculties() {
   }, [toast]);
 
   const create = useCallback(async (item: Partial<Faculty>) => {
-    const { data: result, error } = await supabase.from('academic_faculties').insert([item]).select().single();
+    const { data: result, error } = await supabase.from('academic_faculties').insert([item as any]).select().single();
     if (error) throw error;
     setData(prev => [result as Faculty, ...prev]);
     toast({ title: 'Success', description: 'Created successfully' });
@@ -152,7 +152,7 @@ export function useAcademicCourses() {
   }, [toast]);
 
   const create = useCallback(async (item: Record<string, unknown>) => {
-    const { data: result, error } = await supabase.from('academic_courses').insert([item]).select().single();
+    const { data: result, error } = await supabase.from('academic_courses').insert([item as any]).select().single();
     if (error) throw error;
     setData(prev => [result as AcademicCourse, ...prev]);
     toast({ title: 'Success', description: 'Created successfully' });
@@ -196,7 +196,7 @@ export function useLibraryBooks() {
   }, [toast]);
 
   const create = useCallback(async (item: Record<string, unknown>) => {
-    const { data: result, error } = await supabase.from('library_books').insert([item]).select().single();
+    const { data: result, error } = await supabase.from('library_books').insert([item as any]).select().single();
     if (error) throw error;
     setData(prev => [result as LibraryBook, ...prev]);
     toast({ title: 'Success', description: 'Created successfully' });
@@ -253,7 +253,7 @@ export function useAcademicStudents() {
   }, [toast]);
 
   const create = useCallback(async (item: Record<string, unknown>) => {
-    const { data: result, error } = await supabase.from('academic_students').insert([item]).select().single();
+    const { data: result, error } = await supabase.from('academic_students').insert([item as any]).select().single();
     if (error) throw error;
     setData(prev => [result as AcademicStudent, ...prev]);
     toast({ title: 'Success', description: 'Created successfully' });

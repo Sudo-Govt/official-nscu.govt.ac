@@ -127,7 +127,7 @@ export function CurriculumEditor({ courseId, courseName }: CurriculumEditorProps
       } else {
         await supabase
           .from('academic_subjects')
-          .insert([{ ...subjectForm, course_id: courseId, order_index: subjects.length }]);
+          .insert([{ ...subjectForm, course_id: courseId, order_index: subjects.length } as any]);
       }
       toast({ title: 'Success', description: 'Subject saved' });
       setSubjectDialog(false);
@@ -172,7 +172,7 @@ export function CurriculumEditor({ courseId, courseName }: CurriculumEditorProps
       } else {
         await supabase
           .from('academic_topics')
-          .insert([{ ...topicForm, subject_id: parentSubjectId, order_index: subject?.topics.length || 0 }]);
+          .insert([{ ...topicForm, subject_id: parentSubjectId, order_index: subject?.topics.length || 0 } as any]);
       }
       toast({ title: 'Success', description: 'Topic saved' });
       setTopicDialog(false);
@@ -223,7 +223,7 @@ export function CurriculumEditor({ courseId, courseName }: CurriculumEditorProps
       } else {
         await supabase
           .from('academic_lessons')
-          .insert([{ ...lessonForm, topic_id: parentTopicId, order_index: topic?.lessons.length || 0 }]);
+          .insert([{ ...lessonForm, topic_id: parentTopicId, order_index: topic?.lessons.length || 0 } as any]);
       }
       toast({ title: 'Success', description: 'Lesson saved' });
       setLessonDialog(false);
@@ -262,7 +262,6 @@ export function CurriculumEditor({ courseId, courseName }: CurriculumEditorProps
       } else if (table === 'academic_lessons') {
         await supabase.from('academic_lessons').update({ order_index: newIndex }).eq('id', item1.id);
         await supabase.from('academic_lessons').update({ order_index: currentIndex }).eq('id', item2.id);
-      }
       }
       fetchCurriculum();
     } catch (error) {
