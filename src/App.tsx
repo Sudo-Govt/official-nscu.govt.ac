@@ -168,6 +168,10 @@ import MasterMedicine from "./pages/programs/MasterMedicine";
 import DynamicCoursePage from "./pages/programs/DynamicCoursePage";
 import DynamicPage from "./pages/DynamicPage";
 
+// Public Course Catalog
+import PublicCourseCatalog from "./pages/courses/PublicCourseCatalog";
+import CourseDetailPage from "./pages/courses/CourseDetailPage";
+
 // Job pages
 import CareersPage from "./pages/careers/CareersPage";
 import JobDetailPage from "./pages/careers/JobDetailPage";
@@ -355,6 +359,10 @@ const App = () => (
           <Route path="/transparency/financial-statements" element={<FinancialStatements />} />
           <Route path="/transparency/accreditation" element={<AccreditationCompliance />} />
           <Route path="/dashboard/transparency" element={<TransparencyDashboard />} />
+          
+          {/* Public Course Catalog Routes */}
+          <Route path="/courses" element={<PublicCourseCatalog />} />
+          <Route path="/courses/:slug" element={<CourseDetailPage />} />
           
           {/* Dynamic CMS Pages - catches any slug not matched above */}
           <Route path="/page/:slug" element={<DynamicPage />} />
