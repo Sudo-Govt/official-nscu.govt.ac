@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library
 } from 'lucide-react';
 import AlumniManagement from '@/components/admin/AlumniManagement';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
@@ -25,6 +25,13 @@ import JobManagement from '@/components/admin/JobManagement';
 import { InternalMessagingApp } from '@/components/messaging';
 import StudentDataManagement from '@/components/admin/StudentDataManagement';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  DepartmentManagement, 
+  FacultyManagement, 
+  AcademicCourseManagement, 
+  LibraryBooksManagement,
+  AcademicStudentManagement 
+} from '@/components/admin/academic';
 
 const SuperAdminDashboard = () => {
   const { user } = useAuth();
@@ -114,6 +121,16 @@ const SuperAdminDashboard = () => {
         { title: 'Student Resources', icon: UserCheck, value: 'student-resources', onClick: () => setActiveTab('student-resources') },
         { title: 'Finance', icon: DollarSign, value: 'finance', onClick: () => setActiveTab('finance') },
         { title: 'Compliance', icon: ClipboardCheck, value: 'compliance', onClick: () => setActiveTab('compliance') },
+      ]
+    },
+    {
+      label: 'Academic',
+      items: [
+        { title: 'Departments', icon: Building2, value: 'departments', onClick: () => setActiveTab('departments') },
+        { title: 'Faculties', icon: Users, value: 'faculties', onClick: () => setActiveTab('faculties') },
+        { title: 'Courses', icon: Layers, value: 'academic-courses', onClick: () => setActiveTab('academic-courses') },
+        { title: 'Library', icon: Library, value: 'library', onClick: () => setActiveTab('library') },
+        { title: 'Enrolled Students', icon: GraduationCap, value: 'enrolled-students', onClick: () => setActiveTab('enrolled-students') },
       ]
     },
     {
@@ -337,6 +354,21 @@ const SuperAdminDashboard = () => {
 
       case 'settings':
         return <SystemSettings />;
+
+      case 'departments':
+        return <DepartmentManagement />;
+
+      case 'faculties':
+        return <FacultyManagement />;
+
+      case 'academic-courses':
+        return <AcademicCourseManagement />;
+
+      case 'library':
+        return <LibraryBooksManagement />;
+
+      case 'enrolled-students':
+        return <AcademicStudentManagement />;
 
       default:
         return null;
