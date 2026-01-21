@@ -380,11 +380,7 @@ const BulkUploadManager = () => {
         throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
       }
 
-      // Fetch departments for lookup
-      const { data: departments } = await supabase.from('academic_departments').select('id, code, name');
-      const deptCodeMap = new Map(departments?.map(d => [d.code.toLowerCase(), d.id]) || []);
-      const deptNameMap = new Map(departments?.map(d => [d.name.toLowerCase(), d.id]) || []);
-
+      // Faculties are now top-level (no parent needed)
       const errors: string[] = [];
       let successCount = 0;
       let failedCount = 0;
@@ -393,25 +389,9 @@ const BulkUploadManager = () => {
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
 
-        // Resolve department_id
-        let departmentId = row.department_id;
-        if (!departmentId && row.department_code) {
-          departmentId = deptCodeMap.get(row.department_code.toLowerCase());
-        }
-        if (!departmentId && row.department_name) {
-          departmentId = deptNameMap.get(row.department_name.toLowerCase());
-        }
-
-        if (!departmentId) {
-          errors.push(`Row ${i + 2}: Could not resolve department`);
-          failedCount++;
-          continue;
-        }
-
         facultiesToInsert.push({
           name: row.name,
           code: row.code || undefined,
-          department_id: departmentId,
           description: row.description || null,
           is_active: row.is_active?.toLowerCase() !== 'false',
         });
@@ -506,15 +486,15 @@ const BulkUploadManager = () => {
         sampleRow = ['Data Structures', 'John Smith', '978-0-123456-78-9', 'Tech Press', '3rd', '2023', 'Comprehensive guide', 'https://example.com/book.pdf'];
         filename = 'study_materials_template.csv';
         break;
-      case 'departments':
-        headers = ['name', 'code', 'description', 'is_active'];
-        sampleRow = ['Computer Science', 'CS', 'Department of Computer Science', 'true'];
-        filename = 'departments_template.csv';
-        break;
       case 'faculties':
-        headers = ['name', 'code', 'department_code', 'description', 'is_active'];
-        sampleRow = ['Software Engineering', 'SE', 'CS', 'Faculty of Software Engineering', 'true'];
+        headers = ['name', 'code', 'description', 'is_active'];
+        sampleRow = ['Engineering', 'ENG', 'Faculty of Engineering', 'true'];
         filename = 'faculties_template.csv';
+        break;
+      case 'departments':
+        headers = ['name', 'code', 'faculty_code', 'description', 'is_active'];
+        sampleRow = ['Computer Science', 'CS', 'ENG', 'Department of Computer Science', 'true'];
+        filename = 'departments_template.csv';
         break;
     }
 

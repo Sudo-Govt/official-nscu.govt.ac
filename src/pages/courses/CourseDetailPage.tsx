@@ -102,9 +102,9 @@ export default function CourseDetailPage() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
           <Link to="/courses" className="hover:text-primary">Courses</Link>
           <ChevronRight className="h-4 w-4" />
-          <span>{course.faculty?.department?.name}</span>
+          <span>{course.department?.faculty?.name}</span>
           <ChevronRight className="h-4 w-4" />
-          <span>{course.faculty?.name}</span>
+          <span>{course.department?.name}</span>
           <ChevronRight className="h-4 w-4" />
           <span className="text-foreground">{course.name}</span>
         </div>
@@ -118,7 +118,7 @@ export default function CourseDetailPage() {
             </div>
             <h1 className="text-3xl font-bold mb-2">{course.name}</h1>
             <p className="text-lg text-muted-foreground mb-4">
-              {course.faculty?.department?.name} • {course.faculty?.name}
+              {course.department?.faculty?.name} • {course.department?.name}
             </p>
             <p className="text-muted-foreground">
               {course.short_description}

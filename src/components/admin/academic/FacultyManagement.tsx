@@ -13,13 +13,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Table,
   TableBody,
   TableCell,
@@ -28,44 +21,41 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Users } from 'lucide-react';
-import { useFaculties, useDepartments } from '@/hooks/useAcademicData';
+import { useFaculties } from '@/hooks/useAcademicData';
 import type { Faculty } from '@/types/academic';
 
+// Faculty is now the top-level entity (no parent department)
 export function FacultyManagement() {
-  const { data: faculties, loading, fetchWithDepartment, create, update, remove } = useFaculties();
-  const { data: departments, fetch: fetchDepartments } = useDepartments();
+  const { data: faculties, loading, fetch, create, update, remove } = useFaculties();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
   const [formData, setFormData] = useState({
-    department_id: '',
     name: '',
     description: '',
     is_active: true,
   });
 
   useEffect(() => {
-    fetchWithDepartment();
-    fetchDepartments();
+    fetch();
   }, []);
 
   const handleOpenDialog = (faculty?: Faculty) => {
     if (faculty) {
       setEditingFaculty(faculty);
       setFormData({
-        department_id: faculty.department_id,
         name: faculty.name,
         description: faculty.description || '',
         is_active: faculty.is_active,
       });
     } else {
       setEditingFaculty(null);
-      setFormData({ department_id: '', name: '', description: '', is_active: true });
+      setFormData({ name: '', description: '', is_active: true });
     }
     setDialogOpen(true);
   };
 
   const handleSubmit = async () => {
-    if (!formData.name.trim() || !formData.department_id) return;
+    if (!formData.name.trim()) return;
 
     if (editingFaculty) {
       await update(editingFaculty.id, formData);
@@ -74,11 +64,10 @@ export function FacultyManagement() {
     }
     setDialogOpen(false);
     setEditingFaculty(null);
-    fetchWithDepartment();
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure? This will delete all courses under this faculty.')) {
+    if (confirm('Are you sure? This will delete all departments and courses under this faculty.')) {
       await remove(id);
     }
   };
@@ -104,29 +93,11 @@ export function FacultyManagement() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>Department *</Label>
-                <Select
-                  value={formData.department_id}
-                  onValueChange={(value) => setFormData({ ...formData, department_id: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.filter(d => d.is_active).map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>
-                        {dept.name} ({dept.code})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <Label>Faculty Name *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g., Electrical Engineering"
+                  placeholder="e.g., Faculty of Engineering"
                 />
               </div>
               <div className="space-y-2">
@@ -162,7 +133,7 @@ export function FacultyManagement() {
               <TableRow>
                 <TableHead>Code</TableHead>
                 <TableHead>Name</TableHead>
-                <TableHead>Department</TableHead>
+                <TableHead>Description</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -172,8 +143,8 @@ export function FacultyManagement() {
                 <TableRow key={faculty.id}>
                   <TableCell className="font-mono text-sm">{faculty.code}</TableCell>
                   <TableCell className="font-medium">{faculty.name}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {(faculty as any).department?.name || '-'}
+                  <TableCell className="text-muted-foreground max-w-xs truncate">
+                    {faculty.description || '-'}
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${

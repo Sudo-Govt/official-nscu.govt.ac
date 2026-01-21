@@ -64,12 +64,13 @@ export function AcademicStudentManagement() {
     return acc;
   }, [] as Faculty[]);
 
-  const filteredFaculties = selectedDeptId
-    ? facultiesFromCourses.filter((f) => f.department_id === selectedDeptId)
-    : facultiesFromCourses;
+  // New hierarchy: Faculty -> Department -> Course
+  const filteredDepartments = selectedFacultyId
+    ? departments.filter((d) => d.faculty_id === selectedFacultyId)
+    : departments;
 
-  const filteredCourses = selectedFacultyId
-    ? courses.filter((c) => c.faculty_id === selectedFacultyId && c.is_active)
+  const filteredCourses = selectedDeptId
+    ? courses.filter((c) => c.department_id === selectedDeptId && c.is_active)
     : courses.filter((c) => c.is_active);
 
   useEffect(() => {
@@ -81,10 +82,10 @@ export function AcademicStudentManagement() {
   const handleOpenDialog = (student?: AcademicStudent) => {
     if (student) {
       setEditingStudent(student);
-      const course = courses.find(c => c.id === student.course_id) as AcademicCourse & { faculty?: Faculty };
-      if (course?.faculty) {
-        setSelectedDeptId(course.faculty.department_id || '');
-        setSelectedFacultyId(course.faculty_id);
+      const course = courses.find(c => c.id === student.course_id) as AcademicCourse & { department?: Department & { faculty_id?: string } };
+      if (course?.department) {
+        setSelectedFacultyId(course.department.faculty_id || '');
+        setSelectedDeptId(course.department_id);
       }
       setFormData({
         user_id: student.user_id,
