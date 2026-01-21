@@ -11,18 +11,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Clock, GraduationCap, BookOpen, Search, Filter } from 'lucide-react';
 import type { AcademicCourse, Faculty, Department } from '@/types/academic';
 
-interface CourseWithFaculty extends AcademicCourse {
-  faculty: Faculty & { department: Department };
+// New hierarchy: Faculty -> Department -> Course
+interface CourseWithDepartment extends AcademicCourse {
+  department: Department & { faculty: Faculty };
 }
 
 export default function PublicCourseCatalog() {
-  const [courses, setCourses] = useState<CourseWithFaculty[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
+  const [courses, setCourses] = useState<CourseWithDepartment[]>([]);
   const [faculties, setFaculties] = useState<Faculty[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [facultyFilter, setFacultyFilter] = useState<string>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
@@ -32,20 +33,20 @@ export default function PublicCourseCatalog() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [coursesRes, deptRes, facRes] = await Promise.all([
+      const [coursesRes, facRes, deptRes] = await Promise.all([
         supabase
           .from('academic_courses')
-          .select('*, faculty:academic_faculties(*, department:academic_departments(*))')
+          .select('*, department:academic_departments(*, faculty:academic_faculties(*))')
           .eq('is_active', true)
           .eq('is_visible_on_website', true)
           .order('name'),
-        supabase.from('academic_departments').select('*').eq('is_active', true).order('name'),
         supabase.from('academic_faculties').select('*').eq('is_active', true).order('name'),
+        supabase.from('academic_departments').select('*').eq('is_active', true).order('name'),
       ]);
 
-      setCourses((coursesRes.data || []) as CourseWithFaculty[]);
-      setDepartments(deptRes.data || []);
-      setFaculties(facRes.data || []);
+      setCourses((coursesRes.data || []) as CourseWithDepartment[]);
+      setFaculties(facRes.data as Faculty[] || []);
+      setDepartments(deptRes.data as Department[] || []);
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
@@ -60,23 +61,26 @@ export default function PublicCourseCatalog() {
         course.course_code.toLowerCase().includes(search.toLowerCase()) ||
         course.short_description?.toLowerCase().includes(search.toLowerCase());
       
-      const matchesDept = departmentFilter === 'all' || 
-        course.faculty?.department?.id === departmentFilter;
-      
+      // Filter by faculty (through department)
       const matchesFaculty = facultyFilter === 'all' || 
-        course.faculty_id === facultyFilter;
+        course.department?.faculty?.id === facultyFilter;
+      
+      // Filter by department
+      const matchesDept = departmentFilter === 'all' || 
+        course.department_id === departmentFilter;
       
       const matchesStatus = statusFilter === 'all' || 
         course.enrollment_status === statusFilter;
 
-      return matchesSearch && matchesDept && matchesFaculty && matchesStatus;
+      return matchesSearch && matchesFaculty && matchesDept && matchesStatus;
     });
-  }, [courses, search, departmentFilter, facultyFilter, statusFilter]);
+  }, [courses, search, facultyFilter, departmentFilter, statusFilter]);
 
-  const filteredFaculties = useMemo(() => {
-    if (departmentFilter === 'all') return faculties;
-    return faculties.filter(f => f.department_id === departmentFilter);
-  }, [faculties, departmentFilter]);
+  // Filter departments by selected faculty
+  const filteredDepartments = useMemo(() => {
+    if (facultyFilter === 'all') return departments;
+    return departments.filter(d => d.faculty_id === facultyFilter);
+  }, [departments, facultyFilter]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -115,25 +119,25 @@ export default function PublicCourseCatalog() {
                   className="pl-10"
                 />
               </div>
-              <Select value={departmentFilter} onValueChange={(val) => { setDepartmentFilter(val); setFacultyFilter('all'); }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  {departments.map(d => (
-                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={facultyFilter} onValueChange={setFacultyFilter}>
+              <Select value={facultyFilter} onValueChange={(val) => { setFacultyFilter(val); setDepartmentFilter('all'); }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Faculties" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Faculties</SelectItem>
-                  {filteredFaculties.map(f => (
+                  {faculties.map(f => (
                     <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Departments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  {filteredDepartments.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -199,7 +203,7 @@ export default function PublicCourseCatalog() {
                   </div>
                   <CardTitle className="text-lg mt-2">{course.name}</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    {course.faculty?.department?.name} → {course.faculty?.name}
+                    {course.department?.faculty?.name} → {course.department?.name}
                   </p>
                 </CardHeader>
                 <CardContent className="flex-1">

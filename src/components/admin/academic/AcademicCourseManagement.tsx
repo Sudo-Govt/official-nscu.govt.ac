@@ -32,19 +32,20 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2, GraduationCap, Eye, BookOpen } from 'lucide-react';
 import { useAcademicCourses, useFaculties, useDepartments } from '@/hooks/useAcademicData';
 import { CurriculumEditor } from './CurriculumEditor';
-import type { AcademicCourse, Faculty } from '@/types/academic';
+import type { AcademicCourse, Department } from '@/types/academic';
 
+// New hierarchy: Faculty -> Department -> Course
 export function AcademicCourseManagement() {
   const { data: courses, loading, fetchWithHierarchy, create, update, remove } = useAcademicCourses();
-  const { data: faculties, fetchWithDepartment } = useFaculties();
-  const { data: departments, fetch: fetchDepartments } = useDepartments();
+  const { data: faculties, fetch: fetchFaculties } = useFaculties();
+  const { data: departments, fetchWithFaculty } = useDepartments();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [curriculumOpen, setCurriculumOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<AcademicCourse | null>(null);
-  const [selectedDeptId, setSelectedDeptId] = useState('');
+  const [selectedFacultyId, setSelectedFacultyId] = useState('');
   const [editingCourse, setEditingCourse] = useState<AcademicCourse | null>(null);
   const [formData, setFormData] = useState({
-    faculty_id: '',
+    department_id: '',
     name: '',
     duration_months: 12,
     total_credits: 0,
@@ -58,21 +59,22 @@ export function AcademicCourseManagement() {
 
   useEffect(() => {
     fetchWithHierarchy();
-    fetchWithDepartment();
-    fetchDepartments();
+    fetchFaculties();
+    fetchWithFaculty();
   }, []);
 
-  const filteredFaculties = selectedDeptId
-    ? faculties.filter((f) => f.department_id === selectedDeptId)
-    : faculties;
+  // Filter departments by selected faculty
+  const filteredDepartments = selectedFacultyId
+    ? departments.filter((d) => d.faculty_id === selectedFacultyId)
+    : departments;
 
   const handleOpenDialog = (course?: AcademicCourse) => {
     if (course) {
       setEditingCourse(course);
-      const faculty = faculties.find(f => f.id === course.faculty_id) as Faculty & { department?: { id: string } };
-      setSelectedDeptId(faculty?.department?.id || '');
+      const department = departments.find(d => d.id === course.department_id) as Department & { faculty?: { id: string } };
+      setSelectedFacultyId(department?.faculty_id || '');
       setFormData({
-        faculty_id: course.faculty_id,
+        department_id: course.department_id,
         name: course.name,
         duration_months: course.duration_months,
         total_credits: course.total_credits,
@@ -85,9 +87,9 @@ export function AcademicCourseManagement() {
       });
     } else {
       setEditingCourse(null);
-      setSelectedDeptId('');
+      setSelectedFacultyId('');
       setFormData({
-        faculty_id: '',
+        department_id: '',
         name: '',
         duration_months: 12,
         total_credits: 0,
@@ -103,7 +105,7 @@ export function AcademicCourseManagement() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name.trim() || !formData.faculty_id) return;
+    if (!formData.name.trim() || !formData.department_id) return;
 
     // Calculate end_date from start_date + duration
     let endDate = '';
@@ -182,40 +184,40 @@ export function AcademicCourseManagement() {
                 <TabsContent value="basic" className="space-y-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Department *</Label>
+                      <Label>Faculty *</Label>
                       <Select
-                        value={selectedDeptId}
+                        value={selectedFacultyId}
                         onValueChange={(value) => {
-                          setSelectedDeptId(value);
-                          setFormData({ ...formData, faculty_id: '' });
+                          setSelectedFacultyId(value);
+                          setFormData({ ...formData, department_id: '' });
                         }}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select department" />
+                          <SelectValue placeholder="Select faculty" />
                         </SelectTrigger>
                         <SelectContent>
-                          {departments.filter(d => d.is_active).map((dept) => (
-                            <SelectItem key={dept.id} value={dept.id}>
-                              {dept.name}
+                          {faculties.filter(f => f.is_active).map((faculty) => (
+                            <SelectItem key={faculty.id} value={faculty.id}>
+                              {faculty.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Faculty *</Label>
+                      <Label>Department *</Label>
                       <Select
-                        value={formData.faculty_id}
-                        onValueChange={(value) => setFormData({ ...formData, faculty_id: value })}
-                        disabled={!selectedDeptId}
+                        value={formData.department_id}
+                        onValueChange={(value) => setFormData({ ...formData, department_id: value })}
+                        disabled={!selectedFacultyId}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select faculty" />
+                          <SelectValue placeholder="Select department" />
                         </SelectTrigger>
                         <SelectContent>
-                          {filteredFaculties.filter(f => f.is_active).map((faculty) => (
-                            <SelectItem key={faculty.id} value={faculty.id}>
-                              {faculty.name}
+                          {filteredDepartments.filter(d => d.is_active).map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id}>
+                              {dept.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -332,7 +334,7 @@ export function AcademicCourseManagement() {
                 <TableRow>
                   <TableHead>Code</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Faculty</TableHead>
+                  <TableHead>Department</TableHead>
                   <TableHead>Duration</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Enrollment</TableHead>
@@ -345,7 +347,7 @@ export function AcademicCourseManagement() {
                     <TableCell className="font-mono text-sm">{course.course_code}</TableCell>
                     <TableCell className="font-medium">{course.name}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {(course as any).faculty?.name || '-'}
+                      {(course as any).department?.name || '-'}
                     </TableCell>
                     <TableCell>{course.duration_months} months</TableCell>
                     <TableCell>

@@ -15,54 +15,7 @@ import type {
   CourseWithHierarchy,
 } from '@/types/academic';
 
-// Specific hooks for each table (avoiding complex generics)
-export function useDepartments() {
-  const [data, setData] = useState<Department[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data: result, error } = await supabase
-        .from('academic_departments')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setData(result as Department[] || []);
-    } catch {
-      toast({ title: 'Error', description: 'Failed to fetch departments', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  const create = useCallback(async (item: Partial<Department>) => {
-    const { data: result, error } = await supabase.from('academic_departments').insert([item as any]).select().single();
-    if (error) throw error;
-    setData(prev => [result as Department, ...prev]);
-    toast({ title: 'Success', description: 'Created successfully' });
-    return result as Department;
-  }, [toast]);
-
-  const update = useCallback(async (id: string, updates: Partial<Department>) => {
-    const { data: result, error } = await supabase.from('academic_departments').update(updates).eq('id', id).select().single();
-    if (error) throw error;
-    setData(prev => prev.map(item => item.id === id ? result as Department : item));
-    toast({ title: 'Success', description: 'Updated successfully' });
-    return result as Department;
-  }, [toast]);
-
-  const remove = useCallback(async (id: string) => {
-    const { error } = await supabase.from('academic_departments').delete().eq('id', id);
-    if (error) throw error;
-    setData(prev => prev.filter(item => item.id !== id));
-    toast({ title: 'Success', description: 'Deleted successfully' });
-  }, [toast]);
-
-  return { data, loading, fetch, create, update, remove, setData };
-}
-
+// Faculty is now the top-level entity (no parent)
 export function useFaculties() {
   const [data, setData] = useState<Faculty[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,24 +24,14 @@ export function useFaculties() {
   const fetch = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: result, error } = await supabase.from('academic_faculties').select('*').order('created_at', { ascending: false });
+      const { data: result, error } = await supabase
+        .from('academic_faculties')
+        .select('*')
+        .order('created_at', { ascending: false });
       if (error) throw error;
       setData(result as Faculty[] || []);
     } catch {
-      toast({ title: 'Error', description: 'Failed to fetch', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  const fetchWithDepartment = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data: result, error } = await supabase.from('academic_faculties').select('*, department:academic_departments(*)').order('created_at', { ascending: false });
-      if (error) throw error;
-      setData(result as Faculty[] || []);
-    } catch {
-      toast({ title: 'Error', description: 'Failed to fetch', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to fetch faculties', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -117,9 +60,74 @@ export function useFaculties() {
     toast({ title: 'Success', description: 'Deleted successfully' });
   }, [toast]);
 
-  return { data, loading, fetch, fetchWithDepartment, create, update, remove, setData };
+  return { data, loading, fetch, create, update, remove, setData };
 }
 
+// Department now belongs to Faculty
+export function useDepartments() {
+  const [data, setData] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetch = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: result, error } = await supabase
+        .from('academic_departments')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setData(result as Department[] || []);
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch departments', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const fetchWithFaculty = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: result, error } = await supabase
+        .from('academic_departments')
+        .select('*, faculty:academic_faculties(*)')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setData(result as Department[] || []);
+    } catch {
+      toast({ title: 'Error', description: 'Failed to fetch', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const create = useCallback(async (item: Partial<Department>) => {
+    const { data: result, error } = await supabase.from('academic_departments').insert([item as any]).select().single();
+    if (error) throw error;
+    setData(prev => [result as Department, ...prev]);
+    toast({ title: 'Success', description: 'Created successfully' });
+    return result as Department;
+  }, [toast]);
+
+  const update = useCallback(async (id: string, updates: Partial<Department>) => {
+    const { data: result, error } = await supabase.from('academic_departments').update(updates).eq('id', id).select().single();
+    if (error) throw error;
+    setData(prev => prev.map(item => item.id === id ? result as Department : item));
+    toast({ title: 'Success', description: 'Updated successfully' });
+    return result as Department;
+  }, [toast]);
+
+  const remove = useCallback(async (id: string) => {
+    const { error } = await supabase.from('academic_departments').delete().eq('id', id);
+    if (error) throw error;
+    setData(prev => prev.filter(item => item.id !== id));
+    toast({ title: 'Success', description: 'Deleted successfully' });
+  }, [toast]);
+
+  return { data, loading, fetch, fetchWithFaculty, create, update, remove, setData };
+}
+
+// Courses now belong to Department
 export function useAcademicCourses() {
   const [data, setData] = useState<AcademicCourse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,10 +146,14 @@ export function useAcademicCourses() {
     }
   }, [toast]);
 
+  // Fetch courses with full hierarchy: Course -> Department -> Faculty
   const fetchWithHierarchy = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: result, error } = await supabase.from('academic_courses').select('*, faculty:academic_faculties(*, department:academic_departments(*))').order('created_at', { ascending: false });
+      const { data: result, error } = await supabase
+        .from('academic_courses')
+        .select('*, department:academic_departments(*, faculty:academic_faculties(*))')
+        .order('created_at', { ascending: false });
       if (error) throw error;
       setData(result as AcademicCourse[] || []);
     } catch {
@@ -242,7 +254,10 @@ export function useAcademicStudents() {
   const fetchWithCourse = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: result, error } = await supabase.from('academic_students').select('*, course:academic_courses(*, faculty:academic_faculties(*, department:academic_departments(*)))').order('created_at', { ascending: false });
+      const { data: result, error } = await supabase
+        .from('academic_students')
+        .select('*, course:academic_courses(*, department:academic_departments(*, faculty:academic_faculties(*)))')
+        .order('created_at', { ascending: false });
       if (error) throw error;
       setData(result as AcademicStudent[] || []);
     } catch {
@@ -278,10 +293,12 @@ export function useAcademicStudents() {
   return { data, loading, fetch, fetchWithCourse, create, update, remove, setData };
 }
 
-// Fetch full course with all hierarchy
+// Fetch full course with all hierarchy (new: Course -> Department -> Faculty)
 export async function fetchCourseWithHierarchy(courseIdOrSlug: string): Promise<CourseWithHierarchy | null> {
   try {
-    let query = supabase.from('academic_courses').select('*, faculty:academic_faculties(*, department:academic_departments(*))');
+    let query = supabase
+      .from('academic_courses')
+      .select('*, department:academic_departments(*, faculty:academic_faculties(*))');
     
     if (courseIdOrSlug.includes('-')) {
       query = query.eq('slug', courseIdOrSlug);

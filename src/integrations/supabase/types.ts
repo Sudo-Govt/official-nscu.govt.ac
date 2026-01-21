@@ -51,10 +51,10 @@ export type Database = {
         Row: {
           course_code: string
           created_at: string | null
+          department_id: string | null
           duration_months: number
           end_date: string | null
           enrollment_status: string | null
-          faculty_id: string
           id: string
           is_active: boolean | null
           is_visible_on_website: boolean | null
@@ -70,10 +70,10 @@ export type Database = {
         Insert: {
           course_code: string
           created_at?: string | null
+          department_id?: string | null
           duration_months?: number
           end_date?: string | null
           enrollment_status?: string | null
-          faculty_id: string
           id?: string
           is_active?: boolean | null
           is_visible_on_website?: boolean | null
@@ -89,10 +89,10 @@ export type Database = {
         Update: {
           course_code?: string
           created_at?: string | null
+          department_id?: string | null
           duration_months?: number
           end_date?: string | null
           enrollment_status?: string | null
-          faculty_id?: string
           id?: string
           is_active?: boolean | null
           is_visible_on_website?: boolean | null
@@ -107,7 +107,48 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "academic_courses_faculty_id_fkey"
+            foreignKeyName: "academic_courses_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "academic_departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academic_departments: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          faculty_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          faculty_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          faculty_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_departments_faculty_id_fkey"
             columns: ["faculty_id"]
             isOneToOne: false
             referencedRelation: "academic_faculties"
@@ -115,7 +156,7 @@ export type Database = {
           },
         ]
       }
-      academic_departments: {
+      academic_faculties: {
         Row: {
           code: string
           created_at: string | null
@@ -144,47 +185,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      academic_faculties: {
-        Row: {
-          code: string
-          created_at: string | null
-          department_id: string
-          description: string | null
-          id: string
-          is_active: boolean | null
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          code: string
-          created_at?: string | null
-          department_id: string
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          code?: string
-          created_at?: string | null
-          department_id?: string
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          name?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "academic_faculties_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "academic_departments"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       academic_lessons: {
         Row: {

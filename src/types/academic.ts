@@ -1,30 +1,32 @@
 // Academic Course Management Types
-
-export interface Department {
-  id: string;
-  name: string;
-  code: string;
-  description?: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+// New Hierarchy: Faculty -> Department -> Course
 
 export interface Faculty {
   id: string;
-  department_id: string;
   name: string;
   code: string;
   description?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  department?: Department;
+  departments?: Department[];
+}
+
+export interface Department {
+  id: string;
+  faculty_id: string;
+  name: string;
+  code: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  faculty?: Faculty;
 }
 
 export interface AcademicCourse {
   id: string;
-  faculty_id: string;
+  department_id: string;
   name: string;
   course_code: string;
   slug: string;
@@ -40,7 +42,7 @@ export interface AcademicCourse {
   enrollment_status: 'open' | 'closed' | 'coming_soon';
   created_at: string;
   updated_at: string;
-  faculty?: Faculty;
+  department?: Department;
 }
 
 export interface Subject {
@@ -139,8 +141,9 @@ export interface StudentProgress {
 }
 
 // Extended types for UI
+// New hierarchy: Faculty -> Department -> Course
 export interface CourseWithHierarchy extends AcademicCourse {
-  faculty: Faculty & { department: Department };
+  department: Department & { faculty: Faculty };
   subjects: (Subject & { topics: (Topic & { lessons: Lesson[] })[] })[];
   books: CourseBook[];
 }
