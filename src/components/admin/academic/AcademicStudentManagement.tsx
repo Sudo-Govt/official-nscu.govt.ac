@@ -30,7 +30,7 @@ import { Plus, Pencil, Trash2, UserCheck, Eye } from 'lucide-react';
 import { useAcademicStudents, useAcademicCourses, useDepartments } from '@/hooks/useAcademicData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { AcademicStudent, AcademicCourse, Faculty } from '@/types/academic';
+import type { AcademicStudent, AcademicCourse, Faculty, Department } from '@/types/academic';
 
 export function AcademicStudentManagement() {
   const { data: students, loading, fetchWithCourse, create, update, remove } = useAcademicStudents();
@@ -249,7 +249,7 @@ export function AcademicStudentManagement() {
                       <SelectValue placeholder="Select faculty" />
                     </SelectTrigger>
                     <SelectContent>
-                      {filteredFaculties.map((faculty) => (
+                      {facultiesFromCourses.map((faculty) => (
                         <SelectItem key={faculty.id} value={faculty.id}>
                           {faculty.name}
                         </SelectItem>
