@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.send-email-resend]
 verify_jwt = false
+
+[functions.generate-abet-course]
+verify_jwt = false
