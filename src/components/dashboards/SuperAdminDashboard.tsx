@@ -379,6 +379,12 @@ const SuperAdminDashboard = () => {
       case 'bulk-upload':
         return <BulkUploadManager />;
 
+      case 'mega-uploader':
+        return <MegaCourseUploader />;
+
+      case 'abet-generator':
+        return <ABETCourseGenerator />;
+
       default:
         return null;
     }
