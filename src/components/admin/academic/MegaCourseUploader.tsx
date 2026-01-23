@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
+import * as XLSX from 'xlsx';
 interface ImportResult {
   faculties: { success: number; failed: number; errors: string[] };
   departments: { success: number; failed: number; errors: string[] };
@@ -65,28 +65,63 @@ const MegaCourseUploader = () => {
     return result;
   };
 
-  // Parse file content
+  // Parse file content (CSV or Excel)
   const parseFile = async (file: File): Promise<{ headers: string[]; rows: ParsedRow[] }> => {
-    const text = await file.text();
-    const lines = text.split('\n').filter(line => line.trim());
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     
-    if (lines.length < 2) {
-      throw new Error('File must have a header row and at least one data row');
+    if (fileExt === '.csv') {
+      // Parse CSV
+      const text = await file.text();
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        throw new Error('File must have a header row and at least one data row');
+      }
+
+      const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, '').toLowerCase().trim().replace(/\s+/g, '_'));
+      const rows: ParsedRow[] = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        const row: Record<string, string> = {};
+        headers.forEach((header, index) => {
+          row[header] = values[index]?.replace(/"/g, '').trim() || '';
+        });
+        rows.push(row as unknown as ParsedRow);
+      }
+
+      return { headers, rows };
+    } else {
+      // Parse Excel (.xls, .xlsx)
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      // Convert to JSON with header row
+      const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { header: 1 });
+      
+      if (jsonData.length < 2) {
+        throw new Error('File must have a header row and at least one data row');
+      }
+
+      const headerRow = jsonData[0] as string[];
+      const headers = headerRow.map(h => String(h || '').toLowerCase().trim().replace(/\s+/g, '_'));
+      const rows: ParsedRow[] = [];
+
+      for (let i = 1; i < jsonData.length; i++) {
+        const dataRow = jsonData[i] as any[];
+        if (!dataRow || dataRow.length === 0) continue;
+        
+        const row: Record<string, string> = {};
+        headers.forEach((header, index) => {
+          row[header] = String(dataRow[index] ?? '').trim();
+        });
+        rows.push(row as unknown as ParsedRow);
+      }
+
+      return { headers, rows };
     }
-
-    const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, '').toLowerCase().trim().replace(/\s+/g, '_'));
-    const rows: ParsedRow[] = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
-      const row: Record<string, string> = {};
-      headers.forEach((header, index) => {
-        row[header] = values[index]?.replace(/"/g, '').trim() || '';
-      });
-      rows.push(row as unknown as ParsedRow);
-    }
-
-    return { headers, rows };
   };
 
   // Generate slug from name
