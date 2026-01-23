@@ -338,6 +338,7 @@ export function AcademicCourseManagement() {
                   <TableHead>Duration</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Enrollment</TableHead>
+                  <TableHead>Page Link</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -358,6 +359,18 @@ export function AcademicCourseManagement() {
                       </span>
                     </TableCell>
                     <TableCell>{getEnrollmentBadge(course.enrollment_status)}</TableCell>
+                    <TableCell>
+                      {course.slug && (
+                        <a 
+                          href={`/courses/${course.slug}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline text-sm"
+                        >
+                          /courses/{course.slug}
+                        </a>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right space-x-1">
                       <Button
                         variant="ghost"
