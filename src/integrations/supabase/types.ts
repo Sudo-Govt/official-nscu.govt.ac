@@ -49,6 +49,8 @@ export type Database = {
       }
       academic_courses: {
         Row: {
+          ai_generated_content: Json | null
+          content_generated_at: string | null
           course_code: string
           created_at: string | null
           department_id: string | null
@@ -68,6 +70,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          ai_generated_content?: Json | null
+          content_generated_at?: string | null
           course_code: string
           created_at?: string | null
           department_id?: string | null
@@ -87,6 +91,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          ai_generated_content?: Json | null
+          content_generated_at?: string | null
           course_code?: string
           created_at?: string | null
           department_id?: string | null

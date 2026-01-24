@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, GraduationCap, Eye, BookOpen } from 'lucide-react';
+import { Plus, Pencil, Trash2, GraduationCap, Eye, BookOpen, Sparkles } from 'lucide-react';
 import { useAcademicCourses, useFaculties, useDepartments } from '@/hooks/useAcademicData';
 import { CurriculumEditor } from './CurriculumEditor';
 import type { AcademicCourse, Department } from '@/types/academic';
@@ -338,6 +338,7 @@ export function AcademicCourseManagement() {
                   <TableHead>Duration</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Enrollment</TableHead>
+                  <TableHead>AI Content</TableHead>
                   <TableHead>Page Link</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -359,6 +360,16 @@ export function AcademicCourseManagement() {
                       </span>
                     </TableCell>
                     <TableCell>{getEnrollmentBadge(course.enrollment_status)}</TableCell>
+                    <TableCell>
+                      {(course as any).ai_generated_content ? (
+                        <Badge variant="secondary" className="gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          Generated
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       {course.slug && (
                         <a 

@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
   Sparkles, Loader2, GraduationCap, BookOpen, Target, 
   Briefcase, CheckCircle2, ExternalLink, Save, Search,
-  Building2, Users, HelpCircle
+  Building2, Users, HelpCircle, RefreshCw, Trash2, Eye, Edit
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -71,6 +71,8 @@ interface Course {
   short_description: string | null;
   long_description: string | null;
   department_id: string;
+  ai_generated_content: unknown;
+  content_generated_at: string | null;
 }
 
 interface Department {
@@ -114,12 +116,12 @@ const CourseContentGenerator = () => {
     const [facRes, deptRes, courseRes] = await Promise.all([
       supabase.from('academic_faculties').select('id, name, code').eq('is_active', true).order('name'),
       supabase.from('academic_departments').select('id, name, code, faculty_id').eq('is_active', true).order('name'),
-      supabase.from('academic_courses').select('id, name, slug, course_code, duration_months, total_credits, short_description, long_description, department_id').eq('is_active', true).order('name'),
+      supabase.from('academic_courses').select('id, name, slug, course_code, duration_months, total_credits, short_description, long_description, department_id, ai_generated_content, content_generated_at').eq('is_active', true).order('name'),
     ]);
     
     if (facRes.data) setFaculties(facRes.data);
     if (deptRes.data) setDepartments(deptRes.data);
-    if (courseRes.data) setCourses(courseRes.data);
+    if (courseRes.data) setCourses(courseRes.data as Course[]);
     setLoading(false);
   };
 
@@ -234,58 +236,42 @@ ${generatedContent.program_details.skills_acquired.map(s => `- ${s}`).join('\n')
 ## Career Opportunities
 ${generatedContent.career_prospects.overview}
 
+### Job Roles
+${generatedContent.career_prospects.job_roles.map(r => `- ${r}`).join('\n')}
+
+### Industries
+${generatedContent.career_prospects.industries.map(i => `- ${i}`).join('\n')}
+
+**Placement Rate:** ${generatedContent.career_prospects.placement_rate}
+**Expected Salary:** ${generatedContent.career_prospects.average_salary_range}
+
 ## Eligibility
 **Minimum Qualification:** ${generatedContent.eligibility.minimum_qualification}
 
 ${generatedContent.eligibility.preferred_profile}
+
+### Required Subjects
+${generatedContent.eligibility.required_subjects.map(s => `- ${s}`).join('\n')}
+
+### Entrance Requirements
+${generatedContent.eligibility.entrance_requirements.map(e => `- ${e}`).join('\n')}
+
+## Frequently Asked Questions
+${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
       `.trim();
 
-      // Update the course with generated content
+      // Update the course with generated content and store the structured JSON
       const { error: updateError } = await supabase
         .from('academic_courses')
         .update({
           long_description: longDescription,
           short_description: generatedContent.overview.introduction.slice(0, 200),
+          ai_generated_content: JSON.parse(JSON.stringify(generatedContent)),
+          content_generated_at: new Date().toISOString(),
         })
         .eq('id', selectedCourse);
 
       if (updateError) throw updateError;
-
-      // Store the full generated content as JSON in a new column or separate table
-      // For now, we'll update/create a CMS page with the content
-      const { data: existingPage } = await supabase
-        .from('cms_pages')
-        .select('id')
-        .eq('slug', `course-${course.slug}`)
-        .single();
-
-      const pageContent = JSON.stringify({
-        type: 'course_content',
-        generated_at: new Date().toISOString(),
-        content: generatedContent,
-      });
-
-      if (existingPage) {
-        await supabase
-          .from('cms_pages')
-          .update({
-            title: course.name,
-            description: generatedContent.meta.seo_description,
-            meta_title: generatedContent.meta.seo_title,
-            meta_description: generatedContent.meta.seo_description,
-          })
-          .eq('id', existingPage.id);
-      } else {
-        await supabase.from('cms_pages').insert({
-          title: course.name,
-          slug: `course-${course.slug}`,
-          description: generatedContent.meta.seo_description,
-          status: 'published',
-          page_type: 'course',
-          meta_title: generatedContent.meta.seo_title,
-          meta_description: generatedContent.meta.seo_description,
-        });
-      }
 
       toast({
         title: 'Content Saved!',
@@ -307,6 +293,46 @@ ${generatedContent.eligibility.preferred_profile}
       setIsSaving(false);
     }
   };
+
+  const deleteContent = async (courseId: string) => {
+    try {
+      const { error } = await supabase
+        .from('academic_courses')
+        .update({
+          long_description: null,
+          short_description: null,
+          ai_generated_content: null,
+          content_generated_at: null,
+        })
+        .eq('id', courseId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Content Deleted',
+        description: 'AI-generated content has been removed.',
+      });
+
+      fetchData();
+    } catch (err: any) {
+      toast({
+        title: 'Delete Failed',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const viewExistingContent = (course: Course) => {
+    if (course.ai_generated_content) {
+      setGeneratedContent(course.ai_generated_content as unknown as GeneratedContent);
+      setSelectedCourse(course.id);
+      setActiveTab('overview');
+    }
+  };
+
+  const coursesWithContent = courses.filter(c => c.ai_generated_content !== null);
+
 
   if (loading) {
     return (
@@ -717,6 +743,86 @@ ${generatedContent.eligibility.preferred_profile}
                 </div>
               </TabsContent>
             </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Courses with AI-Generated Content */}
+      {coursesWithContent.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Courses with AI-Generated Content
+            </CardTitle>
+            <CardDescription>
+              Manage courses that have AI-generated content. View, edit, regenerate, or delete content.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {coursesWithContent.map((course) => {
+                const dept = departments.find(d => d.id === course.department_id);
+                const fac = faculties.find(f => f.id === dept?.faculty_id);
+                return (
+                  <div key={course.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{course.course_code}</Badge>
+                        <span className="font-medium">{course.name}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {fac?.name} → {dept?.name}
+                      </p>
+                      {course.content_generated_at && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Generated: {new Date(course.content_generated_at).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => viewExistingContent(course)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                      >
+                        <a href={`/courses/${course.slug}`} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          Page
+                        </a>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedCourse(course.id);
+                          setGeneratedContent(null);
+                        }}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-1" />
+                        Regenerate
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteContent(course.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       )}
