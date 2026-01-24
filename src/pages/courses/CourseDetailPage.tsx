@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import type { CourseWithHierarchy } from '@/types/academic';
 import { format } from 'date-fns';
+import ReactMarkdown from 'react-markdown';
 
 export default function CourseDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -145,8 +146,19 @@ export default function CourseDetailPage() {
                 <CardHeader>
                   <CardTitle>About This Program</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="whitespace-pre-wrap">{course.long_description}</p>
+                <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                  <ReactMarkdown
+                    components={{
+                      h2: ({ children }) => <h2 className="text-xl font-semibold mt-6 mb-3 text-foreground">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-lg font-medium mt-4 mb-2 text-foreground">{children}</h3>,
+                      p: ({ children }) => <p className="text-muted-foreground mb-3 leading-relaxed">{children}</p>,
+                      ul: ({ children }) => <ul className="list-disc pl-5 space-y-1 mb-4">{children}</ul>,
+                      li: ({ children }) => <li className="text-muted-foreground">{children}</li>,
+                      strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+                    }}
+                  >
+                    {course.long_description}
+                  </ReactMarkdown>
                 </CardContent>
               </Card>
             )}
