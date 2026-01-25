@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +57,7 @@ interface AdditionalInfo {
   workExperience: string;
   currentEmployer: string;
   motivation: string;
+  agentCode: string;
 }
 
 interface ConsentInfo {
@@ -74,6 +75,7 @@ const STEPS = [
 
 const FastTrackAdmission = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -105,7 +107,11 @@ const FastTrackAdmission = () => {
     workExperience: '',
     currentEmployer: '',
     motivation: '',
+    agentCode: '',
   });
+
+  const [agentCodeValid, setAgentCodeValid] = useState<boolean | null>(null);
+  const [validatedAgentId, setValidatedAgentId] = useState<string | null>(null);
 
   const [consentInfo, setConsentInfo] = useState<ConsentInfo>({
     termsAccepted: false,
@@ -115,7 +121,14 @@ const FastTrackAdmission = () => {
 
   useEffect(() => {
     fetchCourses();
-  }, []);
+    
+    // Check for agent code in URL parameter
+    const agentCodeFromUrl = searchParams.get('agent');
+    if (agentCodeFromUrl) {
+      setAdditionalInfo(prev => ({ ...prev, agentCode: agentCodeFromUrl.toUpperCase() }));
+      validateAgentCode(agentCodeFromUrl);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (selectedCourse) {
@@ -185,6 +198,28 @@ const FastTrackAdmission = () => {
     }
   };
 
+  const validateAgentCode = async (code: string) => {
+    if (!code || code.length < 6) {
+      setAgentCodeValid(null);
+      setValidatedAgentId(null);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('agent_profiles')
+      .select('id, agent_id')
+      .eq('agent_id', code.toUpperCase())
+      .maybeSingle();
+
+    if (!error && data) {
+      setAgentCodeValid(true);
+      setValidatedAgentId(data.id);
+    } else {
+      setAgentCodeValid(false);
+      setValidatedAgentId(null);
+    }
+  };
+
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 0:
@@ -250,6 +285,7 @@ const FastTrackAdmission = () => {
           status: 'pending_payment',
           payment_status: 'pending',
           approved_fee: calculatedFee,
+          agent_id: validatedAgentId,
           application_data: {
             application_type: 'fast_track',
             date_of_birth: personalInfo.dateOfBirth,
@@ -517,6 +553,34 @@ const FastTrackAdmission = () => {
                 {additionalInfo.motivation.length}/50 characters minimum
               </p>
             </div>
+            
+            {/* Agent Code Field */}
+            <div className="space-y-2">
+              <Label htmlFor="agentCode">Admission Agent Code (Optional)</Label>
+              <div className="relative">
+                <Input
+                  id="agentCode"
+                  value={additionalInfo.agentCode}
+                  onChange={(e) => {
+                    const code = e.target.value.toUpperCase();
+                    setAdditionalInfo({ ...additionalInfo, agentCode: code });
+                    validateAgentCode(code);
+                  }}
+                  placeholder="6-digit agent code (if referred)"
+                  maxLength={6}
+                  className={agentCodeValid === true ? 'border-green-500' : agentCodeValid === false ? 'border-destructive' : ''}
+                />
+                {agentCodeValid === true && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 text-sm">✓ Valid</span>
+                )}
+                {agentCodeValid === false && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-destructive text-sm">✗ Invalid</span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                If you were referred by an admission agent, enter their code here
+              </p>
+            </div>
           </div>
         );
 
@@ -570,6 +634,17 @@ const FastTrackAdmission = () => {
               </div>
             </div>
 
+            {/* Non-Refundable Notice */}
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+              <p className="text-sm font-medium text-destructive">
+                ⚠️ Important: Non-Refundable Fee Policy
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Please note that once payment is made, the program fee is <strong>non-refundable</strong>. 
+                By proceeding with payment, you acknowledge and accept this policy.
+              </p>
+            </div>
+
             {/* Consent Checkboxes */}
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
@@ -579,7 +654,7 @@ const FastTrackAdmission = () => {
                   onCheckedChange={(checked) => setConsentInfo({ ...consentInfo, termsAccepted: checked as boolean })}
                 />
                 <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-                  I agree to the <a href="/legal/terms-conditions" target="_blank" className="text-primary underline">Terms and Conditions</a> *
+                  I agree to the <a href="/legal/terms-conditions" target="_blank" className="text-primary underline">Terms and Conditions</a> and acknowledge that fees are non-refundable *
                 </Label>
               </div>
               <div className="flex items-start space-x-3">

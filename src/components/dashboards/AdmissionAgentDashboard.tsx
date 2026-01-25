@@ -420,6 +420,13 @@ const AdmissionAgentDashboard = () => {
                       <UserPlus className="h-4 w-4 mr-2" />
                       Add New Student
                     </Button>
+                    <Button 
+                      className="w-full justify-start bg-amber-500 hover:bg-amber-600 text-white" 
+                      onClick={() => window.open(`/apply/fast-track?agent=${agentProfile?.agent_id}`, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Fast Track Admission Form
+                    </Button>
                     <Button className="w-full justify-start" variant="outline" onClick={() => setActiveTab('documents')}>
                       <Upload className="h-4 w-4 mr-2" />
                       Upload Documents
