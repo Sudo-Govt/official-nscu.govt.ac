@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap
 } from 'lucide-react';
 import AlumniManagement from '@/components/admin/AlumniManagement';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
@@ -118,6 +118,7 @@ const SuperAdminDashboard = () => {
         { title: 'Email', icon: Mail, value: 'email', onClick: () => setActiveTab('email') },
         { title: 'Jobs', icon: Briefcase, value: 'jobs', onClick: () => setActiveTab('jobs') },
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
+        { title: 'Fast Track Admission', icon: Zap, value: 'fast-track', onClick: () => window.open('/apply/fast-track', '_blank') },
         { title: 'Forms', icon: ClipboardList, value: 'forms', onClick: () => setActiveTab('forms') },
         { title: 'Documents', icon: FolderOpen, value: 'documents', onClick: () => setActiveTab('documents') },
         { title: 'Messaging', icon: MessageSquare, value: 'messaging', onClick: () => setActiveTab('messaging') },
