@@ -57,6 +57,8 @@ import CampusTours from "./pages/admissions/CampusTours";
 import AdmissionApplication from "./pages/AdmissionApplication";
 import PublicAdmissionForm from "./pages/PublicAdmissionForm";
 import MultiStageApplicationForm from "./pages/MultiStageApplicationForm";
+import FastTrackAdmission from "./pages/FastTrackAdmission";
+import FastTrackSuccess from "./pages/FastTrackSuccess";
 
 // Student Life pages
 import Housing from "./pages/student-life/Housing";
@@ -259,6 +261,8 @@ const App = () => (
           <Route path="/admissions/apply" element={<AdmissionApplication />} />
           <Route path="/apply" element={<PublicAdmissionForm />} />
           <Route path="/apply/full" element={<MultiStageApplicationForm />} />
+          <Route path="/apply/fast-track" element={<FastTrackAdmission />} />
+          <Route path="/fast-track-success" element={<FastTrackSuccess />} />
           
           {/* Student Life Routes */}
           <Route path="/student-life/housing" element={<Housing />} />
