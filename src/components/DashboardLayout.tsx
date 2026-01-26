@@ -18,7 +18,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { ChatPanel } from './intranet/ChatPanel';
+import { ChatComingSoon } from './intranet/ChatComingSoon';
 
 interface MenuItem {
   title: string;
@@ -154,7 +154,7 @@ export default function DashboardLayout({
             {children}
           </main>
         </div>
-        <ChatPanel />
+        <ChatComingSoon />
       </div>
     </SidebarProvider>
   );

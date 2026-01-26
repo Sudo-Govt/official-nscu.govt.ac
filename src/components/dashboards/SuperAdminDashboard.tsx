@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import AlumniManagement from '@/components/admin/AlumniManagement';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
+import RoleBasedUserManagement from '@/components/admin/RoleBasedUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 import AuditLogsModule from '@/components/transparency/AuditLogsModule';
 import CourseManagement from '@/components/admin/CourseManagement';
@@ -181,10 +182,10 @@ const SuperAdminDashboard = () => {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">System Health</CardTitle>
-                  <Activity className="h-4 w-4 text-green-500" />
+                  <Activity className="h-4 w-4 text-primary" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-500">{stats.systemHealth}</div>
+                  <div className="text-2xl font-bold text-primary">{stats.systemHealth}</div>
                   <p className="text-xs text-muted-foreground">All systems operational</p>
                 </CardContent>
               </Card>
@@ -272,7 +273,7 @@ const SuperAdminDashboard = () => {
         return <SiteEditor />;
 
       case 'users':
-        return <SuperAdminUserManagement />;
+        return <RoleBasedUserManagement />;
 
       case 'content':
         return <CourseManagement />;
