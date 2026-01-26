@@ -133,7 +133,7 @@ const StudentDataManagement = () => {
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('id, student_id, user_id, email, program, year_of_study')
+        .select('id, student_id, user_id, name, program, enrollment_year')
         .order('student_id');
       
       if (error) throw error;
@@ -141,10 +141,10 @@ const StudentDataManagement = () => {
         id: s.id,
         student_id: s.student_id,
         user_id: s.user_id,
-        full_name: s.student_id,
-        email: s.email,
+        full_name: s.name || s.student_id,
+        email: '', // email not stored in students table
         program: s.program,
-        year_of_study: s.year_of_study
+        year_of_study: s.enrollment_year
       }));
       setStudents(mapped);
     } catch (error) {
