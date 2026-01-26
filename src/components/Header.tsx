@@ -272,7 +272,6 @@ const Header = () => {
             <div className="flex space-x-6">
               <Link to="/student-life/organizations" className="hover:text-accent transition-colors">Students</Link>
               <Link to="/about/leadership" className="hover:text-accent transition-colors">Faculty</Link>
-              <Link to="/alumni/association" className="hover:text-accent transition-colors">Alumni</Link>
             </div>
             <div className="flex items-center space-x-4">
               <a href="https://www.gchea.org/verification" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">Verification</a>
