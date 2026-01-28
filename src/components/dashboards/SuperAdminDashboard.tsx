@@ -10,6 +10,7 @@ import {
   LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap
 } from 'lucide-react';
 import AlumniManagement from '@/components/admin/AlumniManagement';
+import AlumniDataManagement from '@/components/admin/AlumniDataManagement';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
 import RoleBasedUserManagement from '@/components/admin/RoleBasedUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
@@ -116,6 +117,7 @@ const SuperAdminDashboard = () => {
       items: [
         { title: 'Student Management', icon: UserCog, value: 'student-management', onClick: () => setActiveTab('student-management') },
         { title: 'Alumni Management', icon: Heart, value: 'alumni-management', onClick: () => setActiveTab('alumni-management') },
+        { title: 'Alumni Data', icon: UserCog, value: 'alumni-data', onClick: () => setActiveTab('alumni-data') },
         { title: 'Email', icon: Mail, value: 'email', onClick: () => setActiveTab('email') },
         { title: 'Jobs', icon: Briefcase, value: 'jobs', onClick: () => setActiveTab('jobs') },
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
@@ -283,6 +285,9 @@ const SuperAdminDashboard = () => {
 
       case 'alumni-management':
         return <AlumniManagement />;
+
+      case 'alumni-data':
+        return <AlumniDataManagement />;
 
       case 'agent-resources':
         return <ResourcesManager resourceType="agent" />;

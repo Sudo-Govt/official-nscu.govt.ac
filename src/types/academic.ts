@@ -26,23 +26,31 @@ export interface Department {
 
 export interface AcademicCourse {
   id: string;
-  department_id: string;
+  department_id?: string | null;
   name: string;
   course_code: string;
-  slug: string;
+  slug?: string | null;
   duration_months: number;
   total_credits: number;
-  start_date?: string;
-  end_date?: string;
-  short_description?: string;
-  long_description?: string;
-  thumbnail_image_url?: string;
+  start_date?: string | null;
+  end_date?: string | null;
+  short_description?: string | null;
+  long_description?: string | null;
+  thumbnail_image_url?: string | null;
   is_active: boolean;
   is_visible_on_website: boolean;
-  enrollment_status: 'open' | 'closed' | 'coming_soon';
+  enrollment_status?: 'open' | 'closed' | 'coming_soon' | string | null;
   created_at: string;
   updated_at: string;
-  department?: Department;
+  // New consolidated columns
+  fee_structure?: Record<string, unknown> | null;
+  college?: string | null;
+  department?: string | Department | null;
+  degree_type?: string | null;
+  featured?: boolean;
+  seat_capacity?: number;
+  available_seats?: number;
+  eligibility_criteria?: string | null;
 }
 
 export interface Subject {

@@ -19,12 +19,13 @@ export const useCourseNavigation = (): CourseNavigationData => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        // Query from academic_courses (consolidated source of truth)
         const { data, error } = await supabase
-          .from('courses')
-          .select('course_name, degree_type, slug')
+          .from('academic_courses')
+          .select('name, degree_type, slug')
           .eq('is_active', true)
           .eq('featured', true)
-          .order('course_name')
+          .order('name')
           .limit(8);
 
         if (error) throw error;
@@ -32,9 +33,9 @@ export const useCourseNavigation = (): CourseNavigationData => {
         const courses = (data || [])
           .filter(course => course.slug)
           .map(course => ({
-            title: `${course.degree_type} in ${course.course_name}`,
+            title: `${course.degree_type || 'Degree'} in ${course.name}`,
             href: `/programs/${course.slug}`,
-            degree_type: course.degree_type
+            degree_type: course.degree_type || 'Degree'
           }));
 
         setFeaturedCourses(courses);
