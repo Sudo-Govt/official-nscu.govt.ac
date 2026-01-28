@@ -37,9 +37,9 @@ const FeaturedPrograms = () => {
   useEffect(() => {
     const fetchFeaturedCourses = async () => {
       try {
-        // First try to get featured courses, then fall back to any active courses
+        // Query from academic_courses (consolidated source of truth)
         let { data, error } = await supabase
-          .from('courses')
+          .from('academic_courses')
           .select('*')
           .eq('is_active', true)
           .eq('featured', true)
@@ -48,12 +48,13 @@ const FeaturedPrograms = () => {
 
         if (error) throw error;
 
-        // If no featured courses, get any active courses
+        // If no featured courses, get any active courses visible on website
         if (!data || data.length === 0) {
           const result = await supabase
-            .from('courses')
+            .from('academic_courses')
             .select('*')
             .eq('is_active', true)
+            .eq('is_visible_on_website', true)
             .limit(6)
             .order('created_at', { ascending: false });
           
@@ -61,7 +62,22 @@ const FeaturedPrograms = () => {
           data = result.data;
         }
 
-        setCourses(data || []);
+        // Map to expected Course interface
+        const mappedCourses: Course[] = (data || []).map((c: any) => ({
+          id: c.id,
+          course_name: c.name,
+          course_code: c.course_code,
+          college: c.college || 'Academic Programs',
+          degree_type: c.degree_type || 'Degree',
+          duration_years: Math.ceil(c.duration_months / 12),
+          available_seats: c.available_seats,
+          seat_capacity: c.seat_capacity,
+          eligibility_criteria: c.eligibility_criteria || c.short_description,
+          slug: c.slug,
+          featured: c.featured
+        }));
+
+        setCourses(mappedCourses);
       } catch (error) {
         console.error('Error fetching courses:', error);
       } finally {

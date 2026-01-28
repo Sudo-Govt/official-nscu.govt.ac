@@ -2,36 +2,43 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Briefcase, MapPin, Clock, DollarSign, Plus, ExternalLink, Users } from 'lucide-react';
+import { Briefcase, MapPin, Clock, ExternalLink, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+
+interface Job {
+  id: string;
+  title: string;
+  company: string;
+  description: string | null;
+  job_type: string | null;
+  location: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  salary_range?: string | null;
+  remote_ok?: boolean;
+  application_url?: string | null;
+  application_email?: string | null;
+  created_at: string;
+  profiles?: { full_name: string } | null;
+}
+
+interface Mentorship {
+  id: string;
+  mentor_id: string;
+  mentee_id: string | null;
+  program_name: string;
+  description: string | null;
+  status: string | null;
+  mentor?: { full_name: string } | null;
+  mentee?: { full_name: string } | null;
+}
 
 const AlumniCareer = () => {
   const { user } = useAuth();
-  const [jobs, setJobs] = useState([]);
-  const [mentorships, setMentorships] = useState([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [mentorships, setMentorships] = useState<Mentorship[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isPostingJob, setIsPostingJob] = useState(false);
-
-  const [jobForm, setJobForm] = useState({
-    title: '',
-    company: '',
-    description: '',
-    requirements: '',
-    job_type: '',
-    location: '',
-    remote_ok: false,
-    salary_min: '',
-    salary_max: '',
-    application_url: '',
-    application_email: ''
-  });
 
   useEffect(() => {
     fetchJobs();
@@ -42,10 +49,7 @@ const AlumniCareer = () => {
     try {
       const { data, error } = await supabase
         .from('alumni_jobs')
-        .select(`
-          *,
-          profiles:posted_by (full_name)
-        `)
+        .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -54,7 +58,13 @@ const AlumniCareer = () => {
         return;
       }
 
-      setJobs(data || []);
+      // Map to proper type
+      const mappedJobs: Job[] = (data || []).map(job => ({
+        ...job,
+        profiles: null
+      }));
+
+      setJobs(mappedJobs);
     } catch (error) {
       console.error('Error fetching jobs:', error);
     } finally {
@@ -68,11 +78,7 @@ const AlumniCareer = () => {
     try {
       const { data, error } = await supabase
         .from('alumni_mentorship')
-        .select(`
-          *,
-          mentor:mentor_id (full_name),
-          mentee:mentee_id (full_name)
-        `)
+        .select('*')
         .or(`mentor_id.eq.${user.user_id},mentee_id.eq.${user.user_id}`)
         .order('created_at', { ascending: false });
 
@@ -81,54 +87,25 @@ const AlumniCareer = () => {
         return;
       }
 
-      setMentorships(data || []);
+      // Map to proper type
+      const mappedMentorships: Mentorship[] = (data || []).map(m => ({
+        ...m,
+        mentor: null,
+        mentee: null
+      }));
+
+      setMentorships(mappedMentorships);
     } catch (error) {
       console.error('Error fetching mentorships:', error);
     }
   };
 
-  const handlePostJob = async () => {
-    if (!user?.user_id) return;
-
-    try {
-      const { error } = await supabase
-        .from('alumni_jobs')
-        .insert([{
-          ...jobForm,
-          posted_by: user.user_id,
-          salary_min: jobForm.salary_min ? parseInt(jobForm.salary_min) : null,
-          salary_max: jobForm.salary_max ? parseInt(jobForm.salary_max) : null
-        }]);
-
-      if (error) throw error;
-
-      toast.success('Job posted successfully!');
-      setIsPostingJob(false);
-      setJobForm({
-        title: '',
-        company: '',
-        description: '',
-        requirements: '',
-        job_type: '',
-        location: '',
-        remote_ok: false,
-        salary_min: '',
-        salary_max: '',
-        application_url: '',
-        application_email: ''
-      });
-      fetchJobs();
-    } catch (error) {
-      console.error('Error posting job:', error);
-      toast.error('Failed to post job');
-    }
-  };
-
-  const formatSalary = (min, max, currency = 'USD') => {
+  const formatSalary = (min: number | null | undefined, max: number | null | undefined) => {
     if (!min && !max) return null;
     if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
     if (min) return `$${min.toLocaleString()}+`;
     if (max) return `Up to $${max.toLocaleString()}`;
+    return null;
   };
 
   if (loading) {
@@ -141,159 +118,12 @@ const AlumniCareer = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Post Job Button */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Career Center</h2>
-          <p className="text-muted-foreground">Job opportunities and career development</p>
+          <p className="text-muted-foreground">Browse job opportunities posted by the university and alumni network</p>
         </div>
-        <Dialog open={isPostingJob} onOpenChange={setIsPostingJob}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Post a Job
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Post a Job Opportunity</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="job-title">Job Title</Label>
-                  <Input
-                    id="job-title"
-                    value={jobForm.title}
-                    onChange={(e) => setJobForm({...jobForm, title: e.target.value})}
-                    placeholder="Senior Software Engineer"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="company">Company</Label>
-                  <Input
-                    id="company"
-                    value={jobForm.company}
-                    onChange={(e) => setJobForm({...jobForm, company: e.target.value})}
-                    placeholder="Tech Corp Inc."
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="description">Job Description</Label>
-                <Textarea
-                  id="description"
-                  value={jobForm.description}
-                  onChange={(e) => setJobForm({...jobForm, description: e.target.value})}
-                  placeholder="Describe the role, responsibilities, and what makes this opportunity great..."
-                  rows={4}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="requirements">Requirements</Label>
-                <Textarea
-                  id="requirements"
-                  value={jobForm.requirements}
-                  onChange={(e) => setJobForm({...jobForm, requirements: e.target.value})}
-                  placeholder="List the required skills, experience, and qualifications..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Job Type</Label>
-                  <Select value={jobForm.job_type} onValueChange={(value) => setJobForm({...jobForm, job_type: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select job type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full-time">Full-time</SelectItem>
-                      <SelectItem value="part-time">Part-time</SelectItem>
-                      <SelectItem value="contract">Contract</SelectItem>
-                      <SelectItem value="internship">Internship</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={jobForm.location}
-                    onChange={(e) => setJobForm({...jobForm, location: e.target.value})}
-                    placeholder="New York, NY"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="salary-min">Salary Min ($)</Label>
-                  <Input
-                    id="salary-min"
-                    type="number"
-                    value={jobForm.salary_min}
-                    onChange={(e) => setJobForm({...jobForm, salary_min: e.target.value})}
-                    placeholder="80000"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="salary-max">Salary Max ($)</Label>
-                  <Input
-                    id="salary-max"
-                    type="number"
-                    value={jobForm.salary_max}
-                    onChange={(e) => setJobForm({...jobForm, salary_max: e.target.value})}
-                    placeholder="120000"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="application-url">Application URL</Label>
-                  <Input
-                    id="application-url"
-                    value={jobForm.application_url}
-                    onChange={(e) => setJobForm({...jobForm, application_url: e.target.value})}
-                    placeholder="https://company.com/careers/job-id"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="application-email">Application Email</Label>
-                  <Input
-                    id="application-email"
-                    type="email"
-                    value={jobForm.application_email}
-                    onChange={(e) => setJobForm({...jobForm, application_email: e.target.value})}
-                    placeholder="jobs@company.com"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remote-ok"
-                  checked={jobForm.remote_ok}
-                  onChange={(e) => setJobForm({...jobForm, remote_ok: e.target.checked})}
-                />
-                <Label htmlFor="remote-ok">Remote work available</Label>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsPostingJob(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handlePostJob}>
-                  Post Job
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       {/* Job Listings */}
@@ -309,36 +139,44 @@ const AlumniCareer = () => {
                       <p className="text-lg text-muted-foreground">{job.company}</p>
                     </div>
                     <div className="text-right">
-                      <Badge variant="secondary" className="mb-2">
-                        {job.job_type}
-                      </Badge>
-                      {formatSalary(job.salary_min, job.salary_max) && (
-                        <p className="text-sm font-medium text-green-600">
-                          {formatSalary(job.salary_min, job.salary_max)}
+                      {job.job_type && (
+                        <Badge variant="secondary" className="mb-2">
+                          {job.job_type}
+                        </Badge>
+                      )}
+                      {(formatSalary(job.salary_min, job.salary_max) || job.salary_range) && (
+                        <p className="text-sm font-medium text-primary">
+                          {formatSalary(job.salary_min, job.salary_max) || job.salary_range}
                         </p>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
-                    <span className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {job.location}
-                      {job.remote_ok && " (Remote OK)"}
-                    </span>
+                    {job.location && (
+                      <span className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {job.location}
+                        {job.remote_ok && " (Remote OK)"}
+                      </span>
+                    )}
                     <span className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
                       {new Date(job.created_at).toLocaleDateString()}
                     </span>
-                    <span className="flex items-center">
-                      <Users className="h-4 w-4 mr-1" />
-                      Posted by {job.profiles?.full_name}
-                    </span>
+                    {job.profiles?.full_name && (
+                      <span className="flex items-center">
+                        <Users className="h-4 w-4 mr-1" />
+                        Posted by {job.profiles.full_name}
+                      </span>
+                    )}
                   </div>
 
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                    {job.description}
-                  </p>
+                  {job.description && (
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                      {job.description}
+                    </p>
+                  )}
 
                   <div className="flex space-x-2">
                     {job.application_url && (
@@ -372,13 +210,9 @@ const AlumniCareer = () => {
           <CardContent className="text-center py-12">
             <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Jobs Available</h3>
-            <p className="text-muted-foreground mb-4">
-              Be the first to post a job opportunity for fellow alumni!
+            <p className="text-muted-foreground">
+              Check back later for new job opportunities from the alumni network.
             </p>
-            <Button onClick={() => setIsPostingJob(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Post a Job
-            </Button>
           </CardContent>
         </Card>
       )}
@@ -396,22 +230,22 @@ const AlumniCareer = () => {
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold">
                       {mentorship.mentor_id === user?.user_id 
-                        ? `Mentoring ${mentorship.mentee?.full_name}`
-                        : `Mentored by ${mentorship.mentor?.full_name}`
+                        ? `Mentoring ${mentorship.mentee?.full_name || 'Student'}`
+                        : `Mentored by ${mentorship.mentor?.full_name || 'Mentor'}`
                       }
                     </h4>
                     <Badge variant={
                       mentorship.status === 'active' ? 'default' : 
                       mentorship.status === 'pending' ? 'secondary' : 'outline'
                     }>
-                      {mentorship.status}
+                      {mentorship.status || 'Available'}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">
-                    {mentorship.program_type} mentorship
+                    {mentorship.program_name}
                   </p>
-                  {mentorship.goals && (
-                    <p className="text-sm">{mentorship.goals}</p>
+                  {mentorship.description && (
+                    <p className="text-sm">{mentorship.description}</p>
                   )}
                 </div>
               ))}

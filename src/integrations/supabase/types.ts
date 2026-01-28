@@ -50,18 +50,26 @@ export type Database = {
       academic_courses: {
         Row: {
           ai_generated_content: Json | null
+          available_seats: number | null
+          college: string | null
           content_generated_at: string | null
           course_code: string
           created_at: string | null
+          degree_type: string | null
+          department: string | null
           department_id: string | null
           duration_months: number
+          eligibility_criteria: string | null
           end_date: string | null
           enrollment_status: string | null
+          featured: boolean | null
+          fee_structure: Json | null
           id: string
           is_active: boolean | null
           is_visible_on_website: boolean | null
           long_description: string | null
           name: string
+          seat_capacity: number | null
           short_description: string | null
           slug: string | null
           start_date: string | null
@@ -71,18 +79,26 @@ export type Database = {
         }
         Insert: {
           ai_generated_content?: Json | null
+          available_seats?: number | null
+          college?: string | null
           content_generated_at?: string | null
           course_code: string
           created_at?: string | null
+          degree_type?: string | null
+          department?: string | null
           department_id?: string | null
           duration_months?: number
+          eligibility_criteria?: string | null
           end_date?: string | null
           enrollment_status?: string | null
+          featured?: boolean | null
+          fee_structure?: Json | null
           id?: string
           is_active?: boolean | null
           is_visible_on_website?: boolean | null
           long_description?: string | null
           name: string
+          seat_capacity?: number | null
           short_description?: string | null
           slug?: string | null
           start_date?: string | null
@@ -92,18 +108,26 @@ export type Database = {
         }
         Update: {
           ai_generated_content?: Json | null
+          available_seats?: number | null
+          college?: string | null
           content_generated_at?: string | null
           course_code?: string
           created_at?: string | null
+          degree_type?: string | null
+          department?: string | null
           department_id?: string | null
           duration_months?: number
+          eligibility_criteria?: string | null
           end_date?: string | null
           enrollment_status?: string | null
+          featured?: boolean | null
+          fee_structure?: Json | null
           id?: string
           is_active?: boolean | null
           is_visible_on_website?: boolean | null
           long_description?: string | null
           name?: string
+          seat_capacity?: number | null
           short_description?: string | null
           slug?: string | null
           start_date?: string | null
@@ -832,6 +856,45 @@ export type Database = {
         }
         Relationships: []
       }
+      alumni_dashboard_data: {
+        Row: {
+          achievements: Json | null
+          assigned_resources: string[] | null
+          career_history: Json | null
+          created_at: string | null
+          custom_data: Json | null
+          graduation_info: Json | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          visible_sections: string[] | null
+        }
+        Insert: {
+          achievements?: Json | null
+          assigned_resources?: string[] | null
+          career_history?: Json | null
+          created_at?: string | null
+          custom_data?: Json | null
+          graduation_info?: Json | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          visible_sections?: string[] | null
+        }
+        Update: {
+          achievements?: Json | null
+          assigned_resources?: string[] | null
+          career_history?: Json | null
+          created_at?: string | null
+          custom_data?: Json | null
+          graduation_info?: Json | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          visible_sections?: string[] | null
+        }
+        Relationships: []
+      }
       alumni_document_requests: {
         Row: {
           completed_at: string | null
@@ -885,6 +948,60 @@ export type Database = {
           requester_id?: string | null
           status?: string | null
           urgent?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      alumni_downloadable_resources: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          download_count: number | null
+          expires_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_active: boolean | null
+          last_downloaded_at: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          download_count?: number | null
+          expires_at?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_downloaded_at?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          download_count?: number | null
+          expires_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_downloaded_at?: string | null
+          title?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -3019,51 +3136,76 @@ export type Database = {
       }
       student_dashboard_data: {
         Row: {
+          assigned_library_books: string[] | null
           assignments: Json | null
           courses: Json | null
           created_at: string
+          custom_resources: string[] | null
           degree_progress: Json | null
+          enrolled_course_id: string | null
+          enrolled_subjects: string[] | null
           financial_data: Json | null
           gpa_data: Json | null
           grades: Json | null
           id: string
           library_resources: Json | null
+          progress_graph_data: Json | null
           quick_actions_config: Json | null
           schedule: Json | null
           student_id: string
           updated_at: string
+          visible_sections: string[] | null
         }
         Insert: {
+          assigned_library_books?: string[] | null
           assignments?: Json | null
           courses?: Json | null
           created_at?: string
+          custom_resources?: string[] | null
           degree_progress?: Json | null
+          enrolled_course_id?: string | null
+          enrolled_subjects?: string[] | null
           financial_data?: Json | null
           gpa_data?: Json | null
           grades?: Json | null
           id?: string
           library_resources?: Json | null
+          progress_graph_data?: Json | null
           quick_actions_config?: Json | null
           schedule?: Json | null
           student_id: string
           updated_at?: string
+          visible_sections?: string[] | null
         }
         Update: {
+          assigned_library_books?: string[] | null
           assignments?: Json | null
           courses?: Json | null
           created_at?: string
+          custom_resources?: string[] | null
           degree_progress?: Json | null
+          enrolled_course_id?: string | null
+          enrolled_subjects?: string[] | null
           financial_data?: Json | null
           gpa_data?: Json | null
           grades?: Json | null
           id?: string
           library_resources?: Json | null
+          progress_graph_data?: Json | null
           quick_actions_config?: Json | null
           schedule?: Json | null
           student_id?: string
           updated_at?: string
+          visible_sections?: string[] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "student_dashboard_data_enrolled_course_id_fkey"
+            columns: ["enrolled_course_id"]
+            isOneToOne: false
+            referencedRelation: "academic_courses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "student_dashboard_data_student_id_fkey"
             columns: ["student_id"]

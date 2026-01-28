@@ -138,7 +138,7 @@ export function useAcademicCourses() {
     try {
       const { data: result, error } = await supabase.from('academic_courses').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-      setData(result as AcademicCourse[] || []);
+      setData((result as unknown as AcademicCourse[]) || []);
     } catch {
       toast({ title: 'Error', description: 'Failed to fetch', variant: 'destructive' });
     } finally {
@@ -166,17 +166,17 @@ export function useAcademicCourses() {
   const create = useCallback(async (item: Record<string, unknown>) => {
     const { data: result, error } = await supabase.from('academic_courses').insert([item as any]).select().single();
     if (error) throw error;
-    setData(prev => [result as AcademicCourse, ...prev]);
+    setData(prev => [(result as unknown as AcademicCourse), ...prev]);
     toast({ title: 'Success', description: 'Created successfully' });
-    return result as AcademicCourse;
+    return result as unknown as AcademicCourse;
   }, [toast]);
 
   const update = useCallback(async (id: string, updates: Record<string, unknown>) => {
     const { data: result, error } = await supabase.from('academic_courses').update(updates).eq('id', id).select().single();
     if (error) throw error;
-    setData(prev => prev.map(item => item.id === id ? result as AcademicCourse : item));
+    setData(prev => prev.map(item => item.id === id ? (result as unknown as AcademicCourse) : item));
     toast({ title: 'Success', description: 'Updated successfully' });
-    return result as AcademicCourse;
+    return result as unknown as AcademicCourse;
   }, [toast]);
 
   const remove = useCallback(async (id: string) => {

@@ -139,16 +139,20 @@ const FastTrackAdmission = () => {
   const fetchCourses = async () => {
     setIsLoading(true);
     try {
+      // Query from academic_courses (consolidated source of truth)
       const { data, error } = await supabase
-        .from('courses')
-        .select('id, course_name, degree_type, duration_years, fee_structure')
+        .from('academic_courses')
+        .select('id, name, degree_type, duration_months, fee_structure')
         .eq('is_active', true)
-        .order('course_name');
+        .order('name');
 
       if (error) throw error;
-      // Cast the fee_structure to our expected type
+      // Map to expected Course interface
       const typedCourses: Course[] = (data || []).map(c => ({
-        ...c,
+        id: c.id,
+        course_name: c.name,
+        degree_type: c.degree_type || 'Degree',
+        duration_years: Math.ceil(c.duration_months / 12),
         fee_structure: c.fee_structure as FeeStructure | null,
       }));
       setCourses(typedCourses);

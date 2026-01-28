@@ -54,7 +54,7 @@ export function AcademicCourseManagement() {
     long_description: '',
     is_active: true,
     is_visible_on_website: true,
-    enrollment_status: 'open' as 'open' | 'closed' | 'coming_soon',
+    enrollment_status: 'open' as string,
   });
 
   useEffect(() => {
