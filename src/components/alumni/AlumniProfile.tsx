@@ -15,10 +15,10 @@ import { toast } from 'sonner';
 
 const AlumniProfile = () => {
   const { user } = useAuth();
-  const [isEditing, setIsEditing] = useState(false);
   const [alumniProfile, setAlumniProfile] = useState(null);
   const [credentials, setCredentials] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Editing is disabled for alumni - only admin can edit via AlumniDataManagement
 
   const [formData, setFormData] = useState({
     graduation_year: 0,
@@ -108,39 +108,7 @@ const AlumniProfile = () => {
     }
   };
 
-  const handleSaveProfile = async () => {
-    if (!user?.user_id) return;
-
-    try {
-      const profileData = {
-        user_id: user.user_id,
-        ...formData
-      };
-
-      let result;
-      if (alumniProfile) {
-        result = await supabase
-          .from('alumni_profiles')
-          .update(profileData)
-          .eq('user_id', user.user_id);
-      } else {
-        result = await supabase
-          .from('alumni_profiles')
-          .insert([profileData]);
-      }
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      toast.success('Profile updated successfully!');
-      setIsEditing(false);
-      fetchAlumniProfile();
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      toast.error('Failed to update profile');
-    }
-  };
+  // Profile editing is now admin-only - handled via AlumniDataManagement
 
   const generateDigitalID = () => {
     const idData = {
@@ -196,19 +164,6 @@ const AlumniProfile = () => {
                 <QrCode className="h-4 w-4 mr-2" />
                 Digital ID
               </Button>
-              <Button
-                onClick={() => setIsEditing(!isEditing)}
-                variant={isEditing ? "destructive" : "default"}
-              >
-                {isEditing ? <X className="h-4 w-4 mr-2" /> : <Edit2 className="h-4 w-4 mr-2" />}
-                {isEditing ? 'Cancel' : 'Edit Profile'}
-              </Button>
-              {isEditing && (
-                <Button onClick={handleSaveProfile}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save
-                </Button>
-              )}
             </div>
           </div>
         </CardHeader>
@@ -223,196 +178,66 @@ const AlumniProfile = () => {
 
         <TabsContent value="profile" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Personal Information */}
+        {/* Personal Information - View Only */}
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
+            <p className="text-sm text-muted-foreground">Contact your administrator to update this information</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isEditing ? (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="graduation_year">Graduation Year</Label>
-                    <Input
-                      id="graduation_year"
-                      type="number"
-                      value={formData.graduation_year}
-                      onChange={(e) => setFormData({...formData, graduation_year: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="degree_type">Degree Type</Label>
-                    <Input
-                      id="degree_type"
-                      value={formData.degree_type}
-                      onChange={(e) => setFormData({...formData, degree_type: e.target.value})}
-                      placeholder="Bachelor's, Master's, PhD"
-                    />
-                  </div>
-                </div>
+            <div className="space-y-2">
+              <p><strong>Graduation:</strong> {alumniProfile?.graduation_year}</p>
+              <p><strong>Degree:</strong> {alumniProfile?.degree_type} in {alumniProfile?.program}</p>
+              <p><strong>College:</strong> {alumniProfile?.college}</p>
+              <p><strong>Major:</strong> {alumniProfile?.major}</p>
+              {alumniProfile?.minor && <p><strong>Minor:</strong> {alumniProfile.minor}</p>}
+              {alumniProfile?.bio && (
                 <div>
-                  <Label htmlFor="program">Program</Label>
-                  <Input
-                    id="program"
-                    value={formData.program}
-                    onChange={(e) => setFormData({...formData, program: e.target.value})}
-                    placeholder="Computer Science, Business Administration"
-                  />
+                  <strong>Bio:</strong>
+                  <p className="mt-1 text-sm text-muted-foreground">{alumniProfile.bio}</p>
                 </div>
-                <div>
-                  <Label htmlFor="college">College/School</Label>
-                  <Input
-                    id="college"
-                    value={formData.college}
-                    onChange={(e) => setFormData({...formData, college: e.target.value})}
-                    placeholder="College of Engineering, School of Business"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="major">Major</Label>
-                    <Input
-                      id="major"
-                      value={formData.major}
-                      onChange={(e) => setFormData({...formData, major: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="minor">Minor</Label>
-                    <Input
-                      id="minor"
-                      value={formData.minor}
-                      onChange={(e) => setFormData({...formData, minor: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    id="bio"
-                    value={formData.bio}
-                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                    placeholder="Tell us about yourself..."
-                    rows={3}
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  <p><strong>Graduation:</strong> {alumniProfile?.graduation_year}</p>
-                  <p><strong>Degree:</strong> {alumniProfile?.degree_type} in {alumniProfile?.program}</p>
-                  <p><strong>College:</strong> {alumniProfile?.college}</p>
-                  <p><strong>Major:</strong> {alumniProfile?.major}</p>
-                  {alumniProfile?.minor && <p><strong>Minor:</strong> {alumniProfile.minor}</p>}
-                  {alumniProfile?.bio && (
-                    <div>
-                      <strong>Bio:</strong>
-                      <p className="mt-1 text-sm text-muted-foreground">{alumniProfile.bio}</p>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        {/* Professional Information */}
+        {/* Professional Information - View Only */}
         <Card>
           <CardHeader>
             <CardTitle>Professional Information</CardTitle>
+            <p className="text-sm text-muted-foreground">Contact your administrator to update this information</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isEditing ? (
-              <>
-                <div>
-                  <Label htmlFor="current_company">Current Company</Label>
-                  <Input
-                    id="current_company"
-                    value={formData.current_company}
-                    onChange={(e) => setFormData({...formData, current_company: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="current_position">Current Position</Label>
-                  <Input
-                    id="current_position"
-                    value={formData.current_position}
-                    onChange={(e) => setFormData({...formData, current_position: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="industry">Industry</Label>
-                  <Input
-                    id="industry"
-                    value={formData.industry}
-                    onChange={(e) => setFormData({...formData, industry: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="linkedin_url">LinkedIn URL</Label>
-                  <Input
-                    id="linkedin_url"
-                    value={formData.linkedin_url}
-                    onChange={(e) => setFormData({...formData, linkedin_url: e.target.value})}
-                    placeholder="https://linkedin.com/in/yourprofile"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="personal_website">Personal Website</Label>
-                  <Input
-                    id="personal_website"
-                    value={formData.personal_website}
-                    onChange={(e) => setFormData({...formData, personal_website: e.target.value})}
-                    placeholder="https://yourwebsite.com"
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="space-y-2">
-                  {alumniProfile?.current_company && (
-                    <p><strong>Company:</strong> {alumniProfile.current_company}</p>
-                  )}
-                  {alumniProfile?.current_position && (
-                    <p><strong>Position:</strong> {alumniProfile.current_position}</p>
-                  )}
-                  {alumniProfile?.industry && (
-                    <p><strong>Industry:</strong> {alumniProfile.industry}</p>
-                  )}
-                  {alumniProfile?.location && (
-                    <p><strong>Location:</strong> {alumniProfile.location}</p>
-                  )}
-                  <div className="flex space-x-2 mt-4">
-                    {alumniProfile?.linkedin_url && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={alumniProfile.linkedin_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          LinkedIn
-                        </a>
-                      </Button>
-                    )}
-                    {alumniProfile?.personal_website && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={alumniProfile.personal_website} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Website
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
+            <div className="space-y-2">
+              {alumniProfile?.current_company && (
+                <p><strong>Company:</strong> {alumniProfile.current_company}</p>
+              )}
+              {alumniProfile?.current_position && (
+                <p><strong>Position:</strong> {alumniProfile.current_position}</p>
+              )}
+              {alumniProfile?.industry && (
+                <p><strong>Industry:</strong> {alumniProfile.industry}</p>
+              )}
+              {alumniProfile?.location && (
+                <p><strong>Location:</strong> {alumniProfile.location}</p>
+              )}
+              <div className="flex space-x-2 mt-4">
+                <Button variant="outline" size="sm" asChild>
+                  <a href="https://linkedin.com/company/nscu-us" target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    LinkedIn
+                  </a>
+                </Button>
+                {alumniProfile?.personal_website && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={alumniProfile.personal_website} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Website
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

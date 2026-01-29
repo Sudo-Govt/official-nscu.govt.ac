@@ -1935,6 +1935,54 @@ export type Database = {
           },
         ]
       }
+      dummy_alumni: {
+        Row: {
+          bio: string | null
+          college: string | null
+          created_at: string | null
+          current_company: string | null
+          current_position: string | null
+          degree_type: string | null
+          full_name: string
+          graduation_year: number | null
+          id: string
+          is_mentor_available: boolean | null
+          location: string | null
+          major: string | null
+          program: string | null
+        }
+        Insert: {
+          bio?: string | null
+          college?: string | null
+          created_at?: string | null
+          current_company?: string | null
+          current_position?: string | null
+          degree_type?: string | null
+          full_name: string
+          graduation_year?: number | null
+          id?: string
+          is_mentor_available?: boolean | null
+          location?: string | null
+          major?: string | null
+          program?: string | null
+        }
+        Update: {
+          bio?: string | null
+          college?: string | null
+          created_at?: string | null
+          current_company?: string | null
+          current_position?: string | null
+          degree_type?: string | null
+          full_name?: string
+          graduation_year?: number | null
+          id?: string
+          is_mentor_available?: boolean | null
+          location?: string | null
+          major?: string | null
+          program?: string | null
+        }
+        Relationships: []
+      }
       email_accounts: {
         Row: {
           cpanel_account_created: boolean | null
