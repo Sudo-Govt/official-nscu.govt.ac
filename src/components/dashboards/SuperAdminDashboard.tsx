@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar
 } from 'lucide-react';
 import AlumniManagement from '@/components/admin/AlumniManagement';
 import AlumniDataManagement from '@/components/admin/AlumniDataManagement';
@@ -24,6 +24,8 @@ import FormsManagement from '@/components/admin/FormsManagement';
 import AdminDocumentManagement from '@/components/admin/AdminDocumentManagement';
 import AdminMessagingSystem from '@/components/admin/AdminMessagingSystem';
 import JobManagement from '@/components/admin/JobManagement';
+import EventsManagement from '@/components/admin/EventsManagement';
+import StudyMaterialsManager from '@/components/admin/StudyMaterialsManager';
 import { InternalMessagingApp } from '@/components/messaging';
 import StudentDataManagement from '@/components/admin/StudentDataManagement';
 import { useToast } from '@/hooks/use-toast';
@@ -118,6 +120,8 @@ const SuperAdminDashboard = () => {
         { title: 'Student Management', icon: UserCog, value: 'student-management', onClick: () => setActiveTab('student-management') },
         { title: 'Alumni Management', icon: Heart, value: 'alumni-management', onClick: () => setActiveTab('alumni-management') },
         { title: 'Alumni Data', icon: UserCog, value: 'alumni-data', onClick: () => setActiveTab('alumni-data') },
+        { title: 'Events', icon: Calendar, value: 'events', onClick: () => setActiveTab('events') },
+        { title: 'Study Materials', icon: BookOpen, value: 'study-materials', onClick: () => setActiveTab('study-materials') },
         { title: 'Email', icon: Mail, value: 'email', onClick: () => setActiveTab('email') },
         { title: 'Jobs', icon: Briefcase, value: 'jobs', onClick: () => setActiveTab('jobs') },
         { title: 'Admissions', icon: GraduationCap, value: 'admissions', onClick: () => setActiveTab('admissions') },
@@ -303,6 +307,12 @@ const SuperAdminDashboard = () => {
 
       case 'jobs':
         return <JobManagement />;
+
+      case 'events':
+        return <EventsManagement />;
+
+      case 'study-materials':
+        return <StudyMaterialsManager />;
 
       case 'forms':
         return <FormsManagement />;
