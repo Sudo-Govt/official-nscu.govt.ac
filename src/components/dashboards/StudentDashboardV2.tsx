@@ -15,10 +15,11 @@ import NotificationsPanel from '@/components/dashboard/NotificationsPanel';
 import FormsSection from '@/components/dashboard/FormsSection';
 import { InternalMessagingApp, InstantChat } from '@/components/messaging';
 import StudentResourcesView from '@/components/student/StudentResourcesView';
+import { LibraryView } from '@/components/library';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail, HelpCircle } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail, HelpCircle, BookMarked } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
@@ -325,6 +326,10 @@ const StudentDashboardV2 = () => {
               <LayoutDashboard className="h-4 w-4" />
               Overview
             </TabsTrigger>
+            <TabsTrigger value="library" className="flex items-center gap-2">
+              <BookMarked className="h-4 w-4" />
+              Library
+            </TabsTrigger>
             <TabsTrigger value="mail" className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
               Mail
@@ -511,6 +516,10 @@ const StudentDashboardV2 = () => {
             categories={degreeCategories.map(cat => isAlumni ? { ...cat, earned: cat.required } : cat)}
           />
         </div>
+          </TabsContent>
+
+          <TabsContent value="library" className="mt-6">
+            <LibraryView />
           </TabsContent>
 
           <TabsContent value="mail" className="mt-6">
