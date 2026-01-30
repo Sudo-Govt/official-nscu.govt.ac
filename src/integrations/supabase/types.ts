@@ -2888,46 +2888,73 @@ export type Database = {
       }
       library_books: {
         Row: {
+          access_roles: string[] | null
           author: string | null
           book_code: string
+          category: string | null
           cover_image_url: string | null
           created_at: string | null
           description: string | null
+          download_count: number | null
+          external_url: string | null
+          file_path: string | null
+          file_size: number | null
           id: string
           is_active: boolean | null
           isbn: string | null
           publication_year: number | null
           publisher: string | null
+          resource_type: string | null
+          subcategory: string | null
+          tags: string[] | null
           title: string
           updated_at: string | null
           volume: string | null
         }
         Insert: {
+          access_roles?: string[] | null
           author?: string | null
           book_code: string
+          category?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_path?: string | null
+          file_size?: number | null
           id?: string
           is_active?: boolean | null
           isbn?: string | null
           publication_year?: number | null
           publisher?: string | null
+          resource_type?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
           title: string
           updated_at?: string | null
           volume?: string | null
         }
         Update: {
+          access_roles?: string[] | null
           author?: string | null
           book_code?: string
+          category?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_path?: string | null
+          file_size?: number | null
           id?: string
           is_active?: boolean | null
           isbn?: string | null
           publication_year?: number | null
           publisher?: string | null
+          resource_type?: string | null
+          subcategory?: string | null
+          tags?: string[] | null
           title?: string
           updated_at?: string | null
           volume?: string | null

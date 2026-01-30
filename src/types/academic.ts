@@ -106,6 +106,15 @@ export interface LibraryBook {
   book_code: string;
   cover_image_url?: string;
   description?: string;
+  category?: string;
+  subcategory?: string;
+  file_path?: string;
+  file_size?: number;
+  external_url?: string;
+  resource_type?: string;
+  access_roles?: string[];
+  download_count?: number;
+  tags?: string[];
   is_active: boolean;
   created_at: string;
   updated_at: string;
