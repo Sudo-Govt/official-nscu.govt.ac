@@ -2328,6 +2328,60 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          event_type: string
+          id: string
+          is_active: boolean | null
+          is_virtual: boolean | null
+          location: string | null
+          max_attendees: number | null
+          registration_required: boolean | null
+          start_date: string
+          title: string
+          updated_at: string | null
+          virtual_link: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          is_virtual?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          registration_required?: boolean | null
+          start_date: string
+          title: string
+          updated_at?: string | null
+          virtual_link?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          is_virtual?: boolean | null
+          location?: string | null
+          max_attendees?: number | null
+          registration_required?: boolean | null
+          start_date?: string
+          title?: string
+          updated_at?: string | null
+          virtual_link?: string | null
+        }
+        Relationships: []
+      }
       fee_payments: {
         Row: {
           amount: number
@@ -3603,6 +3657,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      study_materials: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_active: boolean | null
+          target_roles: string[] | null
+          target_type: string
+          target_user_ids: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_roles?: string[] | null
+          target_type?: string
+          target_user_ids?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          target_roles?: string[] | null
+          target_type?: string
+          target_user_ids?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_identities: {
         Row: {
