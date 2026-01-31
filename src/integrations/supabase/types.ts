@@ -3736,6 +3736,56 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity_logs: {
+        Row: {
+          action_description: string | null
+          action_type: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_description?: string | null
+          action_type: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_description?: string | null
+          action_type?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_identities: {
         Row: {
           created_at: string | null
@@ -3810,6 +3860,57 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          device_info: string | null
+          id: string
+          ip_address: string | null
+          is_active: boolean | null
+          last_activity_at: string
+          location: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          session_token: string | null
+          signed_in_at: string
+          signed_out_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity_at?: string
+          location?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          session_token?: string | null
+          signed_in_at?: string
+          signed_out_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          last_activity_at?: string
+          location?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          session_token?: string | null
+          signed_in_at?: string
+          signed_out_at?: string | null
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: []

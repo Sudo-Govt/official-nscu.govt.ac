@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar, MonitorCog
 } from 'lucide-react';
 import AlumniManagement from '@/components/admin/AlumniManagement';
 import AlumniDataManagement from '@/components/admin/AlumniDataManagement';
@@ -28,6 +28,7 @@ import EventsManagement from '@/components/admin/EventsManagement';
 import StudyMaterialsManager from '@/components/admin/StudyMaterialsManager';
 import { InternalMessagingApp } from '@/components/messaging';
 import StudentDataManagement from '@/components/admin/StudentDataManagement';
+import SessionsLogsManager from '@/components/admin/SessionsLogsManager';
 import { useToast } from '@/hooks/use-toast';
 import { 
   DepartmentManagement, 
@@ -152,7 +153,8 @@ const SuperAdminDashboard = () => {
     {
       label: 'System',
       items: [
-        { title: 'System Logs', icon: FileText, value: 'logs', onClick: () => setActiveTab('logs') },
+        { title: 'Sessions & Logs', icon: MonitorCog, value: 'sessions-logs', onClick: () => setActiveTab('sessions-logs') },
+        { title: 'Audit Logs', icon: FileText, value: 'logs', onClick: () => setActiveTab('logs') },
         { title: 'Settings', icon: Settings, value: 'settings', onClick: () => setActiveTab('settings') },
       ]
     }
@@ -373,6 +375,9 @@ const SuperAdminDashboard = () => {
             </CardContent>
           </Card>
         );
+
+      case 'sessions-logs':
+        return <SessionsLogsManager />;
 
       case 'logs':
         return <AuditLogsModule />;
