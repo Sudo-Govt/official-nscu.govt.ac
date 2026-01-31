@@ -14,12 +14,13 @@ import {
 } from '@/components/ui/select';
 import { 
   BookOpen, Search, Download, ExternalLink, Filter, 
-  Grid3X3, List, BookMarked, FileText, Video, 
+  Grid3X3, List, BookMarked, FileText, Video, Library,
   Music, GraduationCap, SortAsc, SortDesc, Calendar,
   User, Building
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import OpenAccessLibrary from './OpenAccessLibrary';
 
 interface LibraryBook {
   id: string;
@@ -72,6 +73,7 @@ const LibraryView: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = useState('all');
+  const [mainTab, setMainTab] = useState<'nscu' | 'openaccess'>('nscu');
 
   useEffect(() => {
     fetchBooks();
@@ -227,18 +229,36 @@ const LibraryView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <BookMarked className="h-6 w-6" />
             Digital Library
           </h2>
           <p className="text-muted-foreground">
-            {books.length} resources available
+            {books.length} NSCU resources + Open Access collections
           </p>
         </div>
       </div>
 
+      {/* Main Library Tabs */}
+      <Tabs value={mainTab} onValueChange={(v) => setMainTab(v as 'nscu' | 'openaccess')}>
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="nscu" className="gap-2">
+            <BookMarked className="h-4 w-4" />
+            NSCU Library
+          </TabsTrigger>
+          <TabsTrigger value="openaccess" className="gap-2">
+            <Library className="h-4 w-4" />
+            Open Access
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="openaccess" className="mt-6">
+          <OpenAccessLibrary />
+        </TabsContent>
+
+        <TabsContent value="nscu" className="mt-6 space-y-6">
       {/* Resource Type Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
@@ -485,6 +505,8 @@ const LibraryView: React.FC = () => {
           </CardContent>
         </Card>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
