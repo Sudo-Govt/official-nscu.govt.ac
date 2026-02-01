@@ -170,6 +170,11 @@ import MasterMedicine from "./pages/programs/MasterMedicine";
 import DynamicCoursePage from "./pages/programs/DynamicCoursePage";
 import DynamicPage from "./pages/DynamicPage";
 
+// Dynamic Academic Pages
+import DynamicFacultyPage from "./pages/faculty/DynamicFacultyPage";
+import DynamicDepartmentPage from "./pages/department/DynamicDepartmentPage";
+import DegreeCourseListing from "./pages/department/DegreeCourseListing";
+
 // Public Course Catalog
 import PublicCourseCatalog from "./pages/courses/PublicCourseCatalog";
 import CourseDetailPage from "./pages/courses/CourseDetailPage";
@@ -367,6 +372,11 @@ const App = () => (
           {/* Public Course Catalog Routes */}
           <Route path="/courses" element={<PublicCourseCatalog />} />
           <Route path="/courses/:slug" element={<CourseDetailPage />} />
+          
+          {/* Dynamic Academic Routes - Faculty, Department, Degree Level */}
+          <Route path="/faculty/:slug" element={<DynamicFacultyPage />} />
+          <Route path="/department/:slug" element={<DynamicDepartmentPage />} />
+          <Route path="/department/:slug/:degreeType" element={<DegreeCourseListing />} />
           
           {/* Dynamic CMS Pages - catches any slug not matched above */}
           <Route path="/page/:slug" element={<DynamicPage />} />

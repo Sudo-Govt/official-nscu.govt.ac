@@ -49,12 +49,14 @@ export type Database = {
       }
       academic_courses: {
         Row: {
+          admission_info: Json | null
           ai_generated_content: Json | null
           available_seats: number | null
           college: string | null
           content_generated_at: string | null
           course_code: string
           created_at: string | null
+          degree_level: string | null
           degree_type: string | null
           department: string | null
           department_id: string | null
@@ -70,6 +72,7 @@ export type Database = {
           long_description: string | null
           name: string
           seat_capacity: number | null
+          semester_details: Json | null
           short_description: string | null
           slug: string | null
           start_date: string | null
@@ -78,12 +81,14 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          admission_info?: Json | null
           ai_generated_content?: Json | null
           available_seats?: number | null
           college?: string | null
           content_generated_at?: string | null
           course_code: string
           created_at?: string | null
+          degree_level?: string | null
           degree_type?: string | null
           department?: string | null
           department_id?: string | null
@@ -99,6 +104,7 @@ export type Database = {
           long_description?: string | null
           name: string
           seat_capacity?: number | null
+          semester_details?: Json | null
           short_description?: string | null
           slug?: string | null
           start_date?: string | null
@@ -107,12 +113,14 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          admission_info?: Json | null
           ai_generated_content?: Json | null
           available_seats?: number | null
           college?: string | null
           content_generated_at?: string | null
           course_code?: string
           created_at?: string | null
+          degree_level?: string | null
           degree_type?: string | null
           department?: string | null
           department_id?: string | null
@@ -128,6 +136,7 @@ export type Database = {
           long_description?: string | null
           name?: string
           seat_capacity?: number | null
+          semester_details?: Json | null
           short_description?: string | null
           slug?: string | null
           start_date?: string | null
@@ -151,9 +160,12 @@ export type Database = {
           created_at: string | null
           description: string | null
           faculty_id: string | null
+          hero_image_url: string | null
           id: string
           is_active: boolean | null
+          long_description: string | null
           name: string
+          slug: string | null
           updated_at: string | null
         }
         Insert: {
@@ -161,9 +173,12 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           faculty_id?: string | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
+          long_description?: string | null
           name: string
+          slug?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -171,9 +186,12 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           faculty_id?: string | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
+          long_description?: string | null
           name?: string
+          slug?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -188,30 +206,51 @@ export type Database = {
       }
       academic_faculties: {
         Row: {
+          alumni_highlights: Json | null
           code: string
           created_at: string | null
           description: string | null
+          hero_image_url: string | null
           id: string
           is_active: boolean | null
+          long_description: string | null
           name: string
+          research_centers: Json | null
+          slug: string | null
+          special_programs: Json | null
+          statistics: Json | null
           updated_at: string | null
         }
         Insert: {
+          alumni_highlights?: Json | null
           code: string
           created_at?: string | null
           description?: string | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
+          long_description?: string | null
           name: string
+          research_centers?: Json | null
+          slug?: string | null
+          special_programs?: Json | null
+          statistics?: Json | null
           updated_at?: string | null
         }
         Update: {
+          alumni_highlights?: Json | null
           code?: string
           created_at?: string | null
           description?: string | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean | null
+          long_description?: string | null
           name?: string
+          research_centers?: Json | null
+          slug?: string | null
+          special_programs?: Json | null
+          statistics?: Json | null
           updated_at?: string | null
         }
         Relationships: []
@@ -318,42 +357,57 @@ export type Database = {
       }
       academic_subjects: {
         Row: {
+          assessment_methods: Json | null
           course_id: string
           created_at: string | null
           credits: number | null
           description: string | null
           id: string
           is_active: boolean | null
+          learning_outcomes: string[] | null
           name: string
           order_index: number | null
+          reference_books: Json | null
           semester: number | null
           subject_code: string
+          subject_type: string | null
+          syllabus_units: Json | null
           updated_at: string | null
         }
         Insert: {
+          assessment_methods?: Json | null
           course_id: string
           created_at?: string | null
           credits?: number | null
           description?: string | null
           id?: string
           is_active?: boolean | null
+          learning_outcomes?: string[] | null
           name: string
           order_index?: number | null
+          reference_books?: Json | null
           semester?: number | null
           subject_code: string
+          subject_type?: string | null
+          syllabus_units?: Json | null
           updated_at?: string | null
         }
         Update: {
+          assessment_methods?: Json | null
           course_id?: string
           created_at?: string | null
           credits?: number | null
           description?: string | null
           id?: string
           is_active?: boolean | null
+          learning_outcomes?: string[] | null
           name?: string
           order_index?: number | null
+          reference_books?: Json | null
           semester?: number | null
           subject_code?: string
+          subject_type?: string | null
+          syllabus_units?: Json | null
           updated_at?: string | null
         }
         Relationships: [
