@@ -5,7 +5,14 @@ export interface Faculty {
   id: string;
   name: string;
   code: string;
+  slug?: string | null;
   description?: string;
+  long_description?: string | null;
+  hero_image_url?: string | null;
+  statistics?: Record<string, any> | null;
+  research_centers?: unknown;
+  special_programs?: unknown;
+  alumni_highlights?: unknown;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -17,7 +24,10 @@ export interface Department {
   faculty_id: string;
   name: string;
   code: string;
+  slug?: string | null;
   description?: string;
+  long_description?: string | null;
+  hero_image_url?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -62,6 +72,11 @@ export interface Subject {
   semester?: number;
   order_index: number;
   description?: string;
+  subject_type?: string;
+  syllabus_units?: unknown;
+  reference_books?: unknown;
+  learning_outcomes?: string[];
+  assessment_methods?: Record<string, any>;
   is_active: boolean;
   created_at: string;
   updated_at: string;

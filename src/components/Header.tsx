@@ -22,6 +22,7 @@ import SearchDialog from './SearchDialog';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { AcademicMegaMenu } from './navigation/AcademicMegaMenu';
 interface FeaturedCourse {
   title: string;
   href: string;
@@ -324,7 +325,17 @@ const Header = () => {
               <NavigationMenuList>
                 {menuData.map((menu, index) => (
                   <NavigationMenuItem key={index}>
-                    {menu.items && menu.items.length > 0 ? (
+                    {menu.title === "Academics" ? (
+                      // Special handling for Academics with AcademicMegaMenu
+                      <>
+                        <NavigationMenuTrigger className="text-sm font-medium text-primary hover:text-accent">
+                          {menu.title}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <AcademicMegaMenu />
+                        </NavigationMenuContent>
+                      </>
+                    ) : menu.items && menu.items.length > 0 ? (
                       <>
                         <NavigationMenuTrigger className="text-sm font-medium text-primary hover:text-accent">
                           {menu.title}

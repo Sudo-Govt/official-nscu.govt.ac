@@ -59,6 +59,15 @@ RESPONSE FORMAT (STRICT JSON):
               }
             ]
           },
+          "reference_books": [
+            {
+              "title": "Book Title",
+              "author": "Author Name",
+              "isbn": "ISBN-13",
+              "publisher": "Publisher",
+              "edition": "Edition"
+            }
+          ],
           "assessment": {
             "internal": 40,
             "external": 60,
@@ -66,7 +75,7 @@ RESPONSE FORMAT (STRICT JSON):
           }
         }
       ],
-      "total_credits": number,
+      "total_credits": 20,
       "sgpa_scale": 10.0
     }
   ],

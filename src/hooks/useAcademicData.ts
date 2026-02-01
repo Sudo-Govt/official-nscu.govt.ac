@@ -37,7 +37,7 @@ export function useFaculties() {
     }
   }, [toast]);
 
-  const create = useCallback(async (item: Partial<Faculty>) => {
+  const create = useCallback(async (item: Record<string, unknown>) => {
     const { data: result, error } = await supabase.from('academic_faculties').insert([item as any]).select().single();
     if (error) throw error;
     setData(prev => [result as Faculty, ...prev]);
@@ -45,8 +45,8 @@ export function useFaculties() {
     return result as Faculty;
   }, [toast]);
 
-  const update = useCallback(async (id: string, updates: Partial<Faculty>) => {
-    const { data: result, error } = await supabase.from('academic_faculties').update(updates).eq('id', id).select().single();
+  const update = useCallback(async (id: string, updates: Record<string, unknown>) => {
+    const { data: result, error } = await supabase.from('academic_faculties').update(updates as any).eq('id', id).select().single();
     if (error) throw error;
     setData(prev => prev.map(item => item.id === id ? result as Faculty : item));
     toast({ title: 'Success', description: 'Updated successfully' });
@@ -101,7 +101,7 @@ export function useDepartments() {
     }
   }, [toast]);
 
-  const create = useCallback(async (item: Partial<Department>) => {
+  const create = useCallback(async (item: Record<string, unknown>) => {
     const { data: result, error } = await supabase.from('academic_departments').insert([item as any]).select().single();
     if (error) throw error;
     setData(prev => [result as Department, ...prev]);
@@ -109,8 +109,8 @@ export function useDepartments() {
     return result as Department;
   }, [toast]);
 
-  const update = useCallback(async (id: string, updates: Partial<Department>) => {
-    const { data: result, error } = await supabase.from('academic_departments').update(updates).eq('id', id).select().single();
+  const update = useCallback(async (id: string, updates: Record<string, unknown>) => {
+    const { data: result, error } = await supabase.from('academic_departments').update(updates as any).eq('id', id).select().single();
     if (error) throw error;
     setData(prev => prev.map(item => item.id === id ? result as Department : item));
     toast({ title: 'Success', description: 'Updated successfully' });
