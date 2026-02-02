@@ -9,55 +9,100 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Sparkles, Loader2, GraduationCap, BookOpen, Target, 
   Briefcase, CheckCircle2, ExternalLink, Save, Search,
-  Building2, Users, HelpCircle, RefreshCw, Trash2, Eye, Edit
+  Building2, Users, HelpCircle, RefreshCw, Trash2, Eye, Edit,
+  Calendar, Award, FileText, AlertTriangle, Layers
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface GeneratedContent {
-  hero: {
-    tagline: string;
-    headline: string;
+// 7-Layer Curriculum Types
+interface CurriculumSubject {
+  code: string;
+  name: string;
+  credits: number;
+  contactHours: number;
+  type: 'Core' | 'Elective';
+  description: string;
+  prerequisites: string[];
+  topics: {
+    title: string;
+    subTopics: string[];
+  }[];
+  books: {
+    title: string;
+    author: string;
+    year: number;
+    type: string;
+    usage: string;
+  }[];
+  assessment: {
+    midTerm: number;
+    final: number;
+    research: number;
+    presentation: number;
+    participation: number;
   };
-  overview: {
-    introduction: string;
-    highlights: string[];
-    unique_selling_points: string[];
+  learningOutcomes: string[];
+}
+
+interface CurriculumSemester {
+  number: number;
+  theme: string;
+  totalCredits: number;
+  subjects: CurriculumSubject[];
+}
+
+interface GeneratedCurriculum {
+  skeleton: {
+    semesterCount: number;
+    creditsPerSemester: number;
+    subjectsPerSemester: number;
+    coreElectiveRatio: string;
+    topicsPerSubject: number;
+    subTopicsPerTopic: number;
+    booksPerSubject: number;
+    assessmentTemplate: Record<string, string>;
   };
-  program_details: {
+  programInfo: {
+    name: string;
+    code: string;
+    degreeType: string;
+    durationSemesters: number;
+    totalCredits: number;
     description: string;
-    learning_outcomes: string[];
-    skills_acquired: string[];
   };
-  career_prospects: {
+  semesters: CurriculumSemester[];
+  gradingSystem: {
+    scale: number;
+    grades: Record<string, { min: number; max: number; points: number }>;
+    passingGrade: number;
+    distinctionGrade: number;
+    graduationRequirements: string;
+  };
+  careerOutcomes: {
     overview: string;
-    job_roles: string[];
+    jobRoles: string[];
     industries: string[];
-    average_salary_range: string;
-    placement_rate: string;
+    salaryRange: string;
+    higherStudies: string[];
   };
   eligibility: {
-    minimum_qualification: string;
-    required_subjects: string[];
-    entrance_requirements: string[];
-    preferred_profile: string;
+    minimumQualification: string;
+    requiredSubjects: string[];
+    entranceRequirements: string[];
+    preferredProfile: string;
   };
-  faculty_info: {
-    overview: string;
-    specializations: string[];
-  };
-  testimonial_prompts: string[];
-  faq: Array<{
-    question: string;
-    answer: string;
-  }>;
-  meta: {
-    seo_title: string;
-    seo_description: string;
-    keywords: string[];
+  validation: {
+    totalCreditsValid: boolean;
+    subjectStructureValid: boolean;
+    assessmentValid: boolean;
+    booksValid: boolean;
+    errors: string[];
   };
 }
 
@@ -73,6 +118,7 @@ interface Course {
   department_id: string;
   ai_generated_content: unknown;
   content_generated_at: string | null;
+  semester_details: unknown;
 }
 
 interface Department {
@@ -92,8 +138,9 @@ const CourseContentGenerator = () => {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [generatedCurriculum, setGeneratedCurriculum] = useState<GeneratedCurriculum | null>(null);
+  const [activeSemester, setActiveSemester] = useState('1');
+  const [activeTab, setActiveTab] = useState('skeleton');
 
   // Data state
   const [faculties, setFaculties] = useState<Faculty[]>([]);
@@ -107,6 +154,11 @@ const CourseContentGenerator = () => {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [courseSearch, setCourseSearch] = useState('');
 
+  // Additional inputs for 7-layer generation
+  const [degreeType, setDegreeType] = useState('Bachelor');
+  const [institutionType, setInstitutionType] = useState('Research University');
+  const [specialization, setSpecialization] = useState('');
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -116,7 +168,7 @@ const CourseContentGenerator = () => {
     const [facRes, deptRes, courseRes] = await Promise.all([
       supabase.from('academic_faculties').select('id, name, code').eq('is_active', true).order('name'),
       supabase.from('academic_departments').select('id, name, code, faculty_id').eq('is_active', true).order('name'),
-      supabase.from('academic_courses').select('id, name, slug, course_code, duration_months, total_credits, short_description, long_description, department_id, ai_generated_content, content_generated_at').eq('is_active', true).order('name'),
+      supabase.from('academic_courses').select('id, name, slug, course_code, duration_months, total_credits, short_description, long_description, department_id, ai_generated_content, content_generated_at, semester_details').eq('is_active', true).order('name'),
     ]);
     
     if (facRes.data) setFaculties(facRes.data);
@@ -125,12 +177,10 @@ const CourseContentGenerator = () => {
     setLoading(false);
   };
 
-  // Filter departments by selected faculty
   const filteredDepartments = selectedFaculty
     ? departments.filter(d => d.faculty_id === selectedFaculty)
     : departments;
 
-  // Filter courses by selected department and search
   const filteredCourses = courses.filter(c => {
     const matchesDept = selectedDepartment ? c.department_id === selectedDepartment : true;
     const matchesSearch = courseSearch
@@ -140,15 +190,11 @@ const CourseContentGenerator = () => {
     return matchesDept && matchesSearch;
   });
 
-  const getSelectedCourseDetails = () => {
-    return courses.find(c => c.id === selectedCourse);
-  };
-
+  const getSelectedCourseDetails = () => courses.find(c => c.id === selectedCourse);
   const getSelectedDepartmentDetails = () => {
     const course = getSelectedCourseDetails();
     return departments.find(d => d.id === course?.department_id);
   };
-
   const getSelectedFacultyDetails = () => {
     const dept = getSelectedDepartmentDetails();
     return faculties.find(f => f.id === dept?.faculty_id);
@@ -159,7 +205,7 @@ const CourseContentGenerator = () => {
     if (!course) {
       toast({
         title: 'Course Required',
-        description: 'Please select a course to generate content for',
+        description: 'Please select a course to generate curriculum for',
         variant: 'destructive',
       });
       return;
@@ -169,38 +215,44 @@ const CourseContentGenerator = () => {
     const faculty = getSelectedFacultyDetails();
 
     setIsGenerating(true);
-    setGeneratedContent(null);
+    setGeneratedCurriculum(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-course-content', {
+      const { data, error } = await supabase.functions.invoke('generate-curriculum-v2', {
         body: {
-          courseName: course.name,
-          departmentName: department?.name,
           facultyName: faculty?.name,
-          duration: course.duration_months,
-          credits: course.total_credits,
-          existingDescription: course.long_description || course.short_description,
+          facultyCode: faculty?.code,
+          departmentName: department?.name,
+          departmentCode: department?.code,
+          courseName: course.name,
+          courseCode: course.course_code,
+          degreeType,
+          durationSemesters: Math.ceil(course.duration_months / 6),
+          totalCredits: course.total_credits,
+          institutionType,
+          specialization,
         },
       });
 
       if (error) throw error;
 
       if (!data.success) {
-        throw new Error(data.error || 'Failed to generate content');
+        throw new Error(data.error || 'Failed to generate curriculum');
       }
 
-      setGeneratedContent(data.data);
-      setActiveTab('overview');
+      setGeneratedCurriculum(data.data);
+      setActiveTab('skeleton');
+      setActiveSemester('1');
       
       toast({
-        title: 'Content Generated!',
-        description: 'Course page content has been generated successfully.',
+        title: 'Curriculum Generated!',
+        description: '7-layer curriculum framework has been generated successfully.',
       });
     } catch (err: any) {
       console.error('Generation error:', err);
       toast({
         title: 'Generation Failed',
-        description: err.message || 'Failed to generate content',
+        description: err.message || 'Failed to generate curriculum',
         variant: 'destructive',
       });
     } finally {
@@ -209,7 +261,7 @@ const CourseContentGenerator = () => {
   };
 
   const saveContent = async () => {
-    if (!generatedContent || !selectedCourse) return;
+    if (!generatedCurriculum || !selectedCourse) return;
 
     const course = getSelectedCourseDetails();
     if (!course) return;
@@ -217,76 +269,104 @@ const CourseContentGenerator = () => {
     setIsSaving(true);
 
     try {
-      // Build the long description from generated content
+      // Build comprehensive description
       const longDescription = `
-${generatedContent.overview.introduction}
+# ${generatedCurriculum.programInfo.name}
 
-## Program Highlights
-${generatedContent.overview.highlights.map(h => `- ${h}`).join('\n')}
+${generatedCurriculum.programInfo.description}
 
-## What You'll Learn
-${generatedContent.program_details.description}
+## Program Overview
+- **Degree Type:** ${generatedCurriculum.programInfo.degreeType}
+- **Duration:** ${generatedCurriculum.programInfo.durationSemesters} Semesters
+- **Total Credits:** ${generatedCurriculum.programInfo.totalCredits}
 
-### Learning Outcomes
-${generatedContent.program_details.learning_outcomes.map(o => `- ${o}`).join('\n')}
-
-### Skills You'll Acquire
-${generatedContent.program_details.skills_acquired.map(s => `- ${s}`).join('\n')}
-
-## Career Opportunities
-${generatedContent.career_prospects.overview}
+## Career Outcomes
+${generatedCurriculum.careerOutcomes.overview}
 
 ### Job Roles
-${generatedContent.career_prospects.job_roles.map(r => `- ${r}`).join('\n')}
+${generatedCurriculum.careerOutcomes.jobRoles.map(r => `- ${r}`).join('\n')}
 
 ### Industries
-${generatedContent.career_prospects.industries.map(i => `- ${i}`).join('\n')}
+${generatedCurriculum.careerOutcomes.industries.map(i => `- ${i}`).join('\n')}
 
-**Placement Rate:** ${generatedContent.career_prospects.placement_rate}
-**Expected Salary:** ${generatedContent.career_prospects.average_salary_range}
+**Expected Salary:** ${generatedCurriculum.careerOutcomes.salaryRange}
 
 ## Eligibility
-**Minimum Qualification:** ${generatedContent.eligibility.minimum_qualification}
+**Minimum Qualification:** ${generatedCurriculum.eligibility.minimumQualification}
 
-${generatedContent.eligibility.preferred_profile}
+${generatedCurriculum.eligibility.preferredProfile}
 
 ### Required Subjects
-${generatedContent.eligibility.required_subjects.map(s => `- ${s}`).join('\n')}
+${generatedCurriculum.eligibility.requiredSubjects.map(s => `- ${s}`).join('\n')}
 
 ### Entrance Requirements
-${generatedContent.eligibility.entrance_requirements.map(e => `- ${e}`).join('\n')}
+${generatedCurriculum.eligibility.entranceRequirements.map(e => `- ${e}`).join('\n')}
 
-## Frequently Asked Questions
-${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
+## Grading System
+- **GPA Scale:** ${generatedCurriculum.gradingSystem.scale}
+- **Passing Grade:** ${generatedCurriculum.gradingSystem.passingGrade}
+- **Distinction:** ${generatedCurriculum.gradingSystem.distinctionGrade}
+
+${generatedCurriculum.gradingSystem.graduationRequirements}
       `.trim();
 
-      // Update the course with generated content and store the structured JSON
+      // Update course with generated content
       const { error: updateError } = await supabase
         .from('academic_courses')
         .update({
           long_description: longDescription,
-          short_description: generatedContent.overview.introduction.slice(0, 200),
-          ai_generated_content: JSON.parse(JSON.stringify(generatedContent)),
+          short_description: generatedCurriculum.programInfo.description.slice(0, 200),
+          ai_generated_content: JSON.parse(JSON.stringify(generatedCurriculum)),
+          semester_details: JSON.parse(JSON.stringify(generatedCurriculum.semesters)),
           content_generated_at: new Date().toISOString(),
         })
         .eq('id', selectedCourse);
 
       if (updateError) throw updateError;
 
+      // Create subjects for each semester
+      for (const semester of generatedCurriculum.semesters) {
+        for (const subject of semester.subjects) {
+          // Check if subject exists
+          const { data: existing } = await supabase
+            .from('academic_subjects')
+            .select('id')
+            .eq('course_id', selectedCourse)
+            .eq('subject_code', subject.code)
+            .single();
+
+          if (!existing) {
+            await supabase.from('academic_subjects').insert({
+              course_id: selectedCourse,
+              name: subject.name,
+              subject_code: subject.code,
+              credits: subject.credits,
+              semester: semester.number,
+              description: subject.description,
+              subject_type: subject.type,
+              syllabus_units: subject.topics,
+              reference_books: subject.books,
+              learning_outcomes: subject.learningOutcomes,
+              assessment_methods: subject.assessment,
+              is_active: true,
+            });
+          }
+        }
+      }
+
       toast({
-        title: 'Content Saved!',
-        description: 'Course page content has been saved and published.',
+        title: 'Curriculum Saved!',
+        description: 'Course curriculum and subjects have been saved successfully.',
       });
 
-      // Refresh course data
       fetchData();
-      setGeneratedContent(null);
+      setGeneratedCurriculum(null);
       setSelectedCourse('');
     } catch (err: any) {
       console.error('Save error:', err);
       toast({
         title: 'Save Failed',
-        description: err.message || 'Failed to save content',
+        description: err.message || 'Failed to save curriculum',
         variant: 'destructive',
       });
     } finally {
@@ -302,15 +382,22 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
           long_description: null,
           short_description: null,
           ai_generated_content: null,
+          semester_details: null,
           content_generated_at: null,
         })
         .eq('id', courseId);
 
       if (error) throw error;
 
+      // Also delete related subjects
+      await supabase
+        .from('academic_subjects')
+        .delete()
+        .eq('course_id', courseId);
+
       toast({
         title: 'Content Deleted',
-        description: 'AI-generated content has been removed.',
+        description: 'AI-generated curriculum has been removed.',
       });
 
       fetchData();
@@ -325,20 +412,22 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
 
   const viewExistingContent = (course: Course) => {
     if (course.ai_generated_content) {
-      setGeneratedContent(course.ai_generated_content as unknown as GeneratedContent);
+      setGeneratedCurriculum(course.ai_generated_content as unknown as GeneratedCurriculum);
       setSelectedCourse(course.id);
-      setActiveTab('overview');
+      setActiveTab('skeleton');
+      setActiveSemester('1');
     }
   };
 
   const coursesWithContent = courses.filter(c => c.ai_generated_content !== null);
 
-
   if (loading) {
     return (
       <Card>
-        <CardContent className="flex items-center justify-center p-8">
-          <Loader2 className="h-6 w-6 animate-spin" />
+        <CardContent className="p-8 space-y-4">
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-32 w-full" />
         </CardContent>
       </Card>
     );
@@ -351,16 +440,19 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            AI Course Content Generator
+            7-Layer AI Curriculum Generator
+            <Badge variant="secondary" className="ml-2">
+              <Layers className="h-3 w-3 mr-1" />
+              Enhanced
+            </Badge>
           </CardTitle>
           <CardDescription>
-            Select an existing course and generate comprehensive page content using AI.
-            The content will be displayed publicly on the course detail page.
+            Generate comprehensive ABET-compliant curricula using the 7-layer framework.
+            Includes semester structure, topics, sub-topics, books, and assessment weights.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Faculty Dropdown */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
@@ -369,7 +461,7 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
               <Select 
                 value={selectedFaculty} 
                 onValueChange={(value) => {
-                  setSelectedFaculty(value);
+                  setSelectedFaculty(value === 'all' ? '' : value);
                   setSelectedDepartment('');
                   setSelectedCourse('');
                 }}
@@ -388,7 +480,6 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
               </Select>
             </div>
 
-            {/* Department Dropdown */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
@@ -397,7 +488,7 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
               <Select 
                 value={selectedDepartment} 
                 onValueChange={(value) => {
-                  setSelectedDepartment(value);
+                  setSelectedDepartment(value === 'all' ? '' : value);
                   setSelectedCourse('');
                 }}
               >
@@ -415,7 +506,6 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
               </Select>
             </div>
 
-            {/* Course Search */}
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Search className="h-4 w-4" />
@@ -429,7 +519,47 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
             </div>
           </div>
 
-          {/* Course Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>Degree Type</Label>
+              <Select value={degreeType} onValueChange={setDegreeType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Bachelor">Bachelor (BA/BS/BEng)</SelectItem>
+                  <SelectItem value="Master">Master (MA/MS/MEng)</SelectItem>
+                  <SelectItem value="Doctoral">Doctoral (PhD)</SelectItem>
+                  <SelectItem value="Diploma">Diploma/Certificate</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Institution Type</Label>
+              <Select value={institutionType} onValueChange={setInstitutionType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Research University">Research University</SelectItem>
+                  <SelectItem value="Liberal Arts College">Liberal Arts College</SelectItem>
+                  <SelectItem value="Technical Institute">Technical Institute</SelectItem>
+                  <SelectItem value="Professional School">Professional School</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Specialization (Optional)</Label>
+              <Input
+                placeholder="e.g., AI, Data Science"
+                value={specialization}
+                onChange={(e) => setSpecialization(e.target.value)}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <GraduationCap className="h-4 w-4" />
@@ -437,7 +567,7 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
             </Label>
             <Select value={selectedCourse} onValueChange={setSelectedCourse}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a course to generate content" />
+                <SelectValue placeholder="Select a course to generate curriculum" />
               </SelectTrigger>
               <SelectContent>
                 {filteredCourses.map((c) => (
@@ -450,7 +580,6 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
             </Select>
           </div>
 
-          {/* Selected Course Info */}
           {selectedCourse && (
             <div className="p-4 bg-muted rounded-lg">
               <div className="flex items-center justify-between">
@@ -482,30 +611,30 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
             {isGenerating ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating Content...
+                Generating 7-Layer Curriculum...
               </>
             ) : (
               <>
                 <Sparkles className="h-4 w-4 mr-2" />
-                Generate Course Page Content
+                Generate Complete Curriculum
               </>
             )}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Generated Content Display */}
-      {generatedContent && (
+      {/* Generated Curriculum Display */}
+      {generatedCurriculum && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <GraduationCap className="h-5 w-5" />
-                  Generated Content Preview
+                  {generatedCurriculum.programInfo.name}
                 </CardTitle>
                 <CardDescription>
-                  {generatedContent.hero.tagline}
+                  {generatedCurriculum.programInfo.degreeType} • {generatedCurriculum.programInfo.durationSemesters} Semesters • {generatedCurriculum.programInfo.totalCredits} Credits
                 </CardDescription>
               </div>
               <Button onClick={saveContent} disabled={isSaving}>
@@ -514,102 +643,269 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                 ) : (
                   <Save className="h-4 w-4 mr-2" />
                 )}
-                Save & Publish
+                Save Curriculum
               </Button>
             </div>
           </CardHeader>
           <CardContent>
+            {/* Validation Alerts */}
+            {generatedCurriculum.validation.errors.length > 0 && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Validation Issues</AlertTitle>
+                <AlertDescription>
+                  <ul className="text-sm mt-2 space-y-1">
+                    {generatedCurriculum.validation.errors.slice(0, 5).map((err, idx) => (
+                      <li key={idx}>• {err}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="program">Program</TabsTrigger>
+                <TabsTrigger value="skeleton">Skeleton</TabsTrigger>
+                <TabsTrigger value="semesters">Semesters</TabsTrigger>
+                <TabsTrigger value="grading">Grading</TabsTrigger>
                 <TabsTrigger value="careers">Careers</TabsTrigger>
                 <TabsTrigger value="eligibility">Eligibility</TabsTrigger>
-                <TabsTrigger value="seo">SEO & FAQ</TabsTrigger>
               </TabsList>
 
-              {/* Overview Tab */}
-              <TabsContent value="overview" className="space-y-4">
-                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                  <h3 className="text-lg font-bold">{generatedContent.hero.headline}</h3>
-                  <p className="text-sm text-muted-foreground italic">{generatedContent.hero.tagline}</p>
-                </div>
-
-                <div className="p-4 bg-muted rounded-lg">
-                  <h4 className="font-medium mb-2">Introduction</h4>
-                  <p className="text-sm">{generatedContent.overview.introduction}</p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3">Program Highlights</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {generatedContent.overview.highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-start gap-2 p-2 bg-muted rounded">
-                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <span className="text-sm">{highlight}</span>
-                      </div>
-                    ))}
+              {/* Skeleton Tab - Layer 2 */}
+              <TabsContent value="skeleton" className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 border rounded-lg text-center">
+                    <Calendar className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{generatedCurriculum.skeleton.semesterCount}</p>
+                    <p className="text-sm text-muted-foreground">Semesters</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <Award className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{generatedCurriculum.skeleton.creditsPerSemester}</p>
+                    <p className="text-sm text-muted-foreground">Credits/Semester</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <BookOpen className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{generatedCurriculum.skeleton.subjectsPerSemester}</p>
+                    <p className="text-sm text-muted-foreground">Subjects/Semester</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <Target className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{generatedCurriculum.skeleton.coreElectiveRatio}</p>
+                    <p className="text-sm text-muted-foreground">Core:Elective</p>
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="font-medium mb-3">What Sets Us Apart</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-3 bg-muted rounded-lg text-center">
+                    <p className="text-lg font-bold">{generatedCurriculum.skeleton.topicsPerSubject}</p>
+                    <p className="text-sm text-muted-foreground">Topics/Subject</p>
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg text-center">
+                    <p className="text-lg font-bold">{generatedCurriculum.skeleton.subTopicsPerTopic}</p>
+                    <p className="text-sm text-muted-foreground">Sub-topics/Topic</p>
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg text-center">
+                    <p className="text-lg font-bold">{generatedCurriculum.skeleton.booksPerSubject}</p>
+                    <p className="text-sm text-muted-foreground">Books/Subject</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-medium mb-2">Assessment Template</h4>
                   <div className="flex flex-wrap gap-2">
-                    {generatedContent.overview.unique_selling_points.map((usp, idx) => (
-                      <Badge key={idx} variant="secondary" className="py-1">
-                        {usp}
+                    {Object.entries(generatedCurriculum.skeleton.assessmentTemplate).map(([key, value]) => (
+                      <Badge key={key} variant="secondary">
+                        {key}: {value}
                       </Badge>
                     ))}
                   </div>
                 </div>
+
+                <div className="p-4 border rounded-lg">
+                  <h4 className="font-medium mb-2">Program Description</h4>
+                  <p className="text-sm text-muted-foreground">{generatedCurriculum.programInfo.description}</p>
+                </div>
               </TabsContent>
 
-              {/* Program Tab */}
-              <TabsContent value="program" className="space-y-4">
-                <div className="p-4 bg-muted rounded-lg">
-                  <h4 className="font-medium mb-2">Program Description</h4>
-                  <p className="text-sm whitespace-pre-wrap">{generatedContent.program_details.description}</p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    Learning Outcomes
-                  </h4>
-                  <ScrollArea className="h-[200px]">
-                    <div className="space-y-2">
-                      {generatedContent.program_details.learning_outcomes.map((outcome, idx) => (
-                        <div key={idx} className="flex items-start gap-2 p-2 border rounded">
-                          <Badge variant="outline" className="shrink-0">{idx + 1}</Badge>
-                          <span className="text-sm">{outcome}</span>
-                        </div>
+              {/* Semesters Tab - Layers 3-6 */}
+              <TabsContent value="semesters">
+                {/* Semester Tabs */}
+                <div className="mb-4">
+                  <ScrollArea className="w-full">
+                    <div className="flex gap-2 pb-2">
+                      {generatedCurriculum.semesters.map((sem) => (
+                        <Button
+                          key={sem.number}
+                          variant={activeSemester === String(sem.number) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setActiveSemester(String(sem.number))}
+                        >
+                          Sem {sem.number}
+                          <Badge variant="secondary" className="ml-2">{sem.theme}</Badge>
+                        </Button>
                       ))}
                     </div>
                   </ScrollArea>
                 </div>
 
+                {generatedCurriculum.semesters.map((semester) => (
+                  <div
+                    key={semester.number}
+                    className={activeSemester === String(semester.number) ? 'block' : 'hidden'}
+                  >
+                    <div className="p-4 bg-muted rounded-lg mb-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium">Semester {semester.number}: {semester.theme}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {semester.subjects.length} subjects • {semester.totalCredits} credits
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <ScrollArea className="h-[500px]">
+                      <Accordion type="single" collapsible className="w-full">
+                        {semester.subjects.map((subject, idx) => (
+                          <AccordionItem key={idx} value={`subject-${idx}`}>
+                            <AccordionTrigger>
+                              <div className="flex items-center gap-2 text-left">
+                                <Badge variant="outline">{subject.code}</Badge>
+                                <span>{subject.name}</span>
+                                <Badge variant="secondary">{subject.credits} cr</Badge>
+                                <Badge variant={subject.type === 'Core' ? 'default' : 'outline'}>
+                                  {subject.type}
+                                </Badge>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-4">
+                              <p className="text-sm text-muted-foreground">{subject.description}</p>
+                              
+                              {subject.prerequisites.length > 0 && (
+                                <div>
+                                  <p className="text-sm font-medium">Prerequisites:</p>
+                                  <div className="flex gap-1 mt-1">
+                                    {subject.prerequisites.map((p, i) => (
+                                      <Badge key={i} variant="outline">{p}</Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Topics & Sub-topics */}
+                              <div>
+                                <h5 className="font-medium mb-2 flex items-center gap-2">
+                                  <FileText className="h-4 w-4" />
+                                  Topics ({subject.topics.length})
+                                </h5>
+                                <div className="space-y-2">
+                                  {subject.topics.map((topic, topicIdx) => (
+                                    <div key={topicIdx} className="p-3 bg-muted rounded-lg">
+                                      <p className="font-medium text-sm">{topicIdx + 1}. {topic.title}</p>
+                                      <ul className="mt-2 space-y-1 pl-4">
+                                        {topic.subTopics.map((sub, subIdx) => (
+                                          <li key={subIdx} className="text-xs text-muted-foreground">
+                                            • {sub}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Books */}
+                              <div>
+                                <h5 className="font-medium mb-2 flex items-center gap-2">
+                                  <BookOpen className="h-4 w-4" />
+                                  Books & Materials ({subject.books.length})
+                                </h5>
+                                <div className="space-y-2">
+                                  {subject.books.map((book, bookIdx) => (
+                                    <div key={bookIdx} className="p-2 border rounded flex items-start justify-between">
+                                      <div>
+                                        <p className="text-sm font-medium">{book.title}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {book.author} ({book.year})
+                                        </p>
+                                      </div>
+                                      <div className="text-right">
+                                        <Badge variant="outline" className="text-xs">{book.type}</Badge>
+                                        <p className="text-xs text-muted-foreground mt-1">{book.usage}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Assessment */}
+                              <div>
+                                <h5 className="font-medium mb-2 flex items-center gap-2">
+                                  <Target className="h-4 w-4" />
+                                  Assessment
+                                </h5>
+                                <div className="flex flex-wrap gap-2">
+                                  {Object.entries(subject.assessment).map(([key, value]) => (
+                                    <Badge key={key} variant="secondary">
+                                      {key}: {value}%
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Learning Outcomes */}
+                              <div>
+                                <h5 className="font-medium mb-2">Learning Outcomes</h5>
+                                <div className="flex flex-wrap gap-1">
+                                  {subject.learningOutcomes.map((lo, loIdx) => (
+                                    <Badge key={loIdx} variant="outline">{lo}</Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </ScrollArea>
+                  </div>
+                ))}
+              </TabsContent>
+
+              {/* Grading Tab */}
+              <TabsContent value="grading" className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-4 border rounded-lg text-center">
+                    <p className="text-2xl font-bold">{generatedCurriculum.gradingSystem.scale}</p>
+                    <p className="text-sm text-muted-foreground">GPA Scale</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <p className="text-2xl font-bold">{generatedCurriculum.gradingSystem.passingGrade}</p>
+                    <p className="text-sm text-muted-foreground">Passing Grade</p>
+                  </div>
+                  <div className="p-4 border rounded-lg text-center">
+                    <p className="text-2xl font-bold">{generatedCurriculum.gradingSystem.distinctionGrade}</p>
+                    <p className="text-sm text-muted-foreground">Distinction</p>
+                  </div>
+                </div>
+
                 <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    Skills Acquired
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {generatedContent.program_details.skills_acquired.map((skill, idx) => (
-                      <Badge key={idx} variant="secondary">{skill}</Badge>
+                  <h4 className="font-medium mb-3">Grade Points</h4>
+                  <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                    {Object.entries(generatedCurriculum.gradingSystem.grades).map(([grade, info]) => (
+                      <div key={grade} className="p-2 border rounded-lg text-center">
+                        <p className="font-bold">{grade}</p>
+                        <p className="text-xs text-muted-foreground">{info.min}-{info.max}%</p>
+                        <p className="text-sm">{info.points} pts</p>
+                      </div>
                     ))}
                   </div>
                 </div>
 
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-3">Faculty Overview</h4>
-                  <p className="text-sm text-muted-foreground mb-2">{generatedContent.faculty_info.overview}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {generatedContent.faculty_info.specializations.map((spec, idx) => (
-                      <Badge key={idx} variant="outline">{spec}</Badge>
-                    ))}
-                  </div>
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-medium mb-2">Graduation Requirements</h4>
+                  <p className="text-sm">{generatedCurriculum.gradingSystem.graduationRequirements}</p>
                 </div>
               </TabsContent>
 
@@ -617,18 +913,12 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
               <TabsContent value="careers" className="space-y-4">
                 <div className="p-4 bg-muted rounded-lg">
                   <h4 className="font-medium mb-2">Career Overview</h4>
-                  <p className="text-sm">{generatedContent.career_prospects.overview}</p>
+                  <p className="text-sm">{generatedCurriculum.careerOutcomes.overview}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg text-center">
-                    <p className="text-2xl font-bold text-primary">{generatedContent.career_prospects.placement_rate}</p>
-                    <p className="text-sm text-muted-foreground">Placement Rate</p>
-                  </div>
-                  <div className="p-4 border rounded-lg text-center">
-                    <p className="text-lg font-bold text-primary">{generatedContent.career_prospects.average_salary_range}</p>
-                    <p className="text-sm text-muted-foreground">Expected Salary</p>
-                  </div>
+                <div className="p-4 border rounded-lg text-center">
+                  <p className="text-lg font-bold text-primary">{generatedCurriculum.careerOutcomes.salaryRange}</p>
+                  <p className="text-sm text-muted-foreground">Expected Salary Range</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -637,16 +927,11 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                       <Briefcase className="h-4 w-4" />
                       Job Roles
                     </h4>
-                    <ScrollArea className="h-[200px]">
-                      <div className="space-y-1">
-                        {generatedContent.career_prospects.job_roles.map((role, idx) => (
-                          <div key={idx} className="flex items-center gap-2 p-2 bg-muted rounded">
-                            <CheckCircle2 className="h-3 w-3 text-primary" />
-                            <span className="text-sm">{role}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                    <div className="flex flex-wrap gap-2">
+                      {generatedCurriculum.careerOutcomes.jobRoles.map((role, idx) => (
+                        <Badge key={idx} variant="secondary">{role}</Badge>
+                      ))}
+                    </div>
                   </div>
                   
                   <div>
@@ -655,10 +940,22 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                       Industries
                     </h4>
                     <div className="flex flex-wrap gap-2">
-                      {generatedContent.career_prospects.industries.map((industry, idx) => (
+                      {generatedCurriculum.careerOutcomes.industries.map((industry, idx) => (
                         <Badge key={idx} variant="outline">{industry}</Badge>
                       ))}
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-3">Higher Studies Options</h4>
+                  <div className="space-y-2">
+                    {generatedCurriculum.careerOutcomes.higherStudies.map((option, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        <span className="text-sm">{option}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </TabsContent>
@@ -668,11 +965,11 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 border rounded-lg">
                     <h4 className="font-medium mb-2">Minimum Qualification</h4>
-                    <p className="text-sm">{generatedContent.eligibility.minimum_qualification}</p>
+                    <p className="text-sm">{generatedCurriculum.eligibility.minimumQualification}</p>
                   </div>
                   <div className="p-4 border rounded-lg">
                     <h4 className="font-medium mb-2">Ideal Candidate</h4>
-                    <p className="text-sm text-muted-foreground">{generatedContent.eligibility.preferred_profile}</p>
+                    <p className="text-sm text-muted-foreground">{generatedCurriculum.eligibility.preferredProfile}</p>
                   </div>
                 </div>
 
@@ -680,7 +977,7 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                   <div>
                     <h4 className="font-medium mb-3">Required Subjects</h4>
                     <div className="flex flex-wrap gap-2">
-                      {generatedContent.eligibility.required_subjects.map((subject, idx) => (
+                      {generatedCurriculum.eligibility.requiredSubjects.map((subject, idx) => (
                         <Badge key={idx} variant="secondary">{subject}</Badge>
                       ))}
                     </div>
@@ -688,57 +985,13 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                   <div>
                     <h4 className="font-medium mb-3">Entrance Requirements</h4>
                     <div className="space-y-1">
-                      {generatedContent.eligibility.entrance_requirements.map((req, idx) => (
+                      {generatedCurriculum.eligibility.entranceRequirements.map((req, idx) => (
                         <div key={idx} className="flex items-center gap-2 text-sm">
                           <CheckCircle2 className="h-3 w-3 text-primary" />
                           {req}
                         </div>
                       ))}
                     </div>
-                  </div>
-                </div>
-              </TabsContent>
-
-              {/* SEO & FAQ Tab */}
-              <TabsContent value="seo" className="space-y-4">
-                <Alert>
-                  <AlertTitle>SEO Metadata</AlertTitle>
-                  <AlertDescription className="space-y-2 mt-2">
-                    <p><strong>Title:</strong> {generatedContent.meta.seo_title}</p>
-                    <p><strong>Description:</strong> {generatedContent.meta.seo_description}</p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {generatedContent.meta.keywords.map((kw, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">{kw}</Badge>
-                      ))}
-                    </div>
-                  </AlertDescription>
-                </Alert>
-
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4" />
-                    Frequently Asked Questions
-                  </h4>
-                  <ScrollArea className="h-[300px]">
-                    <div className="space-y-3">
-                      {generatedContent.faq.map((item, idx) => (
-                        <div key={idx} className="p-3 border rounded-lg">
-                          <p className="font-medium text-sm">{item.question}</p>
-                          <p className="text-sm text-muted-foreground mt-1">{item.answer}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </div>
-
-                <div>
-                  <h4 className="font-medium mb-3">Sample Testimonials</h4>
-                  <div className="space-y-2">
-                    {generatedContent.testimonial_prompts.map((testimonial, idx) => (
-                      <div key={idx} className="p-3 bg-muted rounded-lg italic text-sm">
-                        "{testimonial}"
-                      </div>
-                    ))}
                   </div>
                 </div>
               </TabsContent>
@@ -753,10 +1006,10 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
-              Courses with AI-Generated Content
+              Courses with AI-Generated Curriculum
             </CardTitle>
             <CardDescription>
-              Manage courses that have AI-generated content. View, edit, regenerate, or delete content.
+              Manage courses with 7-layer AI-generated content.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -770,6 +1023,10 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{course.course_code}</Badge>
                         <span className="font-medium">{course.name}</span>
+                        <Badge variant="secondary" className="ml-2">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          AI Generated
+                        </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">
                         {fac?.name} → {dept?.name}
@@ -804,7 +1061,7 @@ ${generatedContent.faq.map(f => `### ${f.question}\n${f.answer}`).join('\n\n')}
                         size="sm"
                         onClick={() => {
                           setSelectedCourse(course.id);
-                          setGeneratedContent(null);
+                          setGeneratedCurriculum(null);
                         }}
                       >
                         <RefreshCw className="h-4 w-4 mr-1" />

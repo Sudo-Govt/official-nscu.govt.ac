@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.generate-abet-course]
 verify_jwt = false
+
+[functions.generate-curriculum-v2]
+verify_jwt = false
+
+[functions.generate-course-content]
+verify_jwt = false
