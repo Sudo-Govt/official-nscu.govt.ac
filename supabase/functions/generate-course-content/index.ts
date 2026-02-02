@@ -1,9 +1,8 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 const COURSE_CONTENT_PROMPT = `
@@ -79,9 +78,9 @@ serve(async (req) => {
       throw new Error('Course name is required');
     }
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
     }
 
     console.log(`Generating content for course: ${courseName}`);
@@ -104,27 +103,25 @@ Create engaging, informative content that will help prospective students underst
 The content should be suitable for a public-facing university website.
 Return ONLY valid JSON.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: COURSE_CONTENT_PROMPT },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 4000,
         temperature: 0.7,
-        response_format: { type: "json_object" }
       }),
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error('OpenAI API error:', error);
+      const errorText = await response.text();
+      console.error('AI Gateway error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
@@ -132,16 +129,39 @@ Return ONLY valid JSON.`;
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'API credits exhausted. Please add credits to continue.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       
-      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+      throw new Error(`AI Gateway error: ${response.status}`);
     }
 
     const data = await response.json();
-    const jsonContent = data.choices[0].message.content;
+    const content = data.choices?.[0]?.message?.content;
     
+    if (!content) {
+      throw new Error('No content received from AI');
+    }
+
+    // Clean the response
+    let cleanedContent = content.trim();
+    if (cleanedContent.startsWith('```json')) {
+      cleanedContent = cleanedContent.slice(7);
+    }
+    if (cleanedContent.startsWith('```')) {
+      cleanedContent = cleanedContent.slice(3);
+    }
+    if (cleanedContent.endsWith('```')) {
+      cleanedContent = cleanedContent.slice(0, -3);
+    }
+    cleanedContent = cleanedContent.trim();
+
     let parsedContent;
     try {
-      parsedContent = JSON.parse(jsonContent);
+      parsedContent = JSON.parse(cleanedContent);
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
       throw new Error('AI generated invalid JSON. Please try again.');
