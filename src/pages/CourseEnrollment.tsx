@@ -108,6 +108,15 @@ export default function CourseEnrollment() {
     }
   };
 
+  // Generate a unique application number
+  const generateApplicationNumber = () => {
+    const prefix = 'APP';
+    const year = new Date().getFullYear();
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const timestamp = Date.now().toString(36).toUpperCase();
+    return `${prefix}-${year}-${randomPart}${timestamp}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -131,12 +140,21 @@ export default function CourseEnrollment() {
         graduationYear: formData.graduationYear,
         statementOfPurpose: formData.statementOfPurpose,
         applicationType: 'enrollment',
+        courseCode: course?.course_code,
+        courseSlug: course?.slug,
       };
 
+      // Generate unique application number to avoid constraint violation
+      const applicationNumber = generateApplicationNumber();
+
+      // Note: course_id FK references 'courses' table, not 'academic_courses'
+      // So we don't pass course_id for academic_courses based enrollments
       const { error } = await supabase.from('student_applications').insert({
-        course_id: course?.id,
+        application_number: applicationNumber,
         program: course?.name,
         full_name: formData.fullName,
+        first_name: formData.fullName.split(' ')[0] || '',
+        last_name: formData.fullName.split(' ').slice(1).join(' ') || '',
         email: formData.email,
         phone: formData.phone,
         nationality: formData.nationality,
@@ -149,9 +167,10 @@ export default function CourseEnrollment() {
       setSubmitted(true);
       toast({
         title: 'Application Submitted!',
-        description: 'We will review your application and contact you soon.',
+        description: `Your application number is ${applicationNumber}. We will review your application and contact you soon.`,
       });
     } catch (err: any) {
+      console.error('Application submission error:', err);
       toast({
         title: 'Submission Failed',
         description: err.message || 'Please try again later.',
