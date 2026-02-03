@@ -4,8 +4,7 @@ import PageLayout from '@/components/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Clock, GraduationCap, ChevronRight, Building2 } from 'lucide-react';
+import { BookOpen, Clock, GraduationCap, ChevronRight, Building2, Award, FileText, Scroll } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DepartmentData {
@@ -38,10 +37,10 @@ interface CourseData {
 }
 
 const DEGREE_LEVELS = [
-  { key: 'certificate', label: 'Certificate Programs', icon: '🎓' },
-  { key: 'undergraduate', label: 'Undergraduate Programs', icon: '📚' },
-  { key: 'postgraduate', label: 'Postgraduate Programs', icon: '🎯' },
-  { key: 'doctoral', label: 'Doctoral Programs', icon: '🔬' },
+  { key: 'certificate', label: 'Certificate Programs', icon: Award, color: 'bg-amber-500', description: 'Short-term professional certifications' },
+  { key: 'undergraduate', label: 'Undergraduate Programs', icon: GraduationCap, color: 'bg-blue-500', description: "Bachelor's degrees and undergraduate studies" },
+  { key: 'postgraduate', label: 'Postgraduate Programs', icon: FileText, color: 'bg-purple-500', description: "Master's degrees and advanced studies" },
+  { key: 'doctoral', label: 'Doctoral Programs', icon: Scroll, color: 'bg-emerald-600', description: 'Ph.D. and doctoral research programs' },
 ];
 
 const DynamicDepartmentPage = () => {
@@ -132,9 +131,9 @@ const DynamicDepartmentPage = () => {
   const getEnrollmentBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <Badge className="bg-emerald-500 text-white">Open for Enrollment</Badge>;
+        return <Badge className="bg-emerald-500 text-white">Open</Badge>;
       case 'closed':
-        return <Badge variant="secondary">Enrollment Closed</Badge>;
+        return <Badge variant="secondary">Closed</Badge>;
       case 'coming_soon':
         return <Badge variant="outline">Coming Soon</Badge>;
       default:
@@ -148,8 +147,8 @@ const DynamicDepartmentPage = () => {
         <div className="container mx-auto px-4 py-12 space-y-8">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-48" />
-          <div className="grid md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
+          <div className="grid md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map(i => (
               <Skeleton key={i} className="h-48" />
             ))}
           </div>
@@ -174,8 +173,8 @@ const DynamicDepartmentPage = () => {
     );
   }
 
-  // Determine initial tab - first level with courses
-  const initialTab = DEGREE_LEVELS.find(level => getCoursesByLevel(level.key).length > 0)?.key || 'undergraduate';
+  // Get levels that have courses
+  const activeLevels = DEGREE_LEVELS.filter(level => getCoursesByLevel(level.key).length > 0);
 
   return (
     <PageLayout 
@@ -212,86 +211,98 @@ const DynamicDepartmentPage = () => {
           </p>
         </div>
 
-        {/* Programs by Degree Level */}
-        <Tabs defaultValue={initialTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            {DEGREE_LEVELS.map(level => {
-              const count = getCoursesByLevel(level.key).length;
+        {/* Programs by Degree Level - Block Layout */}
+        {activeLevels.length === 0 ? (
+          <Card className="text-center py-12">
+            <CardContent>
+              <GraduationCap className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground">
+                No programs are currently available in this department.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-12">
+            {activeLevels.map((level) => {
+              const levelCourses = getCoursesByLevel(level.key);
+              const Icon = level.icon;
+              
               return (
-                <TabsTrigger 
-                  key={level.key} 
-                  value={level.key}
-                  className="flex flex-col gap-1"
-                  disabled={count === 0}
-                >
-                  <span>{level.label}</span>
-                  <span className="text-xs text-muted-foreground">({count} programs)</span>
-                </TabsTrigger>
+                <section key={level.key} className="scroll-mt-20" id={level.key}>
+                  {/* Level Header Block */}
+                  <div className={`${level.color} text-white rounded-t-xl p-6`}>
+                    <div className="flex items-center gap-3">
+                      <Icon className="h-8 w-8" />
+                      <div>
+                        <h2 className="text-2xl font-bold">{level.label}</h2>
+                        <p className="text-white/80 text-sm">{level.description}</p>
+                      </div>
+                      <Badge variant="secondary" className="ml-auto bg-white/20 text-white border-0">
+                        {levelCourses.length} {levelCourses.length === 1 ? 'Program' : 'Programs'}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  {/* Courses Grid */}
+                  <div className="border border-t-0 rounded-b-xl bg-card p-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {levelCourses.map((course) => (
+                        <Link key={course.id} to={`/courses/${course.slug}`}>
+                          <Card className="hover:shadow-md transition-all h-full cursor-pointer group hover:border-primary border">
+                            <CardHeader className="pb-3">
+                              <div className="flex justify-between items-start gap-2 mb-1">
+                                <Badge variant="outline" className="text-xs">{course.course_code}</Badge>
+                                {getEnrollmentBadge(course.enrollment_status)}
+                              </div>
+                              <CardTitle className="text-base group-hover:text-primary transition-colors leading-tight">
+                                {course.name}
+                              </CardTitle>
+                              {course.short_description && (
+                                <CardDescription className="line-clamp-2 text-xs">
+                                  {course.short_description}
+                                </CardDescription>
+                              )}
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{course.duration_months}mo</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <BookOpen className="h-3 w-3" />
+                                  <span>{course.total_credits} cr</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </section>
               );
             })}
-          </TabsList>
+          </div>
+        )}
 
-          {DEGREE_LEVELS.map(level => (
-            <TabsContent key={level.key} value={level.key}>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <span>{level.icon}</span>
+        {/* Quick navigation if multiple levels */}
+        {activeLevels.length > 1 && (
+          <div className="fixed bottom-6 right-6 bg-card border rounded-lg shadow-lg p-3 hidden lg:block">
+            <p className="text-xs font-semibold text-muted-foreground mb-2">Jump to:</p>
+            <div className="flex flex-col gap-1">
+              {activeLevels.map(level => (
+                <a
+                  key={level.key}
+                  href={`#${level.key}`}
+                  className="text-sm hover:text-primary transition-colors"
+                >
                   {level.label}
-                </h2>
-                <p className="text-muted-foreground">
-                  Explore our {level.label.toLowerCase()} offered by the {department.name}.
-                </p>
-              </div>
-
-              {getCoursesByLevel(level.key).length === 0 ? (
-                <Card className="text-center py-12">
-                  <CardContent>
-                    <GraduationCap className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      No {level.label.toLowerCase()} are currently available in this department.
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {getCoursesByLevel(level.key).map((course) => (
-                    <Link key={course.id} to={`/courses/${course.slug}`}>
-                      <Card className="hover:shadow-lg transition-all h-full cursor-pointer group hover:border-primary">
-                        <CardHeader>
-                          <div className="flex justify-between items-start mb-2">
-                            <Badge variant="outline">{course.course_code}</Badge>
-                            {getEnrollmentBadge(course.enrollment_status)}
-                          </div>
-                          <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                            {course.name}
-                          </CardTitle>
-                          <CardDescription className="line-clamp-2">
-                            {course.short_description || 'A comprehensive program designed for your success.'}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              <span>{course.duration_months} months</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <BookOpen className="h-4 w-4" />
-                              <span>{course.total_credits} credits</span>
-                            </div>
-                          </div>
-                          <div className="mt-4 text-sm text-primary group-hover:underline">
-                            View Program Details →
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </PageLayout>
   );
