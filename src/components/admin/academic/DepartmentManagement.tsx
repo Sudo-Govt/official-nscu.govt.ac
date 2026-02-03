@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -29,14 +30,19 @@ import {
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Building2 } from 'lucide-react';
 import { useDepartments, useFaculties } from '@/hooks/useAcademicData';
+import { BulkActionsToolbar, FACULTY_DEPARTMENT_BULK_ACTIONS } from './BulkActionsToolbar';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import type { Department } from '@/types/academic';
 
 // Department now belongs to Faculty (Faculty -> Department -> Course)
 export function DepartmentManagement() {
   const { data: departments, loading, fetchWithFaculty, create, update, remove } = useDepartments();
   const { data: faculties, fetch: fetchFaculties } = useFaculties();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     faculty_id: '',
     name: '',
@@ -81,6 +87,46 @@ export function DepartmentManagement() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure? This will delete all courses under this department.')) {
       await remove(id);
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(departments.map(d => d.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds([...selectedIds, id]);
+    } else {
+      setSelectedIds(selectedIds.filter(sid => sid !== id));
+    }
+  };
+
+  const handleBulkAction = async (actionId: string, ids: string[]) => {
+    try {
+      switch (actionId) {
+        case 'discontinue':
+          await supabase
+            .from('academic_departments')
+            .update({ is_active: false })
+            .in('id', ids);
+          toast({ title: 'Success', description: `${ids.length} departments discontinued.` });
+          break;
+        case 'delete':
+          for (const id of ids) {
+            await remove(id);
+          }
+          toast({ title: 'Success', description: `${ids.length} departments deleted.` });
+          break;
+      }
+      setSelectedIds([]);
+      fetchWithFaculty();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -153,6 +199,16 @@ export function DepartmentManagement() {
         </Dialog>
       </CardHeader>
       <CardContent>
+        <BulkActionsToolbar
+          selectedIds={selectedIds}
+          totalItems={departments.length}
+          onSelectAll={handleSelectAll}
+          allSelected={selectedIds.length === departments.length && departments.length > 0}
+          actions={FACULTY_DEPARTMENT_BULK_ACTIONS}
+          onAction={handleBulkAction}
+          entityName="departments"
+        />
+
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
         ) : departments.length === 0 ? (
@@ -161,6 +217,7 @@ export function DepartmentManagement() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12"></TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Faculty</TableHead>
@@ -171,6 +228,12 @@ export function DepartmentManagement() {
             <TableBody>
               {departments.map((dept) => (
                 <TableRow key={dept.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds.includes(dept.id)}
+                      onCheckedChange={(checked) => handleSelectOne(dept.id, checked === true)}
+                    />
+                  </TableCell>
                   <TableCell className="font-mono text-sm">{dept.code}</TableCell>
                   <TableCell className="font-medium">{dept.name}</TableCell>
                   <TableCell className="text-muted-foreground">
@@ -178,7 +241,7 @@ export function DepartmentManagement() {
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                      dept.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      dept.is_active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                     }`}>
                       {dept.is_active ? 'Active' : 'Inactive'}
                     </span>

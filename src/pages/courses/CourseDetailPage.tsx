@@ -360,9 +360,19 @@ export default function CourseDetailPage() {
 
             <Card>
               <CardContent className="pt-6">
-                <Button className="w-full mb-3" size="lg" disabled={course.enrollment_status === 'closed'}>
-                  {course.enrollment_status === 'open' ? 'Enroll Now' : 
-                   course.enrollment_status === 'coming_soon' ? 'Coming Soon' : 'Enrollment Closed'}
+                <Button 
+                  className="w-full mb-3" 
+                  size="lg" 
+                  disabled={course.enrollment_status === 'closed'}
+                  asChild={course.enrollment_status === 'open'}
+                >
+                  {course.enrollment_status === 'open' ? (
+                    <Link to={`/courses/${course.slug}/enroll`}>Enroll Now</Link>
+                  ) : course.enrollment_status === 'coming_soon' ? (
+                    'Coming Soon'
+                  ) : (
+                    'Enrollment Closed'
+                  )}
                 </Button>
                 <Button variant="outline" className="w-full" asChild>
                   <Link to="/contact">Contact Admissions</Link>

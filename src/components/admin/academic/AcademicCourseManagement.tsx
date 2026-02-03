@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
@@ -32,6 +33,9 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2, GraduationCap, Eye, BookOpen, Sparkles } from 'lucide-react';
 import { useAcademicCourses, useFaculties, useDepartments } from '@/hooks/useAcademicData';
 import { CurriculumEditor } from './CurriculumEditor';
+import { BulkActionsToolbar, COURSE_BULK_ACTIONS } from './BulkActionsToolbar';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import type { AcademicCourse, Department } from '@/types/academic';
 
 // New hierarchy: Faculty -> Department -> Course
@@ -39,11 +43,13 @@ export function AcademicCourseManagement() {
   const { data: courses, loading, fetchWithHierarchy, create, update, remove } = useAcademicCourses();
   const { data: faculties, fetch: fetchFaculties } = useFaculties();
   const { data: departments, fetchWithFaculty } = useDepartments();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [curriculumOpen, setCurriculumOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<AcademicCourse | null>(null);
   const [selectedFacultyId, setSelectedFacultyId] = useState('');
   const [editingCourse, setEditingCourse] = useState<AcademicCourse | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     department_id: '',
     name: '',
@@ -141,10 +147,64 @@ export function AcademicCourseManagement() {
     setCurriculumOpen(true);
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(courses.map(c => c.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds([...selectedIds, id]);
+    } else {
+      setSelectedIds(selectedIds.filter(sid => sid !== id));
+    }
+  };
+
+  const handleBulkAction = async (actionId: string, ids: string[]) => {
+    try {
+      switch (actionId) {
+        case 'admission_open':
+          await supabase
+            .from('academic_courses')
+            .update({ enrollment_status: 'open' })
+            .in('id', ids);
+          toast({ title: 'Success', description: `Admissions opened for ${ids.length} courses.` });
+          break;
+        case 'admission_closed':
+          await supabase
+            .from('academic_courses')
+            .update({ enrollment_status: 'closed' })
+            .in('id', ids);
+          toast({ title: 'Success', description: `Admissions closed for ${ids.length} courses.` });
+          break;
+        case 'discontinue':
+          await supabase
+            .from('academic_courses')
+            .update({ is_active: false, is_visible_on_website: false })
+            .in('id', ids);
+          toast({ title: 'Success', description: `${ids.length} courses discontinued.` });
+          break;
+        case 'delete':
+          for (const id of ids) {
+            await remove(id);
+          }
+          toast({ title: 'Success', description: `${ids.length} courses deleted.` });
+          break;
+      }
+      setSelectedIds([]);
+      fetchWithHierarchy();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    }
+  };
+
   const getEnrollmentBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <Badge className="bg-green-500">Open</Badge>;
+        return <Badge className="bg-primary/10 text-primary border-primary/20">Open</Badge>;
       case 'closed':
         return <Badge variant="secondary">Closed</Badge>;
       case 'coming_soon':
@@ -324,6 +384,16 @@ export function AcademicCourseManagement() {
           </Dialog>
         </CardHeader>
         <CardContent>
+          <BulkActionsToolbar
+            selectedIds={selectedIds}
+            totalItems={courses.length}
+            onSelectAll={handleSelectAll}
+            allSelected={selectedIds.length === courses.length && courses.length > 0}
+            actions={COURSE_BULK_ACTIONS}
+            onAction={handleBulkAction}
+            entityName="courses"
+          />
+
           {loading ? (
             <p className="text-muted-foreground">Loading...</p>
           ) : courses.length === 0 ? (
@@ -332,6 +402,7 @@ export function AcademicCourseManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12"></TableHead>
                   <TableHead>Code</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Department</TableHead>
@@ -346,6 +417,12 @@ export function AcademicCourseManagement() {
               <TableBody>
                 {courses.map((course) => (
                   <TableRow key={course.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.includes(course.id)}
+                        onCheckedChange={(checked) => handleSelectOne(course.id, checked === true)}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-sm">{course.course_code}</TableCell>
                     <TableCell className="font-medium">{course.name}</TableCell>
                     <TableCell className="text-muted-foreground">
@@ -354,7 +431,7 @@ export function AcademicCourseManagement() {
                     <TableCell>{course.duration_months} months</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs ${
-                        course.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        course.is_active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                       }`}>
                         {course.is_active ? 'Active' : 'Inactive'}
                       </span>

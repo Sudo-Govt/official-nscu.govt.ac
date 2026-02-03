@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, GraduationCap, Building2, BookOpen } from 'lucide-react';
+import { ChevronRight, GraduationCap, Building2, BookOpen, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAcademicNavigation, AcademicNavFaculty, AcademicNavDepartment } from '@/hooks/useAcademicNavigation';
 
@@ -36,9 +36,9 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
   const activeDepartment = activeFaculty?.departments.find(d => d.id === hoveredDepartment);
 
   return (
-    <div className="flex min-h-[400px]">
+    <div className="flex min-h-[400px] max-w-[900px]">
       {/* Column 1: Static links + Faculties */}
-      <div className="w-64 border-r bg-muted/30 p-2">
+      <div className="w-64 border-r bg-muted/30 p-2 overflow-y-auto max-h-[500px]">
         <div className="mb-3 px-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quick Links</p>
         </div>
@@ -63,13 +63,14 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
           onClick={handleClick}
           className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
         >
+          <Calendar className="h-4 w-4" />
           Academic Calendar
         </Link>
 
         <div className="my-3 border-t" />
 
         <div className="mb-2 px-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Faculties</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Faculties & Schools</p>
         </div>
         
         {faculties.length === 0 ? (
@@ -92,12 +93,13 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
               <Link 
                 to={`/faculty/${faculty.slug}`} 
                 onClick={handleClick}
-                className="flex-1 truncate"
+                className="flex-1 truncate flex items-center gap-2"
               >
-                {faculty.name}
+                <Building2 className="h-4 w-4 shrink-0" />
+                <span className="truncate">{faculty.name}</span>
               </Link>
               {faculty.departments.length > 0 && (
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
               )}
             </div>
           ))
@@ -106,7 +108,7 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
 
       {/* Column 2: Departments (shown when faculty is hovered) */}
       {activeFaculty && activeFaculty.departments.length > 0 && (
-        <div className="w-64 border-r bg-background p-2">
+        <div className="w-64 border-r bg-background p-2 overflow-y-auto max-h-[500px]">
           <div className="mb-2 px-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Departments
@@ -132,7 +134,7 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
               >
                 {dept.name}
               </Link>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
             </div>
           ))}
         </div>
@@ -140,7 +142,7 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
 
       {/* Column 3: Degree Levels (shown when department is hovered) */}
       {activeDepartment && (
-        <div className="w-64 bg-background p-2">
+        <div className="w-64 bg-background p-2 overflow-y-auto max-h-[500px]">
           <div className="mb-2 px-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Programs
