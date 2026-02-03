@@ -256,54 +256,66 @@ const MegaCourseUploader = () => {
     return result;
   };
 
-  // OPTIMIZED: Batch create navigation entries
+  // OPTIMIZED: Batch create navigation entries - ALWAYS nested under Academics
   const batchCreateNavigation = async (
     faculties: ParsedRow[],
     departments: ParsedRow[],
     academicsNavId: string | null
   ) => {
+    // CRITICAL: Do not create navigation items if Academics parent is missing
+    if (!academicsNavId) {
+      console.warn('Academics navigation parent not found - skipping navigation creation');
+      return;
+    }
+
     // Get existing navigation items
     const { data: existingNav } = await supabase
       .from('site_navigation')
-      .select('href');
+      .select('id, href, parent_id');
     
     const existingHrefs = new Set(existingNav?.map(n => n.href) || []);
     
-    // Prepare faculty nav items
+    // Prepare faculty nav items - ALWAYS under Academics
     const facultyNavItems = faculties
       .filter(f => !existingHrefs.has(`/faculty/${generateSlug(f.faculty_name)}`))
       .map((f, idx) => ({
         title: f.faculty_name,
         href: `/faculty/${generateSlug(f.faculty_name)}`,
-        parent_id: academicsNavId,
+        parent_id: academicsNavId, // ALWAYS under Academics
         menu_location: 'main',
         is_active: true,
-        position: 100 + idx,
+        position: 10 + idx, // Lower position numbers to stay organized
       }));
     
     if (facultyNavItems.length > 0) {
       await supabase.from('site_navigation').insert(facultyNavItems);
     }
     
-    // Get faculty nav IDs for department parents
+    // Get faculty nav IDs for department parents (only those under Academics)
     const { data: facultyNavs } = await supabase
       .from('site_navigation')
-      .select('id, href');
+      .select('id, href')
+      .eq('parent_id', academicsNavId);
     
     const facultyNavMap = new Map(facultyNavs?.map(n => [n.href, n.id]) || []);
     
-    // Prepare department nav items
+    // Prepare department nav items - ONLY if faculty parent exists
     const deptNavItems = departments
-      .filter(d => !existingHrefs.has(`/department/${generateSlug(d.department_name)}`))
+      .filter(d => {
+        const facultyHref = `/faculty/${generateSlug(d.faculty_name)}`;
+        const hasFacultyParent = facultyNavMap.has(facultyHref);
+        const notExists = !existingHrefs.has(`/department/${generateSlug(d.department_name)}`);
+        return hasFacultyParent && notExists; // ONLY add if faculty parent exists
+      })
       .map((d, idx) => {
         const facultyHref = `/faculty/${generateSlug(d.faculty_name)}`;
         return {
           title: d.department_name,
           href: `/department/${generateSlug(d.department_name)}`,
-          parent_id: facultyNavMap.get(facultyHref) || null,
+          parent_id: facultyNavMap.get(facultyHref)!, // Must have parent
           menu_location: 'main',
           is_active: true,
-          position: 200 + idx,
+          position: idx,
         };
       });
     
