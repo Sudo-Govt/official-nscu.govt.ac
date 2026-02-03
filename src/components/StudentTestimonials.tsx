@@ -9,7 +9,7 @@ const testimonials = [
     major: "Computer Science",
     quote: "The collaborative environment and cutting-edge research opportunities at NSCU have exceeded all my expectations. I've worked on AI projects that are actually making a difference.",
     rating: 5,
-    image: "photo-1494790108755-2616b612b5bc"
+    image: "photo-1438761681033-6461ffad8d80"
   },
   {
     name: "James Wilson",
@@ -41,7 +41,7 @@ const testimonials = [
     major: "International Relations",
     quote: "NSCU's commitment to global education and the study abroad programs have given me perspectives that will shape my entire career in diplomacy.",
     rating: 5,
-    image: "photo-1438761681033-6461ffad8d80"
+    image: "photo-1534528741775-53994a69daeb"
   },
   {
     name: "Alex Rodriguez",
