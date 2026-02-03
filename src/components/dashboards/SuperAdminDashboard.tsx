@@ -40,7 +40,8 @@ import {
   BulkUploadManager,
   MegaCourseUploader,
   ABETCourseGenerator,
-  CourseContentGenerator
+  CourseContentGenerator,
+  BulkContentGenerator
 } from '@/components/admin/academic';
 
 const SuperAdminDashboard = () => {
@@ -149,6 +150,7 @@ const SuperAdminDashboard = () => {
         { title: 'Mega Uploader', icon: FileText, value: 'mega-uploader', onClick: () => setActiveTab('mega-uploader') },
         { title: 'AI Curriculum Generator', icon: BookOpen, value: 'abet-generator', onClick: () => setActiveTab('abet-generator') },
         { title: 'AI Content Generator', icon: BookOpen, value: 'course-content-generator', onClick: () => setActiveTab('course-content-generator') },
+        { title: 'Bulk AI Generator', icon: Zap, value: 'bulk-content-generator', onClick: () => setActiveTab('bulk-content-generator') },
       ]
     },
     {
@@ -433,6 +435,9 @@ const SuperAdminDashboard = () => {
 
       case 'course-content-generator':
         return <CourseContentGenerator />;
+
+      case 'bulk-content-generator':
+        return <BulkContentGenerator />;
 
       default:
         return null;

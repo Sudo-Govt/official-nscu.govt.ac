@@ -8,3 +8,4 @@ export { default as BulkUploadManager } from './BulkUploadManager';
 export { default as MegaCourseUploader } from './MegaCourseUploader';
 export { default as ABETCourseGenerator } from './ABETCourseGenerator';
 export { default as CourseContentGenerator } from './CourseContentGenerator';
+export { default as BulkContentGenerator } from './BulkContentGenerator';
