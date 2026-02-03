@@ -1760,6 +1760,127 @@ export type Database = {
         }
         Relationships: []
       }
+      content_generation_notifications: {
+        Row: {
+          course_code: string
+          course_name: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string | null
+          queue_item_id: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          course_code: string
+          course_name: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          queue_item_id?: string | null
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          course_code?: string
+          course_name?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          queue_item_id?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_generation_notifications_queue_item_id_fkey"
+            columns: ["queue_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_generation_queue"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_generation_queue: {
+        Row: {
+          completed_at: string | null
+          course_code: string
+          course_id: string
+          course_name: string
+          created_at: string | null
+          created_by: string | null
+          error_message: string | null
+          id: string
+          priority: number | null
+          retries: number | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          course_code: string
+          course_id: string
+          course_name: string
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          priority?: number | null
+          retries?: number | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          course_code?: string
+          course_id?: string
+          course_name?: string
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          priority?: number | null
+          retries?: number | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_generation_queue_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: true
+            referencedRelation: "academic_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_generation_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       course_books: {
         Row: {
           book_id: string

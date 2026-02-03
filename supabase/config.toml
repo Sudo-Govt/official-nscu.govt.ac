@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.generate-course-content]
 verify_jwt = false
+
+[functions.process-content-queue]
+verify_jwt = false
