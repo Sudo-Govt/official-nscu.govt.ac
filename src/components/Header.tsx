@@ -17,12 +17,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import SearchDialog from './SearchDialog';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { AcademicMegaMenu } from './navigation/AcademicMegaMenu';
+
 interface FeaturedCourse {
   title: string;
   href: string;
@@ -323,7 +325,7 @@ const Header = () => {
           <div className="hidden lg:flex items-center space-x-8">
             <NavigationMenu>
               <NavigationMenuList>
-                {menuData.map((menu, index) => (
+                {menuData.slice(0, 7).map((menu, index) => (
                   <NavigationMenuItem key={index}>
                     {menu.title === "Academics" ? (
                       // Special handling for Academics with AcademicMegaMenu
@@ -341,44 +343,46 @@ const Header = () => {
                           {menu.title}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <div className="grid gap-3 p-6 md:w-[500px] lg:w-[700px] lg:grid-cols-2">
-                            {menu.items.map((item: any, itemIndex: number) => (
-                              <div key={itemIndex} className="space-y-3">
-                                {item.items ? (
-                                  <>
-                                    <h4 className="text-sm font-semibold text-primary border-b pb-2">
-                                      {item.title}
-                                    </h4>
-                                    <div className="space-y-1">
-                                      {item.items.map((subItem: any, subIndex: number) => (
-                                        <NavigationMenuLink key={subIndex} asChild>
-                                          <Link
-                                            to={subItem.href || "#"}
-                                            className={cn(
-                                              "block select-none rounded-md p-2 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                            )}
-                                          >
-                                            {subItem.title}
-                                          </Link>
-                                        </NavigationMenuLink>
-                                      ))}
-                                    </div>
-                                  </>
-                                ) : (
-                                  <NavigationMenuLink asChild>
-                                    <Link
-                                      to={item.href || "#"}
-                                      className={cn(
-                                        "block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                      )}
-                                    >
-                                      <div className="text-sm font-medium leading-none">{item.title}</div>
-                                    </Link>
-                                  </NavigationMenuLink>
-                                )}
-                              </div>
-                            ))}
-                          </div>
+                          <ScrollArea className="max-h-[70vh]">
+                            <div className="grid gap-3 p-6 md:w-[500px] lg:w-[700px] lg:grid-cols-2">
+                              {menu.items.map((item: any, itemIndex: number) => (
+                                <div key={itemIndex} className="space-y-3">
+                                  {item.items ? (
+                                    <>
+                                      <h4 className="text-sm font-semibold text-primary border-b pb-2">
+                                        {item.title}
+                                      </h4>
+                                      <div className="space-y-1">
+                                        {item.items.map((subItem: any, subIndex: number) => (
+                                          <NavigationMenuLink key={subIndex} asChild>
+                                            <Link
+                                              to={subItem.href || "#"}
+                                              className={cn(
+                                                "block select-none rounded-md p-2 text-sm leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                              )}
+                                            >
+                                              {subItem.title}
+                                            </Link>
+                                          </NavigationMenuLink>
+                                        ))}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <NavigationMenuLink asChild>
+                                      <Link
+                                        to={item.href || "#"}
+                                        className={cn(
+                                          "block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                        )}
+                                      >
+                                        <div className="text-sm font-medium leading-none">{item.title}</div>
+                                      </Link>
+                                    </NavigationMenuLink>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
                         </NavigationMenuContent>
                       </>
                     ) : (
@@ -421,57 +425,59 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t py-4 max-h-[70vh] overflow-y-auto">
-            <div className="space-y-4">
-              {menuData.map((item, index) => (
-                <div key={index} className="space-y-2">
-                  {item.items && item.items.length > 0 ? (
-                    <>
-                      <h3 className="font-semibold text-primary">{item.title}</h3>
-                      <div className="pl-4 space-y-2">
-                        {item.items.map((subItem: any, subIndex: number) => (
-                          <div key={subIndex}>
-                            {subItem.items ? (
-                              <div className="space-y-1">
-                                <h4 className="text-sm font-medium text-gray-700">{subItem.title}</h4>
-                                <div className="pl-3 space-y-1">
-                                  {subItem.items.map((subSubItem: any, subSubIndex: number) => (
-                                    <Link
-                                      key={subSubIndex}
-                                      to={subSubItem.href || "#"}
-                                      className="block text-sm text-muted-foreground hover:text-accent transition-colors"
-                                      onClick={() => setIsMenuOpen(false)}
-                                    >
-                                      {subSubItem.title}
-                                    </Link>
-                                  ))}
+          <div className="lg:hidden border-t py-4">
+            <ScrollArea className="max-h-[70vh]">
+              <div className="space-y-4 pr-4">
+                {menuData.slice(0, 7).map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    {item.items && item.items.length > 0 ? (
+                      <>
+                        <h3 className="font-semibold text-primary">{item.title}</h3>
+                        <div className="pl-4 space-y-2">
+                          {item.items.map((subItem: any, subIndex: number) => (
+                            <div key={subIndex}>
+                              {subItem.items ? (
+                                <div className="space-y-1">
+                                  <h4 className="text-sm font-medium text-muted-foreground">{subItem.title}</h4>
+                                  <div className="pl-3 space-y-1">
+                                    {subItem.items.map((subSubItem: any, subSubIndex: number) => (
+                                      <Link
+                                        key={subSubIndex}
+                                        to={subSubItem.href || "#"}
+                                        className="block text-sm text-muted-foreground hover:text-accent transition-colors"
+                                        onClick={() => setIsMenuOpen(false)}
+                                      >
+                                        {subSubItem.title}
+                                      </Link>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <Link
-                                to={subItem.href || "#"}
-                                className="block text-sm text-muted-foreground hover:text-accent transition-colors"
-                                onClick={() => setIsMenuOpen(false)}
-                              >
-                                {subItem.title}
-                              </Link>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <Link
-                      to={item.href || "#"}
-                      className="block font-semibold text-primary hover:text-accent transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {item.title}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
+                              ) : (
+                                <Link
+                                  to={subItem.href || "#"}
+                                  className="block text-sm text-muted-foreground hover:text-accent transition-colors"
+                                  onClick={() => setIsMenuOpen(false)}
+                                >
+                                  {subItem.title}
+                                </Link>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <Link
+                        to={item.href || "#"}
+                        className="block font-semibold text-primary hover:text-accent transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {item.title}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
         )}
       </div>
