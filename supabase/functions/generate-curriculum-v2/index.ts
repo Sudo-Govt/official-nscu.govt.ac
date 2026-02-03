@@ -287,6 +287,10 @@ serve(async (req) => {
 
 Generate the complete curriculum now.`;
 
+    // Use AbortController for timeout (2.5 minutes for complex curriculum)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 150000);
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -294,14 +298,17 @@ Generate the complete curriculum now.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: FULL_SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.7,
       }),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
