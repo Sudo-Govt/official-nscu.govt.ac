@@ -1,317 +1,394 @@
 
-# AI Content Generator Enhancement & Mega Uploader Optimization Plan
+# Bulk Course Content Generator - Implementation Plan
 
 ## Overview
 
-This plan addresses two distinct improvements:
-1. **Mega Course Uploader Performance** - Optimizing the upload process which is slow due to sequential database operations
-2. **AI Content Generator Enhancement** - Implementing a comprehensive 7-layer framework for generating detailed, ABET-compliant academic curricula
+Build a background processing queue system that generates AI curriculum content for courses with:
+- **30-second delay** between each course generation (to avoid rate limits)
+- **Background processing** that continues even when admin navigates away
+- **Notifications** with course code for each completed generation
+- **Auto-save** of generated content immediately after each successful generation
 
 ---
 
-## Issue 1: Mega Course Uploader Performance
+## Architecture
 
-### Current Problem
-The MegaCourseUploader processes each row sequentially with individual database queries:
-- Each faculty, department, and course triggers separate insert/check queries
-- Navigation items and CMS pages are created one at a time
-- For a file with 100 courses, this could mean 500+ sequential database round-trips
-
-### Solution: Batch Processing Architecture
-
-**1.1 Batch Insert Operations**
-- Replace individual inserts with bulk upserts using `INSERT ... ON CONFLICT`
-- Process all unique faculties in a single batch query
-- Process all unique departments in a single batch query
-- Process all courses in batched chunks (50 at a time)
-
-**1.2 Parallel Processing**
-- Use `Promise.all()` for independent operations
-- Create navigation items and CMS pages in parallel batches
-- Reduce total API calls by ~80%
-
-**1.3 Progress Optimization**
-- Pre-calculate totals before starting
-- Update progress in larger increments
-- Provide more accurate time estimates
-
----
-
-## Issue 2: AI Content Generator - 7-Layer Framework
-
-### Current State
-The existing `generate-course-content` edge function uses a simple prompt that produces generic content without structured semester details, books, or assessment methods.
-
-### New Architecture: 7-Layer Framework
-
-The new system will generate comprehensive curricula through a multi-pass approach:
-
-**Layer 1: Master Context**
-Global parameters including faculty, department, course details, degree type, duration, credits, and institution type.
-
-**Layer 2: Structural Skeleton**
-Pre-generation validation of:
-- Number of semesters and credits per semester
-- Subjects per semester (5-7)
-- Core:Elective ratio
-- Assessment weight distribution
-- Topics per subject (5)
-- Sub-topics per topic (4)
-- Books per subject (5)
-
-**Layer 3: Semester & Subject Generation**
-Thematic progression across years:
-- Year 1: Foundations (introductory, interdisciplinary)
-- Year 2: Analysis & Specialization (theory, research methods)
-- Year 3+: Advanced & Capstone (independent research, dissertation)
-
-Each subject includes: code, name, credits, contact hours, Core/Elective tag, description, prerequisites.
-
-**Layer 4: Topic & Sub-Topic Drill-Down**
-For each subject:
-- 5 major topics
-- 4 sub-topics per topic (specific, teachable concepts)
-- Logical progression: define, explain, apply, analyze
-
-**Layer 5: Books & Study Materials**
-Per subject (5 materials):
-- 1 Primary Textbook
-- 1-2 Primary Source texts
-- 1 Supplementary text
-- 1 Reference/Online Resource
-With: Title, Author, Year, Type, Usage notes
-
-**Layer 6: Assessment Structure**
-Standardized assessment weights:
-- Mid-Term: 20-25%
-- Final Exam: 25-35%
-- Research Paper: 20-35%
-- Presentation: 10-15%
-- Participation: 10-15%
-- Special rules for dissertations, labs
-
-**Layer 7: Validation**
-Quality gate checking:
-- Total credits match
-- 20 teachable units per subject (5x4)
-- 5 books per subject
-- Assessment = 100%
-- Logical prerequisites
-- Dissertation in final year only
-
----
-
-## Technical Implementation
-
-### Files to Create
-
-| File | Purpose |
-|------|---------|
-| `supabase/functions/generate-curriculum-v2/index.ts` | New comprehensive AI curriculum generator with 7-layer prompts |
-
-### Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src/components/admin/academic/MegaCourseUploader.tsx` | Add batch processing, parallel operations, chunked inserts |
-| `src/components/admin/academic/CourseContentGenerator.tsx` | Update UI to handle new comprehensive output, add semester tabs, subject accordions |
-| `supabase/functions/generate-course-content/index.ts` | Replace with 7-layer prompt framework |
-| `src/components/admin/academic/ABETCourseGenerator.tsx` | Integrate with new generator, enhance result display |
-
----
-
-## New Edge Function: generate-curriculum-v2
-
-### Input Parameters
-```json
-{
-  "facultyName": "Faculty of Engineering",
-  "facultyCode": "ENG",
-  "departmentName": "Computer Science",
-  "departmentCode": "CS",
-  "courseName": "Bachelor of Computer Science",
-  "courseCode": "BCS",
-  "degreeType": "BS",
-  "durationSemesters": 8,
-  "totalCredits": 160,
-  "institutionType": "Research University",
-  "specialization": "Artificial Intelligence"
-}
+```text
++------------------+       +-------------------+       +----------------------+
+|  Admin UI        |------>| Queue Table       |------>| Processing Worker    |
+|  (Select courses)|       | (Persistent)      |       | (Edge Function)      |
++------------------+       +-------------------+       +----------------------+
+        |                         |                            |
+        v                         v                            v
+  Bulk Select Dialog       content_generation_queue     generate-curriculum-v2
+  - Filter by faculty      - id, course_id, status      (existing function)
+  - Filter by department   - priority, retries
+  - Add to queue button    - created_at, updated_at
+        |                  - error_message                     |
+        v                         |                            v
+  Queue Monitor                   v                     Auto-save to
+  - Real-time status       Supabase Realtime          academic_courses
+  - Notifications          (Live UI updates)
 ```
 
-### Output Structure
+---
+
+## Key Features
+
+### 1. 30-Second Processing Gap
+- Each course waits 30 seconds before the next one starts
+- Prevents rate limiting (429 errors)
+- Allows API quotas to reset between requests
+
+### 2. Background Processing
+- Queue persists in database
+- Processing continues even if admin closes browser
+- Admin can return later to see progress
+- Uses polling from frontend to trigger processor
+
+### 3. Notifications System
+- Toast notification for each completed course: "✓ Generated: CS-101 - Computer Science Fundamentals"
+- Toast notification for failures: "✗ Failed: PHY-201 - Error message"
+- Notification bell with count of completed items since last visit
+- Store notifications in database for persistence
+
+### 4. Auto-Save
+- Immediately save generated content to `academic_courses.ai_generated_content`
+- Update `content_generated_at` timestamp
+- No manual save required - content is saved as soon as generated
+
+---
+
+## Database Schema
+
+### Table: `content_generation_queue`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `course_id` | UUID | Reference to academic_courses |
+| `course_code` | TEXT | Cached for notifications |
+| `course_name` | TEXT | Cached for notifications |
+| `status` | TEXT | `pending` / `processing` / `completed` / `failed` |
+| `priority` | INTEGER | Lower = higher priority (default 10) |
+| `retries` | INTEGER | Number of retry attempts (max 3) |
+| `error_message` | TEXT | Last error if failed |
+| `started_at` | TIMESTAMPTZ | When processing began |
+| `completed_at` | TIMESTAMPTZ | When finished |
+| `created_at` | TIMESTAMPTZ | When added to queue |
+| `created_by` | UUID | Admin who queued it |
+
+### Table: `content_generation_notifications`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key |
+| `queue_item_id` | UUID | Reference to queue item |
+| `course_code` | TEXT | For display |
+| `course_name` | TEXT | For display |
+| `status` | TEXT | `completed` / `failed` |
+| `message` | TEXT | Success/error message |
+| `is_read` | BOOLEAN | Has user seen this? |
+| `created_at` | TIMESTAMPTZ | When notification created |
+| `user_id` | UUID | Target admin user |
+
+---
+
+## Processing Strategy
+
+| Parameter | Value |
+|-----------|-------|
+| **Delay between requests** | **30 seconds** |
+| Concurrent processing | 1 at a time (sequential) |
+| Max retries per item | 3 |
+| Backoff on 429 error | 60 seconds then retry |
+| Pause on 402 error | Stop queue, notify admin |
+| Batch size for UI | 50 courses at a time |
+
+---
+
+## Edge Function: `process-content-queue`
+
+### Logic Flow
+
+```text
+1. Query next pending item (ORDER BY priority, created_at LIMIT 1)
+2. If none found → return { idle: true, nextCheckIn: 30 }
+3. Mark as 'processing', set started_at
+4. Fetch course details from academic_courses
+5. Call generate-curriculum-v2 with course data
+6. If success:
+   a. AUTO-SAVE: Update academic_courses with generated content
+   b. Mark queue item as 'completed', set completed_at
+   c. Create notification: "✓ {course_code} generated successfully"
+   d. Return { processed: true, nextIn: 30 }
+7. If 429 (rate limit):
+   a. Mark as 'pending' with retries++
+   b. Return { rateLimited: true, retryAfter: 60 }
+8. If 402 (payment required):
+   a. Create notification: "⚠ Credits exhausted - queue paused"
+   b. Return { paused: true, reason: 'credits_exhausted' }
+9. If other error:
+   a. Mark as 'failed' with error_message
+   b. Create notification: "✗ {course_code} failed: {error}"
+   c. Return { processed: true, failed: true, nextIn: 30 }
+```
+
+### Response Structure
+
 ```json
 {
-  "skeleton": {
-    "semesterCount": 8,
-    "creditsPerSemester": 20,
-    "subjectsPerSemester": 6,
-    "coreElectiveRatio": "70:30",
-    "assessmentTemplate": {...},
-    "topicsPerSubject": 5,
-    "subTopicsPerTopic": 4,
-    "booksPerSubject": 5
-  },
-  "semesters": [
-    {
-      "number": 1,
-      "theme": "Foundations",
-      "totalCredits": 20,
-      "subjects": [
-        {
-          "code": "CS-101",
-          "name": "Introduction to Programming",
-          "credits": 4,
-          "contactHours": 60,
-          "type": "Core",
-          "description": "...",
-          "prerequisites": [],
-          "topics": [
-            {
-              "title": "Programming Paradigms",
-              "subTopics": [
-                "Imperative programming: Definition and characteristics",
-                "Object-oriented programming: Encapsulation principles",
-                "Functional programming: Pure functions and immutability",
-                "Comparison: Selecting paradigms for problem domains"
-              ]
-            }
-          ],
-          "books": [
-            {
-              "title": "Structure and Interpretation of Computer Programs",
-              "author": "Harold Abelson, Gerald Jay Sussman",
-              "year": 1996,
-              "type": "Primary Textbook",
-              "usage": "Compulsory Chapters 1-3"
-            }
-          ],
-          "assessment": {
-            "midTerm": 25,
-            "final": 30,
-            "assignments": 20,
-            "project": 15,
-            "participation": 10
-          },
-          "learningOutcomes": ["CLO1", "CLO2"]
-        }
-      ]
-    }
-  ],
-  "gradingSystem": {...},
-  "careerOutcomes": {...},
-  "eligibility": {...},
-  "validation": {
-    "totalCreditsValid": true,
-    "subjectStructureValid": true,
-    "assessmentValid": true,
-    "errors": []
+  "processed": true,
+  "courseCode": "CS-101",
+  "courseName": "Computer Science Fundamentals",
+  "status": "completed",
+  "nextProcessIn": 30,
+  "queueRemaining": 847,
+  "notification": {
+    "type": "success",
+    "message": "Generated curriculum for CS-101"
   }
 }
 ```
 
 ---
 
-## Mega Uploader Optimization Strategy
+## Frontend Components
 
-### Current Flow (Slow)
-```
-For each row:
-  1. Check if faculty exists (query)
-  2. If not, insert faculty (query)
-  3. Check if department exists (query)
-  4. If not, insert department (query)
-  5. Insert course (query)
-  6. Create navigation (query)
-  7. Create CMS page (query)
-```
+### 1. BulkContentGenerator.tsx
 
-### Optimized Flow (Fast)
-```
-Phase 1: Parse & Deduplicate
-  - Parse entire file
-  - Extract unique faculties, departments
-  - Build relationship maps
+Main component with:
+- Queue statistics dashboard
+- Course selection with filters
+- Queue controls (Start/Pause/Clear)
+- Real-time progress updates
 
-Phase 2: Batch Faculty Upsert
-  - Single query: INSERT all faculties ON CONFLICT DO NOTHING
-  - Single query: SELECT all faculties to get IDs
+### 2. QueueMonitor.tsx
 
-Phase 3: Batch Department Upsert
-  - Single query: INSERT all departments ON CONFLICT DO NOTHING
-  - Single query: SELECT all departments to get IDs
+Live queue display:
+- Currently processing item with elapsed time
+- Pending items list
+- Completed items (last 20)
+- Failed items with retry option
 
-Phase 4: Batch Course Insert (chunks of 50)
-  - Parallel: INSERT courses in chunks
-  - Parallel: Create navigation entries
-  - Parallel: Create CMS pages
+### 3. NotificationBell.tsx
 
-Phase 5: Report Results
-```
-
-### Expected Performance Improvement
-- Current: ~3-5 seconds per row
-- Optimized: ~50ms per row (60x improvement)
-- 100 courses: from ~5 minutes to ~5 seconds
+Notification indicator:
+- Badge count of unread notifications
+- Dropdown with recent notifications
+- Mark as read functionality
+- Click to view course details
 
 ---
 
-## UI Enhancements for Course Content Generator
+## Frontend Polling Strategy
 
-### New Features
-1. **Skeleton Preview** - Show structural skeleton before full generation
-2. **Semester Tabs** - Navigate between semesters easily
-3. **Subject Accordions** - Expandable views for each subject with topics, sub-topics, books
-4. **Assessment Matrix** - Visual display of assessment weights
-5. **Validation Report** - Show Layer 7 validation results with any errors
-6. **Export Options** - Download as PDF syllabus or Excel curriculum map
+```typescript
+// Polling logic with 30-second intervals
+const POLL_INTERVAL = 30000; // 30 seconds
 
-### Preview Section Layout
-```
-[Semester 1: Foundations] [Semester 2] [Semester 3] ...
-┌────────────────────────────────────────────────────────┐
-│ Total Credits: 20 | 6 Subjects | Theme: Foundations    │
-├────────────────────────────────────────────────────────┤
-│ ▼ CS-101 Introduction to Programming (4 cr) [Core]    │
-│   ├── Description: ...                                 │
-│   ├── Topics:                                          │
-│   │   ├── Topic 1: Programming Paradigms               │
-│   │   │   ├── Imperative programming...                │
-│   │   │   ├── Object-oriented programming...           │
-│   │   │   ├── Functional programming...                │
-│   │   │   └── Comparison: Selecting paradigms...       │
-│   │   └── Topic 2: ...                                 │
-│   ├── Books (5):                                       │
-│   │   ├── [Primary] SICP - Abelson (Ch.1-3)           │
-│   │   ├── [Source] Clean Code - R. Martin             │
-│   │   └── ...                                          │
-│   └── Assessment: Mid 25% | Final 30% | Project 15%   │
-│                                                        │
-│ ▼ MATH-101 Calculus I (4 cr) [Core]                   │
-│   └── ...                                              │
-└────────────────────────────────────────────────────────┘
+useEffect(() => {
+  if (queueStatus === 'running' && pendingCount > 0) {
+    const interval = setInterval(async () => {
+      const result = await supabase.functions.invoke('process-content-queue');
+      
+      if (result.data?.processed) {
+        // Show toast notification
+        toast({
+          title: result.data.status === 'completed' 
+            ? `✓ Generated: ${result.data.courseCode}` 
+            : `✗ Failed: ${result.data.courseCode}`,
+          description: result.data.courseName
+        });
+      }
+      
+      if (result.data?.paused) {
+        setQueueStatus('paused');
+        toast.error('Queue paused: Credits exhausted');
+      }
+    }, POLL_INTERVAL);
+    
+    return () => clearInterval(interval);
+  }
+}, [queueStatus, pendingCount]);
 ```
 
 ---
 
-## Implementation Order
+## UI Mockup
 
-1. **Create new edge function** `generate-curriculum-v2` with 7-layer prompts
-2. **Update MegaCourseUploader** with batch processing
-3. **Update CourseContentGenerator UI** for new data structure
-4. **Update ABETCourseGenerator** to use new edge function
-5. **Test end-to-end** with sample curricula
-6. **Migrate from Lovable AI Gateway** instead of OpenAI for cost efficiency (uses LOVABLE_API_KEY which is already configured)
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ 7-Layer AI Curriculum Generator                    [🔔 23]  │
+├─────────────────────────────────────────────────────────────┤
+│ [Single Course] [Bulk Generate]                              │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│ Queue Status:  ● Running (30s between each)                  │
+│ ┌──────────┬───────────┬──────────┬──────────┐              │
+│ │ Pending  │ Processing │ Completed│ Failed   │              │
+│ │   847    │     1      │    152   │    3     │              │
+│ └──────────┴───────────┴──────────┴──────────┘              │
+│                                                              │
+│ Estimated time remaining: ~7 hours 5 minutes                 │
+│                                                              │
+│ [⏸ Pause Queue] [🗑 Clear Queue] [🔄 Retry Failed]          │
+│                                                              │
+│ ─────────────────────────────────────────────────────────── │
+│ Currently Processing                                         │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ 🔄 CS-101 - Computer Science Fundamentals               │ │
+│ │    Elapsed: 45s | Next course in: 30s                   │ │
+│ │    ████████████████████░░░░░░░░░░░░░ Generating...      │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                              │
+│ ─────────────────────────────────────────────────────────── │
+│ Recent Activity                                              │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ ✓ MBA-301 - Strategic Management (just now) [Auto-saved]│ │
+│ │ ✓ ENG-201 - Circuit Analysis (30s ago) [Auto-saved]     │ │
+│ │ ✓ PHY-101 - Physics I (1m ago) [Auto-saved]             │ │
+│ │ ✗ CHEM-401 - Organic Chemistry - "Timeout" [Retry]      │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│                                                              │
+│ ─────────────────────────────────────────────────────────── │
+│ Add to Queue                                                 │
+│ Faculty: [All ▼] Department: [All ▼] □ Without content only │
+│                                                              │
+│ ☑ Course 1 - Data Structures (DS-201)                       │
+│ ☑ Course 2 - Algorithms (ALG-301)                           │
+│ ☑ Course 3 - Machine Learning (ML-401)                      │
+│ ... (50 of 847 shown)                                       │
+│                                                              │
+│ [☑ Select All Filtered (847)] [➕ Add Selected to Queue]    │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## API Model Selection
+## Notification Bell Dropdown
 
-The current implementation uses OpenAI's `gpt-4o`. Since Lovable AI Gateway is available with pre-configured credentials, the new edge function will use:
-- **Model**: `google/gemini-3-flash-preview` (fast, capable, no API key needed from user)
-- **Fallback**: `google/gemini-2.5-pro` for complex curricula if needed
+```text
+┌──────────────────────────────────┐
+│ 🔔 Notifications (23 new)        │
+├──────────────────────────────────┤
+│ ✓ CS-101 generated      just now │
+│ ✓ MBA-301 generated        30s   │
+│ ✓ ENG-201 generated        1m    │
+│ ✗ CHEM-401 failed          2m    │
+│ ✓ PHY-101 generated        3m    │
+│ ...                              │
+├──────────────────────────────────┤
+│ [Mark all as read] [View all]    │
+└──────────────────────────────────┘
+```
 
-This provides:
-- Faster generation
-- No additional API key configuration
-- Rate limit handling built-in
+---
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `supabase/functions/process-content-queue/index.ts` | Background processor with 30s logic |
+| `src/components/admin/academic/BulkContentGenerator.tsx` | Main bulk generator UI |
+| `src/components/admin/academic/QueueMonitor.tsx` | Live queue display |
+| `src/components/admin/academic/NotificationBell.tsx` | Notification indicator |
+| `src/hooks/useContentQueue.ts` | Queue state management hook |
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/components/admin/academic/CourseContentGenerator.tsx` | Add "Bulk Generate" tab |
+| `supabase/config.toml` | Register new edge function |
+
+---
+
+## Database Migration SQL
+
+```sql
+-- Queue table
+CREATE TABLE content_generation_queue (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id UUID NOT NULL REFERENCES academic_courses(id) ON DELETE CASCADE,
+  course_code TEXT NOT NULL,
+  course_name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' 
+    CHECK (status IN ('pending', 'processing', 'completed', 'failed')),
+  priority INTEGER DEFAULT 10,
+  retries INTEGER DEFAULT 0,
+  error_message TEXT,
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  created_by UUID REFERENCES auth.users(id),
+  UNIQUE(course_id)
+);
+
+-- Notifications table
+CREATE TABLE content_generation_notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  queue_item_id UUID REFERENCES content_generation_queue(id) ON DELETE CASCADE,
+  course_code TEXT NOT NULL,
+  course_name TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('completed', 'failed')),
+  message TEXT,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  user_id UUID REFERENCES auth.users(id)
+);
+
+-- Enable realtime
+ALTER PUBLICATION supabase_realtime ADD TABLE content_generation_queue;
+ALTER PUBLICATION supabase_realtime ADD TABLE content_generation_notifications;
+
+-- RLS policies
+ALTER TABLE content_generation_queue ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content_generation_notifications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Admins can manage queue"
+  ON content_generation_queue FOR ALL
+  USING (public.is_admin(auth.uid()));
+
+CREATE POLICY "Users can view their notifications"
+  ON content_generation_notifications FOR SELECT
+  USING (user_id = auth.uid());
+
+CREATE POLICY "System can create notifications"
+  ON content_generation_notifications FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Users can update their notifications"
+  ON content_generation_notifications FOR UPDATE
+  USING (user_id = auth.uid());
+```
+
+---
+
+## Time Estimates for 12,000 Courses
+
+| Metric | Value |
+|--------|-------|
+| Processing time per course | ~15-30 seconds |
+| Gap between courses | 30 seconds |
+| Total time per course | ~45-60 seconds |
+| 100 courses | ~1.5 hours |
+| 1,000 courses | ~15 hours |
+| 12,000 courses | ~7.5 days |
+
+*Note: Can be run continuously in background. Admin doesn't need to keep browser open.*
+
+---
+
+## Edge Cases Handled
+
+| Scenario | Solution |
+|----------|----------|
+| Admin closes browser | Queue persists, resumes when admin returns |
+| Rate limit (429) | Wait 60s, retry automatically |
+| Credits exhausted (402) | Pause queue, create urgent notification |
+| Course deleted while queued | CASCADE delete removes queue entry |
+| Duplicate queue entry | UNIQUE constraint prevents duplicates |
+| Network timeout | Retry up to 3 times, then mark failed |
+| Generation takes >30s | Wait for completion, then 30s gap starts |
+| Server restart | Queue persists, continues on next poll |
