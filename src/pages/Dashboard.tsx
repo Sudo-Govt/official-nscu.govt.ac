@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { usePerspective } from '@/context/PerspectiveContext';
+import PerspectiveBanner from '@/components/admin/PerspectiveBanner';
 
 // Role-specific dashboards
 import SuperAdminDashboard from '@/components/dashboards/SuperAdminDashboard';
@@ -22,6 +24,7 @@ import DelegatorDashboard from '@/components/dashboards/DelegatorDashboard';
 
 const Dashboard = () => {
   const { user, isLoading } = useAuth();
+  const { perspectiveUser, isInPerspectiveMode } = usePerspective();
 
   if (isLoading) {
     return (
@@ -35,9 +38,12 @@ const Dashboard = () => {
     return <div>Please log in to access your dashboard.</div>;
   }
 
+  // Determine which role to render - use perspective if active
+  const activeRole = isInPerspectiveMode && perspectiveUser ? perspectiveUser.role : user.role;
+
   // Route to role-specific dashboard
   const renderDashboard = () => {
-    switch (user.role) {
+    switch (activeRole) {
       // System & Platform Administration
       case 'superadmin':
         return <SuperAdminDashboard />;
@@ -101,14 +107,21 @@ const Dashboard = () => {
           <div className="flex items-center justify-center min-h-screen">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-destructive">Access Denied</h1>
-              <p className="text-muted-foreground mt-2">Invalid or unassigned role: {user.role}</p>
+              <p className="text-muted-foreground mt-2">Invalid or unassigned role: {activeRole}</p>
             </div>
           </div>
         );
     }
   };
 
-  return renderDashboard();
+  return (
+    <>
+      <PerspectiveBanner />
+      <div className={isInPerspectiveMode ? 'pt-10' : ''}>
+        {renderDashboard()}
+      </div>
+    </>
+  );
 };
 
 export default Dashboard;

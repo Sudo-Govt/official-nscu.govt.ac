@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar, MonitorCog
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar, MonitorCog, Eye
 } from 'lucide-react';
+import PerspectiveSelector from '@/components/admin/PerspectiveSelector';
 import AlumniManagement from '@/components/admin/AlumniManagement';
 import AlumniDataManagement from '@/components/admin/AlumniDataManagement';
 import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagement';
@@ -110,6 +111,7 @@ const SuperAdminDashboard = () => {
       label: 'Main',
       items: [
         { title: 'Overview', icon: LayoutDashboard, value: 'overview', onClick: () => setActiveTab('overview') },
+        { title: 'Perspective', icon: Eye, value: 'perspective', onClick: () => setActiveTab('perspective') },
         { title: 'Site Editor', icon: Globe, value: 'site-editor', onClick: () => setActiveTab('site-editor') },
         { title: 'Users & Roles', icon: Users, value: 'users', onClick: () => setActiveTab('users') },
       ]
@@ -274,6 +276,30 @@ const SuperAdminDashboard = () => {
               </CardContent>
             </Card>
           </div>
+        );
+
+      case 'perspective':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                Perspective Mode
+              </CardTitle>
+              <CardDescription>
+                View the dashboard as any user in the system without logging out. 
+                Select a user below to see their dashboard experience.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PerspectiveSelector />
+              <p className="text-sm text-muted-foreground mt-4">
+                When you enter perspective mode, you'll see a banner at the top of the screen 
+                indicating which user's view you're seeing. Click "Exit Perspective" to return 
+                to your Super Admin dashboard.
+              </p>
+            </CardContent>
+          </Card>
         );
 
       case 'site-editor':
