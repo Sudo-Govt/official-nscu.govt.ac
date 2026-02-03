@@ -127,6 +127,34 @@ const MegaCourseUploader = () => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   };
 
+  // Auto-detect degree level from course name
+  const detectDegreeLevel = (courseName: string): string => {
+    const name = courseName.toLowerCase();
+    
+    // Doctoral / PhD patterns
+    if (name.includes('doctor of philosophy') || name.includes('ph.d') || name.includes('phd') || 
+        name.includes('doctorate') || name.includes('d.phil') || name.includes('dphil')) {
+      return 'doctoral';
+    }
+    
+    // Postgraduate / Master patterns
+    if (name.includes('master of') || name.includes('master\'s') || name.includes('m.s.') ||
+        name.includes('m.a.') || name.includes('m.sc') || name.includes('mba') || 
+        name.includes('m.tech') || name.includes('m.phil') || name.includes('executive mba') ||
+        name.includes('m.b.a') || name.includes('m.ed') || name.includes('llm') ||
+        name.includes('postgraduate') || name.includes('post-graduate') || name.includes('pg diploma')) {
+      return 'postgraduate';
+    }
+    
+    // Certificate / Diploma patterns
+    if (name.includes('certificate') || name.includes('diploma') || name.includes('certification')) {
+      return 'certificate';
+    }
+    
+    // Default to undergraduate (Bachelor / B.S. / B.A. / B.Tech etc.)
+    return 'undergraduate';
+  };
+
   // OPTIMIZED: Batch upsert faculties
   const batchUpsertFaculties = async (
     uniqueFaculties: ParsedRow[]
@@ -231,7 +259,7 @@ const MegaCourseUploader = () => {
           department_id: deptMap.get(r.department_code),
           duration_months: parseInt(r.duration_months || '48'),
           total_credits: parseInt(r.total_credits || '120'),
-          degree_level: r.degree_level || 'undergraduate',
+          degree_level: r.degree_level || detectDegreeLevel(r.course_name),
           enrollment_status: 'open',
           is_active: true,
           is_visible_on_website: true,
