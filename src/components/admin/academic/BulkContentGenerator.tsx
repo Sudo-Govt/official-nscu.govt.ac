@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { 
   Play, Pause, RotateCcw, Trash2, Search, Filter,
   CheckCircle2, XCircle, Clock, Loader2, Bell,
-  AlertTriangle, Zap, Building2, Users, RefreshCw
+  AlertTriangle, Zap, Building2, Users, RefreshCw, ExternalLink
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -23,6 +24,7 @@ interface Course {
   id: string;
   name: string;
   course_code: string;
+  slug: string | null;
   department_id: string | null;
   ai_generated_content: unknown;
 }
@@ -87,7 +89,7 @@ const BulkContentGenerator = () => {
     const [facRes, deptRes, courseRes] = await Promise.all([
       supabase.from('academic_faculties').select('id, name, code').eq('is_active', true).order('name'),
       supabase.from('academic_departments').select('id, name, code, faculty_id').eq('is_active', true).order('name'),
-      supabase.from('academic_courses').select('id, name, course_code, department_id, ai_generated_content').eq('is_active', true).order('name'),
+      supabase.from('academic_courses').select('id, name, course_code, slug, department_id, ai_generated_content').eq('is_active', true).order('name'),
     ]);
 
     if (facRes.data) setFaculties(facRes.data);
@@ -152,7 +154,7 @@ const BulkContentGenerator = () => {
     
     const coursesToAdd = filteredCourses.filter(c => selectedCourses.has(c.id));
     const success = await addToQueue(
-      coursesToAdd.map(c => ({ id: c.id, course_code: c.course_code, name: c.name })),
+      coursesToAdd.map(c => ({ id: c.id, course_code: c.course_code, name: c.name, slug: c.slug })),
       user.id
     );
 
@@ -546,9 +548,20 @@ const BulkContentGenerator = () => {
                         </div>
                       )}
                       {item.status === 'completed' && (
-                        <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Auto-saved at {new Date(item.completed_at!).toLocaleTimeString()}
+                        <div className="mt-2 text-xs text-green-600 flex items-center justify-between">
+                          <span className="flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Auto-saved at {new Date(item.completed_at!).toLocaleTimeString()}
+                          </span>
+                          {item.course_slug && (
+                            <Link 
+                              to={`/courses/${item.course_slug}`}
+                              target="_blank"
+                              className="flex items-center gap-1 text-primary hover:underline"
+                            >
+                              View Page <ExternalLink className="h-3 w-3" />
+                            </Link>
+                          )}
                         </div>
                       )}
                     </div>

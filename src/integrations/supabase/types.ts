@@ -1810,6 +1810,7 @@ export type Database = {
           course_code: string
           course_id: string
           course_name: string
+          course_slug: string | null
           created_at: string | null
           created_by: string | null
           error_message: string | null
@@ -1824,6 +1825,7 @@ export type Database = {
           course_code: string
           course_id: string
           course_name: string
+          course_slug?: string | null
           created_at?: string | null
           created_by?: string | null
           error_message?: string | null
@@ -1838,6 +1840,7 @@ export type Database = {
           course_code?: string
           course_id?: string
           course_name?: string
+          course_slug?: string | null
           created_at?: string | null
           created_by?: string | null
           error_message?: string | null
