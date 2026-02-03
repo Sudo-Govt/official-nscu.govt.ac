@@ -178,6 +178,7 @@ import DegreeCourseListing from "./pages/department/DegreeCourseListing";
 // Public Course Catalog
 import PublicCourseCatalog from "./pages/courses/PublicCourseCatalog";
 import CourseDetailPage from "./pages/courses/CourseDetailPage";
+import CourseEnrollment from "./pages/CourseEnrollment";
 
 // Job pages
 import CareersPage from "./pages/careers/CareersPage";
@@ -372,6 +373,7 @@ const App = () => (
           {/* Public Course Catalog Routes */}
           <Route path="/courses" element={<PublicCourseCatalog />} />
           <Route path="/courses/:slug" element={<CourseDetailPage />} />
+          <Route path="/courses/:slug/enroll" element={<CourseEnrollment />} />
           
           {/* Dynamic Academic Routes - Faculty, Department, Degree Level */}
           <Route path="/faculty/:slug" element={<DynamicFacultyPage />} />

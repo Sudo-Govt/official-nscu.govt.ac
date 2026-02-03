@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -22,13 +23,18 @@ import {
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Users } from 'lucide-react';
 import { useFaculties } from '@/hooks/useAcademicData';
+import { BulkActionsToolbar, FACULTY_DEPARTMENT_BULK_ACTIONS } from './BulkActionsToolbar';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import type { Faculty } from '@/types/academic';
 
 // Faculty is now the top-level entity (no parent department)
 export function FacultyManagement() {
   const { data: faculties, loading, fetch, create, update, remove } = useFaculties();
+  const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -69,6 +75,46 @@ export function FacultyManagement() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure? This will delete all departments and courses under this faculty.')) {
       await remove(id);
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(faculties.map(f => f.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds([...selectedIds, id]);
+    } else {
+      setSelectedIds(selectedIds.filter(sid => sid !== id));
+    }
+  };
+
+  const handleBulkAction = async (actionId: string, ids: string[]) => {
+    try {
+      switch (actionId) {
+        case 'discontinue':
+          await supabase
+            .from('academic_faculties')
+            .update({ is_active: false })
+            .in('id', ids);
+          toast({ title: 'Success', description: `${ids.length} faculties discontinued.` });
+          break;
+        case 'delete':
+          for (const id of ids) {
+            await remove(id);
+          }
+          toast({ title: 'Success', description: `${ids.length} faculties deleted.` });
+          break;
+      }
+      setSelectedIds([]);
+      fetch();
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -123,6 +169,16 @@ export function FacultyManagement() {
         </Dialog>
       </CardHeader>
       <CardContent>
+        <BulkActionsToolbar
+          selectedIds={selectedIds}
+          totalItems={faculties.length}
+          onSelectAll={handleSelectAll}
+          allSelected={selectedIds.length === faculties.length && faculties.length > 0}
+          actions={FACULTY_DEPARTMENT_BULK_ACTIONS}
+          onAction={handleBulkAction}
+          entityName="faculties"
+        />
+
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
         ) : faculties.length === 0 ? (
@@ -131,6 +187,7 @@ export function FacultyManagement() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12"></TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Description</TableHead>
@@ -141,6 +198,12 @@ export function FacultyManagement() {
             <TableBody>
               {faculties.map((faculty) => (
                 <TableRow key={faculty.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds.includes(faculty.id)}
+                      onCheckedChange={(checked) => handleSelectOne(faculty.id, checked === true)}
+                    />
+                  </TableCell>
                   <TableCell className="font-mono text-sm">{faculty.code}</TableCell>
                   <TableCell className="font-medium">{faculty.name}</TableCell>
                   <TableCell className="text-muted-foreground max-w-xs truncate">
@@ -148,7 +211,7 @@ export function FacultyManagement() {
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                      faculty.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      faculty.is_active ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                     }`}>
                       {faculty.is_active ? 'Active' : 'Inactive'}
                     </span>
