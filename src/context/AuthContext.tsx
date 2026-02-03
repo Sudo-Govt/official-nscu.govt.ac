@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
@@ -21,10 +21,93 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper to get device/browser info
+const getDeviceInfo = () => {
+  const ua = navigator.userAgent;
+  let device = 'Desktop';
+  if (/mobile/i.test(ua)) device = 'Mobile';
+  else if (/tablet|ipad/i.test(ua)) device = 'Tablet';
+  
+  let browser = 'Unknown';
+  if (ua.includes('Chrome')) browser = 'Chrome';
+  else if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('Safari')) browser = 'Safari';
+  else if (ua.includes('Edge')) browser = 'Edge';
+  
+  return `${device} - ${browser}`;
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const currentSessionId = useRef<string | null>(null);
+
+  // Track user session in database
+  const trackSession = async (userId: string, action: 'sign_in' | 'sign_out') => {
+    try {
+      if (action === 'sign_in') {
+        // Create new session record
+        const { data, error } = await supabase
+          .from('user_sessions')
+          .insert({
+            user_id: userId,
+            user_agent: navigator.userAgent,
+            device_info: getDeviceInfo(),
+            signed_in_at: new Date().toISOString(),
+            last_activity_at: new Date().toISOString(),
+            is_active: true,
+          })
+          .select('id')
+          .single();
+
+        if (!error && data) {
+          currentSessionId.current = data.id;
+          
+          // Log the sign-in activity
+          await supabase.from('user_activity_logs').insert({
+            user_id: userId,
+            session_id: data.id,
+            action_type: 'sign_in',
+            action_description: 'User signed in',
+            user_agent: navigator.userAgent,
+          });
+        }
+      } else if (action === 'sign_out' && currentSessionId.current) {
+        // Update session as ended
+        await supabase
+          .from('user_sessions')
+          .update({
+            signed_out_at: new Date().toISOString(),
+            is_active: false,
+          })
+          .eq('id', currentSessionId.current);
+
+        // Log the sign-out activity
+        await supabase.from('user_activity_logs').insert({
+          user_id: userId,
+          session_id: currentSessionId.current,
+          action_type: 'sign_out',
+          action_description: 'User signed out',
+          user_agent: navigator.userAgent,
+        });
+
+        currentSessionId.current = null;
+      }
+    } catch (error) {
+      console.error('Error tracking session:', error);
+    }
+  };
+
+  // Update last activity periodically
+  const updateLastActivity = async () => {
+    if (currentSessionId.current) {
+      await supabase
+        .from('user_sessions')
+        .update({ last_activity_at: new Date().toISOString() })
+        .eq('id', currentSessionId.current);
+    }
+  };
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -107,9 +190,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         if (session?.user) {
+          // Track sign-in when user authenticates
+          if (event === 'SIGNED_IN') {
+            await trackSession(session.user.id, 'sign_in');
+          }
+          
           // Defer profile fetch to avoid deadlock
           setTimeout(() => {
             fetchUserProfile(session.user.id);
@@ -125,6 +213,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setSession(session);
+        // For existing sessions, create a session record if we don't have one
+        trackSession(session.user.id, 'sign_in');
         // Fetch profile for existing session
         setTimeout(() => {
           fetchUserProfile(session.user.id);
@@ -134,7 +224,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Update activity every 2 minutes while user is active
+    const activityInterval = setInterval(updateLastActivity, 2 * 60 * 1000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(activityInterval);
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -158,6 +254,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
+    // Track sign-out before logging out
+    if (user?.id) {
+      await trackSession(user.id, 'sign_out');
+    }
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
