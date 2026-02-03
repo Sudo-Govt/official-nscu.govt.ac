@@ -94,32 +94,64 @@ export async function cascadeDeleteFaculty(facultyId: string): Promise<{ success
     }
 
     // 6. Delete navigation entries
-    // First, find navigation items that link to faculty or department pages
+    // Build list of all possible href patterns for faculty and departments
     const hrefsToMatch = [
-      `/academics/${faculty.slug}`,
-      ...departmentSlugs.map(s => `/academics/${faculty.slug}/${s}`)
+      `/faculty/${faculty.slug}`,
+      `/page/faculty-${faculty.slug}`,
+      ...departmentSlugs.map(s => `/department/${s}`),
+      ...departmentSlugs.map(s => `/page/department-${s}`),
     ].filter(Boolean);
 
-    if (hrefsToMatch.length > 0) {
-      // Get all matching navigation items (including potential children)
-      const { data: navItems } = await supabase
-        .from('site_navigation')
-        .select('id, parent_id')
-        .or(hrefsToMatch.map(href => `href.eq.${href}`).join(','));
+    // Also try to find nav items by title matching the faculty name
+    const { data: navItemsByTitle } = await supabase
+      .from('site_navigation')
+      .select('id')
+      .eq('title', faculty.name);
 
-      if (navItems && navItems.length > 0) {
-        const navIds = navItems.map(n => n.id);
-        
-        // Also find any children of these nav items
+    const navIdsByTitle = navItemsByTitle?.map(n => n.id) || [];
+
+    if (hrefsToMatch.length > 0 || navIdsByTitle.length > 0) {
+      // Get all matching navigation items by href
+      let navIdsByHref: string[] = [];
+      if (hrefsToMatch.length > 0) {
+        const { data: navItems } = await supabase
+          .from('site_navigation')
+          .select('id')
+          .or(hrefsToMatch.map(href => `href.eq.${href}`).join(','));
+        navIdsByHref = navItems?.map(n => n.id) || [];
+      }
+
+      const allNavIds = [...new Set([...navIdsByTitle, ...navIdsByHref])];
+      
+      if (allNavIds.length > 0) {
+        // Also find any children of these nav items (recursive)
         const { data: childNavs } = await supabase
           .from('site_navigation')
           .select('id')
-          .in('parent_id', navIds);
+          .in('parent_id', allNavIds);
 
-        const allNavIdsToDelete = [...navIds, ...(childNavs?.map(c => c.id) || [])];
+        const childIds = childNavs?.map(c => c.id) || [];
         
-        // Delete navigation entries
-        await supabase.from('site_navigation').delete().in('id', allNavIdsToDelete);
+        // Find grandchildren too
+        if (childIds.length > 0) {
+          const { data: grandchildNavs } = await supabase
+            .from('site_navigation')
+            .select('id')
+            .in('parent_id', childIds);
+          
+          const grandchildIds = grandchildNavs?.map(c => c.id) || [];
+          
+          // Delete in reverse order: grandchildren, children, then parents
+          if (grandchildIds.length > 0) {
+            await supabase.from('site_navigation').delete().in('id', grandchildIds);
+          }
+        }
+        
+        if (childIds.length > 0) {
+          await supabase.from('site_navigation').delete().in('id', childIds);
+        }
+        
+        await supabase.from('site_navigation').delete().in('id', allNavIds);
       }
     }
 
