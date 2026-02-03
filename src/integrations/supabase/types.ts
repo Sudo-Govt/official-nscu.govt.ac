@@ -1167,11 +1167,16 @@ export type Database = {
           achievements: string[] | null
           bio: string | null
           college: string | null
+          course_code: string | null
+          course_id: string | null
+          course_name: string | null
           created_at: string | null
           current_company: string | null
           current_employer: string | null
           current_position: string | null
           degree_type: string | null
+          department_id: string | null
+          faculty_id: string | null
           graduation_year: number | null
           id: string
           industry: string | null
@@ -1191,11 +1196,16 @@ export type Database = {
           achievements?: string[] | null
           bio?: string | null
           college?: string | null
+          course_code?: string | null
+          course_id?: string | null
+          course_name?: string | null
           created_at?: string | null
           current_company?: string | null
           current_employer?: string | null
           current_position?: string | null
           degree_type?: string | null
+          department_id?: string | null
+          faculty_id?: string | null
           graduation_year?: number | null
           id?: string
           industry?: string | null
@@ -1215,11 +1225,16 @@ export type Database = {
           achievements?: string[] | null
           bio?: string | null
           college?: string | null
+          course_code?: string | null
+          course_id?: string | null
+          course_name?: string | null
           created_at?: string | null
           current_company?: string | null
           current_employer?: string | null
           current_position?: string | null
           degree_type?: string | null
+          department_id?: string | null
+          faculty_id?: string | null
           graduation_year?: number | null
           id?: string
           industry?: string | null
@@ -1235,7 +1250,29 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "alumni_profiles_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "academic_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alumni_profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "academic_departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alumni_profiles_faculty_id_fkey"
+            columns: ["faculty_id"]
+            isOneToOne: false
+            referencedRelation: "academic_faculties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       alumni_support_tickets: {
         Row: {

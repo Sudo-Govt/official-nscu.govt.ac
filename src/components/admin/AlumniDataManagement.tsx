@@ -13,9 +13,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Users, Edit, Save, X, Eye, GraduationCap, Briefcase, Award, 
-  FileText, Calendar, Heart, Plus, Trash2, Download, RefreshCw, Search
+  FileText, Calendar, Heart, Plus, Trash2, Download, RefreshCw, Search, Pencil
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import AcademicCourseSelector from './AcademicCourseSelector';
 
 interface AlumniProfile {
   id: string;
@@ -31,6 +32,11 @@ interface AlumniProfile {
   is_mentor_available: boolean | null;
   full_name?: string;
   email?: string;
+  course_id?: string | null;
+  course_code?: string | null;
+  course_name?: string | null;
+  faculty_id?: string | null;
+  department_id?: string | null;
 }
 
 interface AlumniDashboardData {
@@ -78,6 +84,18 @@ const AlumniDataManagement = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingData, setEditingData] = useState<Partial<AlumniDashboardData>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<AlumniProfile>>({});
+  const [courseSelection, setCourseSelection] = useState<{
+    faculty_id?: string;
+    department_id?: string;
+    course_id?: string;
+    course_code?: string;
+    course_name?: string;
+  }>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchAlumni();
@@ -247,6 +265,88 @@ const AlumniDataManagement = () => {
     }
   };
 
+  // Start editing mode
+  const startEditing = () => {
+    if (!selectedAlumni) return;
+    setEditForm({
+      graduation_year: selectedAlumni.graduation_year,
+      degree_type: selectedAlumni.degree_type,
+      college: selectedAlumni.college,
+      major: selectedAlumni.major,
+      current_employer: selectedAlumni.current_employer,
+      current_position: selectedAlumni.current_position,
+      location: selectedAlumni.location,
+      bio: selectedAlumni.bio,
+      is_mentor_available: selectedAlumni.is_mentor_available,
+    });
+    setCourseSelection({
+      faculty_id: selectedAlumni.faculty_id || undefined,
+      department_id: selectedAlumni.department_id || undefined,
+      course_id: selectedAlumni.course_id || undefined,
+      course_code: selectedAlumni.course_code || undefined,
+      course_name: selectedAlumni.course_name || undefined,
+    });
+    setIsEditing(true);
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditForm({});
+    setCourseSelection({});
+  };
+
+  // Save alumni profile changes
+  const saveAlumniProfile = async () => {
+    if (!selectedAlumni) return;
+    setIsSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from('alumni_profiles')
+        .update({
+          graduation_year: editForm.graduation_year,
+          degree_type: editForm.degree_type,
+          college: editForm.college,
+          major: editForm.major,
+          current_employer: editForm.current_employer,
+          current_position: editForm.current_position,
+          location: editForm.location,
+          bio: editForm.bio,
+          is_mentor_available: editForm.is_mentor_available,
+          course_id: courseSelection.course_id || null,
+          course_code: courseSelection.course_code || null,
+          course_name: courseSelection.course_name || null,
+          faculty_id: courseSelection.faculty_id || null,
+          department_id: courseSelection.department_id || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', selectedAlumni.id);
+
+      if (error) throw error;
+
+      toast({ title: 'Success', description: 'Alumni profile updated successfully' });
+      setIsEditing(false);
+      fetchAlumni();
+      
+      // Update selected alumni with new data
+      setSelectedAlumni({
+        ...selectedAlumni,
+        ...editForm,
+        course_id: courseSelection.course_id,
+        course_code: courseSelection.course_code,
+        course_name: courseSelection.course_name,
+        faculty_id: courseSelection.faculty_id,
+        department_id: courseSelection.department_id,
+      } as AlumniProfile);
+    } catch (error) {
+      console.error('Error saving alumni profile:', error);
+      toast({ title: 'Error', description: 'Failed to save profile', variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const filteredAlumni = alumni.filter(a =>
     a.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     a.current_employer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -362,59 +462,210 @@ const AlumniDataManagement = () => {
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                {selectedAlumni ? selectedAlumni.full_name : 'Select an Alumni'}
+                {selectedAlumni.full_name}
+                {selectedAlumni.course_name && (
+                  <Badge variant="outline" className="ml-2">
+                    {selectedAlumni.course_name}
+                  </Badge>
+                )}
               </span>
-              {selectedAlumni && (
-                <Button size="sm" onClick={saveDashboardData}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <Button size="sm" variant="outline" onClick={cancelEditing} disabled={isSaving}>
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={saveAlumniProfile} disabled={isSaving}>
+                      <Save className="h-4 w-4 mr-2" />
+                      {isSaving ? 'Saving...' : 'Save Profile'}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button size="sm" variant="outline" onClick={startEditing}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                    <Button size="sm" onClick={saveDashboardData}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Dashboard
+                    </Button>
+                  </>
+                )}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {selectedAlumni ? (
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid grid-cols-4 w-full">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="sections">Sections</TabsTrigger>
-                  <TabsTrigger value="resources">Resources</TabsTrigger>
-                  <TabsTrigger value="achievements">Achievements</TabsTrigger>
-                </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid grid-cols-4 w-full">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="sections">Sections</TabsTrigger>
+                <TabsTrigger value="resources">Resources</TabsTrigger>
+                <TabsTrigger value="achievements">Achievements</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="overview" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Graduation Year</Label>
-                      <div className="text-lg font-medium">{selectedAlumni.graduation_year || 'N/A'}</div>
+              <TabsContent value="overview" className="space-y-4 pt-4">
+                {isEditing ? (
+                  // Editable form
+                  <div className="space-y-6">
+                    {/* Course Selection */}
+                    <div className="p-4 bg-muted/30 rounded-lg border">
+                      <Label className="text-base font-medium flex items-center gap-2 mb-4">
+                        <GraduationCap className="h-4 w-4" />
+                        Graduation Program
+                      </Label>
+                      <AcademicCourseSelector
+                        value={courseSelection}
+                        onChange={setCourseSelection}
+                        showCourseCodeInput={true}
+                      />
                     </div>
-                    <div>
-                      <Label>Degree Type</Label>
-                      <div className="text-lg font-medium">{selectedAlumni.degree_type || 'N/A'}</div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Graduation Year</Label>
+                        <Input
+                          type="number"
+                          value={editForm.graduation_year || ''}
+                          onChange={(e) => setEditForm({ ...editForm, graduation_year: parseInt(e.target.value) || null })}
+                          placeholder="2024"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Degree Type</Label>
+                        <Input
+                          value={editForm.degree_type || ''}
+                          onChange={(e) => setEditForm({ ...editForm, degree_type: e.target.value })}
+                          placeholder="Bachelor's, Master's, PhD..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>College</Label>
+                        <Input
+                          value={editForm.college || ''}
+                          onChange={(e) => setEditForm({ ...editForm, college: e.target.value })}
+                          placeholder="College name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Major</Label>
+                        <Input
+                          value={editForm.major || ''}
+                          onChange={(e) => setEditForm({ ...editForm, major: e.target.value })}
+                          placeholder="Computer Science, Business..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Current Employer</Label>
+                        <Input
+                          value={editForm.current_employer || ''}
+                          onChange={(e) => setEditForm({ ...editForm, current_employer: e.target.value })}
+                          placeholder="Company name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Position</Label>
+                        <Input
+                          value={editForm.current_position || ''}
+                          onChange={(e) => setEditForm({ ...editForm, current_position: e.target.value })}
+                          placeholder="Job title"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Location</Label>
+                        <Input
+                          value={editForm.location || ''}
+                          onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                          placeholder="City, Country"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Available for Mentorship</Label>
+                        <div className="flex items-center gap-2 pt-2">
+                          <Switch
+                            checked={editForm.is_mentor_available || false}
+                            onCheckedChange={(checked) => setEditForm({ ...editForm, is_mentor_available: checked })}
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {editForm.is_mentor_available ? 'Yes' : 'No'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <Label>College</Label>
-                      <div className="text-lg font-medium">{selectedAlumni.college || 'N/A'}</div>
-                    </div>
-                    <div>
-                      <Label>Major</Label>
-                      <div className="text-lg font-medium">{selectedAlumni.major || 'N/A'}</div>
-                    </div>
-                    <div>
-                      <Label>Current Employer</Label>
-                      <div className="text-lg font-medium">{selectedAlumni.current_employer || 'N/A'}</div>
-                    </div>
-                    <div>
-                      <Label>Position</Label>
-                      <div className="text-lg font-medium">{selectedAlumni.current_position || 'N/A'}</div>
+                    <div className="space-y-2">
+                      <Label>Bio</Label>
+                      <Textarea
+                        value={editForm.bio || ''}
+                        onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                        placeholder="Brief biography..."
+                        rows={3}
+                      />
                     </div>
                   </div>
-                  {selectedAlumni.bio && (
-                    <div>
-                      <Label>Bio</Label>
-                      <p className="text-muted-foreground mt-1">{selectedAlumni.bio}</p>
+                ) : (
+                  // View mode
+                  <div className="space-y-4">
+                    {/* Show course if assigned */}
+                    {selectedAlumni.course_name && (
+                      <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                        <Label className="text-sm text-muted-foreground">Graduation Program</Label>
+                        <div className="text-lg font-medium flex items-center gap-2 mt-1">
+                          <GraduationCap className="h-5 w-5 text-primary" />
+                          {selectedAlumni.course_name}
+                          {selectedAlumni.course_code && (
+                            <Badge variant="secondary" className="text-xs">{selectedAlumni.course_code}</Badge>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Graduation Year</Label>
+                        <div className="text-lg font-medium">{selectedAlumni.graduation_year || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Degree Type</Label>
+                        <div className="text-lg font-medium">{selectedAlumni.degree_type || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">College</Label>
+                        <div className="text-lg font-medium">{selectedAlumni.college || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Major</Label>
+                        <div className="text-lg font-medium">{selectedAlumni.major || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Current Employer</Label>
+                        <div className="text-lg font-medium">{selectedAlumni.current_employer || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Position</Label>
+                        <div className="text-lg font-medium">{selectedAlumni.current_position || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Location</Label>
+                        <div className="text-lg font-medium">{selectedAlumni.location || 'N/A'}</div>
+                      </div>
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Available for Mentorship</Label>
+                        <div className="text-lg font-medium">
+                          <Badge variant={selectedAlumni.is_mentor_available ? 'default' : 'secondary'}>
+                            {selectedAlumni.is_mentor_available ? 'Yes' : 'No'}
+                          </Badge>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                    {selectedAlumni.bio && (
+                      <div>
+                        <Label className="text-sm text-muted-foreground">Bio</Label>
+                        <p className="text-muted-foreground mt-1">{selectedAlumni.bio}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
                 </TabsContent>
 
                 <TabsContent value="sections" className="space-y-4">
@@ -515,13 +766,6 @@ const AlumniDataManagement = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-4" />
-                <h3 className="text-lg font-medium">Select an Alumni</h3>
-                <p>Choose an alumni from the table above to manage their dashboard</p>
-              </div>
-            )}
           </CardContent>
         </Card>
       )}

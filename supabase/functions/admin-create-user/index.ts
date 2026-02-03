@@ -337,7 +337,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // If alumni role, create alumni profile
+    // If alumni role, create alumni profile with course info
     if (role === 'alumni') {
       const { error: alumniError } = await supabaseAdmin
         .from('alumni_profiles')
@@ -345,6 +345,11 @@ Deno.serve(async (req) => {
           user_id: newUserId,
           graduation_year: enrollment_year || new Date().getFullYear(),
           program: course_name || 'General',
+          course_id: course_id,
+          course_code: course_code,
+          course_name: course_name,
+          faculty_id: faculty_id,
+          department_id: department_id,
         });
 
       if (alumniError) {

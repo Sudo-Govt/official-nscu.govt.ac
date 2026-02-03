@@ -163,7 +163,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     }
 
     try {
-      const studentFields = newUser.role === 'student' ? {
+      const enrollmentFields = (newUser.role === 'student' || newUser.role === 'alumni') ? {
         faculty_id: courseSelection.faculty_id,
         department_id: courseSelection.department_id,
         course_id: courseSelection.course_id,
@@ -179,7 +179,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
           role: newUser.role,
           department: newUser.department,
           phone: newUser.phone,
-          ...studentFields,
+          ...enrollmentFields,
         },
       });
 
@@ -915,12 +915,12 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                     </div>
                   )}
 
-                  {/* Academic Course Selector for Students */}
-                  {(newUser.role === 'student' || filterRole === 'student') && (
+                  {/* Academic Course Selector for Students and Alumni */}
+                  {(newUser.role === 'student' || filterRole === 'student' || newUser.role === 'alumni' || filterRole === 'alumni') && (
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
                         <GraduationCap className="h-4 w-4" />
-                        Academic Enrollment
+                        {newUser.role === 'alumni' ? 'Graduation Program' : 'Academic Enrollment'}
                       </Label>
                       <AcademicCourseSelector
                         value={courseSelection}
