@@ -14,6 +14,16 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -21,11 +31,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Users } from 'lucide-react';
+import { Plus, Pencil, Trash2, Users, Loader2 } from 'lucide-react';
 import { useFaculties } from '@/hooks/useAcademicData';
 import { BulkActionsToolbar, FACULTY_DEPARTMENT_BULK_ACTIONS } from './BulkActionsToolbar';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { cascadeDeleteFaculty, cascadeDeleteFaculties } from '@/utils/cascadeFacultyDelete';
 import type { Faculty } from '@/types/academic';
 
 // Faculty is now the top-level entity (no parent department)
@@ -35,6 +46,9 @@ export function FacultyManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [facultyToDelete, setFacultyToDelete] = useState<Faculty | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -72,9 +86,41 @@ export function FacultyManagement() {
     setEditingFaculty(null);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure? This will delete all departments and courses under this faculty.')) {
-      await remove(id);
+  const handleDeleteClick = (faculty: Faculty) => {
+    setFacultyToDelete(faculty);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!facultyToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const result = await cascadeDeleteFaculty(facultyToDelete.id);
+      
+      if (result.success) {
+        toast({ 
+          title: 'Faculty Deleted', 
+          description: `"${facultyToDelete.name}" and all its departments, courses, pages, and navigation entries have been removed.` 
+        });
+        fetch(); // Refresh the list
+      } else {
+        toast({ 
+          title: 'Delete Failed', 
+          description: result.error || 'An error occurred while deleting the faculty.', 
+          variant: 'destructive' 
+        });
+      }
+    } catch (error: any) {
+      toast({ 
+        title: 'Error', 
+        description: error.message || 'Failed to delete faculty', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmOpen(false);
+      setFacultyToDelete(null);
     }
   };
 
@@ -105,15 +151,28 @@ export function FacultyManagement() {
           toast({ title: 'Success', description: `${ids.length} faculties discontinued.` });
           break;
         case 'delete':
-          for (const id of ids) {
-            await remove(id);
+          // Use cascade delete for bulk deletion
+          setIsDeleting(true);
+          const result = await cascadeDeleteFaculties(ids);
+          if (result.success) {
+            toast({ 
+              title: 'Success', 
+              description: `${result.deletedCount} faculties and all related data deleted.` 
+            });
+          } else {
+            toast({ 
+              title: 'Partial Delete', 
+              description: `${result.deletedCount} deleted. Error: ${result.error}`, 
+              variant: 'destructive' 
+            });
           }
-          toast({ title: 'Success', description: `${ids.length} faculties deleted.` });
+          setIsDeleting(false);
           break;
       }
       setSelectedIds([]);
       fetch();
     } catch (err: any) {
+      setIsDeleting(false);
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
   };
@@ -227,9 +286,10 @@ export function FacultyManagement() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(faculty.id)}
+                      onClick={() => handleDeleteClick(faculty)}
+                      disabled={isDeleting}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-destructive" />}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -237,6 +297,50 @@ export function FacultyManagement() {
             </TableBody>
           </Table>
         )}
+
+        {/* Cascade Delete Confirmation Dialog */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Faculty and All Related Data?</AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2">
+                <p>
+                  You are about to permanently delete <strong>"{facultyToDelete?.name}"</strong>.
+                </p>
+                <p className="text-destructive font-medium">
+                  This action will also delete:
+                </p>
+                <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
+                  <li>All departments under this faculty</li>
+                  <li>All courses under those departments</li>
+                  <li>All subjects, topics, and lessons under those courses</li>
+                  <li>All CMS pages created for the faculty and departments</li>
+                  <li>All navigation menu entries for the faculty and departments</li>
+                </ul>
+                <p className="text-sm font-semibold text-destructive mt-3">
+                  This action cannot be undone.
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete Everything'
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
