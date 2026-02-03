@@ -11,8 +11,17 @@ import {
   Loader2, Building2, GraduationCap, BookOpen, Zap
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
+
+const chunkArray = <T,>(arr: T[], size: number) => {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+};
+
+type AcademicCourseInsert = Database['public']['Tables']['academic_courses']['Insert'];
 
 interface ImportResult {
   faculties: { success: number; failed: number; errors: string[] };
@@ -30,6 +39,7 @@ interface ParsedRow {
   duration_months?: string;
   total_credits?: string;
   degree_level?: string;
+  __rowNumber: number;
 }
 
 const MegaCourseUploader = () => {
@@ -95,7 +105,7 @@ const MegaCourseUploader = () => {
         headers.forEach((header, index) => {
           row[header] = values[index]?.replace(/"/g, '').trim() || '';
         });
-        rows.push(row as unknown as ParsedRow);
+        rows.push({ ...(row as unknown as ParsedRow), __rowNumber: i + 1 });
       }
 
       return { headers, rows };
@@ -129,7 +139,7 @@ const MegaCourseUploader = () => {
         headers.forEach((header, index) => {
           row[header] = String(dataRow[index] ?? '').trim();
         });
-        rows.push(row as unknown as ParsedRow);
+        rows.push({ ...(row as unknown as ParsedRow), __rowNumber: i + 1 });
       }
 
       return { headers, rows };
@@ -138,6 +148,49 @@ const MegaCourseUploader = () => {
 
   const generateSlug = (name: string): string => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  };
+
+  // Excel exports commonly omit repeated values (merged cells). Fill-down makes
+  // those rows valid for lookups and inserts.
+  const normalizeRows = (input: ParsedRow[]): ParsedRow[] => {
+    const filled: ParsedRow[] = [];
+    let lastFacultyName = '';
+    let lastFacultyCode = '';
+    let lastDeptName = '';
+    let lastDeptCode = '';
+
+    for (const r of input) {
+      const row: ParsedRow = {
+        ...r,
+        faculty_name: (r.faculty_name || '').trim(),
+        faculty_code: (r.faculty_code || '').trim(),
+        department_name: (r.department_name || '').trim(),
+        department_code: (r.department_code || '').trim(),
+        course_name: (r.course_name || '').trim(),
+        course_code: (r.course_code || '').trim(),
+        duration_months: (r.duration_months || '').trim() || undefined,
+        total_credits: (r.total_credits || '').trim() || undefined,
+        degree_level: (r.degree_level || '').trim() || undefined,
+        __rowNumber: r.__rowNumber,
+      };
+
+      if (!row.faculty_name) row.faculty_name = lastFacultyName;
+      if (!row.faculty_code) row.faculty_code = lastFacultyCode;
+      if (!row.department_name) row.department_name = lastDeptName;
+      if (!row.department_code) row.department_code = lastDeptCode;
+
+      if (row.faculty_name) lastFacultyName = row.faculty_name;
+      if (row.faculty_code) lastFacultyCode = row.faculty_code;
+      if (row.department_name) lastDeptName = row.department_name;
+      if (row.department_code) lastDeptCode = row.department_code;
+
+      // Drop totally empty lines
+      if (!row.course_name && !row.course_code) continue;
+
+      filled.push(row);
+    }
+
+    return filled;
   };
 
   // These tables have unique indexes on slug; including the code prevents collisions
@@ -180,35 +233,35 @@ const MegaCourseUploader = () => {
   const batchUpsertFaculties = async (
     uniqueFaculties: ParsedRow[]
   ): Promise<Map<string, string>> => {
-    const facultyMap = new Map<string, string>();
-    
-    // Get existing faculties in one query
-    const { data: existingFaculties } = await supabase
-      .from('academic_faculties')
-      .select('id, code')
-      .in('code', uniqueFaculties.map(f => f.faculty_code));
-    
-    existingFaculties?.forEach(f => facultyMap.set(f.code, f.id));
-    
-    // Filter out existing ones
-    const newFaculties = uniqueFaculties.filter(f => !facultyMap.has(f.faculty_code));
-    
-    if (newFaculties.length > 0) {
-      // Batch insert new faculties
-      const { data: inserted, error } = await supabase
+    const payload = uniqueFaculties
+      .filter(f => !!f.faculty_code)
+      .map(f => ({
+        name: f.faculty_name,
+        code: f.faculty_code,
+        slug: facultySlug(f.faculty_name, f.faculty_code),
+        is_active: true,
+      }));
+
+    // Upsert in safe chunks (avoids large request payload failures)
+    for (const chunk of chunkArray(payload, 500)) {
+      const { error } = await supabase
         .from('academic_faculties')
-        .insert(newFaculties.map(f => ({
-          name: f.faculty_name,
-          code: f.faculty_code,
-          slug: facultySlug(f.faculty_name, f.faculty_code),
-          is_active: true,
-        })))
-        .select('id, code');
-      
+        .upsert(chunk, { onConflict: 'code' });
       if (error) throw error;
-      inserted?.forEach(f => facultyMap.set(f.code, f.id));
     }
-    
+
+    // Refresh map from DB so returned IDs are guaranteed to exist
+    const facultyMap = new Map<string, string>();
+    const codes = Array.from(new Set(payload.map(p => p.code).filter(Boolean)));
+    for (const codeChunk of chunkArray(codes, 500)) {
+      const { data, error } = await supabase
+        .from('academic_faculties')
+        .select('id, code')
+        .in('code', codeChunk);
+      if (error) throw error;
+      (data || []).forEach(f => facultyMap.set(f.code, f.id));
+    }
+
     return facultyMap;
   };
 
@@ -217,35 +270,35 @@ const MegaCourseUploader = () => {
     uniqueDepts: ParsedRow[],
     facultyMap: Map<string, string>
   ): Promise<Map<string, string>> => {
-    const deptMap = new Map<string, string>();
-    
-    // Get existing departments in one query
-    const { data: existingDepts } = await supabase
-      .from('academic_departments')
-      .select('id, code')
-      .in('code', uniqueDepts.map(d => d.department_code));
-    
-    existingDepts?.forEach(d => deptMap.set(d.code, d.id));
-    
-    // Filter out existing ones
-    const newDepts = uniqueDepts.filter(d => !deptMap.has(d.department_code));
-    
-    if (newDepts.length > 0) {
-      const { data: inserted, error } = await supabase
+    const payload = uniqueDepts
+      .filter(d => !!d.department_code)
+      .map(d => ({
+        name: d.department_name,
+        code: d.department_code,
+        slug: departmentSlug(d.department_name, d.department_code),
+        faculty_id: facultyMap.get(d.faculty_code) ?? null,
+        is_active: true,
+      }));
+
+    for (const chunk of chunkArray(payload, 500)) {
+      const { error } = await supabase
         .from('academic_departments')
-        .insert(newDepts.map(d => ({
-          name: d.department_name,
-          code: d.department_code,
-          slug: departmentSlug(d.department_name, d.department_code),
-          faculty_id: facultyMap.get(d.faculty_code) ?? null,
-          is_active: true,
-        })))
-        .select('id, code');
-      
+        .upsert(chunk, { onConflict: 'code' });
       if (error) throw error;
-      inserted?.forEach(d => deptMap.set(d.code, d.id));
     }
-    
+
+    // Refresh map from DB so the IDs used for FK references are guaranteed current
+    const deptMap = new Map<string, string>();
+    const codes = Array.from(new Set(payload.map(p => p.code).filter(Boolean)));
+    for (const codeChunk of chunkArray(codes, 500)) {
+      const { data, error } = await supabase
+        .from('academic_departments')
+        .select('id, code')
+        .in('code', codeChunk);
+      if (error) throw error;
+      (data || []).forEach(d => deptMap.set(d.code, d.id));
+    }
+
     return deptMap;
   };
 
@@ -256,50 +309,95 @@ const MegaCourseUploader = () => {
     onProgress: (count: number) => void
   ): Promise<{ success: number; failed: number; errors: string[] }> => {
     const result = { success: 0, failed: 0, errors: [] as string[] };
-    
-    // Get existing course codes
-    const { data: existingCourses } = await supabase
-      .from('academic_courses')
-      .select('course_code')
-      .in('course_code', rows.map(r => r.course_code));
-    
-    const existingCodes = new Set(existingCourses?.map(c => c.course_code) || []);
+
+    const validRows = rows.filter(r => {
+      const ok = !!r.course_code && !!r.course_name;
+      if (!ok) {
+        result.failed += 1;
+        result.errors.push(`Row ${r.__rowNumber}: Missing course_name or course_code`);
+      }
+      return ok;
+    });
+
+    // Get existing course codes (chunked to avoid oversized IN queries)
+    const allCodes = Array.from(
+      new Set(validRows.map(r => r.course_code).filter(Boolean))
+    );
+    const existingCodes = new Set<string>();
+    for (const codesChunk of chunkArray(allCodes, 500)) {
+      const { data, error } = await supabase
+        .from('academic_courses')
+        .select('course_code')
+        .in('course_code', codesChunk);
+      if (error) throw error;
+      (data || []).forEach(c => existingCodes.add(c.course_code));
+    }
     
     // Filter new courses
-    const newCourses = rows.filter(r => !existingCodes.has(r.course_code));
+    const newCourses = validRows.filter(r => !existingCodes.has(r.course_code));
     
+    type InsertItem = { row: ParsedRow; payload: AcademicCourseInsert };
+
+    const insertWithFallback = async (items: InsertItem[]) => {
+      if (items.length === 0) return;
+
+      const { error } = await supabase
+        .from('academic_courses')
+        .insert(items.map(i => i.payload));
+
+      if (!error) {
+        result.success += items.length;
+        return;
+      }
+
+      if (items.length === 1) {
+        const it = items[0];
+        result.failed += 1;
+        result.errors.push(
+          `Row ${it.row.__rowNumber}: ${error.message} (course_code=${it.row.course_code}, department_code=${it.row.department_code})`
+        );
+        return;
+      }
+
+      const mid = Math.ceil(items.length / 2);
+      await insertWithFallback(items.slice(0, mid));
+      await insertWithFallback(items.slice(mid));
+    };
+
     // Process in chunks of 50
     const CHUNK_SIZE = 50;
     for (let i = 0; i < newCourses.length; i += CHUNK_SIZE) {
       const chunk = newCourses.slice(i, i + CHUNK_SIZE);
-      
-      const coursesToInsert = chunk
-        .filter(r => deptMap.has(r.department_code))
-        .map(r => ({
-          name: r.course_name,
-          course_code: r.course_code,
-          slug: generateSlug(`${r.course_name}-${r.course_code}`),
-          department_id: deptMap.get(r.department_code),
-          duration_months: parseInt(r.duration_months || '48'),
-          total_credits: parseInt(r.total_credits || '120'),
-          degree_level: r.degree_level || detectDegreeLevel(r.course_name),
-          enrollment_status: 'open',
-          is_active: true,
-          is_visible_on_website: true,
-        }));
-      
-      if (coursesToInsert.length > 0) {
-        const { error } = await supabase
-          .from('academic_courses')
-          .insert(coursesToInsert);
-        
-        if (error) {
-          result.errors.push(`Chunk ${i}-${i + CHUNK_SIZE}: ${error.message}`);
-          result.failed += chunk.length;
-        } else {
-          result.success += coursesToInsert.length;
+
+      const items: InsertItem[] = [];
+      for (const r of chunk) {
+        const deptId = deptMap.get(r.department_code);
+        if (!deptId) {
+          result.failed += 1;
+          result.errors.push(
+            `Row ${r.__rowNumber}: Department not found for department_code="${r.department_code}" (course_code=${r.course_code})`
+          );
+          continue;
         }
+
+        items.push({
+          row: r,
+          payload: {
+            name: r.course_name,
+            course_code: r.course_code,
+            slug: generateSlug(`${r.course_name}-${r.course_code}`),
+            department_id: deptId,
+            duration_months: parseInt(r.duration_months || '48'),
+            total_credits: parseInt(r.total_credits || '120'),
+            degree_level: r.degree_level || detectDegreeLevel(r.course_name),
+            enrollment_status: 'open',
+            is_active: true,
+            is_visible_on_website: true,
+          },
+        });
       }
+
+      await insertWithFallback(items);
       
       onProgress(Math.min(i + CHUNK_SIZE, newCourses.length));
     }
@@ -426,7 +524,8 @@ const MegaCourseUploader = () => {
 
     try {
       setCurrentStep('Parsing file...');
-      const { headers, rows } = await parseFile(file);
+      let { headers, rows } = await parseFile(file);
+      rows = normalizeRows(rows);
       
       // Validate required headers
       const requiredHeaders = ['faculty_name', 'faculty_code', 'department_name', 'department_code', 'course_name', 'course_code'];
@@ -449,20 +548,25 @@ const MegaCourseUploader = () => {
       };
 
       // Get Academics parent nav
-      const { data: academicsNav } = await supabase
+      const { data: academicsNav, error: academicsNavError } = await supabase
         .from('site_navigation')
         .select('id')
         .ilike('title', '%academic%')
         .limit(1)
-        .single();
+        .maybeSingle();
+
+      if (academicsNavError) {
+        console.warn('Academics navigation lookup failed:', academicsNavError.message);
+      }
 
       // Phase 1: Batch upsert faculties (20%)
       setCurrentStep('Processing Faculties...');
       setProgress(5);
       const uniqueFaculties = [...new Map(rows.map(r => [r.faculty_code, r])).values()];
+      let facultyMap = new Map<string, string>();
       
       try {
-        const facultyMap = await batchUpsertFaculties(uniqueFaculties);
+        facultyMap = await batchUpsertFaculties(uniqueFaculties);
         result.faculties.success = facultyMap.size;
       } catch (err: any) {
         result.faculties.errors.push(err.message);
@@ -476,14 +580,21 @@ const MegaCourseUploader = () => {
       
       let deptMap = new Map<string, string>();
       try {
-        // Get faculty map again for department inserts
-        const { data: allFaculties } = await supabase
-          .from('academic_faculties')
-          .select('id, code');
-        const facultyMap = new Map(allFaculties?.map(f => [f.code, f.id]) || []);
-        
         deptMap = await batchUpsertDepartments(uniqueDepts, facultyMap);
         result.departments.success = deptMap.size;
+
+        // Safety: ensure deptMap references only current DB rows (prevents FK violations)
+        const deptCodes = Array.from(new Set(uniqueDepts.map(d => d.department_code).filter(Boolean)));
+        const refreshed = new Map<string, string>();
+        for (const codeChunk of chunkArray(deptCodes, 500)) {
+          const { data, error } = await supabase
+            .from('academic_departments')
+            .select('id, code')
+            .in('code', codeChunk);
+          if (error) throw error;
+          (data || []).forEach(d => refreshed.set(d.code, d.id));
+        }
+        deptMap = refreshed;
       } catch (err: any) {
         result.departments.errors.push(err.message);
         result.departments.failed = uniqueDepts.length;
