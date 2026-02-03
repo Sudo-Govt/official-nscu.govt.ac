@@ -11,7 +11,7 @@ const alumniStories = [
     company: "MedTech Innovations",
     quote: "NSCU gave me the foundation to revolutionize healthcare technology. The research opportunities and mentorship I received were invaluable.",
     achievement: "Led development of AI-powered diagnostic tools now used in 500+ hospitals worldwide",
-    image: "photo-1494790108755-2616b612b5bc"
+    image: "photo-1573496359142-b8d87734a5a2"
   },
   {
     name: "Marcus Rodriguez",

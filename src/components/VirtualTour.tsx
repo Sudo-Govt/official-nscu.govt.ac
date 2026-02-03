@@ -28,7 +28,7 @@ const tourStops = [
   {
     title: "Student Life Centers",
     description: "Vibrant spaces for dining, recreation, and community building.",
-    image: "photo-1523050854058-8df90110c9f1",
+    image: "photo-1497366811353-6870744d04b2",
     duration: "6 min",
     highlights: ["Fitness Center", "Cultural Center", "Student Organizations Hub"]
   }
