@@ -8,6 +8,7 @@ interface QueueItem {
   course_id: string;
   course_code: string;
   course_name: string;
+  course_slug: string | null;
   status: 'pending' | 'processing' | 'completed' | 'failed' | 'paused';
   priority: number;
   retries: number;
@@ -246,11 +247,12 @@ export function useContentQueue() {
   }, [startProcessing]);
 
   // Add courses to queue
-  const addToQueue = useCallback(async (courses: Array<{ id: string; course_code: string; name: string }>, userId: string) => {
+  const addToQueue = useCallback(async (courses: Array<{ id: string; course_code: string; name: string; slug?: string | null }>, userId: string) => {
     const items = courses.map(course => ({
       course_id: course.id,
       course_code: course.course_code,
       course_name: course.name,
+      course_slug: course.slug || null,
       status: 'pending' as const,
       created_by: userId,
     }));
