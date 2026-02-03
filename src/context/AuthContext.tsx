@@ -43,60 +43,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const currentSessionId = useRef<string | null>(null);
 
-  // Track user session in database
-  const trackSession = async (userId: string, action: 'sign_in' | 'sign_out') => {
-    try {
-      if (action === 'sign_in') {
-        // Create new session record
-        const { data, error } = await supabase
-          .from('user_sessions')
-          .insert({
-            user_id: userId,
-            user_agent: navigator.userAgent,
-            device_info: getDeviceInfo(),
-            signed_in_at: new Date().toISOString(),
-            last_activity_at: new Date().toISOString(),
-            is_active: true,
-          })
-          .select('id')
-          .single();
+  // Track user session in database (non-blocking)
+  const trackSession = (userId: string, action: 'sign_in' | 'sign_out') => {
+    // Run session tracking in background - don't await to prevent blocking login
+    (async () => {
+      try {
+        if (action === 'sign_in') {
+          // Create new session record
+          const { data, error } = await supabase
+            .from('user_sessions')
+            .insert({
+              user_id: userId,
+              user_agent: navigator.userAgent,
+              device_info: getDeviceInfo(),
+              signed_in_at: new Date().toISOString(),
+              last_activity_at: new Date().toISOString(),
+              is_active: true,
+            })
+            .select('id')
+            .single();
 
-        if (!error && data) {
-          currentSessionId.current = data.id;
-          
-          // Log the sign-in activity
+          if (!error && data) {
+            currentSessionId.current = data.id;
+            
+            // Log the sign-in activity
+            await supabase.from('user_activity_logs').insert({
+              user_id: userId,
+              session_id: data.id,
+              action_type: 'sign_in',
+              action_description: 'User signed in',
+              user_agent: navigator.userAgent,
+            });
+          } else if (error) {
+            console.warn('Session tracking failed (non-critical):', error.message);
+          }
+        } else if (action === 'sign_out' && currentSessionId.current) {
+          // Update session as ended
+          await supabase
+            .from('user_sessions')
+            .update({
+              signed_out_at: new Date().toISOString(),
+              is_active: false,
+            })
+            .eq('id', currentSessionId.current);
+
+          // Log the sign-out activity
           await supabase.from('user_activity_logs').insert({
             user_id: userId,
-            session_id: data.id,
-            action_type: 'sign_in',
-            action_description: 'User signed in',
+            session_id: currentSessionId.current,
+            action_type: 'sign_out',
+            action_description: 'User signed out',
             user_agent: navigator.userAgent,
           });
+
+          currentSessionId.current = null;
         }
-      } else if (action === 'sign_out' && currentSessionId.current) {
-        // Update session as ended
-        await supabase
-          .from('user_sessions')
-          .update({
-            signed_out_at: new Date().toISOString(),
-            is_active: false,
-          })
-          .eq('id', currentSessionId.current);
-
-        // Log the sign-out activity
-        await supabase.from('user_activity_logs').insert({
-          user_id: userId,
-          session_id: currentSessionId.current,
-          action_type: 'sign_out',
-          action_description: 'User signed out',
-          user_agent: navigator.userAgent,
-        });
-
-        currentSessionId.current = null;
+      } catch (error) {
+        console.warn('Error tracking session (non-critical):', error);
       }
-    } catch (error) {
-      console.error('Error tracking session:', error);
-    }
+    })();
   };
 
   // Update last activity periodically
@@ -188,14 +193,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // Set up auth state listener
+    // Set up auth state listener FIRST (before getSession)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        console.log('Auth state change:', event);
         setSession(session);
+        
         if (session?.user) {
-          // Track sign-in when user authenticates
+          // Track sign-in when user authenticates (non-blocking)
           if (event === 'SIGNED_IN') {
-            await trackSession(session.user.id, 'sign_in');
+            trackSession(session.user.id, 'sign_in');
           }
           
           // Defer profile fetch to avoid deadlock
@@ -235,21 +242,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      setIsLoading(true);
+      // Don't set isLoading here - let onAuthStateChange handle it
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) {
+        console.error('Login error:', error.message);
         return false;
       }
       
       return true;
     } catch (error) {
+      console.error('Login exception:', error);
       return false;
-    } finally {
-      setIsLoading(false);
     }
   };
 
