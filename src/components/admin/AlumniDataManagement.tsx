@@ -13,7 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Users, Edit, Save, X, Eye, GraduationCap, Briefcase, Award, 
-  FileText, Calendar, Heart, Plus, Trash2, Download
+  FileText, Calendar, Heart, Plus, Trash2, Download, RefreshCw, Search
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -77,6 +77,7 @@ const AlumniDataManagement = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingData, setEditingData] = useState<Partial<AlumniDashboardData>>({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchAlumni();
@@ -246,6 +247,13 @@ const AlumniDataManagement = () => {
     }
   };
 
+  const filteredAlumni = alumni.filter(a =>
+    a.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    a.current_employer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    a.major?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(a.graduation_year || '').includes(searchTerm)
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -255,55 +263,101 @@ const AlumniDataManagement = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Alumni List */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <GraduationCap className="h-5 w-5" />
-              Alumni List
-            </CardTitle>
-            <CardDescription>{alumni.length} alumni registered</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[500px]">
-              <div className="space-y-2">
-                {alumni.map((alumnus) => (
-                  <div
-                    key={alumnus.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedAlumni?.id === alumnus.id 
-                        ? 'bg-primary/10 border-primary' 
-                        : 'hover:bg-muted/50'
-                    }`}
-                    onClick={() => setSelectedAlumni(alumnus)}
-                  >
-                    <div className="font-medium">{alumnus.full_name}</div>
-                    <div className="text-sm text-muted-foreground">{alumnus.email}</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      {alumnus.graduation_year && (
-                        <Badge variant="outline" className="text-xs">
-                          Class of {alumnus.graduation_year}
-                        </Badge>
-                      )}
-                      {alumnus.is_mentor_available && (
-                        <Badge variant="secondary" className="text-xs">Mentor</Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {alumni.length === 0 && !loading && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No alumni found
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GraduationCap className="h-5 w-5" />
+            Alumni Directory
+          </CardTitle>
+          <CardDescription>{alumni.length} alumni registered</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Search and Refresh */}
+          <div className="flex gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search alumni by name, employer, major, or year..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => {
+                setLoading(true);
+                fetchAlumni();
+              }}
+              title="Refresh alumni"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
 
-        {/* Alumni Details */}
-        <Card className="lg:col-span-2">
+          {/* Visible Alumni Table */}
+          <div className="rounded-md border mb-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Graduation Year</TableHead>
+                  <TableHead>Major</TableHead>
+                  <TableHead>Current Employer</TableHead>
+                  <TableHead>Position</TableHead>
+                  <TableHead>Mentor</TableHead>
+                  <TableHead className="w-[120px]">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                ) : filteredAlumni.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      No alumni found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredAlumni.map((alumnus) => (
+                    <TableRow key={alumnus.id} className={selectedAlumni?.id === alumnus.id ? 'bg-primary/5' : ''}>
+                      <TableCell className="font-medium">{alumnus.full_name}</TableCell>
+                      <TableCell>{alumnus.graduation_year || '—'}</TableCell>
+                      <TableCell>{alumnus.major || '—'}</TableCell>
+                      <TableCell>{alumnus.current_employer || '—'}</TableCell>
+                      <TableCell>{alumnus.current_position || '—'}</TableCell>
+                      <TableCell>
+                        <Badge variant={alumnus.is_mentor_available ? 'default' : 'secondary'}>
+                          {alumnus.is_mentor_available ? 'Yes' : 'No'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSelectedAlumni(alumnus)}
+                        >
+                          Manage
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Alumni Details Panel */}
+      {selectedAlumni && (
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
@@ -465,12 +519,12 @@ const AlumniDataManagement = () => {
               <div className="text-center py-12 text-muted-foreground">
                 <Users className="h-12 w-12 mx-auto mb-4" />
                 <h3 className="text-lg font-medium">Select an Alumni</h3>
-                <p>Choose an alumni from the list to manage their dashboard</p>
+                <p>Choose an alumni from the table above to manage their dashboard</p>
               </div>
             )}
           </CardContent>
         </Card>
-      </div>
+      )}
     </div>
   );
 };
