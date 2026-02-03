@@ -100,14 +100,14 @@ const DynamicAdmissionsBanner = ({
 
   if (variant === 'compact') {
     return (
-      <div className="bg-uw-purple/5 border border-uw-purple/20 rounded-lg p-4">
+      <div className="bg-white/95 backdrop-blur-sm border border-primary/20 rounded-lg p-4 shadow-lg">
         <div className="flex items-center gap-3">
-          <Users className="h-5 w-5 text-uw-purple" />
+          <Users className="h-5 w-5 text-primary" />
           <div className="flex-1">
-            <h4 className="font-semibold text-uw-purple text-sm">
+            <h4 className="font-semibold text-primary text-sm">
               {admissionsInfo.title}
             </h4>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {admissionsInfo.deadlineText}
             </p>
           </div>

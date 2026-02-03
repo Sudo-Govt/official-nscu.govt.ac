@@ -43,7 +43,7 @@ const HeroSection = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white text-white hover:bg-white hover:text-uw-purple"
+                  className="border-2 border-white bg-white/10 text-white hover:bg-white hover:text-primary font-semibold backdrop-blur-sm"
                   onClick={() => navigate('/home/virtual-tour')}
                 >
                   <Play className="mr-2 h-5 w-5" />
