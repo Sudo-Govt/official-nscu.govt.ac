@@ -15,7 +15,7 @@ import SuperAdminUserManagement from '@/components/admin/SuperAdminUserManagemen
 import RoleBasedUserManagement from '@/components/admin/RoleBasedUserManagement';
 import SystemSettings from '@/components/admin/SystemSettings';
 import AuditLogsModule from '@/components/transparency/AuditLogsModule';
-import CourseManagement from '@/components/admin/CourseManagement';
+// CourseManagement removed - courses now managed under Academic section
 import DashboardLayout from '@/components/DashboardLayout';
 import SiteEditor from '@/components/admin/SiteEditor';
 import ResourcesManager from '@/components/admin/ResourcesManager';
@@ -112,7 +112,6 @@ const SuperAdminDashboard = () => {
         { title: 'Overview', icon: LayoutDashboard, value: 'overview', onClick: () => setActiveTab('overview') },
         { title: 'Site Editor', icon: Globe, value: 'site-editor', onClick: () => setActiveTab('site-editor') },
         { title: 'Users & Roles', icon: Users, value: 'users', onClick: () => setActiveTab('users') },
-        { title: 'Content', icon: BookOpen, value: 'content', onClick: () => setActiveTab('content') },
       ]
     },
     {
@@ -282,9 +281,6 @@ const SuperAdminDashboard = () => {
 
       case 'users':
         return <RoleBasedUserManagement />;
-
-      case 'content':
-        return <CourseManagement />;
 
       case 'student-management':
         return <StudentDataManagement />;
