@@ -15,6 +15,7 @@ import { ROLE_DEFINITIONS, getRolesByCategory, getRoleDisplayName, getRoleDescri
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import UserFileSharing from './UserFileSharing';
 import UserEnrollmentEditor from './UserEnrollmentEditor';
+import AcademicCourseSelector from './AcademicCourseSelector';
 
 interface UserProfile {
   id: string;
@@ -54,6 +55,13 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     phone: '',
     permissions: [] as string[]
   });
+  const [courseSelection, setCourseSelection] = useState<{
+    faculty_id?: string;
+    department_id?: string;
+    course_id?: string;
+    course_code?: string;
+    course_name?: string;
+  }>({});
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -162,6 +170,14 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
           role: newUser.role,
           department: newUser.department,
           phone: newUser.phone,
+          // Student-specific fields
+          ...(newUser.role === 'student' && {
+            faculty_id: courseSelection.faculty_id,
+            department_id: courseSelection.department_id,
+            course_id: courseSelection.course_id,
+            course_code: courseSelection.course_code,
+            course_name: courseSelection.course_name,
+          }),
         },
       });
 
@@ -193,6 +209,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
         phone: '',
         permissions: [],
       });
+      setCourseSelection({});
 
       setIsCreateDialogOpen(false);
       await fetchUsers();
@@ -404,6 +421,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
       phone: '',
       permissions: []
     });
+    setCourseSelection({});
     setAgentProfile(null);
     setEditEmail('');
     setEditPassword('');
@@ -411,6 +429,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     setEditAgencyName('');
     setEditDialogTab('basic');
     setIsCreateDialogOpen(true);
+  };
   };
 
   const handleChangePassword = (user: UserProfile) => {
@@ -895,14 +914,29 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                     </div>
                   )}
 
+                  {/* Academic Course Selector for Students */}
+                  {(newUser.role === 'student' || filterRole === 'student') && (
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4" />
+                        Academic Enrollment
+                      </Label>
+                      <AcademicCourseSelector
+                        value={courseSelection}
+                        onChange={setCourseSelection}
+                        showCourseCodeInput={true}
+                      />
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="department">Department</Label>
+                      <Label htmlFor="department">Department (Text)</Label>
                       <Input
                         id="department"
                         value={newUser.department}
                         onChange={(e) => setNewUser({...newUser, department: e.target.value})}
-                        placeholder="Computer Science"
+                        placeholder="Optional text description"
                       />
                     </div>
                     <div className="space-y-2">
