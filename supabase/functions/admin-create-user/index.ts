@@ -173,6 +173,18 @@ Deno.serve(async (req) => {
 
     const department = safeString(body.department, 120);
     const phone = safeString(body.phone, 40);
+    
+    // Student-specific fields
+    const course_id = safeString(body.course_id, 50);
+    const course_code = safeString(body.course_code, 50);
+    const course_name = safeString(body.course_name, 200);
+    const faculty_id = safeString(body.faculty_id, 50);
+    const department_id = safeString(body.department_id, 50);
+    const date_of_birth = safeString(body.date_of_birth, 20);
+    const father_name = safeString(body.father_name, 120);
+    const mother_name = safeString(body.mother_name, 120);
+    const address = safeString(body.address, 500);
+    const enrollment_year = body.enrollment_year ? parseInt(body.enrollment_year) : new Date().getFullYear();
 
     // Create auth user (service role)
     const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -277,12 +289,76 @@ Deno.serve(async (req) => {
       }
     }
 
+    // If student role, create student record
+    let student_id: string | null = null;
+    if (role === 'student') {
+      // Generate student ID
+      student_id = 'STU' + Date.now();
+      
+      // Resolve course details if course_code provided but not course_id
+      let resolvedCourseId = course_id;
+      let resolvedCourseName = course_name;
+      
+      if (course_code && !course_id) {
+        const { data: courseData } = await supabaseAdmin
+          .from('academic_courses')
+          .select('id, name')
+          .eq('course_code', course_code)
+          .maybeSingle();
+        
+        if (courseData) {
+          resolvedCourseId = courseData.id;
+          resolvedCourseName = resolvedCourseName || courseData.name;
+        }
+      }
+
+      const { error: studentError } = await supabaseAdmin
+        .from('students')
+        .insert({
+          user_id: newUserId,
+          student_id,
+          name: full_name,
+          dob: date_of_birth,
+          father_name,
+          mother_name,
+          address,
+          course_id: resolvedCourseId,
+          course_name: resolvedCourseName,
+          program: resolvedCourseName || 'General',
+          enrollment_year,
+          status: 'active',
+          student_type: 'current',
+          exam_format: 'Semester',
+          cgpa: 0,
+        });
+
+      if (studentError) {
+        console.error('Student record creation error:', studentError);
+      }
+    }
+
+    // If alumni role, create alumni profile
+    if (role === 'alumni') {
+      const { error: alumniError } = await supabaseAdmin
+        .from('alumni_profiles')
+        .insert({
+          user_id: newUserId,
+          graduation_year: enrollment_year || new Date().getFullYear(),
+          program: course_name || 'General',
+        });
+
+      if (alumniError) {
+        console.error('Alumni profile creation error:', alumniError);
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
         user_id: newUserId,
         role,
         agent_code,
+        student_id,
         message: 'User created successfully',
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
