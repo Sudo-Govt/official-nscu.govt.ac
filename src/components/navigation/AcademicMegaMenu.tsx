@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, GraduationCap, Building2, BookOpen, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAcademicNavigation, AcademicNavFaculty, AcademicNavDepartment } from '@/hooks/useAcademicNavigation';
+import { useAcademicNavigation, AcademicNavFaculty } from '@/hooks/useAcademicNavigation';
 
 interface AcademicMegaMenuProps {
   onNavigate?: () => void;
@@ -11,18 +11,16 @@ interface AcademicMegaMenuProps {
 export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
   const { faculties, loading } = useAcademicNavigation();
   const [hoveredFaculty, setHoveredFaculty] = useState<string | null>(null);
-  const [hoveredDepartment, setHoveredDepartment] = useState<string | null>(null);
-
-  const degreeLevels = [
-    { key: 'certificate', label: 'Certificate Programs' },
-    { key: 'undergraduate', label: 'Undergraduate Programs' },
-    { key: 'postgraduate', label: 'Postgraduate Programs' },
-    { key: 'doctoral', label: 'Doctoral Programs' },
-  ] as const;
 
   const handleClick = () => {
     onNavigate?.();
   };
+
+  // Memoize the active faculty to prevent unnecessary recalculations
+  const activeFaculty = useMemo(() => 
+    faculties.find(f => f.id === hoveredFaculty),
+    [faculties, hoveredFaculty]
+  );
 
   if (loading) {
     return (
@@ -32,13 +30,10 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
     );
   }
 
-  const activeFaculty = faculties.find(f => f.id === hoveredFaculty);
-  const activeDepartment = activeFaculty?.departments.find(d => d.id === hoveredDepartment);
-
   return (
-    <div className="flex min-h-[400px] max-w-[900px]">
+    <div className="flex min-h-[300px] max-w-[700px]">
       {/* Column 1: Static links + Faculties */}
-      <div className="w-64 border-r bg-muted/30 p-2 overflow-y-auto max-h-[500px]">
+      <div className="w-64 border-r bg-muted/30 p-2 overflow-y-auto max-h-[400px]">
         <div className="mb-3 px-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quick Links</p>
         </div>
@@ -79,10 +74,7 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
           faculties.map((faculty) => (
             <div
               key={faculty.id}
-              onMouseEnter={() => {
-                setHoveredFaculty(faculty.id);
-                setHoveredDepartment(null);
-              }}
+              onMouseEnter={() => setHoveredFaculty(faculty.id)}
               className={cn(
                 "flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer transition-colors",
                 hoveredFaculty === faculty.id 
@@ -106,9 +98,9 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
         )}
       </div>
 
-      {/* Column 2: Departments (shown when faculty is hovered) */}
+      {/* Column 2: Departments (shown when faculty is hovered) - click goes to department page with degree blocks */}
       {activeFaculty && activeFaculty.departments.length > 0 && (
-        <div className="w-64 border-r bg-background p-2 overflow-y-auto max-h-[500px]">
+        <div className="w-72 bg-background p-2 overflow-y-auto max-h-[400px]">
           <div className="mb-2 px-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Departments
@@ -116,63 +108,30 @@ export function AcademicMegaMenu({ onNavigate }: AcademicMegaMenuProps) {
             <p className="text-xs text-muted-foreground truncate">{activeFaculty.name}</p>
           </div>
           
-          {activeFaculty.departments.map((dept) => (
-            <div
-              key={dept.id}
-              onMouseEnter={() => setHoveredDepartment(dept.id)}
-              className={cn(
-                "flex items-center justify-between px-3 py-2 text-sm rounded-md cursor-pointer transition-colors",
-                hoveredDepartment === dept.id 
-                  ? "bg-accent text-accent-foreground" 
-                  : "hover:bg-accent/50"
-              )}
-            >
-              <Link 
-                to={`/department/${dept.slug}`} 
-                onClick={handleClick}
-                className="flex-1 truncate"
-              >
-                {dept.name}
-              </Link>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Column 3: Degree Levels (shown when department is hovered) */}
-      {activeDepartment && (
-        <div className="w-64 bg-background p-2 overflow-y-auto max-h-[500px]">
-          <div className="mb-2 px-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Programs
-            </p>
-            <p className="text-xs text-muted-foreground truncate">{activeDepartment.name}</p>
-          </div>
-          
-          {degreeLevels.map(({ key, label }) => {
-            const courses = activeDepartment.coursesByLevel[key];
-            if (courses.length === 0) return null;
+          {activeFaculty.departments.map((dept) => {
+            // Count total courses across all levels
+            const totalCourses = 
+              dept.coursesByLevel.certificate.length +
+              dept.coursesByLevel.undergraduate.length +
+              dept.coursesByLevel.postgraduate.length +
+              dept.coursesByLevel.doctoral.length;
             
             return (
               <Link
-                key={key}
-                to={`/department/${activeDepartment.slug}/${key}`}
+                key={dept.id}
+                to={`/department/${dept.slug}`}
                 onClick={handleClick}
-                className="flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                className="flex items-center justify-between px-3 py-2.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors group"
               >
-                <span>{label}</span>
-                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                  {courses.length}
-                </span>
+                <span className="truncate">{dept.name}</span>
+                {totalCourses > 0 && (
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full group-hover:bg-accent-foreground/10">
+                    {totalCourses} programs
+                  </span>
+                )}
               </Link>
             );
           })}
-          
-          {/* Show "No programs" if all levels are empty */}
-          {degreeLevels.every(({ key }) => activeDepartment.coursesByLevel[key].length === 0) && (
-            <p className="px-3 py-2 text-sm text-muted-foreground">No programs available</p>
-          )}
         </div>
       )}
     </div>
