@@ -15,6 +15,7 @@ import AlumniChatRoom from '@/components/alumni/AlumniChatRoom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { LibraryView } from '@/components/library';
 import MySharedFiles from '@/components/student/MySharedFiles';
+import UserCourseInfo from './UserCourseInfo';
 import * as LucideIcons from 'lucide-react';
 
 interface CTAButton {
@@ -118,12 +119,14 @@ const AlumniDashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-2">
-              Welcome back, Alumni! 🎓
+              Welcome back, {user?.full_name || 'Alumni'}! 🎓
             </h2>
-            <p className="text-muted-foreground text-lg mb-4">
+            <p className="text-muted-foreground text-lg mb-2">
               {alumniStats.degree} • Class of {alumniStats.graduationYear}
             </p>
-            <div className="flex items-center space-x-6 text-sm">
+            {/* Show course under name */}
+            {user && <UserCourseInfo userId={user.user_id} userRole="alumni" compact />}
+            <div className="flex items-center space-x-6 text-sm mt-4">
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-1 text-primary" />
                 <span>{alumniStats.networkConnections} connections</span>
@@ -143,6 +146,9 @@ const AlumniDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Course Info with Semester Details */}
+      {user && <UserCourseInfo userId={user.user_id} userRole="alumni" />}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

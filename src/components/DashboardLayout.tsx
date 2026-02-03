@@ -34,7 +34,7 @@ interface MenuGroup {
 
 interface DashboardLayoutProps {
   title: string;
-  subtitle: string;
+  subtitle: React.ReactNode;
   userBadge?: string;
   menuGroups: MenuGroup[];
   activeTab: string;

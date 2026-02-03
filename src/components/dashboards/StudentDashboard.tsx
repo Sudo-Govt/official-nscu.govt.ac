@@ -12,6 +12,7 @@ import ChangePassword from '@/components/ChangePassword';
 import DashboardLayout from '@/components/DashboardLayout';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 import StudentCourseProgress from './StudentCourseProgress';
+import UserCourseInfo from './UserCourseInfo';
 
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
@@ -153,7 +154,12 @@ const StudentDashboard = () => {
   return (
     <DashboardLayout
       title="Student Portal"
-      subtitle={`${studentData?.student_id} • ${studentData?.program}`}
+      subtitle={
+        <div className="space-y-1">
+          <span>{studentData?.student_id} • {studentData?.program}</span>
+          {user && <UserCourseInfo userId={user.user_id} userRole="student" compact />}
+        </div>
+      }
       userBadge={`Year ${studentData?.year_of_study}`}
       menuGroups={menuGroups}
       activeTab={currentTab}
@@ -166,6 +172,9 @@ const StudentDashboard = () => {
       {/* Content based on active tab */}
       {currentTab === "overview" && (
         <div className="space-y-8">
+          {/* Course Info with Semester Details */}
+          {user && <UserCourseInfo userId={user.user_id} userRole="student" />}
+          
           {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50 backdrop-blur-sm">
