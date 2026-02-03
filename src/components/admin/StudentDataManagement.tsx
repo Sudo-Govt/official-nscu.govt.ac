@@ -27,6 +27,7 @@ interface Student {
   email: string;
   program: string;
   year_of_study: number;
+  status?: string | null;
 }
 
 interface CourseItem {
@@ -133,7 +134,7 @@ const StudentDataManagement = () => {
     try {
       const { data, error } = await supabase
         .from('students')
-        .select('id, student_id, user_id, name, program, enrollment_year')
+        .select('id, student_id, user_id, name, program, enrollment_year, status')
         .order('student_id');
       
       if (error) throw error;
@@ -144,7 +145,8 @@ const StudentDataManagement = () => {
         full_name: s.name || s.student_id,
         email: '', // email not stored in students table
         program: s.program,
-        year_of_study: s.enrollment_year
+        year_of_study: s.enrollment_year,
+        status: s.status ?? null,
       }));
       setStudents(mapped);
     } catch (error) {
@@ -388,24 +390,87 @@ const StudentDataManagement = () => {
                 className="pl-10"
               />
             </div>
-            <Select 
-              value={selectedStudent?.id || ''} 
-              onValueChange={(value) => {
-                const student = students.find(s => s.id === value);
-                setSelectedStudent(student || null);
-              }}
-            >
-              <SelectTrigger className="w-[300px]">
-                <SelectValue placeholder="Select a student" />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredStudents.map((student) => (
-                  <SelectItem key={student.id} value={student.id}>
-                    {student.full_name} ({student.student_id})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select 
+                value={selectedStudent?.id || ''} 
+                onValueChange={(value) => {
+                  const student = students.find(s => s.id === value);
+                  setSelectedStudent(student || null);
+                }}
+              >
+                <SelectTrigger className="w-[320px]">
+                  <SelectValue placeholder="Select a student" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredStudents.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.full_name} ({student.student_id})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  setIsLoading(true);
+                  fetchStudents();
+                }}
+                title="Refresh students"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Visible student list (so students are discoverable without opening the dropdown) */}
+          <div className="rounded-md border mb-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Student ID</TableHead>
+                  <TableHead>Program</TableHead>
+                  <TableHead>Enrollment Year</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[120px]">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      No students found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredStudents.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">{student.full_name}</TableCell>
+                      <TableCell className="font-mono text-xs">{student.student_id}</TableCell>
+                      <TableCell>{student.program}</TableCell>
+                      <TableCell>{student.year_of_study}</TableCell>
+                      <TableCell>
+                        <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
+                          {student.status || 'unknown'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSelectedStudent(student)}
+                        >
+                          Manage
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
 
           {selectedStudent ? (
@@ -416,7 +481,7 @@ const StudentDataManagement = () => {
                   <div>
                     <h3 className="text-lg font-semibold">{selectedStudent.full_name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {selectedStudent.student_id} • {selectedStudent.program} • Year {selectedStudent.year_of_study}
+                      {selectedStudent.student_id} • {selectedStudent.program} • Enrollment Year {selectedStudent.year_of_study}
                     </p>
                   </div>
                   <Button onClick={saveAllData} className="gap-2">
