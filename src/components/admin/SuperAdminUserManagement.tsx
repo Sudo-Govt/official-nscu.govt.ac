@@ -1,3 +1,4 @@
+// SuperAdmin User Management Component
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -162,6 +163,14 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     }
 
     try {
+      const studentFields = newUser.role === 'student' ? {
+        faculty_id: courseSelection.faculty_id,
+        department_id: courseSelection.department_id,
+        course_id: courseSelection.course_id,
+        course_code: courseSelection.course_code,
+        course_name: courseSelection.course_name,
+      } : {};
+
       const { data, error } = await supabase.functions.invoke('admin-create-user', {
         body: {
           email: newUser.email,
@@ -170,14 +179,7 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
           role: newUser.role,
           department: newUser.department,
           phone: newUser.phone,
-          // Student-specific fields
-          ...(newUser.role === 'student' && {
-            faculty_id: courseSelection.faculty_id,
-            department_id: courseSelection.department_id,
-            course_id: courseSelection.course_id,
-            course_code: courseSelection.course_code,
-            course_name: courseSelection.course_name,
-          }),
+          ...studentFields,
         },
       });
 
@@ -429,7 +431,6 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
     setEditAgencyName('');
     setEditDialogTab('basic');
     setIsCreateDialogOpen(true);
-  };
   };
 
   const handleChangePassword = (user: UserProfile) => {
@@ -1125,3 +1126,4 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 };
 
 export default SuperAdminUserManagement;
+
