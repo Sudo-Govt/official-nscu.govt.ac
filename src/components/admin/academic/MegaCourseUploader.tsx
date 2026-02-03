@@ -79,7 +79,14 @@ const MegaCourseUploader = () => {
         throw new Error('File must have a header row and at least one data row');
       }
 
-      const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, '').toLowerCase().trim().replace(/\s+/g, '_'));
+      const headers = parseCSVLine(lines[0]).map(h =>
+        h
+          .replace(/^\uFEFF/, '') // strip UTF-8 BOM if present
+          .replace(/"/g, '')
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '_')
+      );
       const rows: ParsedRow[] = [];
 
       for (let i = 1; i < lines.length; i++) {
@@ -105,7 +112,13 @@ const MegaCourseUploader = () => {
       }
 
       const headerRow = jsonData[0] as string[];
-      const headers = headerRow.map(h => String(h || '').toLowerCase().trim().replace(/\s+/g, '_'));
+      const headers = headerRow.map(h =>
+        String(h || '')
+          .replace(/^\uFEFF/, '')
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '_')
+      );
       const rows: ParsedRow[] = [];
 
       for (let i = 1; i < jsonData.length; i++) {
@@ -126,6 +139,14 @@ const MegaCourseUploader = () => {
   const generateSlug = (name: string): string => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   };
+
+  // These tables have unique indexes on slug; including the code prevents collisions
+  // when names repeat across faculties (e.g., "Computer Science").
+  const facultySlug = (facultyName: string, facultyCode: string) =>
+    generateSlug(`${facultyName}-${facultyCode}`);
+
+  const departmentSlug = (departmentName: string, departmentCode: string) =>
+    generateSlug(`${departmentName}-${departmentCode}`);
 
   // Auto-detect degree level from course name
   const detectDegreeLevel = (courseName: string): string => {
@@ -179,6 +200,7 @@ const MegaCourseUploader = () => {
         .insert(newFaculties.map(f => ({
           name: f.faculty_name,
           code: f.faculty_code,
+          slug: facultySlug(f.faculty_name, f.faculty_code),
           is_active: true,
         })))
         .select('id, code');
@@ -214,7 +236,8 @@ const MegaCourseUploader = () => {
         .insert(newDepts.map(d => ({
           name: d.department_name,
           code: d.department_code,
-          faculty_id: facultyMap.get(d.faculty_code),
+          slug: departmentSlug(d.department_name, d.department_code),
+          faculty_id: facultyMap.get(d.faculty_code) ?? null,
           is_active: true,
         })))
         .select('id, code');
@@ -296,57 +319,99 @@ const MegaCourseUploader = () => {
       return;
     }
 
+    // IMPORTANT: Only create navigation items for records that actually exist in the database.
+    // This prevents orphan menu items when a bulk insert partially fails.
+
+    // Fetch current DB slugs for the uploaded codes
+    const facultyCodes = Array.from(new Set(faculties.map(f => f.faculty_code).filter(Boolean)));
+    const deptCodes = Array.from(new Set(departments.map(d => d.department_code).filter(Boolean)));
+
+    const { data: facultyRows } = await supabase
+      .from('academic_faculties')
+      .select('id, name, code, slug')
+      .in('code', facultyCodes)
+      .eq('is_active', true);
+
+    const chunkArray = <T,>(arr: T[], size: number) => {
+      const out: T[][] = [];
+      for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+      return out;
+    };
+
+    const deptChunks = chunkArray(deptCodes, 200);
+    const deptResults = await Promise.all(
+      deptChunks.map(chunk =>
+        supabase
+          .from('academic_departments')
+          .select('id, name, code, slug, faculty_id')
+          .in('code', chunk)
+          .eq('is_active', true)
+      )
+    );
+
+    const deptRows = deptResults.flatMap(r => r.data || []);
+
     // Get existing navigation items
     const { data: existingNav } = await supabase
       .from('site_navigation')
       .select('id, href, parent_id');
-    
+
     const existingHrefs = new Set(existingNav?.map(n => n.href) || []);
-    
+
+    const facultyHrefById = new Map<string, string>();
+    (facultyRows || []).forEach(f => {
+      const slug = f.slug || generateSlug(f.name);
+      facultyHrefById.set(f.id, `/faculty/${slug}`);
+    });
+
     // Prepare faculty nav items - ALWAYS under Academics
-    const facultyNavItems = faculties
-      .filter(f => !existingHrefs.has(`/faculty/${generateSlug(f.faculty_name)}`))
+    const facultyNavItems = (facultyRows || [])
       .map((f, idx) => ({
-        title: f.faculty_name,
-        href: `/faculty/${generateSlug(f.faculty_name)}`,
-        parent_id: academicsNavId, // ALWAYS under Academics
+        title: f.name,
+        href: facultyHrefById.get(f.id)!,
+        parent_id: academicsNavId,
         menu_location: 'main',
         is_active: true,
-        position: 10 + idx, // Lower position numbers to stay organized
-      }));
-    
+        position: 10 + idx,
+      }))
+      .filter(item => !existingHrefs.has(item.href));
+
     if (facultyNavItems.length > 0) {
       await supabase.from('site_navigation').insert(facultyNavItems);
     }
-    
+
     // Get faculty nav IDs for department parents (only those under Academics)
     const { data: facultyNavs } = await supabase
       .from('site_navigation')
       .select('id, href')
       .eq('parent_id', academicsNavId);
-    
+
     const facultyNavMap = new Map(facultyNavs?.map(n => [n.href, n.id]) || []);
-    
+
     // Prepare department nav items - ONLY if faculty parent exists
-    const deptNavItems = departments
-      .filter(d => {
-        const facultyHref = `/faculty/${generateSlug(d.faculty_name)}`;
-        const hasFacultyParent = facultyNavMap.has(facultyHref);
-        const notExists = !existingHrefs.has(`/department/${generateSlug(d.department_name)}`);
-        return hasFacultyParent && notExists; // ONLY add if faculty parent exists
-      })
+    const deptNavItems = deptRows
       .map((d, idx) => {
-        const facultyHref = `/faculty/${generateSlug(d.faculty_name)}`;
+        const deptHref = `/department/${d.slug || departmentSlug(d.name, d.code)}`;
+        const parentFacultyHref = d.faculty_id ? facultyHrefById.get(d.faculty_id) : undefined;
         return {
-          title: d.department_name,
-          href: `/department/${generateSlug(d.department_name)}`,
-          parent_id: facultyNavMap.get(facultyHref)!, // Must have parent
-          menu_location: 'main',
-          is_active: true,
+          title: d.name,
+          href: deptHref,
+          parentFacultyHref,
           position: idx,
         };
-      });
-    
+      })
+      .filter(x => !!x.parentFacultyHref)
+      .filter(x => !existingHrefs.has(x.href))
+      .filter(x => facultyNavMap.has(x.parentFacultyHref!))
+      .map(x => ({
+        title: x.title,
+        href: x.href,
+        parent_id: facultyNavMap.get(x.parentFacultyHref!)!,
+        menu_location: 'main',
+        is_active: true,
+        position: x.position,
+      }));
+
     if (deptNavItems.length > 0) {
       await supabase.from('site_navigation').insert(deptNavItems);
     }
