@@ -3969,6 +3969,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_shared_files: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          download_count: number | null
+          expires_at: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_active: boolean
+          last_downloaded_at: string | null
+          shared_by: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          download_count?: number | null
+          expires_at?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean
+          last_downloaded_at?: string | null
+          shared_by?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          download_count?: number | null
+          expires_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_active?: boolean
+          last_downloaded_at?: string | null
+          shared_by?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Users, Calendar, Network, GraduationCap, Briefcase, Award, Globe, Coffee, BookOpen, Mail, User, FileText, MessageCircle, Library } from 'lucide-react';
+import { Heart, Users, Calendar, Network, GraduationCap, Briefcase, Award, Globe, Coffee, BookOpen, User, FileText, MessageCircle, Library, FolderOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import AlumniProfile from '@/components/alumni/AlumniProfile';
@@ -13,8 +13,8 @@ import AlumniCareer from '@/components/alumni/AlumniCareer';
 import AlumniDocuments from '@/components/alumni/AlumniDocuments';
 import AlumniChatRoom from '@/components/alumni/AlumniChatRoom';
 import DashboardLayout from '@/components/DashboardLayout';
-import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 import { LibraryView } from '@/components/library';
+import MySharedFiles from '@/components/student/MySharedFiles';
 import * as LucideIcons from 'lucide-react';
 
 interface CTAButton {
@@ -326,9 +326,9 @@ const AlumniDashboard = () => {
                   <User className="h-6 w-6 mb-2" />
                   <span className="text-sm">My Profile</span>
                 </Button>
-                <Button variant="outline" className="h-20 flex flex-col items-center justify-center" onClick={() => setActiveTab('mail')}>
-                  <Mail className="h-6 w-6 mb-2" />
-                  <span className="text-sm">Internal Mail</span>
+                <Button variant="outline" className="h-20 flex flex-col items-center justify-center" onClick={() => setActiveTab('shared-files')}>
+                  <FolderOpen className="h-6 w-6 mb-2" />
+                  <span className="text-sm">My Files</span>
                 </Button>
               </>
             )}
@@ -349,7 +349,7 @@ const AlumniDashboard = () => {
         { title: "Library", icon: Library, value: "library", onClick: () => setActiveTab("library") },
         { title: "Documents", icon: FileText, value: "documents", onClick: () => setActiveTab("documents") },
         { title: "Chat Room", icon: MessageCircle, value: "chatroom", onClick: () => setActiveTab("chatroom") },
-        { title: "Internal Mail", icon: Mail, value: "mail", onClick: () => setActiveTab("mail") },
+        { title: "My Files", icon: FolderOpen, value: "shared-files", onClick: () => setActiveTab("shared-files") },
       ]
     }
   ];
@@ -370,7 +370,7 @@ const AlumniDashboard = () => {
       {activeTab === "library" && <LibraryView />}
       {activeTab === "documents" && <AlumniDocuments />}
       {activeTab === "chatroom" && <AlumniChatRoom />}
-      {activeTab === "mail" && <InternalMailSystem />}
+      {activeTab === "shared-files" && <MySharedFiles />}
     </DashboardLayout>
   );
 };

@@ -6,13 +6,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGr
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { UserPlus, Pencil, Search, Shield, Users, Key, Trash2, Info, Mail, DollarSign } from 'lucide-react';
+import { UserPlus, Pencil, Search, Shield, Users, Key, Trash2, Info, Mail, DollarSign, Share2, GraduationCap } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ROLE_DEFINITIONS, getRolesByCategory, getRoleDisplayName, getRoleDescription, CATEGORY_LABELS } from '@/lib/roles';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import UserFileSharing from './UserFileSharing';
+import UserEnrollmentEditor from './UserEnrollmentEditor';
 
 interface UserProfile {
   id: string;
@@ -597,10 +599,20 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
 
               {editingUser ? (
                 <Tabs value={editDialogTab} onValueChange={setEditDialogTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${isAgentRole ? 4 : (editingUser?.role === 'student' || editingUser?.role === 'alumni') ? 4 : 3}, minmax(0, 1fr))` }}>
                     <TabsTrigger value="basic">Basic Info</TabsTrigger>
                     <TabsTrigger value="credentials">Credentials</TabsTrigger>
-                    {isAgentRole && <TabsTrigger value="agent">Agent Settings</TabsTrigger>}
+                    {isAgentRole && <TabsTrigger value="agent">Agent</TabsTrigger>}
+                    {(editingUser?.role === 'student' || editingUser?.role === 'alumni') && (
+                      <TabsTrigger value="enrollment">
+                        <GraduationCap className="h-3.5 w-3.5 mr-1" />
+                        Enrollment
+                      </TabsTrigger>
+                    )}
+                    <TabsTrigger value="files">
+                      <Share2 className="h-3.5 w-3.5 mr-1" />
+                      Files
+                    </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="basic" className="space-y-4 py-4">
@@ -766,6 +778,28 @@ const SuperAdminUserManagement = ({ filterRole }: SuperAdminUserManagementProps)
                       </div>
                     </TabsContent>
                   )}
+
+                  {/* Enrollment Tab for Students/Alumni */}
+                  {(editingUser?.role === 'student' || editingUser?.role === 'alumni') && (
+                    <TabsContent value="enrollment" className="py-4">
+                      <UserEnrollmentEditor
+                        userId={editingUser.user_id}
+                        userName={editingUser.full_name}
+                        userRole={editingUser.role}
+                      />
+                    </TabsContent>
+                  )}
+
+                  {/* File Sharing Tab */}
+                  <TabsContent value="files" className="py-4">
+                    {editingUser && (
+                      <UserFileSharing
+                        userId={editingUser.user_id}
+                        userName={editingUser.full_name}
+                        userRole={editingUser.role}
+                      />
+                    )}
+                  </TabsContent>
                 </Tabs>
               ) : (
                 // Create new user form

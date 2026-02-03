@@ -15,11 +15,12 @@ import NotificationsPanel from '@/components/dashboard/NotificationsPanel';
 import FormsSection from '@/components/dashboard/FormsSection';
 import { InternalMessagingApp, InstantChat } from '@/components/messaging';
 import StudentResourcesView from '@/components/student/StudentResourcesView';
+import MySharedFiles from '@/components/student/MySharedFiles';
 import { LibraryView } from '@/components/library';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail, HelpCircle, BookMarked } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail, HelpCircle, BookMarked, FolderOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
@@ -342,6 +343,10 @@ const StudentDashboardV2 = () => {
               <HelpCircle className="h-4 w-4" />
               Resources
             </TabsTrigger>
+            <TabsTrigger value="my-files" className="flex items-center gap-2">
+              <FolderOpen className="h-4 w-4" />
+              My Files
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6 space-y-6">
@@ -532,6 +537,10 @@ const StudentDashboardV2 = () => {
 
           <TabsContent value="resources" className="mt-6">
             <StudentResourcesView />
+          </TabsContent>
+
+          <TabsContent value="my-files" className="mt-6">
+            <MySharedFiles />
           </TabsContent>
         </Tabs>
       </div>
