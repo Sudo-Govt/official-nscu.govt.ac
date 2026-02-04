@@ -10,15 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Play, Pause, RotateCcw, Trash2, Search, Filter,
   CheckCircle2, XCircle, Clock, Loader2, Bell,
-  AlertTriangle, Zap, Building2, Users, RefreshCw, ExternalLink
+  AlertTriangle, Zap, Building2, Users, RefreshCw, ExternalLink,
+  Settings, ChevronDown
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { useContentQueue } from '@/hooks/useContentQueue';
 import { cn } from '@/lib/utils';
+import AIProviderSettings from './AIProviderSettings';
 
 interface Course {
   id: string;
@@ -79,6 +82,7 @@ const BulkContentGenerator = () => {
   // Selection state
   const [selectedCourses, setSelectedCourses] = useState<Set<string>>(new Set());
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -231,12 +235,20 @@ const BulkContentGenerator = () => {
               <Button
                 variant="outline"
                 size="icon"
+                onClick={() => setShowSettings(!showSettings)}
+                title="AI Provider Settings"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 className="relative"
                 onClick={() => setShowNotifications(!showNotifications)}
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
                     {unreadCount > 99 ? '99+' : unreadCount}
                   </span>
                 )}
@@ -350,6 +362,11 @@ const BulkContentGenerator = () => {
             </ScrollArea>
           </CardContent>
         </Card>
+      )}
+
+      {/* AI Provider Settings */}
+      {showSettings && (
+        <AIProviderSettings />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

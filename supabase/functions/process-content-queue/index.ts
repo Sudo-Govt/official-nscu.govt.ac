@@ -6,6 +6,141 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// AI Provider configurations
+interface ProviderConfig {
+  provider: 'lovable' | 'openai' | 'anthropic' | 'google';
+  model: string;
+}
+
+interface APIKeys {
+  openai: string | null;
+  anthropic: string | null;
+  google: string | null;
+}
+
+async function callAI(
+  provider: string,
+  model: string,
+  apiKey: string,
+  systemPrompt: string,
+  userPrompt: string
+): Promise<{ content: string }> {
+  let url: string;
+  let headers: Record<string, string>;
+  let body: any;
+
+  switch (provider) {
+    case 'openai':
+      url = 'https://api.openai.com/v1/chat/completions';
+      headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 16000,
+      };
+      break;
+
+    case 'anthropic':
+      url = 'https://api.anthropic.com/v1/messages';
+      headers = {
+        'x-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
+      };
+      body = {
+        model,
+        max_tokens: 16000,
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: userPrompt },
+        ],
+      };
+      break;
+
+    case 'google':
+      url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      headers = {
+        'Content-Type': 'application/json',
+      };
+      body = {
+        contents: [
+          {
+            parts: [
+              { text: `${systemPrompt}\n\n${userPrompt}` },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 16000,
+        },
+      };
+      break;
+
+    case 'lovable':
+    default:
+      url = 'https://ai.gateway.lovable.dev/v1/chat/completions';
+      headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7,
+      };
+      break;
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const status = response.status;
+    if (status === 429) throw { status: 429, message: 'Rate limited' };
+    if (status === 402) throw { status: 402, message: 'Credits exhausted' };
+    const text = await response.text();
+    throw new Error(`AI API error (${status}): ${text}`);
+  }
+
+  const data = await response.json();
+
+  // Extract content based on provider
+  let content: string;
+  switch (provider) {
+    case 'anthropic':
+      content = data.content?.[0]?.text || '';
+      break;
+    case 'google':
+      content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      break;
+    case 'openai':
+    case 'lovable':
+    default:
+      content = data.choices?.[0]?.message?.content || '';
+      break;
+  }
+
+  if (!content) {
+    throw new Error('No content received from AI');
+  }
+
+  return { content };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -34,6 +169,44 @@ serve(async (req) => {
       );
     }
 
+    // Get AI provider settings
+    const [providerRes, keysRes] = await Promise.all([
+      supabase
+        .from("content_generation_settings")
+        .select("value")
+        .eq("key", "ai_provider")
+        .single(),
+      supabase
+        .from("content_generation_settings")
+        .select("value")
+        .eq("key", "ai_api_keys")
+        .single(),
+    ]);
+
+    const providerConfig = (providerRes.data?.value as ProviderConfig) || {
+      provider: 'lovable',
+      model: 'google/gemini-3-flash-preview',
+    };
+    const apiKeysConfig = (keysRes.data?.value as APIKeys) || {};
+
+    // Determine which API key to use
+    let apiKey: string | null = null;
+    if (providerConfig.provider === 'lovable') {
+      apiKey = Deno.env.get("LOVABLE_API_KEY") || null;
+    } else {
+      apiKey = apiKeysConfig[providerConfig.provider] || null;
+    }
+
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({
+          processed: false,
+          error: `API key not configured for ${providerConfig.provider}. Please add your API key in AI Provider Settings.`,
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Fetch next pending item
     const { data: queueItem, error: fetchError } = await supabase
       .from("content_generation_queue")
@@ -45,7 +218,6 @@ serve(async (req) => {
       .single();
 
     if (fetchError || !queueItem) {
-      // No pending items
       return new Response(
         JSON.stringify({
           processed: false,
@@ -82,7 +254,6 @@ serve(async (req) => {
       .single();
 
     if (courseError || !course) {
-      // Course not found, mark as failed
       await markFailed(supabase, queueItem, "Course not found");
       return new Response(
         JSON.stringify({
@@ -96,26 +267,9 @@ serve(async (req) => {
       );
     }
 
-    // Get department and faculty info
     const department = course.academic_departments as any;
     const faculty = department?.academic_faculties;
 
-    // Call generate-curriculum-v2 function
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      await markFailed(supabase, queueItem, "LOVABLE_API_KEY not configured");
-      return new Response(
-        JSON.stringify({
-          processed: true,
-          failed: true,
-          courseCode: queueItem.course_code,
-          error: "API key not configured",
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Build the 7-layer prompt
     const durationSemesters = Math.ceil(course.duration_months / 6);
     const degreeType = inferDegreeType(course.name);
 
@@ -231,100 +385,20 @@ Return JSON with this exact structure:
 }`;
 
     try {
-      const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          temperature: 0.7,
-        }),
-      });
-
-      if (!aiResponse.ok) {
-        const status = aiResponse.status;
-        
-        if (status === 429) {
-          // Rate limited - requeue with retry
-          await supabase
-            .from("content_generation_queue")
-            .update({
-              status: "pending",
-              retries: queueItem.retries + 1,
-              error_message: "Rate limited - will retry",
-              started_at: null,
-            })
-            .eq("id", queueItem.id);
-
-          return new Response(
-            JSON.stringify({
-              processed: false,
-              rateLimited: true,
-              courseCode: queueItem.course_code,
-              retryAfter: 60,
-            }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        if (status === 402) {
-          // Credits exhausted - pause queue
-          await supabase
-            .from("content_generation_settings")
-            .update({
-              value: {
-                status: "paused",
-                pausedAt: new Date().toISOString(),
-                pauseReason: "credits_exhausted",
-              },
-              updated_at: new Date().toISOString(),
-            })
-            .eq("key", "queue_status");
-
-          // Mark item as pending again
-          await supabase
-            .from("content_generation_queue")
-            .update({
-              status: "pending",
-              started_at: null,
-            })
-            .eq("id", queueItem.id);
-
-          // Create notification
-          await createNotification(supabase, queueItem, "paused", "Credits exhausted - queue paused");
-
-          return new Response(
-            JSON.stringify({
-              processed: false,
-              paused: true,
-              reason: "credits_exhausted",
-              courseCode: queueItem.course_code,
-            }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        throw new Error(`AI API error: ${status}`);
-      }
-
-      const aiData = await aiResponse.json();
-      const content = aiData.choices?.[0]?.message?.content;
-
-      if (!content) {
-        throw new Error("No content received from AI");
-      }
+      console.log(`Processing with ${providerConfig.provider} (${providerConfig.model})`);
+      
+      const aiResult = await callAI(
+        providerConfig.provider,
+        providerConfig.model,
+        apiKey,
+        systemPrompt,
+        userPrompt
+      );
 
       // Parse the JSON response
       let curriculum;
       try {
-        // Remove markdown code blocks if present
-        const cleanContent = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+        const cleanContent = aiResult.content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
         curriculum = JSON.parse(cleanContent);
       } catch (parseError) {
         throw new Error("Failed to parse AI response as JSON");
@@ -379,14 +453,14 @@ Return JSON with this exact structure:
         }
       }
 
-      // Fetch the course slug (may have been auto-generated by trigger)
+      // Fetch the course slug
       const { data: updatedCourse } = await supabase
         .from("academic_courses")
         .select("slug")
         .eq("id", queueItem.course_id)
         .single();
 
-      // Mark as completed with course_slug for View Page link
+      // Mark as completed
       await supabase
         .from("content_generation_queue")
         .update({
@@ -417,6 +491,8 @@ Return JSON with this exact structure:
           success: true,
           courseCode: queueItem.course_code,
           courseName: queueItem.course_name,
+          provider: providerConfig.provider,
+          model: providerConfig.model,
           queueRemaining: count || 0,
           nextProcessIn: 30,
         }),
@@ -424,15 +500,72 @@ Return JSON with this exact structure:
       );
 
     } catch (genError: any) {
-      // Generation failed
       const errorMessage = genError.message || "Unknown generation error";
-      
+      const status = genError.status;
+
+      // Handle rate limiting
+      if (status === 429) {
+        await supabase
+          .from("content_generation_queue")
+          .update({
+            status: "pending",
+            retries: queueItem.retries + 1,
+            error_message: "Rate limited - will retry",
+            started_at: null,
+          })
+          .eq("id", queueItem.id);
+
+        return new Response(
+          JSON.stringify({
+            processed: false,
+            rateLimited: true,
+            courseCode: queueItem.course_code,
+            retryAfter: 60,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Handle credits exhausted
+      if (status === 402) {
+        await supabase
+          .from("content_generation_settings")
+          .update({
+            value: {
+              status: "paused",
+              pausedAt: new Date().toISOString(),
+              pauseReason: "credits_exhausted",
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq("key", "queue_status");
+
+        await supabase
+          .from("content_generation_queue")
+          .update({
+            status: "pending",
+            started_at: null,
+          })
+          .eq("id", queueItem.id);
+
+        await createNotification(supabase, queueItem, "paused", "Credits exhausted - queue paused");
+
+        return new Response(
+          JSON.stringify({
+            processed: false,
+            paused: true,
+            reason: "credits_exhausted",
+            courseCode: queueItem.course_code,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Regular error handling with retries
       if (queueItem.retries >= 2) {
-        // Max retries reached
         await markFailed(supabase, queueItem, errorMessage);
         await createNotification(supabase, queueItem, "failed", errorMessage);
       } else {
-        // Retry later
         await supabase
           .from("content_generation_queue")
           .update({
@@ -502,42 +635,21 @@ function inferDegreeType(courseName: string): string {
 }
 
 function buildLongDescription(curriculum: any): string {
-  if (!curriculum.programInfo) return "";
+  if (!curriculum) return "";
   
-  return `
-# ${curriculum.programInfo.name}
-
-${curriculum.programInfo.description || ""}
-
-## Program Overview
-- **Degree Type:** ${curriculum.programInfo.degreeType}
-- **Duration:** ${curriculum.programInfo.durationSemesters} Semesters
-- **Total Credits:** ${curriculum.programInfo.totalCredits}
-
-## Career Outcomes
-${curriculum.careerOutcomes?.overview || ""}
-
-### Job Roles
-${(curriculum.careerOutcomes?.jobRoles || []).map((r: string) => `- ${r}`).join("\n")}
-
-### Industries
-${(curriculum.careerOutcomes?.industries || []).map((i: string) => `- ${i}`).join("\n")}
-
-**Expected Salary:** ${curriculum.careerOutcomes?.salaryRange || "Varies"}
-
-## Eligibility
-**Minimum Qualification:** ${curriculum.eligibility?.minimumQualification || "As per university guidelines"}
-
-${curriculum.eligibility?.preferredProfile || ""}
-
-### Required Subjects
-${(curriculum.eligibility?.requiredSubjects || []).map((s: string) => `- ${s}`).join("\n")}
-
-## Grading System
-- **GPA Scale:** ${curriculum.gradingSystem?.scale || 4}
-- **Passing Grade:** ${curriculum.gradingSystem?.passingGrade || 40}%
-- **Distinction:** ${curriculum.gradingSystem?.distinctionGrade || 75}%
-
-${curriculum.gradingSystem?.graduationRequirements || ""}
-  `.trim();
+  let description = "";
+  
+  if (curriculum.programInfo?.description) {
+    description += curriculum.programInfo.description + "\n\n";
+  }
+  
+  if (curriculum.careerOutcomes?.overview) {
+    description += "## Career Outcomes\n" + curriculum.careerOutcomes.overview + "\n\n";
+  }
+  
+  if (curriculum.eligibility?.minimumQualification) {
+    description += "## Eligibility\n" + curriculum.eligibility.minimumQualification + "\n\n";
+  }
+  
+  return description.trim();
 }
