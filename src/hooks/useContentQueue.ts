@@ -186,19 +186,23 @@ export function useContentQueue() {
   }, [isProcessing, queueStatus, toast]);
 
   // Start queue processing with 30-second intervals
-  const startProcessing = useCallback(() => {
+  const startProcessing = useCallback(async () => {
     if (processingInterval.current) return;
 
     setQueueStatus('running');
     
-    // Update settings
-    supabase
+    // Update settings - await to ensure it persists
+    const { error } = await supabase
       .from('content_generation_settings')
       .update({
         value: { status: 'running', pausedAt: null, pauseReason: null },
         updated_at: new Date().toISOString(),
       })
       .eq('key', 'queue_status');
+
+    if (error) {
+      console.error('Failed to update queue status:', error);
+    }
 
     // Process immediately
     processNext();
