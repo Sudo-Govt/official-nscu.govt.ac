@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,46 +8,94 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, CreditCard, User, Users, LogOut, FileText, Calendar, GraduationCap, Library, MapPin, Briefcase, Award, MessageSquare, Clock, Download, Upload, TrendingUp, Bell, Star, Target, Zap, Trophy, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import mockDb from '@/database/mockDb';
 import ChangePassword from '@/components/ChangePassword';
 import DashboardLayout from '@/components/DashboardLayout';
 import { InternalMailSystem } from '@/components/intranet/InternalMailSystem';
 import StudentCourseProgress from './StudentCourseProgress';
 import UserCourseInfo from './UserCourseInfo';
 
+interface StudentRecord {
+  id: string;
+  user_id: string;
+  student_id: string;
+  name: string;
+  program: string | null;
+  course_name: string | null;
+  enrollment_year: number | null;
+  status: string | null;
+  cgpa: number | null;
+  total_fees?: number;
+}
+
 const StudentDashboard = () => {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const [currentTab, setCurrentTab] = useState('overview');
-  const [studentData, setStudentData] = useState<any>(null);
+  const [studentData, setStudentData] = useState<StudentRecord | null>(null);
   const [courses, setCourses] = useState<any[]>([]);
   const [feeData, setFeeData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      // Fetch student data
-      const student = mockDb.getStudentByUserId(user.user_id);
-      setStudentData(student);
-
-      // Fetch enrolled courses
-      if (student) {
-        const studentCourses = mockDb.getStudentCourses(student.student_id);
-        setCourses(studentCourses);
-
-        // Calculate fee data
-        const transactions = mockDb.getFeeTransactionsByStudent(student.student_id);
-        const totalPaid = transactions
-          .filter(t => t.transaction_type === 'payment')
-          .reduce((sum, t) => sum + t.amount, 0);
-        
-        setFeeData({
-          totalFees: student.total_fees || 0,
-          paidFees: totalPaid || 0,
-          pendingFees: (student.total_fees || 0) - (totalPaid || 0)
-        });
-      }
+      fetchStudentData();
     }
   }, [user]);
+
+  const fetchStudentData = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Fetch student record from Supabase
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('*')
+        .eq('user_id', user.user_id)
+        .maybeSingle();
+
+      if (studentError) {
+        console.error('Error fetching student data:', studentError);
+      }
+
+      if (student) {
+        setStudentData(student as StudentRecord);
+        
+        // Set default fee data
+        const totalFees = 50000; // Default value
+        setFeeData({
+          totalFees: totalFees,
+          paidFees: 0,
+          pendingFees: totalFees
+        });
+      } else {
+        // Fallback: use profile data if no student record
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.user_id)
+          .maybeSingle();
+
+        if (profile) {
+          setStudentData({
+            id: profile.id,
+            user_id: profile.user_id,
+            student_id: 'STU-' + user.user_id.slice(0, 8).toUpperCase(),
+            name: profile.full_name || user.full_name || 'Student',
+            program: null,
+            course_name: null,
+            enrollment_year: new Date().getFullYear(),
+            status: 'active',
+            cgpa: 0,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const feePercentage = feeData ? (feeData.paidFees / feeData.totalFees) * 100 : 0;
 
@@ -160,7 +209,7 @@ const StudentDashboard = () => {
           {user && <UserCourseInfo userId={user.user_id} userRole="student" compact />}
         </div>
       }
-      userBadge={`Year ${studentData?.year_of_study}`}
+      userBadge={studentData?.enrollment_year ? `Batch ${studentData.enrollment_year}` : ''}
       menuGroups={menuGroups}
       activeTab={currentTab}
     >

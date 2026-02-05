@@ -100,6 +100,7 @@ const AIProviderSettings = () => {
     anthropic: '',
     google: '',
   });
+  const [keyEditing, setKeyEditing] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     loadSettings();
@@ -135,6 +136,11 @@ const AIProviderSettings = () => {
           openai: keys.openai ? '••••••••••••' + keys.openai.slice(-4) : '',
           anthropic: keys.anthropic ? '••••••••••••' + keys.anthropic.slice(-4) : '',
           google: keys.google ? '••••••••••••' + keys.google.slice(-4) : '',
+        });
+        setKeyEditing({
+          openai: false,
+          anthropic: false,
+          google: false,
         });
       }
     } catch (error) {
@@ -184,8 +190,18 @@ const AIProviderSettings = () => {
   const handleSaveApiKey = async (provider: 'openai' | 'anthropic' | 'google') => {
     const newKey = keyInputs[provider];
     
-    // Don't save if it's a masked value
-    if (newKey.includes('••••')) return;
+    // Don't save if it's a masked value and not being edited
+    if (newKey.includes('••••') && !keyEditing[provider]) return;
+    
+    // Don't save empty keys when editing
+    if (!newKey.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a valid API key',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     setSaving(true);
     try {
@@ -202,6 +218,12 @@ const AIProviderSettings = () => {
       if (error) throw error;
 
       setApiKeys(updatedKeys);
+      setKeyEditing(prev => ({ ...prev, [provider]: false }));
+      // Update displayed key to masked version
+      setKeyInputs(prev => ({
+        ...prev,
+        [provider]: newKey ? '••••••••••••' + newKey.slice(-4) : '',
+      }));
       
       toast({
         title: 'API key saved',
@@ -220,6 +242,24 @@ const AIProviderSettings = () => {
 
   const toggleKeyVisibility = (provider: string) => {
     setShowKeys(prev => ({ ...prev, [provider]: !prev[provider] }));
+  };
+
+  const handleKeyInputChange = (provider: 'openai' | 'anthropic' | 'google', value: string) => {
+    // If user starts typing and there's a masked value, clear it
+    if (keyInputs[provider].includes('••••') && !keyEditing[provider]) {
+      setKeyEditing(prev => ({ ...prev, [provider]: true }));
+      setKeyInputs(prev => ({ ...prev, [provider]: value }));
+    } else {
+      setKeyInputs(prev => ({ ...prev, [provider]: value }));
+    }
+  };
+
+  const handleKeyInputFocus = (provider: 'openai' | 'anthropic' | 'google') => {
+    // Clear masked value when focusing to edit
+    if (keyInputs[provider].includes('••••')) {
+      setKeyEditing(prev => ({ ...prev, [provider]: true }));
+      setKeyInputs(prev => ({ ...prev, [provider]: '' }));
+    }
   };
 
   const currentProvider = PROVIDERS.find(p => p.id === selectedProvider);
@@ -366,10 +406,8 @@ const AIProviderSettings = () => {
                       type={showKeys[provider.id] ? 'text' : 'password'}
                       placeholder={`Enter ${provider.name} API key...`}
                       value={keyInputs[providerId]}
-                      onChange={(e) => setKeyInputs(prev => ({ 
-                        ...prev, 
-                        [providerId]: e.target.value 
-                      }))}
+                      onChange={(e) => handleKeyInputChange(providerId, e.target.value)}
+                      onFocus={() => handleKeyInputFocus(providerId)}
                       className="pr-10"
                     />
                     <Button
@@ -390,7 +428,7 @@ const AIProviderSettings = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => handleSaveApiKey(providerId)}
-                    disabled={saving || keyInputs[providerId].includes('••••')}
+                    disabled={saving || (!keyEditing[providerId] && keyInputs[providerId].includes('••••')) || !keyInputs[providerId].trim()}
                   >
                     Save
                   </Button>

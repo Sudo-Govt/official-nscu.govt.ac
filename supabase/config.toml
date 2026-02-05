@@ -1,5 +1,20 @@
 project_id = "ciasptvokbttjuldenxc"
 
+[functions.admin-create-user]
+verify_jwt = false
+
+[functions.admin-create-student]
+verify_jwt = false
+
+[functions.admin-delete-user]
+verify_jwt = false
+
+[functions.admin-update-email]
+verify_jwt = false
+
+[functions.admin-update-password]
+verify_jwt = false
+
 [functions.create-test-user]
 verify_jwt = false
 
