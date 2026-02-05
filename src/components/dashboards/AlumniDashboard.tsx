@@ -36,10 +36,43 @@ const AlumniDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [ctaButtons, setCTAButtons] = useState<CTAButton[]>([]);
   const [loadingCTAs, setLoadingCTAs] = useState(true);
+  const [alumniProfile, setAlumniProfile] = useState<any>(null);
 
   useEffect(() => {
     fetchCTAButtons();
-  }, []);
+    if (user) {
+      fetchAlumniProfile();
+    }
+  }, [user]);
+
+  const fetchAlumniProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('alumni_profiles')
+        .select(`
+          *,
+          academic_courses:course_id (
+            name,
+            course_code,
+            degree_level,
+            degree_type
+          )
+        `)
+        .eq('user_id', user.user_id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching alumni profile:', error);
+        return;
+      }
+
+      setAlumniProfile(data);
+    } catch (error) {
+      console.error('Error fetching alumni profile:', error);
+    }
+  };
 
   const fetchCTAButtons = async () => {
     try {
@@ -90,8 +123,8 @@ const AlumniDashboard = () => {
   };
 
   const alumniStats = {
-    graduationYear: "2020",
-    degree: "Bachelor of Science in Computer Science",
+    graduationYear: alumniProfile?.graduation_year || "N/A",
+    degree: alumniProfile?.course_name || alumniProfile?.program || "Program not set",
     networkConnections: 156,
     eventsAttended: 8,
     donationTotal: 2500,
