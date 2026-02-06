@@ -143,55 +143,89 @@
      };
    }, [fetchQueue, toast]);
  
-   const processNext = useCallback(async () => {
-     if (isProcessing || queueStatus === 'paused') return;
- 
-     setIsProcessing(true);
-     
-     try {
-       // Get AI settings from localStorage
-       const aiSettings = getAISettings();
-       
-       // Prepare request body with provider config and API key
-       const body: { providerConfig: any; apiKey?: string } = {
-         providerConfig: aiSettings.provider,
-       };
-       
-       // Only pass API key for non-lovable providers
-       if (aiSettings.provider.provider !== 'lovable') {
-         const keyForProvider = aiSettings.apiKeys[aiSettings.provider.provider as keyof typeof aiSettings.apiKeys];
-         if (keyForProvider) body.apiKey = keyForProvider;
-       }
-       
-       const { data, error } = await supabase.functions.invoke('process-content-queue', { body });
-       
-       if (error) {
-         console.error('Queue processing error:', error);
-       }
- 
-       if (data?.paused) {
-         setQueueStatus('paused');
-         toast({
-           title: 'Queue Paused',
-           description: data.reason === 'credits_exhausted' 
-             ? 'Credits exhausted. Please add funds to continue.' 
-             : data.reason,
-           variant: 'destructive',
-         });
-         stopProcessing();
-       }
- 
-       if (data?.idle) {
-         stopProcessing();
-         setQueueStatus('idle');
-       }
- 
-     } catch (err) {
-       console.error('Process next error:', err);
-     } finally {
-       setIsProcessing(false);
-     }
-   }, [isProcessing, queueStatus, toast]);
+  const processNext = useCallback(async () => {
+    if (isProcessing || queueStatus === 'paused') return;
+
+    setIsProcessing(true);
+    
+    try {
+      // Get AI settings from localStorage
+      const aiSettings = getAISettings();
+      
+      console.log('AI Settings loaded:', {
+        provider: aiSettings.provider.provider,
+        model: aiSettings.provider.model,
+        hasOpenAIKey: !!aiSettings.apiKeys.openai,
+        hasAnthropicKey: !!aiSettings.apiKeys.anthropic,
+        hasGoogleKey: !!aiSettings.apiKeys.google,
+      });
+      
+      // Prepare request body with provider config and API key
+      const body: { providerConfig: any; apiKey?: string } = {
+        providerConfig: aiSettings.provider,
+      };
+      
+      // Only pass API key for non-lovable providers
+      if (aiSettings.provider.provider !== 'lovable') {
+        const providerKey = aiSettings.provider.provider as 'openai' | 'anthropic' | 'google';
+        const keyForProvider = aiSettings.apiKeys[providerKey];
+        
+        if (!keyForProvider) {
+          toast({
+            title: 'API Key Missing',
+            description: `Please configure your ${aiSettings.provider.provider.toUpperCase()} API key in AI Settings before generating.`,
+            variant: 'destructive',
+          });
+          setIsProcessing(false);
+          return;
+        }
+        
+        body.apiKey = keyForProvider;
+        console.log(`Using ${providerKey} API key (length: ${keyForProvider.length})`);
+      }
+      
+      const { data, error } = await supabase.functions.invoke('process-content-queue', { body });
+      
+      if (error) {
+        console.error('Queue processing error:', error);
+        toast({
+          title: 'Processing Error',
+          description: error.message || 'Failed to process queue',
+          variant: 'destructive',
+        });
+      }
+
+      if (data?.error) {
+        toast({
+          title: 'Generation Error',
+          description: data.error,
+          variant: 'destructive',
+        });
+      }
+
+      if (data?.paused) {
+        setQueueStatus('paused');
+        toast({
+          title: 'Queue Paused',
+          description: data.reason === 'credits_exhausted' 
+            ? 'Credits exhausted. Please add funds to continue.' 
+            : data.reason,
+          variant: 'destructive',
+        });
+        stopProcessing();
+      }
+
+      if (data?.idle) {
+        stopProcessing();
+        setQueueStatus('idle');
+      }
+
+    } catch (err) {
+      console.error('Process next error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [isProcessing, queueStatus, toast]);
  
    const startProcessing = useCallback(async () => {
      if (processingInterval.current) return;

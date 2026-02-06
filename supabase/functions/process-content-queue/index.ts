@@ -11,127 +11,138 @@
    model: string;
  }
  
- async function callAI(
-   provider: string,
-   model: string,
-   apiKey: string,
-   systemPrompt: string,
-   userPrompt: string
- ): Promise<{ content: string }> {
-   let url: string;
-   let headers: Record<string, string>;
-   let body: any;
- 
-   switch (provider) {
-     case 'openai':
-       url = 'https://api.openai.com/v1/chat/completions';
-       headers = {
-         'Authorization': `Bearer ${apiKey}`,
-         'Content-Type': 'application/json',
-       };
-       body = {
-         model,
-         messages: [
-           { role: 'system', content: systemPrompt },
-           { role: 'user', content: userPrompt },
-         ],
-         temperature: 0.7,
-         max_tokens: 16000,
-       };
-       break;
- 
-     case 'anthropic':
-       url = 'https://api.anthropic.com/v1/messages';
-       headers = {
-         'x-api-key': apiKey,
-         'Content-Type': 'application/json',
-         'anthropic-version': '2023-06-01',
-       };
-       body = {
-         model,
-         max_tokens: 16000,
-         system: systemPrompt,
-         messages: [
-           { role: 'user', content: userPrompt },
-         ],
-       };
-       break;
- 
-     case 'google':
-       url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-       headers = {
-         'Content-Type': 'application/json',
-       };
-       body = {
-         contents: [
-           {
-             parts: [
-               { text: `${systemPrompt}\n\n${userPrompt}` },
-             ],
-           },
-         ],
-         generationConfig: {
-           temperature: 0.7,
-           maxOutputTokens: 16000,
-         },
-       };
-       break;
- 
-     case 'lovable':
-     default:
-       url = 'https://ai.gateway.lovable.dev/v1/chat/completions';
-       headers = {
-         'Authorization': `Bearer ${apiKey}`,
-         'Content-Type': 'application/json',
-       };
-       body = {
-         model,
-         messages: [
-           { role: 'system', content: systemPrompt },
-           { role: 'user', content: userPrompt },
-         ],
-         temperature: 0.7,
-       };
-       break;
-   }
- 
-   const response = await fetch(url, {
-     method: 'POST',
-     headers,
-     body: JSON.stringify(body),
-   });
- 
-   if (!response.ok) {
-     const status = response.status;
-     if (status === 429) throw { status: 429, message: 'Rate limited' };
-     if (status === 402) throw { status: 402, message: 'Credits exhausted' };
-     const text = await response.text();
-     throw new Error(`AI API error (${status}): ${text}`);
-   }
- 
-   const data = await response.json();
- 
-   let content: string;
-   switch (provider) {
-     case 'anthropic':
-       content = data.content?.[0]?.text || '';
-       break;
-     case 'google':
-       content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-       break;
-     case 'openai':
-     case 'lovable':
-     default:
-       content = data.choices?.[0]?.message?.content || '';
-       break;
-   }
- 
-   if (!content) {
-     throw new Error('No content received from AI');
-   }
- 
-   return { content };
- }
+async function callAI(
+  provider: string,
+  model: string,
+  apiKey: string,
+  systemPrompt: string,
+  userPrompt: string
+): Promise<{ content: string }> {
+  let url: string;
+  let headers: Record<string, string>;
+  let body: any;
+
+  console.log(`callAI invoked with provider=${provider}, model=${model}, apiKeyLength=${apiKey?.length || 0}`);
+
+  switch (provider) {
+    case 'openai':
+      url = 'https://api.openai.com/v1/chat/completions';
+      headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 16000,
+      };
+      break;
+
+    case 'anthropic':
+      url = 'https://api.anthropic.com/v1/messages';
+      headers = {
+        'x-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
+      };
+      body = {
+        model,
+        max_tokens: 16000,
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: userPrompt },
+        ],
+      };
+      break;
+
+    case 'google':
+      url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      headers = {
+        'Content-Type': 'application/json',
+      };
+      body = {
+        contents: [
+          {
+            parts: [
+              { text: `${systemPrompt}\n\n${userPrompt}` },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 16000,
+        },
+      };
+      break;
+
+    case 'lovable':
+    default:
+      url = 'https://ai.gateway.lovable.dev/v1/chat/completions';
+      headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      };
+      body = {
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.7,
+      };
+      break;
+  }
+
+  console.log(`Making request to ${url.substring(0, 50)}...`);
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  console.log(`Response status: ${response.status}`);
+
+  if (!response.ok) {
+    const status = response.status;
+    const text = await response.text();
+    console.error(`AI API error: status=${status}, body=${text.substring(0, 500)}`);
+    
+    if (status === 429) throw { status: 429, message: 'Rate limited' };
+    if (status === 402) throw { status: 402, message: 'Credits exhausted' };
+    if (status === 401) throw new Error(`Authentication failed: Invalid API key for ${provider}`);
+    throw new Error(`AI API error (${status}): ${text.substring(0, 200)}`);
+  }
+
+  const data = await response.json();
+
+  let content: string;
+  switch (provider) {
+    case 'anthropic':
+      content = data.content?.[0]?.text || '';
+      break;
+    case 'google':
+      content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      break;
+    case 'openai':
+    case 'lovable':
+    default:
+      content = data.choices?.[0]?.message?.content || '';
+      break;
+  }
+
+  if (!content) {
+    console.error('No content in response:', JSON.stringify(data).substring(0, 500));
+    throw new Error('No content received from AI');
+  }
+
+  console.log(`Successfully received content (length: ${content.length})`);
+  return { content };
+}
  
  serve(async (req) => {
    if (req.method === "OPTIONS") {
