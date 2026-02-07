@@ -155,15 +155,17 @@ async function callAI(
 function getOpenAiMaxTokens(model: string): number {
   const m = (model || '').toLowerCase();
 
-  // NOTE: Different OpenAI models have different max output/context limits.
-  // We keep these conservative to avoid 400s like:
-  // - "max_tokens is too large"
-  // - "maximum context length is 8192 tokens"
-  if (m.includes('gpt-4o')) return 8000;
-  if (m.includes('gpt-4-turbo')) return 3500;
-  if (m === 'gpt-4') return 3000;
-  if (m.includes('gpt-3.5')) return 2500;
-  return 3000;
+  // For curriculum generation, we need MAXIMUM output tokens to fit all 8 semesters.
+  // Each model has different limits - use the highest allowed for each.
+  // gpt-4o: max output 16384, gpt-4o-mini: max output 16384
+  // gpt-4-turbo: max output 4096, gpt-4: max output 8192
+  // gpt-3.5-turbo: max output 4096 (16k context variant: 16384)
+  if (m.includes('gpt-4o')) return 16384;
+  if (m.includes('gpt-4-turbo')) return 4096;
+  if (m === 'gpt-4') return 8192;
+  if (m.includes('gpt-3.5-turbo-16k')) return 16384;
+  if (m.includes('gpt-3.5')) return 4096;
+  return 8192;
 }
 
 function supportsOpenAiJsonObjectResponse(model: string): boolean {
@@ -321,18 +323,20 @@ function parseAiJson(content: string): any {
      const durationSemesters = Math.ceil(course.duration_months / 6);
      const degreeType = inferDegreeType(course.name);
  
-     const systemPrompt = `You are an expert academic curriculum designer specializing in ABET-compliant degree programs.
- Generate a comprehensive 7-layer curriculum framework following these strict requirements:
- 
- Layer 1 - Master Context: Create context for ${faculty?.name || 'General'} faculty, ${department?.name || 'General'} department
- Layer 2 - Structural Skeleton: ${durationSemesters} semesters, ${course.total_credits} total credits, 5-7 subjects per semester
- Layer 3 - Semester Themes: Year 1 = Foundations, Year 2 = Analysis/Specialization, Year 3+ = Advanced/Capstone
- Layer 4 - Topics: 5 major topics per subject, 4 sub-topics per topic (specific, teachable concepts)
- Layer 5 - Books: 5 materials per subject (1 primary textbook, 1-2 primary sources, 1 supplementary, 1 reference)
- Layer 6 - Assessment: Mid-Term 20-25%, Final 25-35%, Research 20-35%, Presentation 10-15%, Participation 10-15%
- Layer 7 - Validation: All weights must sum to 100%, all credits must match, prerequisites must be logical
- 
- Respond with a valid JSON object only, no markdown.`;
+      const systemPrompt = `You are an expert academic curriculum designer specializing in ABET-compliant degree programs.
+  Generate a comprehensive 7-layer curriculum framework following these strict requirements:
+  
+  Layer 1 - Master Context: Create context for ${faculty?.name || 'General'} faculty, ${department?.name || 'General'} department
+  Layer 2 - Structural Skeleton: EXACTLY ${durationSemesters} semesters, ${course.total_credits} total credits, 5-7 subjects per semester
+  Layer 3 - Semester Themes: Year 1 = Foundations, Year 2 = Analysis/Specialization, Year 3+ = Advanced/Capstone
+  Layer 4 - Topics: 5 major topics per subject, 4 sub-topics per topic (specific, teachable concepts)
+  Layer 5 - Books: 5 materials per subject (1 primary textbook, 1-2 primary sources, 1 supplementary, 1 reference)
+  Layer 6 - Assessment: Mid-Term 20-25%, Final 25-35%, Research 20-35%, Presentation 10-15%, Participation 10-15%
+  Layer 7 - Validation: All weights must sum to 100%, all credits must match, prerequisites must be logical
+  
+  CRITICAL: You MUST generate ALL ${durationSemesters} semesters. Do not truncate or abbreviate. Generate the complete curriculum for every single semester from 1 to ${durationSemesters}.
+  
+  Respond with a valid JSON object only, no markdown.`;
  
      const userPrompt = `Generate a complete curriculum for:
  - Course: ${course.name} (${course.course_code})
