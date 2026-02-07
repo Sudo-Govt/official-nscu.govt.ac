@@ -25,12 +25,18 @@ async function callAI(
   console.log(`callAI invoked with provider=${provider}, model=${model}, apiKeyLength=${apiKey?.length || 0}`);
 
   switch (provider) {
-    case 'openai':
+    case 'openai': {
       url = 'https://api.openai.com/v1/chat/completions';
       headers = {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       };
+
+      const maxTokens = getOpenAiMaxTokens(model);
+      const responseFormat = supportsOpenAiJsonObjectResponse(model)
+        ? { response_format: { type: 'json_object' } }
+        : {};
+
       body = {
         model,
         messages: [
@@ -38,9 +44,11 @@ async function callAI(
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.7,
-        max_tokens: 16000,
+        max_tokens: maxTokens,
+        ...responseFormat,
       };
       break;
+    }
 
     case 'anthropic':
       url = 'https://api.anthropic.com/v1/messages';
@@ -142,6 +150,49 @@ async function callAI(
 
   console.log(`Successfully received content (length: ${content.length})`);
   return { content };
+}
+
+function getOpenAiMaxTokens(model: string): number {
+  const m = (model || '').toLowerCase();
+
+  // NOTE: Different OpenAI models have different max output/context limits.
+  // We keep these conservative to avoid 400s like:
+  // - "max_tokens is too large"
+  // - "maximum context length is 8192 tokens"
+  if (m.includes('gpt-4o')) return 8000;
+  if (m.includes('gpt-4-turbo')) return 3500;
+  if (m === 'gpt-4') return 3000;
+  if (m.includes('gpt-3.5')) return 2500;
+  return 3000;
+}
+
+function supportsOpenAiJsonObjectResponse(model: string): boolean {
+  const m = (model || '').toLowerCase();
+
+  // JSON mode support is model-dependent; sending it to unsupported models can 400.
+  return m.includes('gpt-4o') || m.includes('gpt-4-turbo') || m.includes('gpt-3.5-turbo');
+}
+
+function parseAiJson(content: string): any {
+  const cleaned = (content ?? '')
+    .replace(/```json\n?/g, '')
+    .replace(/```\n?/g, '')
+    .trim();
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // Common failure: model adds a preamble like "Sure, here's the JSON:".
+    // Extract the first JSON object block and parse that.
+    const first = cleaned.indexOf('{');
+    const last = cleaned.lastIndexOf('}');
+    if (first !== -1 && last !== -1 && last > first) {
+      const candidate = cleaned.slice(first, last + 1);
+      return JSON.parse(candidate);
+    }
+
+    throw new Error('Failed to parse AI response as JSON');
+  }
 }
  
  serve(async (req) => {
@@ -392,13 +443,12 @@ async function callAI(
          userPrompt
        );
  
-       let curriculum;
-       try {
-         const cleanContent = aiResult.content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-         curriculum = JSON.parse(cleanContent);
-       } catch (parseError) {
-         throw new Error("Failed to parse AI response as JSON");
-       }
+        let curriculum;
+        try {
+          curriculum = parseAiJson(aiResult.content);
+        } catch (parseError) {
+          throw new Error("Failed to parse AI response as JSON");
+        }
  
        const longDescription = buildLongDescription(curriculum);
  
