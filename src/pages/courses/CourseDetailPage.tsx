@@ -29,13 +29,19 @@ interface CurriculumSubject {
   topics: {
     title: string;
     subTopics: string[];
+    book?: {
+      title: string;
+      author: string;
+      year: number;
+      type: string;
+    };
   }[];
-  books: {
+  books?: {
     title: string;
     author: string;
     year: number;
     type: string;
-    usage: string;
+    usage?: string;
   }[];
   assessment: {
     midTerm: number;
@@ -381,7 +387,7 @@ export default function CourseDetailPage() {
                                     <FileText className="h-4 w-4" />
                                     Topics ({subject.topics?.length || 0})
                                   </h5>
-                                  <div className="space-y-2">
+                                  <div className="space-y-3">
                                     {subject.topics?.map((topic, topicIdx) => (
                                       <div key={topicIdx} className="p-3 bg-muted rounded-lg">
                                         <p className="font-medium text-sm">{topicIdx + 1}. {topic.title}</p>
@@ -393,6 +399,17 @@ export default function CourseDetailPage() {
                                               </li>
                                             ))}
                                           </ul>
+                                        )}
+                                        {/* Topic-level Book/Material */}
+                                        {topic.book && (
+                                          <div className="mt-2 pt-2 border-t border-border/50 flex items-center gap-2">
+                                            <BookMarked className="h-3.5 w-3.5 text-primary shrink-0" />
+                                            <div className="text-xs">
+                                              <span className="font-medium">{topic.book.title}</span>
+                                              <span className="text-muted-foreground"> — {topic.book.author} ({topic.book.year})</span>
+                                              <Badge variant="outline" className="ml-2 text-[10px] py-0">{topic.book.type}</Badge>
+                                            </div>
+                                          </div>
                                         )}
                                       </div>
                                     ))}

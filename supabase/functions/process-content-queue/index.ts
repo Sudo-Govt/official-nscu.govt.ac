@@ -308,8 +308,10 @@ CRITICAL INSTRUCTIONS:
 1. Return a valid JSON object with a "semesters" array
 2. Generate EXACTLY ${durationSemesters} semesters
 3. Each semester has 5-6 subjects with complete details
-4. DO NOT truncate - include ALL semesters
-5. Return ONLY JSON, no markdown or explanations`;
+4. Each subject has exactly 5 topics
+5. Each topic has exactly 1 dedicated book/material (5 books per subject total)
+6. DO NOT truncate - include ALL semesters
+7. Return ONLY JSON, no markdown or explanations`;
 
   const userPrompt = `Generate ALL ${durationSemesters} semesters for:
 - Course: ${course.name} (${course.course_code})
@@ -334,14 +336,11 @@ Return this exact JSON structure:
           "description": "Subject description",
           "prerequisites": [],
           "topics": [
-            {"title": "Topic 1", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-            {"title": "Topic 2", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-            {"title": "Topic 3", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-            {"title": "Topic 4", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-            {"title": "Topic 5", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]}
-          ],
-          "books": [
-            {"title": "Book Title", "author": "Author Name", "year": 2020, "type": "Primary", "usage": "Main reference"}
+            {"title": "Topic 1", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"], "book": {"title": "Book for Topic 1", "author": "Author", "year": 2020, "type": "Textbook"}},
+            {"title": "Topic 2", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"], "book": {"title": "Book for Topic 2", "author": "Author", "year": 2021, "type": "Reference"}},
+            {"title": "Topic 3", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"], "book": {"title": "Book for Topic 3", "author": "Author", "year": 2019, "type": "Textbook"}},
+            {"title": "Topic 4", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"], "book": {"title": "Book for Topic 4", "author": "Author", "year": 2022, "type": "Reference"}},
+            {"title": "Topic 5", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"], "book": {"title": "Book for Topic 5", "author": "Author", "year": 2020, "type": "Supplementary"}}
           ],
           "assessment": {"midTerm": 25, "final": 30, "research": 25, "presentation": 10, "participation": 10},
           "learningOutcomes": ["CLO1", "CLO2", "CLO3"]
