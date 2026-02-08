@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  BookOpen, Clock, GraduationCap, Calendar, ChevronRight,
+  BookOpen, Clock, GraduationCap, Calendar, ChevronRight, ChevronLeft,
   FileText, Users, ArrowLeft, BookMarked, Target, Briefcase
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -276,23 +276,56 @@ export default function CourseDetailPage() {
                   </p>
                 ) : (
                   <div className="space-y-4">
-                    {/* Semester Tabs */}
-                    <ScrollArea className="w-full">
-                      <div className="flex gap-2 pb-2">
-                        {semesters.map((sem) => (
-                          <Button
-                            key={sem.number}
-                            variant={activeSemester === String(sem.number) ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setActiveSemester(String(sem.number))}
-                            className="whitespace-nowrap"
-                          >
-                            Semester {sem.number}
-                            <Badge variant="secondary" className="ml-2 text-xs">{sem.theme}</Badge>
-                          </Button>
-                        ))}
+                    {/* Semester Tabs with Navigation Arrows */}
+                    <div className="relative flex items-center gap-2">
+                      {/* Left Arrow */}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0 h-8 w-8"
+                        onClick={() => {
+                          const current = parseInt(activeSemester);
+                          if (current > 1) setActiveSemester(String(current - 1));
+                        }}
+                        disabled={activeSemester === '1'}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      
+                      {/* Scrollable Semester Tabs */}
+                      <div className="flex-1 overflow-hidden">
+                        <div className="overflow-x-auto scrollbar-hide">
+                          <div className="flex gap-2 pb-2 min-w-max">
+                            {semesters.map((sem) => (
+                              <Button
+                                key={sem.number}
+                                variant={activeSemester === String(sem.number) ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setActiveSemester(String(sem.number))}
+                                className="whitespace-nowrap"
+                              >
+                                Semester {sem.number}
+                                <Badge variant="secondary" className="ml-2 text-xs">{sem.theme}</Badge>
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                    </ScrollArea>
+                      
+                      {/* Right Arrow */}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="shrink-0 h-8 w-8"
+                        onClick={() => {
+                          const current = parseInt(activeSemester);
+                          if (current < semesters.length) setActiveSemester(String(current + 1));
+                        }}
+                        disabled={activeSemester === String(semesters.length)}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
 
                     {/* Semester Content */}
                     {semesters.map((semester) => (
