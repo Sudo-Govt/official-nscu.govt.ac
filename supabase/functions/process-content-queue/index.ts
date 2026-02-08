@@ -302,16 +302,14 @@ async function generateStage2Semesters(
   degreeType: string,
   durationSemesters: number
 ): Promise<any[]> {
-  const systemPrompt = `You are an academic curriculum designer. Generate COMPLETE semester details for ALL ${durationSemesters} semesters.
+  const systemPrompt = `You are an academic curriculum designer. Generate semester details for a degree program.
 
-CRITICAL RULES:
-- Generate EXACTLY ${durationSemesters} semesters
-- Each semester has 5-6 subjects
-- Each subject has 5 topics with 4 sub-topics each
-- Each subject has 5 books
-- Assessment weights sum to 100%
-- DO NOT truncate or abbreviate
-- Return valid JSON array only`;
+CRITICAL INSTRUCTIONS:
+1. Return a valid JSON object with a "semesters" array
+2. Generate EXACTLY ${durationSemesters} semesters
+3. Each semester has 5-6 subjects with complete details
+4. DO NOT truncate - include ALL semesters
+5. Return ONLY JSON, no markdown or explanations`;
 
   const userPrompt = `Generate ALL ${durationSemesters} semesters for:
 - Course: ${course.name} (${course.course_code})
@@ -319,65 +317,97 @@ CRITICAL RULES:
 - Total Credits: ${course.total_credits}
 - Credits per semester: ~${Math.round(course.total_credits / durationSemesters)}
 
-GENERATE A JSON ARRAY with ${durationSemesters} semester objects:
+Return this exact JSON structure:
+{
+  "semesters": [
+    {
+      "number": 1,
+      "theme": "Foundations",
+      "totalCredits": ${Math.round(course.total_credits / durationSemesters)},
+      "subjects": [
+        {
+          "code": "SUBJ-101",
+          "name": "Subject Name",
+          "credits": 3,
+          "contactHours": 45,
+          "type": "Core",
+          "description": "Subject description",
+          "prerequisites": [],
+          "topics": [
+            {"title": "Topic 1", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
+            {"title": "Topic 2", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
+            {"title": "Topic 3", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
+            {"title": "Topic 4", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
+            {"title": "Topic 5", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]}
+          ],
+          "books": [
+            {"title": "Book Title", "author": "Author Name", "year": 2020, "type": "Primary", "usage": "Main reference"}
+          ],
+          "assessment": {"midTerm": 25, "final": 30, "research": 25, "presentation": 10, "participation": 10},
+          "learningOutcomes": ["CLO1", "CLO2", "CLO3"]
+        }
+      ]
+    }
+  ]
+}
 
-[
-  {
-    "number": 1,
-    "theme": "Semester theme (e.g., Foundations)",
-    "totalCredits": credits,
-    "subjects": [
-      {
-        "code": "DEPT-101",
-        "name": "Subject Name",
-        "credits": 3,
-        "contactHours": 45,
-        "type": "Core",
-        "description": "Subject description",
-        "prerequisites": [],
-        "topics": [
-          {"title": "Topic 1", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-          {"title": "Topic 2", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-          {"title": "Topic 3", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-          {"title": "Topic 4", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]},
-          {"title": "Topic 5", "subTopics": ["Sub 1", "Sub 2", "Sub 3", "Sub 4"]}
-        ],
-        "books": [
-          {"title": "Book 1", "author": "Author", "year": 2020, "type": "Primary Textbook", "usage": "Main reference"},
-          {"title": "Book 2", "author": "Author", "year": 2019, "type": "Primary Source", "usage": "Chapters 1-5"},
-          {"title": "Book 3", "author": "Author", "year": 2021, "type": "Primary Source", "usage": "Case studies"},
-          {"title": "Book 4", "author": "Author", "year": 2018, "type": "Supplementary", "usage": "Additional reading"},
-          {"title": "Book 5", "author": "Author", "year": 2022, "type": "Reference", "usage": "Reference material"}
-        ],
-        "assessment": {"midTerm": 25, "final": 30, "research": 25, "presentation": 10, "participation": 10},
-        "learningOutcomes": ["CLO1", "CLO2", "CLO3"]
-      }
-    ]
-  }
-]
-
-Themes by year:
-- Year 1 (Semesters 1-2): Foundations
-- Year 2 (Semesters 3-4): Core Development
-- Year 3 (Semesters 5-6): Specialization
-- Year 4 (Semesters 7-8): Advanced & Capstone
-
-Generate ALL ${durationSemesters} semesters with COMPLETE details. Do not skip any semester.`;
+Generate ALL ${durationSemesters} semesters with 5-6 subjects each. Themes by year:
+- Year 1 (Sem 1-2): Foundations
+- Year 2 (Sem 3-4): Core Development  
+- Year 3 (Sem 5-6): Specialization
+- Year 4 (Sem 7-8): Advanced & Capstone`;
 
   const maxTokens = getStage2MaxTokens(model);
   console.log(`Stage 2: Generating ${durationSemesters} semesters with max_tokens=${maxTokens}`);
   
   const result = await callAI(provider, model, apiKey, systemPrompt, userPrompt, maxTokens);
-  const parsed = parseAiJson(result.content);
+  console.log(`Stage 2 raw response length: ${result.content.length}`);
   
-  // Handle both array and object with semesters property
+  const parsed = parseAiJson(result.content);
+  console.log(`Stage 2 parsed type: ${typeof parsed}, keys: ${Object.keys(parsed || {}).join(', ')}`);
+  
+  // Handle multiple possible response formats
+  let semesters: any[] | null = null;
+  
   if (Array.isArray(parsed)) {
-    return parsed;
-  } else if (parsed.semesters && Array.isArray(parsed.semesters)) {
-    return parsed.semesters;
+    semesters = parsed;
+    console.log('Stage 2: Response was direct array');
+  } else if (parsed && typeof parsed === 'object') {
+    // Check common property names
+    if (Array.isArray(parsed.semesters)) {
+      semesters = parsed.semesters;
+      console.log('Stage 2: Found semesters property');
+    } else if (Array.isArray(parsed.data)) {
+      semesters = parsed.data;
+      console.log('Stage 2: Found data property');
+    } else if (Array.isArray(parsed.curriculum)) {
+      semesters = parsed.curriculum;
+      console.log('Stage 2: Found curriculum property');
+    } else if (Array.isArray(parsed.semesterDetails)) {
+      semesters = parsed.semesterDetails;
+      console.log('Stage 2: Found semesterDetails property');
+    } else {
+      // Try to find any array property
+      for (const key of Object.keys(parsed)) {
+        if (Array.isArray(parsed[key]) && parsed[key].length > 0) {
+          const firstItem = parsed[key][0];
+          if (firstItem && (firstItem.number !== undefined || firstItem.subjects !== undefined || firstItem.theme !== undefined)) {
+            semesters = parsed[key];
+            console.log(`Stage 2: Found semester array in property: ${key}`);
+            break;
+          }
+        }
+      }
+    }
   }
   
-  throw new Error('Stage 2 did not return valid semester array');
+  if (!semesters || semesters.length === 0) {
+    console.error('Stage 2 parsing failed. Raw content preview:', result.content.substring(0, 500));
+    throw new Error(`Stage 2 failed to parse semesters. Got: ${typeof parsed}, keys: ${Object.keys(parsed || {}).join(', ')}`);
+  }
+  
+  console.log(`Stage 2: Successfully extracted ${semesters.length} semesters`);
+  return semesters;
 }
 
 serve(async (req) => {
