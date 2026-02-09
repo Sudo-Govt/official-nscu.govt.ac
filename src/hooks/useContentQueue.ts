@@ -384,18 +384,62 @@
       });
     }, [fetchQueue, toast, stopProcessing]);
  
-   const retryFailed = useCallback(async () => {
-     await supabase
-       .from('content_generation_queue')
-       .update({ status: 'pending', retries: 0, error_message: null })
-       .eq('status', 'failed');
- 
-     fetchQueue();
-     toast({
-       title: 'Retrying Failed',
-       description: 'Failed items will be reprocessed',
-     });
-   }, [fetchQueue, toast]);
+  const retryFailed = useCallback(async () => {
+    await supabase
+      .from('content_generation_queue')
+      .update({ status: 'pending', retries: 0, error_message: null })
+      .eq('status', 'failed');
+
+    fetchQueue();
+    toast({
+      title: 'Retrying Failed',
+      description: 'Failed items will be reprocessed',
+    });
+  }, [fetchQueue, toast]);
+
+  // Reset stuck processing items (items stuck for > 2 minutes)
+  const resetStuckItems = useCallback(async () => {
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+    
+    await supabase
+      .from('content_generation_queue')
+      .update({ status: 'pending', started_at: null, retries: 0 })
+      .eq('status', 'processing')
+      .lt('started_at', twoMinutesAgo);
+    
+    // Also reset items with too many retries to failed
+    await supabase
+      .from('content_generation_queue')
+      .update({ status: 'failed', error_message: 'Max retries exceeded' })
+      .eq('status', 'pending')
+      .gte('retries', 5);
+
+    fetchQueue();
+  }, [fetchQueue]);
+
+  // Regenerate specific courses
+  const regenerateCourses = useCallback(async (courseIds: string[]) => {
+    if (courseIds.length === 0) return false;
+
+    // First, remove from queue if exists
+    await supabase
+      .from('content_generation_queue')
+      .delete()
+      .in('course_id', courseIds);
+
+    // Clear existing AI content
+    await supabase
+      .from('academic_courses')
+      .update({ ai_generated_content: null, content_generated_at: null })
+      .in('id', courseIds);
+
+    fetchQueue();
+    toast({
+      title: 'Ready for Regeneration',
+      description: `${courseIds.length} courses cleared. Add them to queue again.`,
+    });
+    return true;
+  }, [fetchQueue, toast]);
  
    const markNotificationsRead = useCallback(async () => {
      await supabase
@@ -432,6 +476,8 @@
       clearCompleted,
       clearPending,
       retryFailed,
+      resetStuckItems,
+      regenerateCourses,
       markNotificationsRead,
       refresh: fetchQueue,
     };

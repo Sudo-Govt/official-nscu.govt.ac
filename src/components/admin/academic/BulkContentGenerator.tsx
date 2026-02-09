@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Play, Pause, RotateCcw, Trash2, Search, Filter,
   CheckCircle2, XCircle, Clock, Loader2, Bell,
   AlertTriangle, Zap, Building2, Users, RefreshCw, ExternalLink,
-  Settings, ChevronDown
+  Settings, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCcw
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -45,6 +44,8 @@ interface Faculty {
   code: string;
 }
 
+const ITEMS_PER_PAGE = 50;
+
 const BulkContentGenerator = () => {
   const { user } = useAuth();
   const {
@@ -64,6 +65,8 @@ const BulkContentGenerator = () => {
     clearCompleted,
     clearPending,
     retryFailed,
+    resetStuckItems,
+    regenerateCourses,
     markNotificationsRead,
     refresh,
   } = useContentQueue();
@@ -80,6 +83,9 @@ const BulkContentGenerator = () => {
   const [showWithoutContent, setShowWithoutContent] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Selection state
   const [selectedCourses, setSelectedCourses] = useState<Set<string>>(new Set());
   const [showNotifications, setShowNotifications] = useState(false);
@@ -88,6 +94,11 @@ const BulkContentGenerator = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedFaculty, selectedDepartment, showWithoutContent, searchQuery]);
 
   const fetchData = async () => {
     setDataLoading(true);
@@ -139,33 +150,42 @@ const BulkContentGenerator = () => {
     ? departments.filter(d => d.faculty_id === selectedFaculty)
     : departments;
 
-  const filteredCourses = courses.filter(c => {
-    // Department filter
-    if (selectedDepartment && c.department_id !== selectedDepartment) return false;
-    
-    // Faculty filter (via department)
-    if (selectedFaculty && !selectedDepartment) {
-      const dept = departments.find(d => d.id === c.department_id);
-      if (!dept || dept.faculty_id !== selectedFaculty) return false;
-    }
-
-    // Content filter
-    if (showWithoutContent && c.ai_generated_content) return false;
-
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (!c.name.toLowerCase().includes(query) && !c.course_code.toLowerCase().includes(query)) {
-        return false;
+  const filteredCourses = useMemo(() => {
+    return courses.filter(c => {
+      // Department filter
+      if (selectedDepartment && c.department_id !== selectedDepartment) return false;
+      
+      // Faculty filter (via department)
+      if (selectedFaculty && !selectedDepartment) {
+        const dept = departments.find(d => d.id === c.department_id);
+        if (!dept || dept.faculty_id !== selectedFaculty) return false;
       }
-    }
 
-    // Exclude already queued items
-    const isQueued = queueItems.some(qi => qi.course_id === c.id && qi.status !== 'completed' && qi.status !== 'failed');
-    if (isQueued) return false;
+      // Content filter
+      if (showWithoutContent && c.ai_generated_content) return false;
 
-    return true;
-  });
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        if (!c.name.toLowerCase().includes(query) && !c.course_code.toLowerCase().includes(query)) {
+          return false;
+        }
+      }
+
+      // Exclude already queued items
+      const isQueued = queueItems.some(qi => qi.course_id === c.id && qi.status !== 'completed' && qi.status !== 'failed');
+      if (isQueued) return false;
+
+      return true;
+    });
+  }, [courses, selectedDepartment, selectedFaculty, departments, showWithoutContent, searchQuery, queueItems]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredCourses.length / ITEMS_PER_PAGE);
+  const paginatedCourses = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredCourses.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredCourses, currentPage]);
 
   const toggleCourse = (courseId: string) => {
     const newSelected = new Set(selectedCourses);
@@ -174,6 +194,18 @@ const BulkContentGenerator = () => {
     } else {
       newSelected.add(courseId);
     }
+    setSelectedCourses(newSelected);
+  };
+
+  const selectAllOnPage = () => {
+    const newSelected = new Set(selectedCourses);
+    paginatedCourses.forEach(c => newSelected.add(c.id));
+    setSelectedCourses(newSelected);
+  };
+
+  const deselectAllOnPage = () => {
+    const newSelected = new Set(selectedCourses);
+    paginatedCourses.forEach(c => newSelected.delete(c.id));
     setSelectedCourses(newSelected);
   };
 
@@ -196,6 +228,16 @@ const BulkContentGenerator = () => {
 
     if (success) {
       setSelectedCourses(new Set());
+    }
+  };
+
+  const handleRegenerateSelected = async () => {
+    const courseIds = Array.from(selectedCourses);
+    const success = await regenerateCourses(courseIds);
+    if (success) {
+      setSelectedCourses(new Set());
+      // Refresh to show courses without content again
+      fetchData();
     }
   };
 
@@ -339,6 +381,10 @@ const BulkContentGenerator = () => {
             <Button variant="outline" onClick={retryFailed} disabled={stats.failed === 0}>
               <RotateCcw className="h-4 w-4 mr-2" />
               Retry Failed ({stats.failed})
+            </Button>
+            <Button variant="outline" onClick={resetStuckItems} title="Reset stuck processing items">
+              <RefreshCcw className="h-4 w-4 mr-2" />
+              Reset Stuck
             </Button>
             <Button variant="outline" onClick={clearCompleted} disabled={stats.completed === 0 && stats.failed === 0}>
               <Trash2 className="h-4 w-4 mr-2" />
@@ -490,15 +536,15 @@ const BulkContentGenerator = () => {
 
             <Separator />
 
-            {/* Course List */}
-            <ScrollArea className="h-72">
-              {filteredCourses.length === 0 ? (
+            {/* Course List with Pagination */}
+            <ScrollArea className="h-64">
+              {paginatedCourses.length === 0 ? (
                 <div className="p-4 text-center text-muted-foreground">
                   No courses match your filters
                 </div>
               ) : (
                 <div className="space-y-1">
-                  {filteredCourses.map(course => (
+                  {paginatedCourses.map(course => (
                     <label
                       key={course.id}
                       className={cn(
@@ -514,29 +560,108 @@ const BulkContentGenerator = () => {
                         <div className="text-sm font-medium truncate">{course.name}</div>
                         <div className="text-xs text-muted-foreground">{course.course_code}</div>
                       </div>
+                      {course.ai_generated_content && (
+                        <Badge variant="secondary" className="text-xs">Has Content</Badge>
+                      )}
                     </label>
                   ))}
                 </div>
               )}
             </ScrollArea>
 
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between py-2 border-t">
+                <div className="text-xs text-muted-foreground">
+                  Page {currentPage} of {totalPages} • Showing {paginatedCourses.length} of {filteredCourses.length}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    title="First page"
+                  >
+                    <ChevronsLeft className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    title="Previous page"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </Button>
+                  <span className="px-2 text-sm font-medium">{currentPage}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    title="Next page"
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    title="Last page"
+                  >
+                    <ChevronsRight className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <Separator />
 
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={selectAll}>
-                  Select All ({filteredCourses.length})
-                </Button>
-                <Button variant="ghost" size="sm" onClick={deselectAll}>
-                  Clear
-                </Button>
+            {/* Selection Controls */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="flex gap-1">
+                  <Button variant="outline" size="sm" onClick={selectAllOnPage}>
+                    Select Page ({paginatedCourses.length})
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={selectAll}>
+                    Select All ({filteredCourses.length})
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={deselectAllOnPage}>
+                    Deselect Page
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={deselectAll}>
+                    Clear All
+                  </Button>
+                </div>
               </div>
-              <Button
-                onClick={handleAddToQueue}
-                disabled={selectedCourses.size === 0}
-              >
-                Add {selectedCourses.size} to Queue
-              </Button>
+              
+              <div className="flex items-center justify-between gap-2 pt-2 border-t">
+                <span className="text-sm font-medium">{selectedCourses.size} selected</span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRegenerateSelected}
+                    disabled={selectedCourses.size === 0}
+                  >
+                    <RefreshCcw className="h-3 w-3 mr-1" />
+                    Regenerate
+                  </Button>
+                  <Button
+                    onClick={handleAddToQueue}
+                    disabled={selectedCourses.size === 0}
+                  >
+                    Add {selectedCourses.size} to Queue
+                  </Button>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
