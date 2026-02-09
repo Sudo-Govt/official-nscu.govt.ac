@@ -91,15 +91,46 @@ const BulkContentGenerator = () => {
 
   const fetchData = async () => {
     setDataLoading(true);
-    const [facRes, deptRes, courseRes] = await Promise.all([
+    
+    // Fetch faculties and departments (usually small datasets)
+    const [facRes, deptRes] = await Promise.all([
       supabase.from('academic_faculties').select('id, name, code').eq('is_active', true).order('name'),
       supabase.from('academic_departments').select('id, name, code, faculty_id').eq('is_active', true).order('name'),
-      supabase.from('academic_courses').select('id, name, course_code, slug, department_id, ai_generated_content').eq('is_active', true).order('name'),
     ]);
 
     if (facRes.data) setFaculties(facRes.data);
     if (deptRes.data) setDepartments(deptRes.data);
-    if (courseRes.data) setCourses(courseRes.data);
+
+    // Fetch courses with pagination to handle large datasets (12000+)
+    const allCourses: Course[] = [];
+    const pageSize = 1000;
+    let page = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from('academic_courses')
+        .select('id, name, course_code, slug, department_id, ai_generated_content')
+        .eq('is_active', true)
+        .order('name')
+        .range(page * pageSize, (page + 1) * pageSize - 1);
+
+      if (error) {
+        console.error('Error fetching courses:', error);
+        break;
+      }
+
+      if (data && data.length > 0) {
+        allCourses.push(...data);
+        page++;
+        hasMore = data.length === pageSize;
+      } else {
+        hasMore = false;
+      }
+    }
+
+    setCourses(allCourses);
+    console.log(`Loaded ${allCourses.length} courses`);
     setDataLoading(false);
   };
 
