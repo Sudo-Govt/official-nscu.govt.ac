@@ -62,6 +62,7 @@ const BulkContentGenerator = () => {
     addToQueue,
     removeFromQueue,
     clearCompleted,
+    clearPending,
     retryFailed,
     markNotificationsRead,
     refresh,
@@ -227,7 +228,7 @@ const BulkContentGenerator = () => {
                 )}
               </CardTitle>
               <CardDescription className="mt-1">
-                Generate AI curriculum for multiple courses with 30-second intervals
+                Generate AI curriculum for multiple courses with 10-second intervals
               </CardDescription>
             </div>
 
@@ -311,6 +312,14 @@ const BulkContentGenerator = () => {
             <Button variant="outline" onClick={clearCompleted} disabled={stats.completed === 0 && stats.failed === 0}>
               <Trash2 className="h-4 w-4 mr-2" />
               Clear Completed
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={clearPending} 
+              disabled={stats.pending === 0}
+            >
+              <XCircle className="h-4 w-4 mr-2" />
+              Clear Queue ({stats.pending})
             </Button>
           </div>
         </CardContent>
