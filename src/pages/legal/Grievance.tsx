@@ -434,7 +434,7 @@ const Grievance = () => {
                         </h4>
                         <div className="space-y-2 text-sm">
                           <p><strong>Main Helpline:</strong><br/>+1 (302) 857-6060</p>
-                          <p><strong>WhatsApp Support:</strong><br/>+91-XXXXXXXXXX</p>
+                          <p><strong>WhatsApp Support:</strong><br/>+1 (302) 857-6061</p>
                           <p><strong>24/7 Emergency:</strong><br/>+1 (302) 857-9999</p>
                           <p><strong>Hours:</strong> Mon-Fri, 9 AM - 6 PM (EST)<br/>
                           Saturday: 10 AM - 2 PM</p>
