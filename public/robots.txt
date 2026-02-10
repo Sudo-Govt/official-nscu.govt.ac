@@ -1,20 +1,40 @@
-# Allow all web crawlers
+# NSCU - New States Continental University
+# https://nscu.govt.ac
+
+# Allow all web crawlers full access to public content
 User-agent: *
 Allow: /
 
-# Disallow sensitive paths
+# Disallow private/admin areas
 Disallow: /api/
 Disallow: /admin/
 Disallow: /private/
 Disallow: /dashboard
+Disallow: /dashboard/
 Disallow: /login
+Disallow: /portal/
+Disallow: /forms/my-submissions
 
-# Noindex user management & core sections
+# Noindex user management & internal sections
 Disallow: /user-management/
 Disallow: /users/
 Disallow: /core/
 Disallow: /verification/
 Disallow: /verify/
 
-# Sitemap location
+# Block crawling of success/confirmation pages
+Disallow: /admission-success
+Disallow: /fast-track-success
+Disallow: /payment-success
+
+# Crawl-delay for polite crawling
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+# Sitemap locations
+# Sitemaps
 Sitemap: https://nscu.govt.ac/sitemap.xml
+Sitemap: https://nscu.govt.ac/sitemap-static.xml
