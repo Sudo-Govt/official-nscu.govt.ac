@@ -152,6 +152,10 @@ import PressReleaseDetail from "./pages/news/PressReleaseDetail";
 
 // Additional Departments
 import ComputerScience from "./pages/departments/ComputerScience";
+import BusinessAdministration from "./pages/departments/BusinessAdministration";
+import Engineering from "./pages/departments/Engineering";
+import HealthSciences from "./pages/departments/HealthSciences";
+import LiberalArts from "./pages/departments/LiberalArts";
 
 // Program pages
 import BachelorArtsEnglish from "./pages/programs/BachelorArtsEnglish";
@@ -185,6 +189,20 @@ import CourseEnrollment from "./pages/CourseEnrollment";
 import CareersPage from "./pages/careers/CareersPage";
 import JobDetailPage from "./pages/careers/JobDetailPage";
 import JobApplicationForm from "./pages/careers/JobApplicationForm";
+
+// Orphan page imports
+import AlumniDirectory from "./pages/alumni/AlumniDirectory";
+import FitnessCenters from "./pages/campus-life/FitnessCenters";
+import EventsCalendar from "./pages/events/Calendar";
+import Canvas from "./pages/portal/Canvas";
+import FacultyEmail from "./pages/portal/FacultyEmail";
+import StudentEmail from "./pages/portal/StudentEmail";
+import InternationalServices from "./pages/services/InternationalServices";
+import MulticulturalAffairs from "./pages/services/MulticulturalAffairs";
+import VeteransServices from "./pages/services/VeteransServices";
+import CampusSafety from "./pages/resources/CampusSafety";
+import EmergencyInfo from "./pages/resources/EmergencyInfo";
+import TitleIX from "./pages/resources/TitleIX";
 
 const queryClient = new QueryClient();
 
@@ -362,10 +380,38 @@ const App = () => (
           <Route path="/news/press-releases" element={<PressReleases />} />
           <Route path="/news/press-release/:id" element={<PressReleaseDetail />} />
           
-          {/* Additional Department Routes */}
-          <Route path="/departments/computer-science" element={<ComputerScience />} />
-          
-          {/* Transparency Routes */}
+           {/* Additional Department Routes */}
+           <Route path="/departments/computer-science" element={<ComputerScience />} />
+           <Route path="/departments/business-administration" element={<BusinessAdministration />} />
+           <Route path="/departments/engineering" element={<Engineering />} />
+           <Route path="/departments/health-sciences" element={<HealthSciences />} />
+           <Route path="/departments/liberal-arts" element={<LiberalArts />} />
+           
+           {/* Alumni Directory */}
+           <Route path="/alumni/directory" element={<AlumniDirectory />} />
+
+           {/* Campus Life Extra Routes */}
+           <Route path="/campus-life/fitness-centers" element={<FitnessCenters />} />
+
+           {/* Events Routes */}
+           <Route path="/events/calendar" element={<EventsCalendar />} />
+
+           {/* Portal Routes */}
+           <Route path="/portal/canvas" element={<Canvas />} />
+           <Route path="/portal/faculty-email" element={<FacultyEmail />} />
+           <Route path="/portal/student-email" element={<StudentEmail />} />
+
+           {/* Additional Services Routes */}
+           <Route path="/services/international" element={<InternationalServices />} />
+           <Route path="/services/multicultural-affairs" element={<MulticulturalAffairs />} />
+           <Route path="/services/veterans" element={<VeteransServices />} />
+
+           {/* Additional Resources Routes */}
+           <Route path="/resources/campus-safety" element={<CampusSafety />} />
+           <Route path="/resources/emergency-info" element={<EmergencyInfo />} />
+           <Route path="/resources/title-ix" element={<TitleIX />} />
+           
+           {/* Transparency Routes */}
           <Route path="/transparency" element={<Transparency />} />
           <Route path="/transparency/annual-reports" element={<AnnualReports />} />
           <Route path="/transparency/financial-statements" element={<FinancialStatements />} />

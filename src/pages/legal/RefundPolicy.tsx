@@ -382,7 +382,7 @@ const RefundPolicy = () => {
                     <p className="mb-3">For refund queries, status updates, or assistance:</p>
                     <p className="mb-1"><strong>Email:</strong> finance@nscu.govt.ac</p>
                     <p className="mb-1"><strong>Phone:</strong> +1 (302) 857-6060 (Mon-Fri, 9 AM - 5 PM EST)</p>
-                    <p className="mb-1"><strong>WhatsApp:</strong> +91-XXXXXXXXXX</p>
+                    <p className="mb-1"><strong>WhatsApp:</strong> +1 (302) 857-6061</p>
                     <p className="mb-0"><strong>Student Portal:</strong> Dashboard → Support → Financial Services</p>
                   </div>
 

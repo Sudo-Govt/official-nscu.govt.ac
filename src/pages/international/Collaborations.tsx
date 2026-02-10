@@ -27,7 +27,7 @@ const Collaborations = () => {
         "@type": "ContactPoint",
         "contactType": "International Partnerships",
         "email": "partnerships@nscu.govt.ac",
-        "telephone": "+1-302-XXX-XXXX"
+        "telephone": "+1-302-857-6060"
       },
       "offers": {
         "@type": "Offer",
@@ -315,8 +315,8 @@ const Collaborations = () => {
                   <div className="flex flex-col items-center gap-2 p-4 bg-background rounded-lg">
                     <Phone className="w-6 h-6 text-primary" />
                     <span className="text-sm font-medium">Phone</span>
-                    <a href="tel:+1302XXX" className="text-primary hover:underline">
-                      +1-302-XXX-XXXX
+                     <a href="tel:+13028576060" className="text-primary hover:underline">
+                      +1 (302) 857-6060
                     </a>
                   </div>
                   
