@@ -50,9 +50,10 @@ const EmailAccountManagement = () => {
       setLoading(true);
 
       // Load all email accounts
+      // SECURITY FIX: Select only safe fields, exclude password columns
       const { data: accounts, error: accountsError } = await supabase
         .from('email_accounts')
-        .select('*')
+        .select('id, user_id, email_address, display_name, quota_mb, is_active, created_at, last_synced_at, cpanel_account_created')
         .order('created_at', { ascending: false });
 
       if (accountsError) throw accountsError;

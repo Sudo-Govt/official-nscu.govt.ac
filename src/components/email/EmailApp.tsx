@@ -66,9 +66,10 @@ const EmailApp = () => {
 
   const loadEmailAccount = async () => {
     try {
+      // SECURITY FIX: Select only safe fields, exclude password columns
       const { data, error } = await supabase
         .from('email_accounts')
-        .select('*')
+        .select('id, user_id, email_address, display_name, quota_mb, is_active, created_at, last_synced_at, cpanel_account_created')
         .eq('user_id', user?.id)
         .single();
 

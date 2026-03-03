@@ -230,9 +230,22 @@ app.put('/api/users/:userId', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     const updates = req.body;
+
+    // SECURITY FIX: Allowlist of columns that can be updated
+    const ALLOWED_COLUMNS = ['full_name', 'email', 'is_active'];
+    const filteredUpdates = {};
+    for (const key of Object.keys(updates)) {
+      if (ALLOWED_COLUMNS.includes(key)) {
+        filteredUpdates[key] = updates[key];
+      }
+    }
+
+    if (Object.keys(filteredUpdates).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
     
-    const setClause = Object.keys(updates).map((key, index) => `${key} = $${index + 2}`).join(', ');
-    const values = [userId, ...Object.values(updates)];
+    const setClause = Object.keys(filteredUpdates).map((key, index) => `${key} = $${index + 2}`).join(', ');
+    const values = [userId, ...Object.values(filteredUpdates)];
     
     const result = await pool.query(`
       UPDATE users SET ${setClause}
@@ -288,16 +301,41 @@ app.get('/api/smtp-settings', authenticateToken, async (req, res) => {
 
 app.put('/api/smtp-settings', authenticateToken, async (req, res) => {
   try {
+    // SECURITY FIX: Only allow admin role to update SMTP settings
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: admin access required' });
+    }
+
     const settings = req.body;
+
+    // SECURITY FIX: Allowlist of valid SMTP fields
+    const ALLOWED_FIELDS = ['smtp_host', 'smtp_port', 'smtp_user', 'from_email', 'from_name', 'encryption_type'];
+    for (const key of Object.keys(settings)) {
+      if (!ALLOWED_FIELDS.includes(key) && key !== 'smtp_password') {
+        return res.status(400).json({ error: `Invalid field: ${key}` });
+      }
+    }
     
     // Delete existing settings and insert new ones
     await pool.query('DELETE FROM smtp_settings');
+
+    // SECURITY FIX: Hash the SMTP password before storing
+    const crypto = require('crypto');
+    const encryptionKey = process.env.SMTP_ENCRYPTION_KEY;
+    let storedPassword = settings.smtp_password || '';
+    if (encryptionKey && storedPassword) {
+      const iv = crypto.randomBytes(16);
+      const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptionKey, 'hex'), iv);
+      let encrypted = cipher.update(storedPassword, 'utf8', 'hex');
+      encrypted += cipher.final('hex');
+      storedPassword = iv.toString('hex') + ':' + encrypted;
+    }
     
     const result = await pool.query(`
       INSERT INTO smtp_settings (smtp_host, smtp_port, smtp_user, smtp_password, from_email, from_name, encryption_type, is_active)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *
-    `, [settings.smtp_host, settings.smtp_port, settings.smtp_user, settings.smtp_password, settings.from_email, settings.from_name, settings.encryption_type, true]);
+      RETURNING id, smtp_host, smtp_port, smtp_user, from_email, from_name, encryption_type, is_active
+    `, [settings.smtp_host, settings.smtp_port, settings.smtp_user, storedPassword, settings.from_email, settings.from_name, settings.encryption_type, true]);
     
     res.json(result.rows[0]);
   } catch (error) {
