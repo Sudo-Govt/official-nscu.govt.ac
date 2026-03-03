@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Menu, X, Search, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -22,13 +22,8 @@ import { cn } from '@/lib/utils';
 import SearchDialog from './SearchDialog';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { AcademicMegaMenu } from './navigation/AcademicMegaMenu';
-
-interface FeaturedCourse {
-  title: string;
-  href: string;
-}
+import { useResilientNavigation } from '@/hooks/useResilientNavigation';
 
 interface NavItem {
   id: string;
@@ -50,60 +45,9 @@ interface MenuItem {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [featuredPrograms, setFeaturedPrograms] = useState<FeaturedCourse[]>([]);
-  const [dynamicNav, setDynamicNav] = useState<NavItem[]>([]);
-  const [useDynamicNav, setUseDynamicNav] = useState(false);
   const { user, logout } = useAuth();
-
-  useEffect(() => {
-    const fetchFeaturedCourses = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('courses')
-          .select('course_name, degree_type, slug')
-          .eq('is_active', true)
-          .eq('featured', true)
-          .order('course_name')
-          .limit(6);
-
-        if (error) throw error;
-
-        const courses = (data || [])
-          .filter(course => course.slug)
-          .map(course => ({
-            title: `${course.degree_type} in ${course.course_name}`,
-            href: `/programs/${course.slug}`
-          }));
-
-        setFeaturedPrograms(courses);
-      } catch (error) {
-        console.error('Error fetching featured courses:', error);
-      }
-    };
-
-    const fetchDynamicNavigation = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('site_navigation')
-          .select('*')
-          .eq('is_active', true)
-          .eq('menu_location', 'main')
-          .order('position');
-
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          setDynamicNav(data);
-          setUseDynamicNav(true);
-        }
-      } catch (error) {
-        console.error('Error fetching navigation:', error);
-      }
-    };
-
-    fetchFeaturedCourses();
-    fetchDynamicNavigation();
-  }, []);
+  const { navItems: dynamicNav, featuredCourses: featuredPrograms } = useResilientNavigation();
+  const useDynamicNav = dynamicNav.length > 0;
 
   // Build dynamic menu structure from flat nav items
   const buildMenuFromNav = (navItems: NavItem[]): MenuItem[] => {
