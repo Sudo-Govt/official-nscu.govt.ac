@@ -1,31 +1,34 @@
 
 
-# Password Reset for sudo@govt.ac
+# Fix: Reset superadmin password via Edge Function
 
 ## Problem
-The `admin-update-password` edge function requires a superadmin JWT token, but since no one can log in, we can't call it. Classic chicken-and-egg.
+Login fails with `invalid_credentials` across all projects. The password stored in Supabase Auth does not match what's being entered. This is NOT a database or infrastructure issue.
 
-## Solution
-Create a temporary, single-purpose edge function called `reset-sudo-password` that:
-1. Does NOT require JWT authentication (`verify_jwt = false`)
-2. Accepts a shared secret to prevent unauthorized use
-3. Resets the password for `sudo@govt.ac` to `Flamingo_1985`
-4. Uses the Supabase service role key to call `auth.admin.updateUserById()`
+## Why moving to Neon is not viable
+- Lovable Cloud cannot be disconnected once enabled
+- Authentication lives in the Auth service, not the data tables
+- The `npx neonctl` CLI is for Cursor/Claude Code editors, not Lovable
+- The database is healthy -- queries, roles, and profiles all work correctly
 
-## Steps
+## Solution: Password Reset (1 step)
 
-1. **Create `supabase/functions/reset-sudo-password/index.ts`**
-   - No JWT required, but validates a hardcoded one-time secret in the request body
-   - Looks up the user ID for `sudo@govt.ac` and updates password to `Flamingo_1985`
-   - Returns success/failure
+### Step 1: Reset the password for `sudo@govt.ac`
 
-2. **Update `supabase/config.toml`** to set `verify_jwt = false` for this function
+Use the existing `admin-update-password` Edge Function to set a new password for the superadmin account.
 
-3. **Call the function** to reset the password
+The user will provide the new desired password, and the function will update it in the Auth service using the Supabase Admin API (service role key).
 
-4. **Delete the function** immediately after use (security hygiene)
+If the edge function has issues, a fallback approach is to call `supabase.auth.admin.updateUserById()` directly from a small dedicated edge function.
 
-## Technical Detail
-- User ID: `5b68701b-8676-4226-9c0e-7735380320dd`
-- New password: `Flamingo_1985` (meets complexity requirements: uppercase, lowercase, number, 8+ chars)
+### After reset
+- User logs in with the new password
+- No code changes, no database changes, no infrastructure changes needed
+- If the same issue exists on other projects, the same password reset approach applies per-project (each has its own Auth database)
+
+## What is NOT changing
+- No database migration
+- No Neon integration
+- No code modifications
+- No schema changes
 
