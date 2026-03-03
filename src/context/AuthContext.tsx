@@ -193,6 +193,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    // Clear stale session tracking on fresh load
+    currentSessionId.current = null;
+
     // Set up auth state listener FIRST (before getSession)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
