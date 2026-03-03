@@ -369,8 +369,8 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t py-4">
-            <ScrollArea className="max-h-[70vh]">
+          <div className="lg:hidden border-t py-4 max-h-[70vh] overflow-hidden">
+            <ScrollArea className="h-full max-h-[70vh]">
               <div className="space-y-4 pr-4">
                 {menuData.slice(0, 7).map((item, index) => (
                   <div key={index} className="space-y-2">
