@@ -23,8 +23,11 @@ interface CachedNavData {
   timestamp: number;
 }
 
-const CACHE_KEY = 'nscu_nav_cache';
+const CACHE_KEY = 'nscu_nav_cache_v2';
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+// Clean up old cache keys
+try { localStorage.removeItem('nscu_nav_cache'); } catch {};
 
 function loadCache(): CachedNavData | null {
   try {
