@@ -1,41 +1,34 @@
 
 
-# Plan: Create Accelerated Degree Programs Page with SEO Keywords
+# Fix: Reset superadmin password via Edge Function
 
-## 1. New Page Component
-**File:** `src/pages/academics/AcceleratedDegreePrograms.tsx`
-- Uses `PageLayout` component (same design as all other academic pages)
-- Full content from the provided text, organized into card-based sections with icons
-- `useSEO` hook with all the hidden SEO keywords embedded in the `keywords` meta tag
-- Hidden SEO keywords placed in a visually hidden `<div>` (using `sr-only` class) at the bottom of the page for crawlers
-- Structured data via `generateWebPageSchema` and `generateBreadcrumbSchema`
-- CTA button at bottom linking to `/fast-track-admission`
+## Problem
+Login fails with `invalid_credentials` across all projects. The password stored in Supabase Auth does not match what's being entered. This is NOT a database or infrastructure issue.
 
-### SEO Keywords (meta + hidden text):
-```
-fast track degree, one year degree program, degree completion program, 
-online bachelor degree fast, distance degree for working professionals, 
-work experience degree program, credit transfer bachelor degree, 
-accelerated bachelor degree, executive bachelor degree program
-```
+## Why moving to Neon is not viable
+- Lovable Cloud cannot be disconnected once enabled
+- Authentication lives in the Auth service, not the data tables
+- The `npx neonctl` CLI is for Cursor/Claude Code editors, not Lovable
+- The database is healthy -- queries, roles, and profiles all work correctly
 
-## 2. Route Registration
-**File:** `src/App.tsx`
-- Import `AcceleratedDegreePrograms` alongside other academic imports (line ~44)
-- Add route `<Route path="/academics/accelerated-degree-programs" element={<AcceleratedDegreePrograms />} />` in the academic routes block (after line 256)
+## Solution: Password Reset (1 step)
 
-## 3. Content Sections
-The page will have these sections, each in a styled card:
-1. Hero intro paragraph
-2. Fast Track Degree Programs
-3. One Year Degree Completion Pathway
-4. Distance Degree Programs
-5. Work Experience Degree Programs
-6. Credit Transfer Bachelor Degree
-7. Accelerated Bachelor Degree Structure
-8. Executive Bachelor Degree Program
-9. Why Choose NSCU
-10. CTA section
+### Step 1: Reset the password for `sudo@govt.ac`
 
-No design changes, no database changes, no navigation code changes.
+Use the existing `admin-update-password` Edge Function to set a new password for the superadmin account.
+
+The user will provide the new desired password, and the function will update it in the Auth service using the Supabase Admin API (service role key).
+
+If the edge function has issues, a fallback approach is to call `supabase.auth.admin.updateUserById()` directly from a small dedicated edge function.
+
+### After reset
+- User logs in with the new password
+- No code changes, no database changes, no infrastructure changes needed
+- If the same issue exists on other projects, the same password reset approach applies per-project (each has its own Auth database)
+
+## What is NOT changing
+- No database migration
+- No Neon integration
+- No code modifications
+- No schema changes
 

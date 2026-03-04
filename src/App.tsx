@@ -42,6 +42,7 @@ import SchoolSocialWork from "./pages/academics/SchoolSocialWork";
 import CollegeVeterinaryMedicine from "./pages/academics/CollegeVeterinaryMedicine";
 import CourseCatalog from "./pages/academics/CourseCatalog";
 import AcademicCalendar from "./pages/academics/AcademicCalendar";
+import AcceleratedDegreePrograms from "./pages/academics/AcceleratedDegreePrograms";
 
 // Department pages
 import EnglishLiterature from "./pages/departments/EnglishLiterature";
@@ -254,6 +255,7 @@ const App = () => (
           <Route path="/academics/college-veterinary-medicine" element={<CollegeVeterinaryMedicine />} />
           <Route path="/academics/course-catalog" element={<CourseCatalog />} />
           <Route path="/academics/academic-calendar" element={<AcademicCalendar />} />
+          <Route path="/academics/accelerated-degree-programs" element={<AcceleratedDegreePrograms />} />
           
           {/* Department Routes */}
           <Route path="/departments/english-literature" element={<EnglishLiterature />} />
