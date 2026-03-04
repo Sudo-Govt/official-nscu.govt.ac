@@ -369,59 +369,57 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t py-4 max-h-[70vh] overflow-y-auto overscroll-contain touch-pan-y">
-            <ScrollArea className="h-full max-h-[70vh]" type="always">
-              <div className="space-y-4 pr-4">
-                {menuData.slice(0, 7).map((item, index) => (
-                  <div key={index} className="space-y-2">
-                    {item.items && item.items.length > 0 ? (
-                      <>
-                        <h3 className="font-semibold text-primary">{item.title}</h3>
-                        <div className="pl-4 space-y-2">
-                          {item.items.map((subItem: any, subIndex: number) => (
-                            <div key={subIndex}>
-                              {subItem.items ? (
-                                <div className="space-y-1">
-                                  <h4 className="text-sm font-medium text-muted-foreground">{subItem.title}</h4>
-                                  <div className="pl-3 space-y-1">
-                                    {subItem.items.map((subSubItem: any, subSubIndex: number) => (
-                                      <Link
-                                        key={subSubIndex}
-                                        to={subSubItem.href || "#"}
-                                        className="block text-sm text-muted-foreground hover:text-accent transition-colors"
-                                        onClick={() => setIsMenuOpen(false)}
-                                      >
-                                        {subSubItem.title}
-                                      </Link>
-                                    ))}
-                                  </div>
+          <div className="lg:hidden border-t py-4 max-h-[80vh] overflow-y-auto overscroll-contain touch-pan-y -webkit-overflow-scrolling-touch">
+            <div className="space-y-4 px-2 pb-8">
+              {menuData.slice(0, 7).map((item, index) => (
+                <div key={index} className="space-y-2">
+                  {item.items && item.items.length > 0 ? (
+                    <>
+                      <h3 className="font-semibold text-primary">{item.title}</h3>
+                      <div className="pl-4 space-y-2">
+                        {item.items.map((subItem: any, subIndex: number) => (
+                          <div key={subIndex}>
+                            {subItem.items ? (
+                              <div className="space-y-1">
+                                <h4 className="text-sm font-medium text-muted-foreground">{subItem.title}</h4>
+                                <div className="pl-3 space-y-1">
+                                  {subItem.items.map((subSubItem: any, subSubIndex: number) => (
+                                    <Link
+                                      key={subSubIndex}
+                                      to={subSubItem.href || "#"}
+                                      className="block text-sm text-muted-foreground hover:text-accent transition-colors"
+                                      onClick={() => setIsMenuOpen(false)}
+                                    >
+                                      {subSubItem.title}
+                                    </Link>
+                                  ))}
                                 </div>
-                              ) : (
-                                <Link
-                                  to={subItem.href || "#"}
-                                  className="block text-sm text-muted-foreground hover:text-accent transition-colors"
-                                  onClick={() => setIsMenuOpen(false)}
-                                >
-                                  {subItem.title}
-                                </Link>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      <Link
-                        to={item.href || "#"}
-                        className="block font-semibold text-primary hover:text-accent transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        {item.title}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+                              </div>
+                            ) : (
+                              <Link
+                                to={subItem.href || "#"}
+                                className="block text-sm text-muted-foreground hover:text-accent transition-colors"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                {subItem.title}
+                              </Link>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <Link
+                      to={item.href || "#"}
+                      className="block font-semibold text-primary hover:text-accent transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.title}
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
