@@ -348,6 +348,10 @@ const StudentDashboardV2 = () => {
               <FolderOpen className="h-4 w-4" />
               My Files
             </TabsTrigger>
+            <TabsTrigger value="study-materials" className="flex items-center gap-2">
+              <Video className="h-4 w-4" />
+              Study Materials
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6 space-y-6">
@@ -542,6 +546,10 @@ const StudentDashboardV2 = () => {
 
           <TabsContent value="my-files" className="mt-6">
             <MySharedFiles />
+          </TabsContent>
+
+          <TabsContent value="study-materials" className="mt-6">
+            <StudyMaterialsTab />
           </TabsContent>
         </Tabs>
       </div>
