@@ -294,8 +294,8 @@ const UserEnrollmentEditor: React.FC<UserEnrollmentEditorProps> = ({ userId, use
               Enrolled Course
             </Label>
             <Select 
-              value={studentData.enrolled_course_id} 
-              onValueChange={(v) => setStudentData(prev => ({ ...prev, enrolled_course_id: v }))}
+              value={studentData.enrolled_course_id || 'none'} 
+              onValueChange={(v) => setStudentData(prev => ({ ...prev, enrolled_course_id: v === 'none' ? '' : v }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select a course" />
