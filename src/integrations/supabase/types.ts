@@ -3478,6 +3478,42 @@ export type Database = {
           },
         ]
       }
+      student_courseware: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          file_name: string
+          file_path: string
+          file_type: string
+          id: string
+          is_active: boolean | null
+          student_user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name: string
+          file_path: string
+          file_type?: string
+          id?: string
+          is_active?: boolean | null
+          student_user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          file_name?: string
+          file_path?: string
+          file_type?: string
+          id?: string
+          is_active?: boolean | null
+          student_user_id?: string
+        }
+        Relationships: []
+      }
       student_dashboard_data: {
         Row: {
           assigned_library_books: string[] | null
