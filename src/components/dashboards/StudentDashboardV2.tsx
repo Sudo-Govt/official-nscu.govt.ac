@@ -16,11 +16,12 @@ import FormsSection from '@/components/dashboard/FormsSection';
 import { InternalMessagingApp, InstantChat } from '@/components/messaging';
 import StudentResourcesView from '@/components/student/StudentResourcesView';
 import MySharedFiles from '@/components/student/MySharedFiles';
+import StudyMaterialsTab from '@/components/student/StudyMaterialsTab';
 import { LibraryView } from '@/components/library';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail, HelpCircle, BookMarked, FolderOpen } from 'lucide-react';
+import { Calendar, BookOpen, ClipboardList, Award, GraduationCap, Library, Users, FileText, LayoutDashboard, MessageSquare, MessagesSquare, Mail, HelpCircle, BookMarked, FolderOpen, Video } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentData {
