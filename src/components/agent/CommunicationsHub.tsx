@@ -420,7 +420,7 @@ const ComposeMessageForm = ({ onSuccess }: { onSuccess: () => void }) => {
             <SelectValue placeholder="Select student" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Students</SelectItem>
+            <SelectItem value="all">All Students</SelectItem>
             {applications.map((app) => (
               <SelectItem key={app.id} value={app.id}>
                 {app.first_name} {app.last_name} ({app.application_number})
