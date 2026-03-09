@@ -2150,6 +2150,30 @@ export type Database = {
           },
         ]
       }
+      drive_quotas: {
+        Row: {
+          id: string
+          quota_bytes: number
+          updated_at: string | null
+          used_bytes: number
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          quota_bytes?: number
+          updated_at?: string | null
+          used_bytes?: number
+          user_id: string
+        }
+        Update: {
+          id?: string
+          quota_bytes?: number
+          updated_at?: string | null
+          used_bytes?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       dummy_alumni: {
         Row: {
           bio: string | null
