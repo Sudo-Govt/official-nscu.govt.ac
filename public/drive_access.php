@@ -13,7 +13,7 @@
  */
 
 // ===== CONFIGURATION =====
-define('API_TOKEN', 'YOUR_DRIVE_API_TOKEN_HERE'); // CHANGE THIS to a strong random string
+define('API_TOKEN', 'nscu-drive-x9K4mP7qR2vL8nJ5wB3yT6hF1dA0cE'); // Your API token - keep this secret!
 define('BASE_DIR', __DIR__ . '/storage');
 define('USERS_DIR', BASE_DIR . '/users');
 define('LIBRARY_DIR', BASE_DIR . '/library');
