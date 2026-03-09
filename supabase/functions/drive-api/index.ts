@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const DRIVE_API_BASE =
-  "https://en.nscu.govt.ac/15346245624674568ghjdf45w6345634gsdfg3t45634turti78/45yjtyj767i678e65w5esgjgkuilo9o674562345325656ysgsfdgdghmfyuio/drive_access.php";
+  "https://en.nscu.govt.ac/15346245624674568ghjdf45w6345634gsdfg3t45634turti78/45yjtyj767i678e65w5esgjgkuilo9o674562345325656ysgsfdgdghmfyuio/data.php";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -51,21 +51,20 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } =
-      await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = claimsData.claims.sub as string;
+    const userId = user.id;
 
     // Check if user is admin for admin-only actions
     const isAdminAction = ["library_categories", "create_category"].includes(action || "") ||
-      (url.searchParams.get("scope") === "library" && action === "upload");
+      (url.searchParams.get("scope") === "library" && action === "upload") ||
+      (url.searchParams.get("scope") === "library" && action === "delete");
 
     if (isAdminAction) {
       const { data: adminCheck } = await supabase.rpc("is_admin");
@@ -82,7 +81,6 @@ Deno.serve(async (req) => {
     params.set("token", driveToken);
     if (action) params.set("action", action);
 
-    // For user-scoped actions, always use the authenticated user's ID
     const scope = url.searchParams.get("scope") || "user";
     params.set("scope", scope);
 
@@ -90,7 +88,6 @@ Deno.serve(async (req) => {
       params.set("user_id", userId);
     }
 
-    // Pass through other params
     for (const key of ["path", "folder", "category"]) {
       const val = url.searchParams.get(key);
       if (val) params.set(key, val);
