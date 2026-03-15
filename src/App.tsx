@@ -191,6 +191,10 @@ import CareersPage from "./pages/careers/CareersPage";
 import JobDetailPage from "./pages/careers/JobDetailPage";
 import JobApplicationForm from "./pages/careers/JobApplicationForm";
 
+// Result pages
+import ResultDisplay from "./pages/ResultDisplay";
+import MarksheetDisplay from "./pages/MarksheetDisplay";
+
 // Orphan page imports
 import AlumniDirectory from "./pages/alumni/AlumniDirectory";
 import FitnessCenters from "./pages/campus-life/FitnessCenters";
@@ -433,6 +437,10 @@ const App = () => (
           {/* Dynamic CMS Pages - catches any slug not matched above */}
           <Route path="/page/:slug" element={<DynamicPage />} />
           
+          {/* Result Verification Routes */}
+          <Route path="/result/:resultId" element={<ResultDisplay />} />
+          <Route path="/marksheet/:resultId" element={<MarksheetDisplay />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

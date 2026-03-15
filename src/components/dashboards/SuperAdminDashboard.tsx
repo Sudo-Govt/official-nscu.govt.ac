@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar, MonitorCog, Eye
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar, MonitorCog, Eye, Award
 } from 'lucide-react';
 import PerspectiveSelector from '@/components/admin/PerspectiveSelector';
 import AlumniManagement from '@/components/admin/AlumniManagement';
@@ -43,6 +43,7 @@ import {
   CourseContentGenerator,
   BulkContentGenerator
 } from '@/components/admin/academic';
+import StudentResultManagement from '@/components/admin/StudentResultManagement';
 
 const SuperAdminDashboard = () => {
   const { user } = useAuth();
@@ -146,6 +147,7 @@ const SuperAdminDashboard = () => {
         { title: 'Courses', icon: Layers, value: 'academic-courses', onClick: () => setActiveTab('academic-courses') },
         { title: 'Library', icon: Library, value: 'library', onClick: () => setActiveTab('library') },
         { title: 'Enrolled Students', icon: GraduationCap, value: 'enrolled-students', onClick: () => setActiveTab('enrolled-students') },
+        { title: 'Online Results', icon: Award, value: 'online-results', onClick: () => setActiveTab('online-results') },
         { title: 'Bulk Upload', icon: FileText, value: 'bulk-upload', onClick: () => setActiveTab('bulk-upload') },
         { title: 'Mega Uploader', icon: FileText, value: 'mega-uploader', onClick: () => setActiveTab('mega-uploader') },
         { title: 'AI Curriculum Generator', icon: BookOpen, value: 'abet-generator', onClick: () => setActiveTab('abet-generator') },
@@ -423,6 +425,9 @@ const SuperAdminDashboard = () => {
 
       case 'enrolled-students':
         return <AcademicStudentManagement />;
+
+      case 'online-results':
+        return <StudentResultManagement />;
 
       case 'bulk-upload':
         return <BulkUploadManager />;

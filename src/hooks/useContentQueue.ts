@@ -56,7 +56,7 @@
     const queueStatusRef = useRef<'idle' | 'running' | 'paused'>('idle');
     const isProcessingRef = useRef(false);
 
-    const processingInterval = useRef<NodeJS.Timeout | null>(null);
+    const processingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
     const channelRef = useRef<RealtimeChannel | null>(null);
     const PROCESSING_INTERVAL_MS = 10000; // 10 seconds for faster processing
 
