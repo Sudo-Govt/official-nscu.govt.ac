@@ -147,6 +147,7 @@ const SuperAdminDashboard = () => {
         { title: 'Courses', icon: Layers, value: 'academic-courses', onClick: () => setActiveTab('academic-courses') },
         { title: 'Library', icon: Library, value: 'library', onClick: () => setActiveTab('library') },
         { title: 'Enrolled Students', icon: GraduationCap, value: 'enrolled-students', onClick: () => setActiveTab('enrolled-students') },
+        { title: 'Online Results', icon: Award, value: 'online-results', onClick: () => setActiveTab('online-results') },
         { title: 'Bulk Upload', icon: FileText, value: 'bulk-upload', onClick: () => setActiveTab('bulk-upload') },
         { title: 'Mega Uploader', icon: FileText, value: 'mega-uploader', onClick: () => setActiveTab('mega-uploader') },
         { title: 'AI Curriculum Generator', icon: BookOpen, value: 'abet-generator', onClick: () => setActiveTab('abet-generator') },
