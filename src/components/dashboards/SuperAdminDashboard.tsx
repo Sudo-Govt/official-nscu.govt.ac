@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Shield, Users, DollarSign, AlertTriangle, Activity, 
   Settings, Database, Lock, Unlock, Key, FileText,
-  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar, MonitorCog, Eye
+  LayoutDashboard, BookOpen, GraduationCap, ClipboardCheck, Globe, Briefcase, ClipboardList, MessageSquare, FolderOpen, Mail, UserCheck, UserCog, Heart, Building2, Layers, Library, Zap, Calendar, MonitorCog, Eye, Award
 } from 'lucide-react';
 import PerspectiveSelector from '@/components/admin/PerspectiveSelector';
 import AlumniManagement from '@/components/admin/AlumniManagement';
