@@ -426,6 +426,9 @@ const SuperAdminDashboard = () => {
       case 'enrolled-students':
         return <AcademicStudentManagement />;
 
+      case 'online-results':
+        return <StudentResultManagement />;
+
       case 'bulk-upload':
         return <BulkUploadManager />;
 
