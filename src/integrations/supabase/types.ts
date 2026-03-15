@@ -3281,6 +3281,38 @@ export type Database = {
         }
         Relationships: []
       }
+      qr_codes: {
+        Row: {
+          created_at: string | null
+          id: string
+          qr_data: Json | null
+          qr_url: string
+          student_result_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          qr_data?: Json | null
+          qr_url: string
+          student_result_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          qr_data?: Json | null
+          qr_url?: string
+          student_result_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_student_result_id_fkey"
+            columns: ["student_result_id"]
+            isOneToOne: false
+            referencedRelation: "student_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_permissions: {
         Row: {
           created_at: string | null
@@ -3870,6 +3902,72 @@ export type Database = {
           target_type?: string
           target_user_ids?: string[] | null
           title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      student_results: {
+        Row: {
+          certificate_hash: string | null
+          certificate_id: string | null
+          created_at: string | null
+          enrollment_number: string
+          examination: string
+          grade_level: string | null
+          id: string
+          marksheet_data_snapshot: Json | null
+          marksheet_generated_at: string | null
+          marksheet_html: string | null
+          percentage: string | null
+          portfolio_secret: string | null
+          result_html: string | null
+          result_url: string | null
+          school_name: string | null
+          session: string
+          student_name: string
+          total_marks: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          certificate_hash?: string | null
+          certificate_id?: string | null
+          created_at?: string | null
+          enrollment_number: string
+          examination: string
+          grade_level?: string | null
+          id?: string
+          marksheet_data_snapshot?: Json | null
+          marksheet_generated_at?: string | null
+          marksheet_html?: string | null
+          percentage?: string | null
+          portfolio_secret?: string | null
+          result_html?: string | null
+          result_url?: string | null
+          school_name?: string | null
+          session: string
+          student_name: string
+          total_marks?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          certificate_hash?: string | null
+          certificate_id?: string | null
+          created_at?: string | null
+          enrollment_number?: string
+          examination?: string
+          grade_level?: string | null
+          id?: string
+          marksheet_data_snapshot?: Json | null
+          marksheet_generated_at?: string | null
+          marksheet_html?: string | null
+          percentage?: string | null
+          portfolio_secret?: string | null
+          result_html?: string | null
+          result_url?: string | null
+          school_name?: string | null
+          session?: string
+          student_name?: string
+          total_marks?: string | null
           updated_at?: string | null
         }
         Relationships: []
