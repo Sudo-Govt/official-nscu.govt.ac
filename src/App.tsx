@@ -437,6 +437,10 @@ const App = () => (
           {/* Dynamic CMS Pages - catches any slug not matched above */}
           <Route path="/page/:slug" element={<DynamicPage />} />
           
+          {/* Result Verification Routes */}
+          <Route path="/result/:resultId" element={<ResultDisplay />} />
+          <Route path="/marksheet/:resultId" element={<MarksheetDisplay />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
