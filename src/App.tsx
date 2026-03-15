@@ -191,6 +191,10 @@ import CareersPage from "./pages/careers/CareersPage";
 import JobDetailPage from "./pages/careers/JobDetailPage";
 import JobApplicationForm from "./pages/careers/JobApplicationForm";
 
+// Result pages
+import ResultDisplay from "./pages/ResultDisplay";
+import MarksheetDisplay from "./pages/MarksheetDisplay";
+
 // Orphan page imports
 import AlumniDirectory from "./pages/alumni/AlumniDirectory";
 import FitnessCenters from "./pages/campus-life/FitnessCenters";
