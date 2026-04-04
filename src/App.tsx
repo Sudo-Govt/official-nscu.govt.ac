@@ -441,6 +441,7 @@ const App = () => (
           {/* Result Verification Routes */}
           <Route path="/result/:resultId" element={<ResultDisplay />} />
           <Route path="/marksheet/:resultId" element={<MarksheetDisplay />} />
+          <Route path="/book/what-school-never-taught-you" element={<BookDownload />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
