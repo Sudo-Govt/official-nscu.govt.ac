@@ -154,6 +154,7 @@ const SuperAdminDashboard = () => {
         { title: 'AI Curriculum Generator', icon: BookOpen, value: 'abet-generator', onClick: () => setActiveTab('abet-generator') },
         { title: 'AI Content Generator', icon: BookOpen, value: 'course-content-generator', onClick: () => setActiveTab('course-content-generator') },
         { title: 'Bulk AI Generator', icon: Zap, value: 'bulk-content-generator', onClick: () => setActiveTab('bulk-content-generator') },
+        { title: 'Book Downloads', icon: BookOpen, value: 'book-downloads', onClick: () => setActiveTab('book-downloads') },
       ]
     },
     {
