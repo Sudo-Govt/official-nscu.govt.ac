@@ -168,7 +168,7 @@ const BookDownload = () => {
               </div>
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                 ))}
                 <span className="text-sm text-muted-foreground ml-2">"Changed how I think about my career path."</span>
               </div>
