@@ -446,6 +446,9 @@ const SuperAdminDashboard = () => {
       case 'bulk-content-generator':
         return <BulkContentGenerator />;
 
+      case 'book-downloads':
+        return <BookDownloadsManager />;
+
       default:
         return null;
     }
