@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Download, BookOpen, FileText, Quote, Star, Users, ChevronDown } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+const BASE_COUNT = 12458;
+const DAILY_INCREMENT = 50;
+const LAUNCH_DATE = new Date('2026-04-04');
 
 const chapters = [
   { num: '01', title: 'Decision Theory & Probabilistic Thinking' },
@@ -26,13 +35,51 @@ const chapters = [
 ];
 
 const BookDownload = () => {
-  const [downloadCount] = useState(427);
+  const [showDialog, setShowDialog] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = '/books/what-school-never-taught-you.pdf';
-    link.download = 'What-School-Never-Taught-You-Bhramar-Goswami-NSCU.pdf';
-    link.click();
+  const downloadCount = useMemo(() => {
+    const now = new Date();
+    const daysSinceLaunch = Math.max(0, Math.floor((now.getTime() - LAUNCH_DATE.getTime()) / (1000 * 60 * 60 * 24)));
+    return BASE_COUNT + daysSinceLaunch * DAILY_INCREMENT;
+  }, []);
+
+  const handleDownloadClick = () => {
+    setShowDialog(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim()) {
+      toast.error('Please enter both name and email.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from('book_downloads').insert({
+        name: name.trim(),
+        email: email.trim(),
+        book_slug: 'what-school-never-taught-you',
+      });
+      if (error) throw error;
+
+      // Trigger download
+      const link = document.createElement('a');
+      link.href = '/books/what-school-never-taught-you.pdf';
+      link.download = 'What-School-Never-Taught-You-Bhramar-Goswami-NSCU.pdf';
+      link.click();
+
+      toast.success('Your download has started!');
+      setShowDialog(false);
+      setName('');
+      setEmail('');
+    } catch {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -74,9 +121,8 @@ const BookDownload = () => {
                 <span>23 Chapters</span>
               </div>
 
-              {/* Main Download Button */}
               <Button
-                onClick={handleDownload}
+                onClick={handleDownloadClick}
                 size="lg"
                 className="bg-white text-[hsl(var(--primary))] hover:bg-white/90 text-lg px-10 py-6 rounded-xl shadow-2xl shadow-black/20 font-semibold gap-3 transition-all hover:scale-105"
               >
@@ -87,7 +133,7 @@ const BookDownload = () => {
               <div className="mt-4 flex items-center justify-center gap-3 text-sm text-white/50">
                 <span>PDF · 1.7 MB</span>
                 <span className="text-white/30">·</span>
-                <span>No signup required</span>
+                <span>Free — just enter your name & email</span>
               </div>
 
               <ChevronDown className="w-6 h-6 text-white/30 mx-auto mt-10 animate-bounce" />
@@ -95,8 +141,17 @@ const BookDownload = () => {
           </div>
         </section>
 
+        {/* Download Counter */}
+        <section className="py-6 bg-primary/5 border-y border-border">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-lg font-semibold text-foreground">
+              📥 <span className="text-primary">{downloadCount.toLocaleString()}</span> copies downloaded so far
+            </p>
+          </div>
+        </section>
+
         {/* Hook Line */}
-        <section className="py-12 bg-muted/30 border-y border-border">
+        <section className="py-12 bg-muted/30">
           <div className="container mx-auto px-4 text-center">
             <p className="text-2xl md:text-3xl font-serif italic text-foreground/80 max-w-2xl mx-auto">
               "The operating manual your degree never included."
@@ -164,7 +219,7 @@ const BookDownload = () => {
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
               <div className="flex items-center gap-2 text-foreground/70">
                 <Users className="w-5 h-5 text-primary/60" />
-                <span className="text-sm font-medium">Downloaded by {downloadCount}+ NSCU students</span>
+                <span className="text-sm font-medium">Downloaded by {downloadCount.toLocaleString()}+ readers worldwide</span>
               </div>
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
@@ -185,7 +240,7 @@ const BookDownload = () => {
             </p>
 
             <Button
-              onClick={handleDownload}
+              onClick={handleDownloadClick}
               size="lg"
               className="text-lg px-10 py-6 rounded-xl shadow-lg font-semibold gap-3 transition-all hover:scale-105"
             >
@@ -200,6 +255,33 @@ const BookDownload = () => {
         </section>
       </main>
       <Footer />
+
+      {/* Download Gate Dialog */}
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Almost there!</DialogTitle>
+            <DialogDescription>
+              Enter your name and email to start the download instantly.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label htmlFor="dl-name">Full Name</Label>
+              <Input id="dl-name" placeholder="e.g. Ravi Sharma" value={name} onChange={(e) => setName(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dl-email">Email Address</Label>
+              <Input id="dl-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </div>
+            <Button type="submit" className="w-full gap-2" size="lg" disabled={submitting}>
+              <Download className="w-4 h-4" />
+              {submitting ? 'Starting download…' : 'Download Now'}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">We respect your privacy. No spam, ever.</p>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1463,6 +1463,30 @@ export type Database = {
         }
         Relationships: []
       }
+      book_downloads: {
+        Row: {
+          book_slug: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+        }
+        Insert: {
+          book_slug?: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+        }
+        Update: {
+          book_slug?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       channel_messages: {
         Row: {
           channel_id: string | null
