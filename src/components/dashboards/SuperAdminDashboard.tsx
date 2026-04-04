@@ -44,6 +44,7 @@ import {
   BulkContentGenerator
 } from '@/components/admin/academic';
 import StudentResultManagement from '@/components/admin/StudentResultManagement';
+import BookDownloadsManager from '@/components/admin/BookDownloadsManager';
 
 const SuperAdminDashboard = () => {
   const { user } = useAuth();
